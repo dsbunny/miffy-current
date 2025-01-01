@@ -1,0 +1,40 @@
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Extend the CssPlayListElement to support WebGL rendering.
+
+import { LitElement, css, html } from 'lit';
+import { customElement, property, query } from 'lit/decorators.js';
+import { Renderer } from '../lib/renderer.js';
+import { WebGLRenderer } from '../lib/webgl-renderer.js';
+import CssPlaylistElement from './css-play-list.js';
+
+// Convenience configuration to disable HiDPI rendering, which can be slow on
+// some platforms, or produce artifacts on low resolution content.
+const DEBUG_DISABLE_HIDPI = false;
+
+@customElement('webgl-play-list')
+export default class WebGLPlaylistElement extends CssPlaylistElement {
+
+	// Override the renderer to use WebGL.
+	protected override _createRenderer(): Renderer {
+		if(this._section === null) {
+			throw new Error("cannot find <section> element to attach to.");
+		}
+		if(this._main === null) {
+			throw new Error("cannot find <main> element to attach to.");
+		}
+
+		const renderer = new WebGLRenderer();
+		renderer.init();
+
+		this._connectSchedulerToRenderer(this._scheduler, renderer);
+		this._connectRaftCluster(this._scheduler, renderer);
+
+		renderer.setAssetTarget(this._section);
+		renderer.setRenderTarget(this._main);
+
+		// Override for performance testing.
+		renderer.setPixelRatio(DEBUG_DISABLE_HIDPI ? 1 : window.devicePixelRatio);
+
+		return renderer;
+	}
+}

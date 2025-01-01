@@ -1,0 +1,17 @@
+{
+  "extends": "../../common-tsconfig.json",
+  "compilerOptions": {
+    "lib": ["esnext", "WebWorker"],
+    "types": []
+  },
+  "include": [
+    "*.ts",
+    "../lib/occurency.ts",
+    "../lib/scheduler.ts",
+    "../lib/*-scheduler.ts",
+    "../lib/media.ts",
+    "../lib/prefetch.ts",
+    "../../third-party/rrule/**/*.ts",
+    "../../third-party/@msgpack/msgpack/src/**/*.ts"
+  ]
+}

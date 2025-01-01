@@ -1,0 +1,15 @@
+{
+  "extends": "../../common-tsconfig.json",
+  "compilerOptions": {
+    "lib": ["esnext", "DOM", "DOM.Iterable"]
+  },
+  "include": [
+    "*.ts",
+    "../lib/*.ts"
+  ],
+  "references": [
+    {
+      "path": "../workers"
+    }
+  ]
+}

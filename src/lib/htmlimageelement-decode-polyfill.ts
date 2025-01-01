@@ -1,0 +1,38 @@
+window.HTMLImageElement.prototype.decode =
+	window.HTMLImageElement.prototype.decode ||
+	function(this: HTMLImageElement) {
+		// If the image is already loaded, return a resolved promise.
+		if(this.complete) {
+			return Promise.resolve();
+		}
+		let timeout: ReturnType<typeof setTimeout> | undefined;
+		const promise = new Promise<string | Event>((resolve, reject) => {
+			this.onload = (event: string | Event) => {
+				if(typeof timeout === "undefined") {
+					return;
+				}
+				clearTimeout(timeout);
+				timeout = undefined;
+				resolve(event);
+			};
+			this.onerror = (event: string | Event) => {
+				if(typeof timeout === "undefined") {
+					return;
+				}
+				clearTimeout(timeout);
+				timeout = undefined;
+				reject(event);
+			};
+		});
+		// Reject the promise if the image fails to load or reasonable
+		// time has passed.
+		timeout = setTimeout(() => {
+			if(typeof timeout === "undefined") {
+				return;
+			}
+			if(this.onerror) {
+				this.onerror("timeout");
+			}
+		}, 10000);
+		return promise;
+	};

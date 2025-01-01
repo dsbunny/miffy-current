@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "pretty": true,
+    "baseUrl": "./",
+    "target": "esnext",
+    "module": "esnext",
+    "declaration": true,
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "outDir": "./build",
+    "rootDir": "./",
+    "strict": true,
+    "noUnusedLocals": false    ,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "useDefineForClassFields": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "composite": true,
+    "plugins": [
+      {
+        "name": "ts-lit-plugin",
+        "strict": true
+      }
+    ],
+    "paths": {
+      "*": [
+        "./third-party/*"
+      ],
+      "three/addons/*": [
+        "./node_modules/@types/three/examples/jsm/*"
+      ]
+    }
+  }
+}
