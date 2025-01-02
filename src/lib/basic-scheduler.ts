@@ -5,22 +5,21 @@ import 'subworkers';
 import 'finally-polyfill';
 import * as Comlink from 'comlink';
 import {
+	DateTime,
+	Duration,
+	DurationLike,
+	Interval,
+} from 'luxon';
+import * as jsonref from 'jsonref';
+import EventTarget from '@ungap/event-target';
+import { RecipeSchema } from '@dsbunny/publisher-schema';
+import {
 	Constants,
 	Scheduler,
 	SchedulerState,
 	EventSeriesSummary,
 	MediaListSummary,
 } from '../lib/scheduler.js';
-import {
-	DateTime,
-	Duration,
-	DurationLike,
-	Interval,
-} from 'luxon';
-//import { DateTime, Duration, Interval } from '../../external/node_modules/luxon/build/es6/luxon.js';
-import * as jsonref from 'jsonref';
-//import * as jsonref from '../../external/node_modules/jsonref/dist/index.js';
-import EventTarget from '@ungap/event-target';
 import {
 	AssetDecl,
 	HashDecl,
@@ -38,7 +37,12 @@ const MAX_DURATION = Duration.fromMillis(8.64e15);
 // The base meta-data for scheduled events.
 export class ScheduleItem {
 	// eventSeries: id of the scheduled event.
-	constructor(public readonly eventSeries: string, public readonly decl: MediaDecl, public readonly start_offset: Duration, public readonly end_offset: Duration) {}
+	constructor(
+		public readonly eventSeries: string,
+		public readonly decl: MediaDecl,
+		public readonly start_offset: Duration,
+		public readonly end_offset: Duration,
+	) {}
 	get shortEventSeries() { return this.eventSeries.substring(0, 7); }
 	get id() { return this.decl.id; }
 	get shortId() { return this.decl.id.substring(0, 7); }
@@ -49,7 +53,10 @@ export class ScheduleItem {
 export class ScheduleItemView {
 	protected _start_time: DateTime;
 	protected _end_time: DateTime;
-	constructor(protected readonly schedule_item: ScheduleItem, playlist_start: DateTime) {
+	constructor(
+		protected readonly schedule_item: ScheduleItem,
+		playlist_start: DateTime,
+	) {
 		this._start_time = playlist_start.plus(schedule_item.start_offset);
 		this._end_time = playlist_start.plus(schedule_item.end_offset);
 	}
@@ -63,6 +70,7 @@ export class ScheduleItemView {
 	get decl() { return this.schedule_item.decl; }
 	get start_offset() { return this.schedule_item.start_offset; }
 	get end_offset() { return this.schedule_item.end_offset; }
+
 	protected _remainingTime(datetime: DateTime): number | string {
 		if(this._end_time.equals(MAX_DATE)) {
 			return "Infinity";
@@ -70,6 +78,7 @@ export class ScheduleItemView {
 		const interval = Interval.fromDateTimes(datetime, this._end_time);
 		return interval.length('milliseconds');
 	}
+
 	summary(datetime: DateTime) {
 		if(datetime <= this._end_time) {
 			return {
@@ -139,7 +148,11 @@ export class CalendarSchedule {
 	protected _onceListener: any;
 	protected _enableListener: any;
 	protected _disableListener: any;
-	constructor(readonly decl: any, lowWatermark: DurationLike, highWatermark: DurationLike) {
+	constructor(
+		readonly decl: RecipeSchema.Event,
+		lowWatermark: DurationLike,
+		highWatermark: DurationLike,
+	) {
 		this._worker = this._workerFactory();
 		this._calendar = Comlink.wrap<CalendarWorker>(this._worker);
 		this._lowWatermark = Duration.fromDurationLike(lowWatermark);
@@ -147,7 +160,7 @@ export class CalendarSchedule {
 		this._isOnce = this.decl.hasOwnProperty('onceOn');
 		this._isToggle = this.decl.hasOwnProperty('enableOn') && this.decl.hasOwnProperty('disableOn');
 		if(this._isOnce) {
-			const match: EventMatch = this.decl.onceOn.match;
+			const match: EventMatch = this.decl.onceOn!.match;
 			console.log(`${this.shortId}: once schedule: ${JSON.stringify(match)}`);
 			this._onceListener = (event: any) => {
 				console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
@@ -160,17 +173,16 @@ export class CalendarSchedule {
 						console.log('no prop');
 						continue;
 					}
-					if(event.detail[prop] === match[prop])
-					{
+					if(event.detail[prop] === match[prop]) {
 						const datetime = DateTime.now();
 						this._activate(datetime);
 					}
 				}
 			};
-			self.addEventListener(this.decl.onceOn.type, this._onceListener);
+			self.addEventListener(this.decl.onceOn!.type, this._onceListener);
 		} else if(this._isToggle) {
-			const matchOn: EventMatch = this.decl.enableOn.match;
-			const matchOff: EventMatch = this.decl.disableOn.match;
+			const matchOn: EventMatch = this.decl.enableOn!.match;
+			const matchOff: EventMatch = this.decl.disableOn!.match;
 			console.log(`${this.shortId}: toggle schedule: ${JSON.stringify(matchOn)}, ${JSON.stringify(matchOff)}`);
 			this._enableListener = (event: any) => {
 				console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
@@ -183,8 +195,7 @@ export class CalendarSchedule {
 						console.log('no prop');
 						continue;
 					}
-					if(event.detail[prop] === matchOn[prop])
-					{
+					if(event.detail[prop] === matchOn[prop]) {
 						const datetime = DateTime.now();
 						this._activate(datetime);
 					}
@@ -201,15 +212,14 @@ export class CalendarSchedule {
 						console.log('no prop');
 						continue;
 					}
-					if(event.detail[prop] === matchOff[prop])
-					{
+					if(event.detail[prop] === matchOff[prop]) {
 						const datetime = DateTime.now();
 						this._deactivate(datetime);
 					}
 				}
 			};
-			self.addEventListener(this.decl.enableOn.type, this._enableListener);
-			self.addEventListener(this.decl.disableOn.type, this._disableListener);
+			self.addEventListener(this.decl.enableOn!.type, this._enableListener);
+			self.addEventListener(this.decl.disableOn!.type, this._disableListener);
 		}
 		this._isActivated = !this._isDynamic;
 	}
@@ -230,7 +240,9 @@ export class CalendarSchedule {
 		});
 	}
 
-	protected async _activate(datetime: DateTime) {
+	protected async _activate(
+		datetime: DateTime,
+	) {
 		console.log(`${this.shortId}: _activate(${datetime.toISO()})`);
 		await this._calendar.parseSchedule(
 			this.id,
@@ -242,7 +254,9 @@ export class CalendarSchedule {
 		this._isActivated = true;
 	}
 
-	protected _deactivate(datetime: DateTime) {
+	protected _deactivate(
+		datetime: DateTime,
+	) {
 		console.log(`${this.shortId}: _deactivate(${datetime.toISO()})`);
 		this._isActivated = false;
 	}
@@ -250,14 +264,17 @@ export class CalendarSchedule {
 	get id() { return this.decl.id; }
 	get shortId() { return this.id.substring(0, 7); }
 
-	set isReady(isReady: boolean) {
+	set isReady(
+		isReady: boolean,
+	) {
 		console.log(`${this.shortId}: isReady(${isReady})`);
 		this._isReady = isReady;
 	}
 	get isReady() { return this._isReady; }
 	get isActive() { return this._isReady && this._isActivated; }
 
-	get entries() {	return this.decl.playlist.entries; }
+	// Forced re-interpretation of Recipe schema to wider type.
+	get entries() { return this.decl.playlist.entries as MediaDecl[]; }
 	get sources(): AssetDecl[] {
 		const hrefs = new Set<AssetDecl>();
 		for(const decl of this.entries) {
@@ -272,7 +289,9 @@ export class CalendarSchedule {
 				md5: decl.md5,
 			});
 			// Dependent assets.
-			if('sources' in decl) {
+			if('sources' in decl
+				&& Array.isArray(decl.sources))
+			{
 				for(const asset of decl.sources) {
 					hrefs.add(asset);
 				}
@@ -281,7 +300,9 @@ export class CalendarSchedule {
 		return Array.from(hrefs.values());
 	}
 
-	summary(datetime: DateTime): EventSeriesSummary {
+	summary(
+		datetime: DateTime,
+	): EventSeriesSummary {
 		let pct = 0;
 		if(typeof this.tail !== "undefined") {
 			const tail = this.tail.end.toISO();
@@ -298,7 +319,9 @@ export class CalendarSchedule {
 		};
 	}
 
-	async parseSchedule(decl: any): Promise<void> {
+	async parseSchedule(
+		decl: RecipeSchema.Event,
+	): Promise<void> {
 		console.log(`${this.shortId}: parseSchedule`);
 		if(this._isDynamic) {
 			return;
@@ -306,23 +329,32 @@ export class CalendarSchedule {
 		await this._calendar.parseSchedule(this.id, decl);
 	}
 
-	protected async _getEvents(startTime: DateTime, endTime: DateTime): Promise<CalendarEvent<any>[]> {
+	protected async _getEvents(
+		startTime: DateTime,
+		endTime: DateTime,
+	): Promise<CalendarEvent<any>[]> {
 //		console.log(`${this.shortId}: getEvents ${startTime.toISO()} -> ${endTime.toISO()}.`);
 		return await this._calendar.getEvents(startTime, endTime);
 	}
 
-	setLowWatermark(durationLike: any) {
+	setLowWatermark(
+		durationLike: DurationLike,
+	) {
 		console.log(`${this.shortId}: setLowWatermark(${JSON.stringify(durationLike)})`);
 		this._lowWatermark = Duration.fromDurationLike(durationLike);
 	}
 
-	setHighWatermark(durationLike: any) {
+	setHighWatermark(
+		durationLike: DurationLike,
+	) {
 		console.log(`${this.shortId}: setHighWatermark(${JSON.stringify(durationLike)})`);
 		this._highWatermark = Duration.fromDurationLike(durationLike);
 	}
 
 	// Fill to high watermark when breaking low.
-	async pull(datetime: DateTime): Promise<boolean> {
+	async pull(
+		datetime: DateTime,
+	): Promise<boolean> {
 //		console.log(`${this.shortId}: pull(${datetime.toISO()})`);
 		if(!this._isActivated) {
 			return false;
@@ -339,7 +371,9 @@ export class CalendarSchedule {
 		return true;
 	}
 
-	prefetch(datetime: DateTime) {
+	prefetch(
+		datetime: DateTime,
+	) {
 		const headTime = typeof this.head === "undefined" ? datetime : this.head.start;
 		const tailTime = typeof this.tail === "undefined" ? datetime : this.tail.end;
 		const endTime = headTime.plus(this._highWatermark).plus(this._lowWatermark);
@@ -352,7 +386,9 @@ export class CalendarSchedule {
 	}
 
 	// Destructive to queue.
-	getCalendarEvent(datetime: DateTime): CalendarEvent<any> | null {
+	getCalendarEvent(
+		datetime: DateTime,
+	): CalendarEvent<any> | null {
 //		console.log(`${this.shortId}: getCalendarEvent(${datetime.toISO()})`);
 		if(!this.isActive) {
 			return null;
@@ -385,7 +421,9 @@ export class CalendarSchedule {
 		return this.head;
 	}
 
-	peekCalendarEvent(datetime: DateTime): CalendarEvent<any> | null {
+	peekCalendarEvent(
+		datetime: DateTime,
+	): CalendarEvent<any> | null {
 //		console.log(`${this.shortId}: peekCalendarEvent(${datetime.toISO()})`);
 		if(!this.isActive) {
 			return null;
@@ -418,7 +456,9 @@ export class CalendarSchedule {
 	get head() { return this.isEmpty ? undefined : this._queue[0]; }
 	get tail() { return this.isEmpty ? undefined : this._queue[this._queue.length - 1]; }
 
-	protected _aboveLowWatermark(datetime: DateTime): boolean {
+	protected _aboveLowWatermark(
+		datetime: DateTime,
+	): boolean {
 //		console.log(`aboveLowWatermark(${datetime.toISO()})`);
 		if(typeof this.tail === "undefined") {
 			return false;
@@ -430,13 +470,13 @@ export class CalendarSchedule {
 
 	close() {
 		if(typeof this._onceListener !== "undefined") {
-			self.removeEventListener(this.decl.onceOn.type, this._onceListener);
+			self.removeEventListener(this.decl.onceOn!.type, this._onceListener);
 		}
 		if(typeof this._enableListener !== "undefined") {
-			self.removeEventListener(this.decl.enableOn.type, this._enableListener);
+			self.removeEventListener(this.decl.enableOn!.type, this._enableListener);
 		}
 		if(typeof this._disableListener !== "undefined") {
-			self.removeEventListener(this.decl.disableOn.type, this._disableListener);
+			self.removeEventListener(this.decl.disableOn!.type, this._disableListener);
 		}
 		this._calendar[Comlink.releaseProxy]();
 		this._worker.terminate();
@@ -506,7 +546,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	get debugInTransition() { return this._inTransition; }
 
 	protected _schedulerFactory(
-		decl: any,
+		decl: RecipeSchema.Event,
 		lowWatermark: DurationLike,
 		highWatermark: DurationLike,
 	): CalendarSchedule {
@@ -579,7 +619,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				this._networkState = Constants.NETWORK_LOADING;
 				const schedule = await this._fetch(this.src);
 				this._networkState = Constants.NETWORK_IDLE;
-				await this._parseSchedule(schedule);
+				await this._parseRecipe(schedule);
 				this._readyState = Constants.HAVE_FUTURE_DATA;
 				this.dispatchEvent(new Event('loadedmetadata'));
 				this.dispatchEvent(new Event('loadeddata'));
@@ -633,7 +673,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		this.dispatchEvent(new Event('playing'));
 	}
 
-	update(datetime: DateTime): void {
+	update(
+		datetime: DateTime,
+	): void {
 //		console.log("BASIC-SCHEDULER: update", datetime.toISO());
 		if(this.paused) {
 			return;
@@ -725,7 +767,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 //		console.info(this.state(datetime));
 	}
 
-	protected _onTransitionStart(datetime: DateTime) {
+	protected _onTransitionStart(
+		datetime: DateTime,
+	) {
 		console.debug(`BASIC-SCHEDULER: _onTransitionStart(${datetime.toISO()})`);
 		if(this._media_current === null) {
 			throw new Error("current is null.");
@@ -746,7 +790,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		console.debug(`BASIC-SCHEDULER: Transition end: ${this._transitionEndTime.toISO()}`);
 	}
 
-	protected _updateTransition(datetime: DateTime): void {
+	protected _updateTransition(
+		datetime: DateTime,
+	): void {
 //		console.log("BASIC-SCHEDULER: _updateTransition");
 		const interval = Interval.fromDateTimes(this._transitionStartTime, datetime);
 		const elapsed = interval.length('seconds');
@@ -760,7 +806,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		}
 	}
 
-	protected _onTransitionEnded(datetime: DateTime) {
+	protected _onTransitionEnded(
+		datetime: DateTime,
+	) {
 		console.debug(`BASIC-SCHEDULER: _onTransitionEnded(${datetime.toISO()}`);
 		this._inTransition = false;
 		this._transitionFrom = null;
@@ -780,7 +828,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		this.dispatchEvent(new Event('playing'));
 	}
 
-	state(datetime: DateTime): SchedulerState {
+	state(
+		datetime: DateTime,
+	): SchedulerState {
 		const eventSeries = this._calendar_schedules.map(calendar =>
 			calendar.summary(datetime));
 		const mediaList: MediaListSummary[] = this._active_media_assets.map(asset => {
@@ -818,7 +868,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		};
 	}
 
-	protected _onLoadedMetadata(_event: Event): void {
+	protected _onLoadedMetadata(
+		_event: Event,
+	): void {
 		(async () => {
 			console.groupCollapsed("BASIC-SCHEDULER: _onLoadedMetadata");
 			this._media_list_current = this._getMediaListContains(this._currentTime);
@@ -845,7 +897,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		})();
 	}
 
-	protected async _fetch(url: string): Promise<any> {
+	protected async _fetch(
+		url: string,
+	): Promise<any> {
 		console.log("BASIC-SCHEDULER: _fetch", url);
 		const response = await fetch(url);
 		const referenced = await response.json();
@@ -988,14 +1042,19 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 
 	// Duration of one iteration of content inside the media list,
 	// as opposed to the window of playback.
-	protected _calculateMediaListIterationDuration(calendar_event: CalendarEvent<any>): number {
+	protected _calculateMediaListIterationDuration(
+		calendar_event: CalendarEvent<any>,
+	): number {
 		return calendar_event.data.entries.reduce(
 			(accumulator: number, currentValue: any) => accumulator + currentValue.duration,
 			0
 		);
 	}
 
-	protected _calculateMediaListStart(datetime: DateTime, duration: Duration): DateTime {
+	protected _calculateMediaListStart(
+		datetime: DateTime,
+		duration: Duration,
+	): DateTime {
 		const start_time = datetime.minus({
 			milliseconds: datetime.toMillis() % duration.toMillis(),
 		});
@@ -1004,7 +1063,10 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	}
 
 	// ScheduleItemView must be in respect to the media list boundary.
-	protected _seekMediaList(datetime: DateTime, calendar_event: CalendarEvent<any>): ScheduleItemView | null {
+	protected _seekMediaList(
+		datetime: DateTime,
+		calendar_event: CalendarEvent<any>,
+	): ScheduleItemView | null {
 //		console.log("BASIC-SCHEDULER: _seekMediaList", datetime.toISO());
 		if(calendar_event.data.entries.length === 0) {
 			return null;
@@ -1029,7 +1091,10 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		return null;
 	}
 
-	protected _add(eventSeries: string, decl: MediaDecl): void {
+	protected _add(
+		eventSeries: string,
+		decl: MediaDecl,
+	): void {
 //		console.log("BASIC-SCHEDULER: _add", decl.toString());
 		const start_offset = this._media_list_duration;
 		const end_offset = start_offset.plus({ seconds: decl.duration });
@@ -1043,7 +1108,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 //		return pos !== -1;
 //	}
 
-	protected _remove(id: string): void {
+	protected _remove(
+		id: string,
+	): void {
 //		console.log("BASIC-SCHEDULER: _remove", id);
 		const pos = this._active_media_assets.findIndex(x => x.decl.id === id);
 		const media_asset = this._active_media_assets[pos];
@@ -1051,21 +1118,30 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		this._active_media_assets.splice(pos, 1);
 	}
 
-	protected _join: ((decl: object) => Promise<void>) | undefined;
+	protected _join: ((decl: RecipeSchema.Cluster) => Promise<void>) | undefined;
 	protected _leave: (() => Promise<void>) | undefined;
-	exposeNetwork(join: (decl: object) => Promise<void> , leave: () => Promise<void>) {
+
+	exposeNetwork(
+		join: (decl: RecipeSchema.Cluster) => Promise<void>,
+		leave: () => Promise<void>,
+	) {
 		this._join = join;
 		this._leave = leave;
 	}
 
-	protected async _parseSchedule(json: any): Promise<void> {
-		console.groupCollapsed("BASIC-SCHEDULER: _parseSchedule");
+	protected async _parseRecipe(
+		json: any,
+	): Promise<void> {
+		console.groupCollapsed("BASIC-SCHEDULER: _parseRecipe");
 
-		if('cluster' in json
-			&& typeof json.cluster === 'object'
+		// Parse and validate through ZOD.
+		const recipe = RecipeSchema.Recipe.parse(json);
+
+		if('cluster' in recipe
+			&& typeof recipe.cluster === 'object'
 			&& typeof this._join === 'function')
 		{
-			const cluster_as_text = JSON.stringify(json.cluster);
+			const cluster_as_text = JSON.stringify(recipe.cluster);
 			if(typeof this._joined_cluster === 'string'
 				&& this._joined_cluster === cluster_as_text)
 			{
@@ -1075,7 +1151,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			{
 				await this._leave();
 			}
-			await this._join(json.cluster);
+			await this._join(recipe.cluster);
 			this._joined_cluster = cluster_as_text;
 		}
 		else if(typeof this._leave === 'function')
@@ -1084,13 +1160,13 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			this._joined_cluster = undefined;
 		}
 
-		this._transitionId = json.transition.id;
-		this._transitionUrl = json.transition.href;
-		this._transitionSize = json.transition.size;
-		this._transitionHash = json.transition.hash;
-		this._transitionIntegrity = json.transition.integrity;
-		this._transitionMd5 = json.transition.md5;
-		this._transitionTime = json.transition.duration;
+		this._transitionId = recipe.transition.id;
+		this._transitionUrl = recipe.transition.href;
+		this._transitionSize = recipe.transition.size;
+		this._transitionHash = recipe.transition.hash;
+		this._transitionIntegrity = recipe.transition.integrity;
+		this._transitionMd5 = recipe.transition.md5;
+		this._transitionTime = recipe.transition.duration;
 
 		const calendar_schedules: CalendarSchedule[] = [];
 		let trash_stack: CalendarSchedule[] = [];
@@ -1100,9 +1176,10 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		for(const schedule of this._calendar_schedules) {
 			running_schedules_by_id.set(schedule.id, schedule);
 		}
-		for(const decl of json.schedule) {
-			if(running_schedules_by_id.has(decl.id)) {
-				calendar_schedules.push(running_schedules_by_id.get(decl.id) as CalendarSchedule);
+		for(const decl of recipe.schedule) {
+			const calendar_schedule = running_schedules_by_id.get(decl.id);
+			if(typeof calendar_schedule !== "undefined") {
+				calendar_schedules.push(calendar_schedule);
 				running_schedules_by_id.delete(decl.id);
 			}
 		}
@@ -1113,7 +1190,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		const lowWatermark = { 'seconds': 30 };
 		let highWatermark = { 'seconds': 90 };
 		const t0 = performance.now();
-		for(const decl of json.schedule) {
+		for(const decl of recipe.schedule) {
 			const schedule = new CalendarSchedule(decl, lowWatermark, highWatermark);
 			promises.push(schedule.parseSchedule(decl));
 			calendar_schedules.push(schedule);
@@ -1163,7 +1240,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	}
 
 // ---> current playlist, respect end date within media.
-	protected _updateMediaList(calendar_event: CalendarEvent<any> | null): void {
+	protected _updateMediaList(
+		calendar_event: CalendarEvent<any> | null,
+	): void {
 //		console.log("BASIC-SCHEDULER: _updateMediaList");
 		if(calendar_event === null)
 		{
@@ -1189,7 +1268,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		}
 	}
 
-	protected _getMediaListContains(datetime: DateTime): CalendarEvent<any> | null {
+	protected _getMediaListContains(
+		datetime: DateTime,
+	): CalendarEvent<any> | null {
 //		console.groupCollapsed("BASIC-SCHEDULER: _getMediaListContains", datetime.toISO());
 		const all_events: CalendarEvent<any>[] = [];
 		for(const schedule of this._calendar_schedules) {
@@ -1216,7 +1297,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		return events.length === 0 ? null : events[0];
 	}
 
-	protected _peekMediaListContains(datetime: DateTime): CalendarEvent<any> | null {
+	protected _peekMediaListContains(
+		datetime: DateTime,
+	): CalendarEvent<any> | null {
 //		console.groupCollapsed("BASIC-SCHEDULER: _peekMediaListContains", datetime.toISO());
 		const all_events: CalendarEvent<any>[] = [];
 		for(const schedule of this._calendar_schedules) {
@@ -1259,7 +1342,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		return events.length === 0 ? null : events[0];
 	}
 
-	protected _peekMediaListAfter(datetime: DateTime): CalendarEvent<any> | null {
+	protected _peekMediaListAfter(
+		datetime: DateTime,
+	): CalendarEvent<any> | null {
 //		console.groupCollapsed("BASIC-SCHEDULER: _peekMediaListAfter", datetime.toISO());
 		const all_events: CalendarEvent<any>[] = [];
 		for(const schedule of this._calendar_schedules) {
@@ -1287,7 +1372,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		return events.length === 0 ? null : events[0];
 	}
 
-	protected _createMediaListFromCalendarEvent(calendar_event: CalendarEvent<any>): MediaDecl[] {
+	protected _createMediaListFromCalendarEvent(
+		calendar_event: CalendarEvent<any>,
+	): MediaDecl[] {
 		const media_list: MediaDecl[] = [];
 		for(const entry of calendar_event.data.entries) {
 			media_list.push({

@@ -18,7 +18,7 @@ export interface AssetDecl {
 
 export interface MediaDecl extends AssetDecl {
 	duration: number,
-	sources?: string[],
+	sources?: AssetDecl[],
 }
 
 export interface ScopedMediaDecl {

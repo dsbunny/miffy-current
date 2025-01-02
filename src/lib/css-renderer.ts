@@ -550,7 +550,7 @@ console.info("CSS-RENDERER: loaded displacement map", img.src);
 			href: this._asset_prefetch.getPath(decl.href),
 			duration: decl.duration,
 			...(Array.isArray(decl.sources) && {
-				sources: decl.sources.map(source => this._asset_prefetch.getPath(source)),
+				sources: decl.sources.map(source => this._asset_prefetch.getPath(source.href)),
 			}),
 		} as MediaDecl;
 	}
