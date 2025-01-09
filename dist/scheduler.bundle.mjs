@@ -13563,6 +13563,23 @@ var RecipeSchema;
             .describe("Cluster configuration"),
     })
         .describe("Recipe");
+    // Link to a recipe
+    RecipeSchema.RecipeLink = z.object({
+        "@type": z.literal("RecipeLink")
+            .describe("Type of the recipe link"),
+        id: z.string().uuid()
+            .describe("ID of the recipe"),
+        href: z.string().url().min(20).max(2048)
+            .describe("URL of the recipe"),
+        size: z.number().min(20).max(1073741824) // 1GB
+            .describe("Size of the recipe in bytes"),
+        hash: RecipeSchema.HashValue,
+        md5: z.string().length(24) // Base64 encoded 16 bytes.
+            .describe("MD5 hash value"),
+        integrity: z.string()
+            .describe("Subresource Integrity (SRI) value"),
+    })
+        .describe("Recipe link");
 })(RecipeSchema || (RecipeSchema = {}));
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
