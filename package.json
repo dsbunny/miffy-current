@@ -39,7 +39,7 @@
 	"dependencies": {
 		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#df84663",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
-		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#019f16f",
+		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",
 		"@ungap/event-target": "^0.2.4",
 		"@ungap/global-this": "^0.4.4",
 		"@webcomponents/webcomponentsjs": "^2.8.0",
