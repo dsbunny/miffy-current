@@ -1,5 +1,7 @@
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Interface for a media asset.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 
 import * as THREE from 'three';
 import { MediaDecl } from './media.js';

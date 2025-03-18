@@ -1,10 +1,11 @@
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Basic scheduler.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 
 import '@ungap/global-this';
 import * as Comlink from 'comlink';
 import { DateTime } from 'luxon';
-//import { DateTime } from '../../external/node_modules/luxon/build/es6/luxon';
 import { Scheduler } from '../lib/scheduler.js';
 import { BasicScheduler } from '../lib/basic-scheduler.js';
 import { HashDecl, ScopedMediaDecl } from '../lib/media.js';

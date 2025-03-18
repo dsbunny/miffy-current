@@ -2335,7 +2335,9 @@ z.object({tenant_id:z.string().uuid().describe('Tenant ID'),reference_id:z.strin
 agent_ids:z.array(z.string().uuid()).min(1).max(1000).describe('Array of agent IDs'),identity:z.string().describe('Identity of the author of the job')}).describe('Publish job');// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 z.object({// A number prefixed with "F/".
 job_id:z.string().regex(/^F\/\d+$/).describe('Unique identifier for this job, can be used to query the status of the job.'),reference_id:z.string().max(255).describe('User provided reference identifier.'),timestamp:z.string().datetime().describe('Timestamp of the job.')}).describe('Publisher job output');// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Interface for a scheduler.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 class Constants{}//@ts-nocheck
 // =============================================================================
 // Weekday

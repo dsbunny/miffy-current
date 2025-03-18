@@ -518,6 +518,10 @@ class NullRenderer extends EventTarget$1 {
     idle() { }
 }
 
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 window.HTMLImageElement.prototype.decode =
     window.HTMLImageElement.prototype.decode ||
         function () {
@@ -4388,7 +4392,9 @@ window.cancelIdleCallback =
     };
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Simple image and video playlist with transition.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof undefined === "function") r = undefined(decorators, target, key, desc);
@@ -4691,7 +4697,9 @@ CssPlaylistElement = __decorate$1([
 var CssPlaylistElement$1 = CssPlaylistElement;
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Asset prefetch for BrightSign platform.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 const fs = require('fs');
 const AssetPool = require("@brightsign/assetpool");
 const AssetPoolFiles = require("@brightsign/assetpoolfiles");
@@ -4819,7 +4827,9 @@ class BrightSignPrefetch extends EventTarget {
 }
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Extend the CssPlayListElement for BrightSign players.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof undefined === "function") r = undefined(decorators, target, key, desc);

@@ -1,9 +1,9 @@
 {
-  "extends": "../../common-tsconfig.json",
-  "include": [
-    "*.ts",
-    "../workers/**/*.ts",
-    "../../third-party/rrule/**/*.ts",
-    "../../third-party/@msgpack/msgpack/src/**/*.ts"
-  ]
+	"extends": "../../common-tsconfig.json",
+	"include": [
+		"*.ts",
+		"../workers/**/*.ts",
+		"../../third-party/rrule/**/*.ts",
+		"../../third-party/@msgpack/msgpack/src/**/*.ts"
+	]
 }

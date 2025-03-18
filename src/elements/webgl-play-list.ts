@@ -1,5 +1,7 @@
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Extend the CssPlayListElement to support WebGL rendering.
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 
 import { LitElement, css, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
