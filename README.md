@@ -1,6 +1,7 @@
 # miffy-current
 ## Notes
 * Depends on `rtcmesh` signaling server for WebRTC.
+* `@__PURE__` comment raises `rollup` warning: https://github.com/rollup/rollup/issues/5324
 
 ## Building Instructions
 To build:

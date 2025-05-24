@@ -3,13 +3,13 @@
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import path from 'node:path';
 import includePaths from 'rollup-plugin-includepaths';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import summary from 'rollup-plugin-summary';
 import { getBabelOutputPlugin } from '@rollup/plugin-babel';
-import path from 'node:path';
 
 export default [
 {

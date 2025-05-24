@@ -2,25 +2,26 @@
 
 import { encode } from "./encode.js";
 export { encode };
-import type { EncodeOptions } from "./encode.js";
-export type { EncodeOptions };
 
 import { decode, decodeMulti } from "./decode.js";
 export { decode, decodeMulti };
-import type { DecodeOptions } from "./decode.js";
-export { DecodeOptions };
 
-import { decodeAsync, decodeArrayStream, decodeMultiStream, decodeStream } from "./decodeAsync.js";
-export { decodeAsync, decodeArrayStream, decodeMultiStream, decodeStream };
+import { decodeAsync, decodeArrayStream, decodeMultiStream } from "./decodeAsync.js";
+export { decodeAsync, decodeArrayStream, decodeMultiStream };
 
-import { Decoder, DataViewIndexOutOfBoundsError } from "./Decoder.js";
+import { Decoder } from "./Decoder.js";
+export { Decoder };
+import type { DecoderOptions } from "./Decoder.js";
+export type { DecoderOptions };
 import { DecodeError } from "./DecodeError.js";
-export { Decoder, DecodeError, DataViewIndexOutOfBoundsError };
+export { DecodeError };
 
 import { Encoder } from "./Encoder.js";
 export { Encoder };
+import type { EncoderOptions } from "./Encoder.js";
+export type { EncoderOptions };
 
-// Utilitiies for Extension Types:
+// Utilities for Extension Types:
 
 import { ExtensionCodec } from "./ExtensionCodec.js";
 export { ExtensionCodec };

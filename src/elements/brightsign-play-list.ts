@@ -5,11 +5,11 @@
 
 import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
-import CssPlaylistElement from './css-play-list.js';
+import WebPlaylistElement from './web-play-list.js';
 import { BrightSignPrefetch } from '../lib/brightsign-prefetch.js';
 
 @customElement('brightsign-play-list')
-export default class BrightSignPlaylistElement extends CssPlaylistElement {
+export default class BrightSignPlaylistElement extends WebPlaylistElement {
 
 	// Override the renderer to use BrightSign compatible asset prefetcher.
 	protected override _createRenderer(): Renderer {

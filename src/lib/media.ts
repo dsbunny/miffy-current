@@ -19,6 +19,7 @@ export interface AssetDecl {
 }
 
 export interface MediaDecl extends AssetDecl {
+	params?: any,
 	duration: number,
 	sources?: AssetDecl[],
 }

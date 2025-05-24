@@ -139,7 +139,7 @@ export class CalendarSchedule {
 	protected _calendar: Comlink.Remote<CalendarWorker>;
 	protected _lowWatermark: Duration;
 	protected _highWatermark: Duration;
-	protected _queue: CalendarEvent<any>[] = [];
+	protected _queue: CalendarEvent<RecipeSchema.Playlist>[] = [];
 	protected _isOnce = false;
 	protected _isToggle = false;
 	protected get _isDynamic() { return this._isOnce || this._isToggle; }
@@ -334,7 +334,7 @@ export class CalendarSchedule {
 	protected async _getEvents(
 		startTime: DateTime,
 		endTime: DateTime,
-	): Promise<CalendarEvent<any>[]> {
+	): Promise<CalendarEvent<RecipeSchema.Playlist>[]> {
 //		console.log(`${this.shortId}: getEvents ${startTime.toISO()} -> ${endTime.toISO()}.`);
 		return await this._calendar.getEvents(startTime, endTime);
 	}
@@ -390,7 +390,7 @@ export class CalendarSchedule {
 	// Destructive to queue.
 	getCalendarEvent(
 		datetime: DateTime,
-	): CalendarEvent<any> | null {
+	): CalendarEvent<RecipeSchema.Playlist> | null {
 //		console.log(`${this.shortId}: getCalendarEvent(${datetime.toISO()})`);
 		if(!this.isActive) {
 			return null;
@@ -425,7 +425,7 @@ export class CalendarSchedule {
 
 	peekCalendarEvent(
 		datetime: DateTime,
-	): CalendarEvent<any> | null {
+	): CalendarEvent<RecipeSchema.Playlist> | null {
 //		console.log(`${this.shortId}: peekCalendarEvent(${datetime.toISO()})`);
 		if(!this.isActive) {
 			return null;
@@ -833,16 +833,33 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	state(
 		datetime: DateTime,
 	): SchedulerState {
+		const currentTime = datetime.toISO();
+		if(currentTime === null) {
+			throw new Error("Cannot convert datetime to ISO.");
+		}
 		const eventSeries = this._calendar_schedules.map(calendar =>
 			calendar.summary(datetime));
 		const mediaList: MediaListSummary[] = this._active_media_assets.map(asset => {
-			return {
+			const start =
+				asset.start_offset.equals(MAX_DURATION)
+				? "Infinity"
+				: asset.start_offset.toISO();
+			if(start === null) {
+				throw new Error("Cannot convert start offset to ISO.");
+			}
+			const end =
+				asset.end_offset.equals(MAX_DURATION)
+				? "Infinity"
+				: asset.end_offset.toISO();
+			if(end === null) {
+				throw new Error("Cannot convert end offset to ISO.");
+			}
+			const media: MediaListSummary = {
 				id: asset.shortId,
-				start: asset.start_offset.equals(MAX_DURATION)
-					? "Infinity" : asset.start_offset.toISO(),
-				end: asset.end_offset.equals(MAX_DURATION)
-					? "Infinity" : asset.end_offset.toISO(),
+				start,
+				end,
 			};
+			return media;
 		});
 		const mediaCurrent: any = this._media_current === null ? null : this._media_current.summary(datetime);
 		const mediaNext: any = this._media_next === null ? null : this._media_next.summary(datetime);
@@ -861,7 +878,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			percentSpeed: this._transitionPercentSpeed,
 		} : null;
 		return {
-			currentTime: datetime.toISO(),
+			currentTime,
 			eventSeries,
 			mediaList,
 			mediaCurrent,
@@ -905,15 +922,17 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		console.log("BASIC-SCHEDULER: _fetch", url);
 		const response = await fetch(url);
 		const referenced = await response.json();
-		const json = await jsonref.parse(referenced, { scope: self.location.href });
-		return json;
+		const result = await jsonref.parse(referenced, {
+			scope: self.location.href,
+		});
+		return structuredClone(result);
 	}
 
 	// Active MediaAssets.
 	protected _joined_cluster: string | undefined = undefined;
 	protected _active_media_assets: ScheduleItem[] = [];
 	protected _media_list_duration = Duration.fromMillis(0);
-	protected _media_list_current: CalendarEvent<any> | null = null;
+	protected _media_list_current: CalendarEvent<RecipeSchema.Playlist> | null = null;
 	protected _media_current: ScheduleItemView | null = null;
 	protected _media_next: ScheduleItemView | null = null;
 	protected _transitionFrom: MediaDecl | null = null;
@@ -1045,7 +1064,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	// Duration of one iteration of content inside the media list,
 	// as opposed to the window of playback.
 	protected _calculateMediaListIterationDuration(
-		calendar_event: CalendarEvent<any>,
+		calendar_event: CalendarEvent<RecipeSchema.Playlist>,
 	): number {
 		return calendar_event.data.entries.reduce(
 			(accumulator: number, currentValue: any) => accumulator + currentValue.duration,
@@ -1067,7 +1086,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	// ScheduleItemView must be in respect to the media list boundary.
 	protected _seekMediaList(
 		datetime: DateTime,
-		calendar_event: CalendarEvent<any>,
+		calendar_event: CalendarEvent<RecipeSchema.Playlist>,
 	): ScheduleItemView | null {
 //		console.log("BASIC-SCHEDULER: _seekMediaList", datetime.toISO());
 		if(calendar_event.data.entries.length === 0) {
@@ -1243,7 +1262,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 
 // ---> current playlist, respect end date within media.
 	protected _updateMediaList(
-		calendar_event: CalendarEvent<any> | null,
+		calendar_event: CalendarEvent<RecipeSchema.Playlist> | null,
 	): void {
 //		console.log("BASIC-SCHEDULER: _updateMediaList");
 		if(calendar_event === null)
@@ -1272,9 +1291,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 
 	protected _getMediaListContains(
 		datetime: DateTime,
-	): CalendarEvent<any> | null {
+	): CalendarEvent<RecipeSchema.Playlist> | null {
 //		console.groupCollapsed("BASIC-SCHEDULER: _getMediaListContains", datetime.toISO());
-		const all_events: CalendarEvent<any>[] = [];
+		const all_events: CalendarEvent<RecipeSchema.Playlist>[] = [];
 		for(const schedule of this._calendar_schedules) {
 			const event = schedule.getCalendarEvent(datetime);
 			if(event === null) {
@@ -1286,7 +1305,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		}
 		// 0 = undefined, 1 = highest priority, 9 = lowest priority.
 		// Sort to find the active media list, but does not determine playback boundary.
-		all_events.sort((a: CalendarEvent<any>, b: CalendarEvent<any>): number => {
+		all_events.sort((a: CalendarEvent<RecipeSchema.Playlist>, b: CalendarEvent<RecipeSchema.Playlist>): number => {
 			const priority = a.priority - b.priority;
 			if(priority !== 0) {
 				return priority;
@@ -1301,9 +1320,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 
 	protected _peekMediaListContains(
 		datetime: DateTime,
-	): CalendarEvent<any> | null {
+	): CalendarEvent<RecipeSchema.Playlist> | null {
 //		console.groupCollapsed("BASIC-SCHEDULER: _peekMediaListContains", datetime.toISO());
-		const all_events: CalendarEvent<any>[] = [];
+		const all_events: CalendarEvent<RecipeSchema.Playlist>[] = [];
 		for(const schedule of this._calendar_schedules) {
 			const event = schedule.peekCalendarEvent(datetime);
 			if(event === null) {
@@ -1323,7 +1342,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 //			};
 //		})));
 		// Sort to find the active media list, but does not determine playback boundary.
-		all_events.sort((a: CalendarEvent<any>, b: CalendarEvent<any>): number => {
+		all_events.sort((a: CalendarEvent<RecipeSchema.Playlist>, b: CalendarEvent<RecipeSchema.Playlist>): number => {
 			const priority = a.priority - b.priority;
 			if(priority !== 0) {
 				return priority;
@@ -1346,9 +1365,9 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 
 	protected _peekMediaListAfter(
 		datetime: DateTime,
-	): CalendarEvent<any> | null {
+	): CalendarEvent<RecipeSchema.Playlist> | null {
 //		console.groupCollapsed("BASIC-SCHEDULER: _peekMediaListAfter", datetime.toISO());
-		const all_events: CalendarEvent<any>[] = [];
+		const all_events: CalendarEvent<RecipeSchema.Playlist>[] = [];
 		for(const schedule of this._calendar_schedules) {
 			const event = schedule.peekCalendarEvent(datetime);
 			if(event === null) {
@@ -1360,7 +1379,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				all_events.push(event);
 			}
 		}
-		all_events.sort((a: CalendarEvent<any>, b: CalendarEvent<any>): number => {
+		all_events.sort((a: CalendarEvent<RecipeSchema.Playlist>, b: CalendarEvent<RecipeSchema.Playlist>): number => {
 			const priority = a.priority - b.priority;
 			if(priority !== 0) {
 				return priority;
@@ -1375,20 +1394,30 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	}
 
 	protected _createMediaListFromCalendarEvent(
-		calendar_event: CalendarEvent<any>,
+		calendar_event: CalendarEvent<RecipeSchema.Playlist>,
 	): MediaDecl[] {
 		const media_list: MediaDecl[] = [];
 		for(const entry of calendar_event.data.entries) {
-			media_list.push({
-				"@type": entry["@type"],
-				id: entry["id"],
-				href: entry["href"],
-				size: entry["size"],
-				hash: entry["hash"],
-				md5: entry["md5"],
-				integrity: entry["integrity"],
-				duration: entry["duration"],
-			});
+			switch(entry["@type"]) {
+			case "HTMLImageElement":
+			case "HTMLVideoElement": {
+				const {
+					'@type': type, id, href, size, hash, md5, integrity, params, duration
+				} = entry;
+				media_list.push({ '@type': type, id, href, size, hash, md5, integrity, params, duration });
+				break;
+			}
+			case 'CustomElement': {
+				const {
+					'@type': type, id, href, size, hash, md5, integrity, params, duration, sources = undefined
+				} = entry;
+				media_list.push({ '@type': type, id, href, size, hash, md5, integrity, params, duration, sources });
+				break;
+			}
+			default:
+				console.warn(`BASIC-SCHEDULER: Unknown media type ${entry["@type"]}`);
+				break;
+			}
 		}
 		return media_list;
 	}

@@ -7,10 +7,10 @@ import { css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { LunaRenderer } from '../lib/luna-renderer.js';
-import CssPlaylistElement from './css-play-list.js';
+import WebPlaylistElement from './web-play-list.js';
 
 @customElement('luna-play-list')
-export default class LunaPlaylistElement extends CssPlaylistElement {
+export default class LunaPlaylistElement extends WebPlaylistElement {
 
 	// Remove "contain: strict" from the host element for LG WebOS.
 	static override styles = css`

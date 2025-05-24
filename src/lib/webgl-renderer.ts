@@ -92,7 +92,6 @@ class RendererAsset {
 export class WebGLRenderer extends EventTarget implements Renderer {
 
 	static vertexShader = shader`
-		#version 300 es
 		precision mediump float;
 		in vec2 uv;
 		in vec4 position;
@@ -106,7 +105,6 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 	`;
 
 	static fragmentShader = shader`
-		#version 300 es
 		precision mediump float;
 		uniform sampler2D map1;
 		uniform sampler2D map2;
@@ -152,6 +150,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		},
 		vertexShader: WebGLRenderer.vertexShader,
 		fragmentShader: WebGLRenderer.fragmentShader,
+		glslVersion: THREE.GLSL3,
 	});
 	protected _map1_asset: RendererAsset | null = null;
 	protected _map2_asset: RendererAsset | null = null;

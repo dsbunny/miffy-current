@@ -4,12 +4,12 @@
 // https://opensource.org/licenses/MIT.
 
 import { Renderer } from '../lib/renderer.js';
-import { CSSRenderer } from "./css-renderer.js";
-import { LunaCssAssetManager } from '../lib/css-media.js';
+import { WebRenderer } from "./web-renderer.js";
+import { LunaAssetManager } from './luna-media.js';
 import { LunaPrefetch } from './luna-prefetch.js';
 
-export class LunaRenderer extends CSSRenderer implements Renderer {
-	protected override _mam = new LunaCssAssetManager();
+export class LunaRenderer extends WebRenderer implements Renderer {
+	protected override _mam = new LunaAssetManager();
 
 	constructor() {
 		super(LunaPrefetch);

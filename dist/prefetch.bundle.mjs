@@ -165,7 +165,24 @@ function closeEndPoint(endpoint) {
         endpoint.close();
 }
 function wrap(ep, target) {
-    return createProxy(ep, [], target);
+    const pendingListeners = new Map();
+    ep.addEventListener("message", function handleMessage(ev) {
+        const { data } = ev;
+        if (!data || !data.id) {
+            return;
+        }
+        const resolver = pendingListeners.get(data.id);
+        if (!resolver) {
+            return;
+        }
+        try {
+            resolver(data);
+        }
+        finally {
+            pendingListeners.delete(data.id);
+        }
+    });
+    return createProxy(ep, pendingListeners, [], target);
 }
 function throwIfProxyReleased(isReleased) {
     if (isReleased) {
@@ -173,7 +190,7 @@ function throwIfProxyReleased(isReleased) {
     }
 }
 function releaseEndpoint(ep) {
-    return requestResponseMessage(ep, {
+    return requestResponseMessage(ep, new Map(), {
         type: "RELEASE" /* MessageType.RELEASE */,
     }).then(() => {
         closeEndPoint(ep);
@@ -200,7 +217,7 @@ function unregisterProxy(proxy) {
         proxyFinalizers.unregister(proxy);
     }
 }
-function createProxy(ep, path = [], target = function () { }) {
+function createProxy(ep, pendingListeners, path = [], target = function () { }) {
     let isProxyReleased = false;
     const proxy = new Proxy(target, {
         get(_target, prop) {
@@ -209,6 +226,7 @@ function createProxy(ep, path = [], target = function () { }) {
                 return () => {
                     unregisterProxy(proxy);
                     releaseEndpoint(ep);
+                    pendingListeners.clear();
                     isProxyReleased = true;
                 };
             }
@@ -216,20 +234,20 @@ function createProxy(ep, path = [], target = function () { }) {
                 if (path.length === 0) {
                     return { then: () => proxy };
                 }
-                const r = requestResponseMessage(ep, {
+                const r = requestResponseMessage(ep, pendingListeners, {
                     type: "GET" /* MessageType.GET */,
                     path: path.map((p) => p.toString()),
                 }).then(fromWireValue);
                 return r.then.bind(r);
             }
-            return createProxy(ep, [...path, prop]);
+            return createProxy(ep, pendingListeners, [...path, prop]);
         },
         set(_target, prop, rawValue) {
             throwIfProxyReleased(isProxyReleased);
             // FIXME: ES6 Proxy Handler `set` methods are supposed to return a
             // boolean. To show good will, we return true asynchronously ¯\_(ツ)_/¯
             const [value, transferables] = toWireValue(rawValue);
-            return requestResponseMessage(ep, {
+            return requestResponseMessage(ep, pendingListeners, {
                 type: "SET" /* MessageType.SET */,
                 path: [...path, prop].map((p) => p.toString()),
                 value,
@@ -239,16 +257,16 @@ function createProxy(ep, path = [], target = function () { }) {
             throwIfProxyReleased(isProxyReleased);
             const last = path[path.length - 1];
             if (last === createEndpoint) {
-                return requestResponseMessage(ep, {
+                return requestResponseMessage(ep, pendingListeners, {
                     type: "ENDPOINT" /* MessageType.ENDPOINT */,
                 }).then(fromWireValue);
             }
             // We just pretend that `bind()` didn’t happen.
             if (last === "bind") {
-                return createProxy(ep, path.slice(0, -1));
+                return createProxy(ep, pendingListeners, path.slice(0, -1));
             }
             const [argumentList, transferables] = processArguments(rawArgumentList);
-            return requestResponseMessage(ep, {
+            return requestResponseMessage(ep, pendingListeners, {
                 type: "APPLY" /* MessageType.APPLY */,
                 path: path.map((p) => p.toString()),
                 argumentList,
@@ -257,7 +275,7 @@ function createProxy(ep, path = [], target = function () { }) {
         construct(_target, rawArgumentList) {
             throwIfProxyReleased(isProxyReleased);
             const [argumentList, transferables] = processArguments(rawArgumentList);
-            return requestResponseMessage(ep, {
+            return requestResponseMessage(ep, pendingListeners, {
                 type: "CONSTRUCT" /* MessageType.CONSTRUCT */,
                 path: path.map((p) => p.toString()),
                 argumentList,
@@ -312,16 +330,10 @@ function fromWireValue(value) {
             return value.value;
     }
 }
-function requestResponseMessage(ep, msg, transfers) {
+function requestResponseMessage(ep, pendingListeners, msg, transfers) {
     return new Promise((resolve) => {
         const id = generateUUID();
-        ep.addEventListener("message", function l(ev) {
-            if (!ev.data || !ev.data.id || ev.data.id !== id) {
-                return;
-            }
-            ep.removeEventListener("message", l);
-            resolve(ev.data);
-        });
+        pendingListeners.set(id, resolve);
         if (ep.start) {
             ep.start();
         }
@@ -336,6 +348,9 @@ function generateUUID() {
 }
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 class PrefetchServiceWorker {
     constructor() {
         self.addEventListener('install', (event) => {
@@ -361,49 +376,11 @@ class PrefetchServiceWorker {
         const cache = await self.caches.open('miffy');
         const hrefs = [
             //'./index.html',
-            '/media/favicon.png',
             '../dist/calendar.bundle.mjs',
             '../dist/css.bundle.mjs',
-            '../dist/kuromi.bundle.mjs',
             '../dist/prefetch.bundle.mjs',
-            '../dist/raft.mjs',
-            '../dist/rmm.bundle.mjs',
-            '../dist/rtcmesh.mjs',
             '../dist/scheduler.bundle.mjs',
             '../dist/webgl.bundle.mjs',
-            '/external/node_modules/lit/index.js',
-            '/external/node_modules/lit/decorators.js',
-            '/external/node_modules/lit-html/lit-html.js',
-            '/external/node_modules/lit-element/lit-element.js',
-            '/external/node_modules/@lit/reactive-element/css-tag.js',
-            '/external/node_modules/@lit/reactive-element/reactive-element.js',
-            '/external/node_modules/@lit/reactive-element/decorators/base.js',
-            '/external/node_modules/@lit/reactive-element/decorators/custom-element.js',
-            '/external/node_modules/@lit/reactive-element/decorators/property.js',
-            '/external/node_modules/@lit/reactive-element/decorators/state.js',
-            '/external/node_modules/@lit/reactive-element/decorators/event-options.js',
-            '/external/node_modules/@lit/reactive-element/decorators/query.js',
-            '/external/node_modules/@lit/reactive-element/decorators/query-all.js',
-            '/external/node_modules/@lit/reactive-element/decorators/query-async.js',
-            '/external/node_modules/@lit/reactive-element/decorators/query-assigned-elements.js',
-            '/external/node_modules/@lit/reactive-element/decorators/query-assigned-nodes.js',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/index.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/CachedKeyDecoder.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/encode.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/decode.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/decodeAsync.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/Decoder.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/DecodeError.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/Encoder.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/ExtensionCodec.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/ExtData.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/timestamp.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/utils/stream.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/utils/prettyByte.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/utils/int.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/utils/utf8.mjs',
-            '/external/node_modules/@msgpack/msgpack/dist.es5+esm/utils/typedArrays.mjs',
-            '/external/node_modules/three/build/three.module.js',
         ];
         const options = {
             method: 'GET',

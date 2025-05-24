@@ -8,7 +8,7 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { NullRenderer } from '../lib/null-renderer.js';
-import { CSSRenderer } from '../lib/css-renderer.js';
+import { WebRenderer } from '../lib/web-renderer.js';
 import { Cluster } from '../lib/cluster.js';
 import { RaftCluster } from '../lib/raft-cluster.js';
 import { SchedulerState } from '../lib/scheduler.js';
@@ -18,8 +18,8 @@ import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
 
 import 'requestidlecallback-polyfill';
 
-@customElement('css-play-list')
-export default class CssPlaylistElement extends LitElement {
+@customElement('web-play-list')
+export default class WebPlaylistElement extends LitElement {
 
 	@property({ type: String, reflect: true })
 	src = "";
@@ -163,7 +163,7 @@ export default class CssPlaylistElement extends LitElement {
 			throw new Error("cannot find <main> element to attach to.");
 		}
 
-		const renderer = new CSSRenderer(prefetchFactory);
+		const renderer = new WebRenderer(prefetchFactory);
 		renderer.init();
 
 		this._connectSchedulerToRenderer(this._scheduler, renderer);

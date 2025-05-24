@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="icon" type="image/png" href="/media/favicon.png">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=1920">
+	<link rel="stylesheet" href="test.css">
+	<!-- WebOS dependencies -->
+	<script src="third-party/cordova/2.7.0/cordova.webos.js"></script>
+        <script src="third-party/customjs/1.4/custom.js"></script>
+        <script src="scap-loader.js"></script>
+	<!-- https://lit.dev/docs/v2/tools/requirements/#building-for-legacy-browsers -->
+        <script src="third-party/core-js/core-js.js"></script>
+        <script src="third-party/regenerator-runtime/runtime.js"></script>
+        <script src="third-party/systemjs/systemjs.js"></script>
+        <script src="third-party/mdn-polyfills/Element.prototype.getAttributeNames/index.js"></script>
+        <script src="third-party/nested-worker/index.js"></script>
+        <script src="node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+        <script src="node_modules/lit/polyfill-support.js"></script>
+        <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+	<script type="systemjs-module" src="dist/luna.systemjs.js"></script>
+</head>
+<body class="default">
+	<div id="container">
+		<luna-play-list
+			width="1920"
+			height="840"
+			views='[{ "left": 0, "top": 0, "width": 1920, "height": 840, "x": 0, "y": 0 }]'
+			src="recipe.json"
+			src-md5="55ee7ab325d156acb7c862822dc5949f"
+			src-integrity="sha384-2whTm6hZpeRaGiAVcSLOgLBm7Z63dT31v32tW8dG741DP5SXC6GSudvUcyrZRk8D"
+			src-hash='{"method":"SHA256","hex":"cf0992901569780adb73308eba8a08b3d0f7c465b9d2f62550da85488322bc38"}'
+			src-size="864"
+			src-id="9de18e0e-5c66-4837-b42c-66548f7ca243"
+			autoplay
+			></luna-play-list>
+	</div>
+</body>
+</html>

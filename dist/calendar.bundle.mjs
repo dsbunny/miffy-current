@@ -181,7 +181,24 @@ function closeEndPoint(endpoint) {
         endpoint.close();
 }
 function wrap(ep, target) {
-    return createProxy(ep, [], target);
+    const pendingListeners = new Map();
+    ep.addEventListener("message", function handleMessage(ev) {
+        const { data } = ev;
+        if (!data || !data.id) {
+            return;
+        }
+        const resolver = pendingListeners.get(data.id);
+        if (!resolver) {
+            return;
+        }
+        try {
+            resolver(data);
+        }
+        finally {
+            pendingListeners.delete(data.id);
+        }
+    });
+    return createProxy(ep, pendingListeners, [], target);
 }
 function throwIfProxyReleased(isReleased) {
     if (isReleased) {
@@ -189,7 +206,7 @@ function throwIfProxyReleased(isReleased) {
     }
 }
 function releaseEndpoint(ep) {
-    return requestResponseMessage(ep, {
+    return requestResponseMessage(ep, new Map(), {
         type: "RELEASE" /* MessageType.RELEASE */,
     }).then(() => {
         closeEndPoint(ep);
@@ -216,7 +233,7 @@ function unregisterProxy(proxy) {
         proxyFinalizers.unregister(proxy);
     }
 }
-function createProxy(ep, path = [], target = function () { }) {
+function createProxy(ep, pendingListeners, path = [], target = function () { }) {
     let isProxyReleased = false;
     const proxy = new Proxy(target, {
         get(_target, prop) {
@@ -225,6 +242,7 @@ function createProxy(ep, path = [], target = function () { }) {
                 return () => {
                     unregisterProxy(proxy);
                     releaseEndpoint(ep);
+                    pendingListeners.clear();
                     isProxyReleased = true;
                 };
             }
@@ -232,20 +250,20 @@ function createProxy(ep, path = [], target = function () { }) {
                 if (path.length === 0) {
                     return { then: () => proxy };
                 }
-                const r = requestResponseMessage(ep, {
+                const r = requestResponseMessage(ep, pendingListeners, {
                     type: "GET" /* MessageType.GET */,
                     path: path.map((p) => p.toString()),
                 }).then(fromWireValue);
                 return r.then.bind(r);
             }
-            return createProxy(ep, [...path, prop]);
+            return createProxy(ep, pendingListeners, [...path, prop]);
         },
         set(_target, prop, rawValue) {
             throwIfProxyReleased(isProxyReleased);
             // FIXME: ES6 Proxy Handler `set` methods are supposed to return a
             // boolean. To show good will, we return true asynchronously ¯\_(ツ)_/¯
             const [value, transferables] = toWireValue(rawValue);
-            return requestResponseMessage(ep, {
+            return requestResponseMessage(ep, pendingListeners, {
                 type: "SET" /* MessageType.SET */,
                 path: [...path, prop].map((p) => p.toString()),
                 value,
@@ -255,16 +273,16 @@ function createProxy(ep, path = [], target = function () { }) {
             throwIfProxyReleased(isProxyReleased);
             const last = path[path.length - 1];
             if (last === createEndpoint) {
-                return requestResponseMessage(ep, {
+                return requestResponseMessage(ep, pendingListeners, {
                     type: "ENDPOINT" /* MessageType.ENDPOINT */,
                 }).then(fromWireValue);
             }
             // We just pretend that `bind()` didn’t happen.
             if (last === "bind") {
-                return createProxy(ep, path.slice(0, -1));
+                return createProxy(ep, pendingListeners, path.slice(0, -1));
             }
             const [argumentList, transferables] = processArguments(rawArgumentList);
-            return requestResponseMessage(ep, {
+            return requestResponseMessage(ep, pendingListeners, {
                 type: "APPLY" /* MessageType.APPLY */,
                 path: path.map((p) => p.toString()),
                 argumentList,
@@ -273,7 +291,7 @@ function createProxy(ep, path = [], target = function () { }) {
         construct(_target, rawArgumentList) {
             throwIfProxyReleased(isProxyReleased);
             const [argumentList, transferables] = processArguments(rawArgumentList);
-            return requestResponseMessage(ep, {
+            return requestResponseMessage(ep, pendingListeners, {
                 type: "CONSTRUCT" /* MessageType.CONSTRUCT */,
                 path: path.map((p) => p.toString()),
                 argumentList,
@@ -328,16 +346,10 @@ function fromWireValue(value) {
             return value.value;
     }
 }
-function requestResponseMessage(ep, msg, transfers) {
+function requestResponseMessage(ep, pendingListeners, msg, transfers) {
     return new Promise((resolve) => {
         const id = generateUUID();
-        ep.addEventListener("message", function l(ev) {
-            if (!ev.data || !ev.data.id || ev.data.id !== id) {
-                return;
-            }
-            ep.removeEventListener("message", l);
-            resolve(ev.data);
-        });
+        pendingListeners.set(id, resolve);
         if (ep.start) {
             ep.start();
         }
@@ -745,12 +757,13 @@ class SystemZone extends Zone {
   }
 }
 
-let dtfCache = {};
-function makeDTF(zone) {
-  if (!dtfCache[zone]) {
-    dtfCache[zone] = new Intl.DateTimeFormat("en-US", {
+const dtfCache = new Map();
+function makeDTF(zoneName) {
+  let dtf = dtfCache.get(zoneName);
+  if (dtf === undefined) {
+    dtf = new Intl.DateTimeFormat("en-US", {
       hour12: false,
-      timeZone: zone,
+      timeZone: zoneName,
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -759,8 +772,9 @@ function makeDTF(zone) {
       second: "2-digit",
       era: "short",
     });
+    dtfCache.set(zoneName, dtf);
   }
-  return dtfCache[zone];
+  return dtf;
 }
 
 const typeToPos = {
@@ -796,7 +810,7 @@ function partsOffset(dtf, date) {
   return filled;
 }
 
-let ianaZoneCache = {};
+const ianaZoneCache = new Map();
 /**
  * A zone identified by an IANA identifier, like America/New_York
  * @implements {Zone}
@@ -807,10 +821,11 @@ class IANAZone extends Zone {
    * @return {IANAZone}
    */
   static create(name) {
-    if (!ianaZoneCache[name]) {
-      ianaZoneCache[name] = new IANAZone(name);
+    let zone = ianaZoneCache.get(name);
+    if (zone === undefined) {
+      ianaZoneCache.set(name, (zone = new IANAZone(name)));
     }
-    return ianaZoneCache[name];
+    return zone;
   }
 
   /**
@@ -818,8 +833,8 @@ class IANAZone extends Zone {
    * @return {void}
    */
   static resetCache() {
-    ianaZoneCache = {};
-    dtfCache = {};
+    ianaZoneCache.clear();
+    dtfCache.clear();
   }
 
   /**
@@ -922,6 +937,7 @@ class IANAZone extends Zone {
    * @return {number}
    */
   offset(ts) {
+    if (!this.valid) return NaN;
     const date = new Date(ts);
 
     if (isNaN(date)) return NaN;
@@ -987,36 +1003,36 @@ function getCachedLF(locString, opts = {}) {
   return dtf;
 }
 
-let intlDTCache = {};
+const intlDTCache = new Map();
 function getCachedDTF(locString, opts = {}) {
   const key = JSON.stringify([locString, opts]);
-  let dtf = intlDTCache[key];
-  if (!dtf) {
+  let dtf = intlDTCache.get(key);
+  if (dtf === undefined) {
     dtf = new Intl.DateTimeFormat(locString, opts);
-    intlDTCache[key] = dtf;
+    intlDTCache.set(key, dtf);
   }
   return dtf;
 }
 
-let intlNumCache = {};
+const intlNumCache = new Map();
 function getCachedINF(locString, opts = {}) {
   const key = JSON.stringify([locString, opts]);
-  let inf = intlNumCache[key];
-  if (!inf) {
+  let inf = intlNumCache.get(key);
+  if (inf === undefined) {
     inf = new Intl.NumberFormat(locString, opts);
-    intlNumCache[key] = inf;
+    intlNumCache.set(key, inf);
   }
   return inf;
 }
 
-let intlRelCache = {};
+const intlRelCache = new Map();
 function getCachedRTF(locString, opts = {}) {
   const { base, ...cacheKeyOpts } = opts; // exclude `base` from the options
   const key = JSON.stringify([locString, cacheKeyOpts]);
-  let inf = intlRelCache[key];
-  if (!inf) {
+  let inf = intlRelCache.get(key);
+  if (inf === undefined) {
     inf = new Intl.RelativeTimeFormat(locString, opts);
-    intlRelCache[key] = inf;
+    intlRelCache.set(key, inf);
   }
   return inf;
 }
@@ -1031,14 +1047,28 @@ function systemLocale() {
   }
 }
 
-let weekInfoCache = {};
+const intlResolvedOptionsCache = new Map();
+function getCachedIntResolvedOptions(locString) {
+  let opts = intlResolvedOptionsCache.get(locString);
+  if (opts === undefined) {
+    opts = new Intl.DateTimeFormat(locString).resolvedOptions();
+    intlResolvedOptionsCache.set(locString, opts);
+  }
+  return opts;
+}
+
+const weekInfoCache = new Map();
 function getCachedWeekInfo(locString) {
-  let data = weekInfoCache[locString];
+  let data = weekInfoCache.get(locString);
   if (!data) {
     const locale = new Intl.Locale(locString);
     // browsers currently implement this as a property, but spec says it should be a getter function
     data = "getWeekInfo" in locale ? locale.getWeekInfo() : locale.weekInfo;
-    weekInfoCache[locString] = data;
+    // minimalDays was removed from WeekInfo: https://github.com/tc39/proposal-intl-locale-info/issues/86
+    if (!("minimalDays" in data)) {
+      data = { ...fallbackWeekSettings, ...data };
+    }
+    weekInfoCache.set(locString, data);
   }
   return data;
 }
@@ -1137,7 +1167,7 @@ function supportsFastNumbers(loc) {
       loc.numberingSystem === "latn" ||
       !loc.locale ||
       loc.locale.startsWith("en") ||
-      new Intl.DateTimeFormat(loc.intl).resolvedOptions().numberingSystem === "latn"
+      getCachedIntResolvedOptions(loc.locale).numberingSystem === "latn"
     );
   }
 }
@@ -1296,7 +1326,6 @@ const fallbackWeekSettings = {
 /**
  * @private
  */
-
 class Locale {
   static fromOpts(opts) {
     return Locale.create(
@@ -1320,9 +1349,11 @@ class Locale {
 
   static resetCache() {
     sysLocaleCache = null;
-    intlDTCache = {};
-    intlNumCache = {};
-    intlRelCache = {};
+    intlDTCache.clear();
+    intlNumCache.clear();
+    intlRelCache.clear();
+    intlResolvedOptionsCache.clear();
+    weekInfoCache.clear();
   }
 
   static fromObject({ locale, numberingSystem, outputCalendar, weekSettings } = {}) {
@@ -1476,7 +1507,7 @@ class Locale {
     return (
       this.locale === "en" ||
       this.locale.toLowerCase() === "en-us" ||
-      new Intl.DateTimeFormat(this.intl).resolvedOptions().locale.startsWith("en-us")
+      getCachedIntResolvedOptions(this.intl).locale.startsWith("en-us")
     );
   }
 
@@ -1719,6 +1750,7 @@ class InvalidZone extends Zone {
  * @private
  */
 
+
 function normalizeZone(input, defaultZone) {
   if (isUndefined(input) || input === null) {
     return defaultZone;
@@ -1814,22 +1846,26 @@ function parseDigits(str) {
 }
 
 // cache of {numberingSystem: {append: regex}}
-let digitRegexCache = {};
+const digitRegexCache = new Map();
 function resetDigitRegexCache() {
-  digitRegexCache = {};
+  digitRegexCache.clear();
 }
 
 function digitRegex({ numberingSystem }, append = "") {
   const ns = numberingSystem || "latn";
 
-  if (!digitRegexCache[ns]) {
-    digitRegexCache[ns] = {};
+  let appendCache = digitRegexCache.get(ns);
+  if (appendCache === undefined) {
+    appendCache = new Map();
+    digitRegexCache.set(ns, appendCache);
   }
-  if (!digitRegexCache[ns][append]) {
-    digitRegexCache[ns][append] = new RegExp(`${numberingSystems[ns]}${append}`);
+  let regex = appendCache.get(append);
+  if (regex === undefined) {
+    regex = new RegExp(`${numberingSystems[ns]}${append}`);
+    appendCache.set(append, regex);
   }
 
-  return digitRegexCache[ns][append];
+  return regex;
 }
 
 let now = () => Date.now(),
@@ -2218,6 +2254,7 @@ function hasInvalidTimeData(obj) {
   Because Luxon is small(ish), this should stay small and we won't worry about splitting
   it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
 */
+
 
 /**
  * @private
@@ -4581,6 +4618,14 @@ class Interval {
   }
 
   /**
+   * Returns the last DateTime included in the interval (since end is not part of the interval)
+   * @type {DateTime}
+   */
+  get lastDateTime() {
+    return this.isValid ? (this.e ? this.e.minus(1) : null) : null;
+  }
+
+  /**
    * Returns whether this Interval's end is at least its start, meaning that the Interval isn't 'backwards'.
    * @type {boolean}
    */
@@ -4844,8 +4889,11 @@ class Interval {
   }
 
   /**
-   * Merge an array of Intervals into a equivalent minimal set of Intervals.
+   * Merge an array of Intervals into an equivalent minimal set of Intervals.
    * Combines overlapping and adjacent Intervals.
+   * The resulting array will contain the Intervals in ascending order, that is, starting with the earliest Interval
+   * and ending with the latest.
+   *
    * @param {Array} intervals
    * @return {Array}
    */
@@ -6168,15 +6216,27 @@ function normalizeUnitWithLocalWeeks(unit) {
 // This is safe for quickDT (used by local() and utc()) because we don't fill in
 // higher-order units from tsNow (as we do in fromObject, this requires that
 // offset is calculated from tsNow).
+/**
+ * @param {Zone} zone
+ * @return {number}
+ */
 function guessOffsetForZone(zone) {
-  if (!zoneOffsetGuessCache[zone]) {
-    if (zoneOffsetTs === undefined) {
-      zoneOffsetTs = Settings.now();
-    }
-
-    zoneOffsetGuessCache[zone] = zone.offset(zoneOffsetTs);
+  if (zoneOffsetTs === undefined) {
+    zoneOffsetTs = Settings.now();
   }
-  return zoneOffsetGuessCache[zone];
+
+  // Do not cache anything but IANA zones, because it is not safe to do so.
+  // Guessing an offset which is not present in the zone can cause wrong results from fixOffset
+  if (zone.type !== "iana") {
+    return zone.offset(zoneOffsetTs);
+  }
+  const zoneName = zone.name;
+  let offsetGuess = zoneOffsetGuessCache.get(zoneName);
+  if (offsetGuess === undefined) {
+    offsetGuess = zone.offset(zoneOffsetTs);
+    zoneOffsetGuessCache.set(zoneName, offsetGuess);
+  }
+  return offsetGuess;
 }
 
 // this is a dumbed down version of fromObject() that runs about 60% faster
@@ -6266,7 +6326,7 @@ let zoneOffsetTs;
  * This optimizes quickDT via guessOffsetForZone to avoid repeated calls of
  * zone.offset().
  */
-let zoneOffsetGuessCache = {};
+const zoneOffsetGuessCache = new Map();
 
 /**
  * A DateTime is an immutable data structure representing a specific date and time and accompanying methods. It contains class and instance methods for creating, parsing, interrogating, transforming, and formatting them.
@@ -6288,7 +6348,7 @@ let zoneOffsetGuessCache = {};
  *
  * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
  */
-class DateTime$1 {
+let DateTime$1 = class DateTime {
   /**
    * @access private
    */
@@ -6366,7 +6426,7 @@ class DateTime$1 {
    * @return {DateTime}
    */
   static now() {
-    return new DateTime$1({});
+    return new DateTime({});
   }
 
   /**
@@ -6439,15 +6499,15 @@ class DateTime$1 {
   static fromJSDate(date, options = {}) {
     const ts = isDate(date) ? date.valueOf() : NaN;
     if (Number.isNaN(ts)) {
-      return DateTime$1.invalid("invalid input");
+      return DateTime.invalid("invalid input");
     }
 
     const zoneToUse = normalizeZone(options.zone, Settings.defaultZone);
     if (!zoneToUse.isValid) {
-      return DateTime$1.invalid(unsupportedZone(zoneToUse));
+      return DateTime.invalid(unsupportedZone(zoneToUse));
     }
 
-    return new DateTime$1({
+    return new DateTime({
       ts: ts,
       zone: zoneToUse,
       loc: Locale.fromObject(options),
@@ -6470,11 +6530,11 @@ class DateTime$1 {
       throw new InvalidArgumentError(
         `fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`
       );
-    } else if (milliseconds < -MAX_DATE || milliseconds > MAX_DATE) {
+    } else if (milliseconds < -864e13 || milliseconds > MAX_DATE) {
       // this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
-      return DateTime$1.invalid("Timestamp out of range");
+      return DateTime.invalid("Timestamp out of range");
     } else {
-      return new DateTime$1({
+      return new DateTime({
         ts: milliseconds,
         zone: normalizeZone(options.zone, Settings.defaultZone),
         loc: Locale.fromObject(options),
@@ -6497,7 +6557,7 @@ class DateTime$1 {
     if (!isNumber$1(seconds)) {
       throw new InvalidArgumentError("fromSeconds requires a numerical input");
     } else {
-      return new DateTime$1({
+      return new DateTime({
         ts: seconds * 1000,
         zone: normalizeZone(options.zone, Settings.defaultZone),
         loc: Locale.fromObject(options),
@@ -6542,7 +6602,7 @@ class DateTime$1 {
     obj = obj || {};
     const zoneToUse = normalizeZone(opts.zone, Settings.defaultZone);
     if (!zoneToUse.isValid) {
-      return DateTime$1.invalid(unsupportedZone(zoneToUse));
+      return DateTime.invalid(unsupportedZone(zoneToUse));
     }
 
     const loc = Locale.fromObject(opts);
@@ -6616,7 +6676,7 @@ class DateTime$1 {
       invalid = higherOrderInvalid || hasInvalidTimeData(normalized);
 
     if (invalid) {
-      return DateTime$1.invalid(invalid);
+      return DateTime.invalid(invalid);
     }
 
     // compute the actual time
@@ -6626,7 +6686,7 @@ class DateTime$1 {
         ? ordinalToGregorian(normalized)
         : normalized,
       [tsFinal, offsetFinal] = objToTS(gregorian, offsetProvis, zoneToUse),
-      inst = new DateTime$1({
+      inst = new DateTime({
         ts: tsFinal,
         zone: zoneToUse,
         o: offsetFinal,
@@ -6635,14 +6695,14 @@ class DateTime$1 {
 
     // gregorian data + weekday serves only to validate
     if (normalized.weekday && containsGregor && obj.weekday !== inst.weekday) {
-      return DateTime$1.invalid(
+      return DateTime.invalid(
         "mismatched weekday",
         `you can't specify both a weekday of ${normalized.weekday} and a date of ${inst.toISO()}`
       );
     }
 
     if (!inst.isValid) {
-      return DateTime$1.invalid(inst.invalid);
+      return DateTime.invalid(inst.invalid);
     }
 
     return inst;
@@ -6738,7 +6798,7 @@ class DateTime$1 {
       }),
       [vals, parsedZone, specificOffset, invalid] = parseFromTokens(localeToUse, text, fmt);
     if (invalid) {
-      return DateTime$1.invalid(invalid);
+      return DateTime.invalid(invalid);
     } else {
       return parseDataToDateTime(vals, parsedZone, opts, `format ${fmt}`, text, specificOffset);
     }
@@ -6748,7 +6808,7 @@ class DateTime$1 {
    * @deprecated use fromFormat instead
    */
   static fromString(text, fmt, opts = {}) {
-    return DateTime$1.fromFormat(text, fmt, opts);
+    return DateTime.fromFormat(text, fmt, opts);
   }
 
   /**
@@ -6793,7 +6853,7 @@ class DateTime$1 {
     if (Settings.throwOnInvalid) {
       throw new InvalidDateTimeError(invalid);
     } else {
-      return new DateTime$1({ invalid });
+      return new DateTime({ invalid });
     }
   }
 
@@ -6831,7 +6891,7 @@ class DateTime$1 {
 
   static resetCache() {
     zoneOffsetTs = undefined;
-    zoneOffsetGuessCache = {};
+    zoneOffsetGuessCache.clear();
   }
 
   // INFO
@@ -7316,7 +7376,7 @@ class DateTime$1 {
     if (zone.equals(this.zone)) {
       return this;
     } else if (!zone.isValid) {
-      return DateTime$1.invalid(unsupportedZone(zone));
+      return DateTime.invalid(unsupportedZone(zone));
     } else {
       let newTS = this.ts;
       if (keepLocalTime || keepCalendarTime) {
@@ -7600,7 +7660,7 @@ class DateTime$1 {
    * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
    * @example DateTime.now().toISO({ includeOffset: false }) //=> '2017-04-22T20:47:05.335'
    * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
-   * @return {string}
+   * @return {string|null}
    */
   toISO({
     format = "extended",
@@ -7627,7 +7687,7 @@ class DateTime$1 {
    * @param {string} [opts.format='extended'] - choose between the basic and extended format
    * @example DateTime.utc(1982, 5, 25).toISODate() //=> '1982-05-25'
    * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
-   * @return {string}
+   * @return {string|null}
    */
   toISODate({ format = "extended" } = {}) {
     if (!this.isValid) {
@@ -7712,7 +7772,7 @@ class DateTime$1 {
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL Date
    * @example DateTime.utc(2014, 7, 13).toSQLDate() //=> '2014-07-13'
-   * @return {string}
+   * @return {string|null}
    */
   toSQLDate() {
     if (!this.isValid) {
@@ -7807,7 +7867,7 @@ class DateTime$1 {
   }
 
   /**
-   * Returns the epoch seconds of this DateTime.
+   * Returns the epoch seconds (including milliseconds in the fractional part) of this DateTime.
    * @return {number}
    */
   toSeconds() {
@@ -7908,13 +7968,13 @@ class DateTime$1 {
    * @return {Duration}
    */
   diffNow(unit = "milliseconds", opts = {}) {
-    return this.diff(DateTime$1.now(), unit, opts);
+    return this.diff(DateTime.now(), unit, opts);
   }
 
   /**
    * Return an Interval spanning between this DateTime and another DateTime
    * @param {DateTime} otherDateTime - the other end point of the Interval
-   * @return {Interval}
+   * @return {Interval|DateTime}
    */
   until(otherDateTime) {
     return this.isValid ? Interval.fromDateTimes(this, otherDateTime) : this;
@@ -7978,7 +8038,7 @@ class DateTime$1 {
    */
   toRelative(options = {}) {
     if (!this.isValid) return null;
-    const base = options.base || DateTime$1.fromObject({}, { zone: this.zone }),
+    const base = options.base || DateTime.fromObject({}, { zone: this.zone }),
       padding = options.padding ? (this < base ? -options.padding : options.padding) : 0;
     let units = ["years", "months", "days", "hours", "minutes", "seconds"];
     let unit = options.unit;
@@ -8010,7 +8070,7 @@ class DateTime$1 {
   toRelativeCalendar(options = {}) {
     if (!this.isValid) return null;
 
-    return diffRelative(options.base || DateTime$1.fromObject({}, { zone: this.zone }), this, {
+    return diffRelative(options.base || DateTime.fromObject({}, { zone: this.zone }), this, {
       ...options,
       numeric: "auto",
       units: ["years", "months", "days"],
@@ -8024,7 +8084,7 @@ class DateTime$1 {
    * @return {DateTime} the min DateTime, or undefined if called with no argument
    */
   static min(...dateTimes) {
-    if (!dateTimes.every(DateTime$1.isDateTime)) {
+    if (!dateTimes.every(DateTime.isDateTime)) {
       throw new InvalidArgumentError("min requires all arguments be DateTimes");
     }
     return bestBy(dateTimes, (i) => i.valueOf(), Math.min);
@@ -8036,7 +8096,7 @@ class DateTime$1 {
    * @return {DateTime} the max DateTime, or undefined if called with no argument
    */
   static max(...dateTimes) {
-    if (!dateTimes.every(DateTime$1.isDateTime)) {
+    if (!dateTimes.every(DateTime.isDateTime)) {
       throw new InvalidArgumentError("max requires all arguments be DateTimes");
     }
     return bestBy(dateTimes, (i) => i.valueOf(), Math.max);
@@ -8065,7 +8125,7 @@ class DateTime$1 {
    * @deprecated use fromFormatExplain instead
    */
   static fromStringExplain(text, fmt, options = {}) {
-    return DateTime$1.fromFormatExplain(text, fmt, options);
+    return DateTime.fromFormatExplain(text, fmt, options);
   }
 
   /**
@@ -8123,7 +8183,7 @@ class DateTime$1 {
     const { result, zone, specificOffset, invalidReason } = formatParser.explainFromTokens(text);
 
     if (invalidReason) {
-      return DateTime$1.invalid(invalidReason);
+      return DateTime.invalid(invalidReason);
     } else {
       return parseDataToDateTime(
         result,
@@ -8313,7 +8373,7 @@ class DateTime$1 {
   static get DATETIME_HUGE_WITH_SECONDS() {
     return DATETIME_HUGE_WITH_SECONDS;
   }
-}
+};
 
 /**
  * @private
@@ -8377,6 +8437,9 @@ class Weekday {
 }
 
 //@ts-nocheck
+// =============================================================================
+// Helper functions
+// =============================================================================
 const isPresent = function (value) {
     return value !== null && value !== undefined;
 };
@@ -11236,6 +11299,9 @@ class RRule {
 }
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 // REF: https://hg.mozilla.org/comm-central/file/d18e33f0603fa1b1f240424041564672869076ca/calendar/base/modules/Ical.jsm#l214
 // Find the index for insertion using binary search.
 function findIndex(list, value, cmp) {
@@ -11826,6 +11892,9 @@ class RecurrenceRule {
 }
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 console.info('CALENDAR: WebWorker started.');
 let calendar_event;
 // Certain objects need special attention to transfer over "Comlink",

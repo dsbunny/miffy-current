@@ -3,18 +3,40 @@
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-import { LitElement, css, html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { css } from 'lit';
+import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { WebGLRenderer } from '../lib/webgl-renderer.js';
-import CssPlaylistElement from './css-play-list.js';
+import WebPlaylistElement from './web-play-list.js';
 
 // Convenience configuration to disable HiDPI rendering, which can be slow on
 // some platforms, or produce artifacts on low resolution content.
 const DEBUG_DISABLE_HIDPI = false;
 
 @customElement('webgl-play-list')
-export default class WebGLPlaylistElement extends CssPlaylistElement {
+export default class WebGLPlaylistElement extends WebPlaylistElement {
+
+static override styles = css`
+		:host {
+			display: block;
+			contain: strict;
+			overflow: clip;
+			font-size: 0;
+		}
+		section {
+			display: none;
+		}
+		main {
+			position: relative;
+			margin-left: 600px;
+		}
+		main * {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	`;
 
 	// Override the renderer to use WebGL.
 	protected override _createRenderer(): Renderer {

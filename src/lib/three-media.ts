@@ -15,6 +15,7 @@ export abstract class ThreeAsset extends EventTarget {
 	loop = false;
 	protected _url: URL;
 	protected _src: string;
+	protected _params: any;
 	// Per HTMLMediaElement.
 	protected _duration: number;
 	protected _ended = false;
@@ -23,15 +24,22 @@ export abstract class ThreeAsset extends EventTarget {
 	protected _paused= true;
 	protected _readyState: number = HTMLMediaElement.HAVE_NOTHING;
 
-	constructor(src: string, duration: number, public readonly collection: ThreeCollection) {
+	constructor(
+		src: string,
+		params: any,
+		duration: number,
+		public readonly collection: ThreeCollection,
+	) {
 		super();
 		this._url = new URL(src, self.location.href);
 		this._src = src;
+		this._params = params;
 		this._duration = duration;
 	}
 
 	abstract close(): void;
 
+	get params() { return this._params; }
 	// Per HTMLMediaElement.
 	get src() { return this._src; }
 	get currentSrc() { return this._url.href; }
@@ -82,17 +90,23 @@ export class ThreeImage extends ThreeAsset {
 	protected _lastTimeUpdate: DOMHighResTimeStamp = 0;
 	protected _currentTime: DOMHighResTimeStamp = 0;
 
-	constructor(src: string, duration: number, collection: ImageCollection) {
-		super(src, duration, collection);
+	constructor(
+		src: string,
+		params: any,
+		duration: number,
+		collection: ThreeImageCollection,
+	) {
+		super(src, params, duration, collection);
 	}
 
 	override close(): void {
 		if(this.texture instanceof THREE.Texture) {
-			(this.collection as ImageCollection).release(this.texture.image);
+			(this.collection as ThreeImageCollection).release(this.texture.image);
 			this.texture.dispose();
 		}
 	}
 
+	override get params() { return super.params; }
 	// Per HTMLMediaElement.
 	override get src() { return super.src; }
 	override get currentSrc() { return super.currentSrc; }
@@ -124,7 +138,7 @@ export class ThreeImage extends ThreeAsset {
 
 	override load(): void {
 		super.dispatchEvent(new Event('loadstart'));
-		const img = (this.collection as ImageCollection).acquire();
+		const img = (this.collection as ThreeImageCollection).acquire();
 //console.info('MEDIA: img.src', this.src);
 		img.src = this.src;
 		this._networkState = HTMLMediaElement.NETWORK_LOADING;
@@ -146,7 +160,7 @@ export class ThreeImage extends ThreeAsset {
 		.catch((encodingError: DOMException) => {
 			console.error("MEDIA:", encodingError);
 			this._networkState = HTMLMediaElement.NETWORK_IDLE;
-			(this.collection as ImageCollection).release(img);
+			(this.collection as ThreeImageCollection).release(img);
 			super.dispatchEvent(new Event('error'));
 		});
 	}
@@ -196,8 +210,13 @@ export class ThreeImage extends ThreeAsset {
 export class ThreeVideo extends ThreeAsset {
 	protected _redispatchEvent: (event: string | Event) => any;
 
-	constructor(src: string, duration: number, collection: VideoCollection) {
-		super(src, duration, collection);
+	constructor(
+		src: string,
+		params: any,
+		duration: number,
+		collection: ThreeVideoCollection,
+	) {
+		super(src, params, duration, collection);
 		this._redispatchEvent = (event: string | Event) => {
 			super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
 		};
@@ -205,11 +224,12 @@ export class ThreeVideo extends ThreeAsset {
 
 	override close(): void {
 		if(this.texture instanceof THREE.Texture) {
-			(this.collection as VideoCollection).release(this.texture.image);
+			(this.collection as ThreeVideoCollection).release(this.texture.image);
 			this.texture.dispose();
 		}
 	}
 
+	override get params() { return super.params; }
 	// Per HTMLMediaElement.
 	override get src() { return super.src; }
 	override get currentSrc() {
@@ -281,7 +301,7 @@ export class ThreeVideo extends ThreeAsset {
 	}
 
 	override load(): void {
-		const video = (this.collection as VideoCollection).acquire();
+		const video = (this.collection as ThreeVideoCollection).acquire();
 		video.onabort = this._redispatchEvent;
 		video.oncanplay = this._redispatchEvent;
 		video.oncanplaythrough = this._redispatchEvent;
@@ -311,7 +331,7 @@ export class ThreeVideo extends ThreeAsset {
 			console.log("load video ...");
 			video.load();
 		} catch(encodingError) {
-			(this.collection as VideoCollection).release(video);
+			(this.collection as ThreeVideoCollection).release(video);
 			throw encodingError;
 		}
 	}
@@ -336,8 +356,13 @@ export class ThreeApp extends ThreeAsset {
 	protected _currentTime: DOMHighResTimeStamp = 0;
 	protected _redispatchEvent: (event: string | Event) => any;
 
-	constructor(src: string, duration: number, collection: AppCollection) {
-		super(src, duration, collection);
+	constructor(
+		src: string,
+		params: any,
+		duration: number,
+		collection: ThreeAppCollection,
+	) {
+		super(src, params, duration, collection);
 		this._redispatchEvent = (event: string | Event) => {
 			super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
 		};
@@ -346,11 +371,12 @@ export class ThreeApp extends ThreeAsset {
 	override close(): void {
 		if(this.texture instanceof THREE.Texture) {
 			this.texture.userData.close();
-			this.texture.userData = undefined;
+			this.texture.userData = {};
 			this.texture.dispose();
 		}
 	}
 
+	override get params() { return super.params; }
 	// Per HTMLMediaElement.
 	override get src() { return super.src; }
 	override get currentSrc() { return super.currentSrc; }
@@ -374,13 +400,13 @@ export class ThreeApp extends ThreeAsset {
 console.log('MEDIA: load');
 		super.dispatchEvent(new Event('loadstart'));
 		this._networkState = HTMLMediaElement.NETWORK_LOADING;
-		const collection = this.collection as AppCollection;
+		const collection = this.collection as ThreeAppCollection;
 		const fbo = collection.acquire();
 		collection.importModule(this.src)
 		// FIXME: Possibly an interface?
 		.then((App: any) => {
 			try {
-				const app = new App();
+				const app = new App(this.params);
 				if(typeof app.init !== "function") {
 					throw new Error('App.init() not implemented.');
 				}
@@ -460,12 +486,12 @@ console.log('MEDIA: load');
 abstract class ThreeCollection {
 	constructor(readonly renderRoot: (HTMLElement | ShadowRoot)) {}
 	abstract acquire(): HTMLImageElement | HTMLVideoElement | THREE.WebGLRenderTarget;
-	abstract createThreeAsset(src: string, duration: number): ThreeImage | ThreeVideo | ThreeApp;
+	abstract createThreeAsset(src: string, params: any, duration: number): ThreeImage | ThreeVideo | ThreeApp;
 	abstract release(asset: HTMLImageElement | HTMLVideoElement | THREE.WebGLRenderTarget): void;
 	abstract clear(): void;
 }
 
-class ImageCollection extends ThreeCollection {
+class ThreeImageCollection extends ThreeCollection {
 	protected _images: HTMLImageElement[] = [];
 
 	constructor(renderRoot: (HTMLElement | ShadowRoot)) {
@@ -481,8 +507,12 @@ class ImageCollection extends ThreeCollection {
 		return img;
 	}
 
-	override createThreeAsset(src: string, duration: number): ThreeImage {
-		return new ThreeImage(src, duration, this);
+	override createThreeAsset(
+		src: string,
+		params: any,
+		duration: number,
+	): ThreeImage {
+		return new ThreeImage(src, params, duration, this);
 	}
 
 	override release(img: HTMLImageElement): void {
@@ -495,7 +525,7 @@ class ImageCollection extends ThreeCollection {
 	}
 }
 
-class VideoCollection extends ThreeCollection {
+class ThreeVideoCollection extends ThreeCollection {
 	protected _videos: HTMLVideoElement[] = [];
 
 	constructor(renderRoot: (HTMLElement | ShadowRoot)) {
@@ -517,8 +547,12 @@ class VideoCollection extends ThreeCollection {
 		return video;
 	}
 
-	override createThreeAsset(src: string, _duration: number): ThreeVideo {
-		return new ThreeVideo(src, NaN, this);
+	override createThreeAsset(
+		src: string,
+		params: any,
+		_duration: number,
+	): ThreeVideo {
+		return new ThreeVideo(src, params, NaN, this);
 	}
 
 	override release(video: HTMLVideoElement): void {
@@ -534,15 +568,18 @@ class VideoCollection extends ThreeCollection {
 	}
 }
 
-class AppWrapper {
+class ThreeAppWrapper {
 	constructor(public readonly app: any) {}
 }
 
-class AppCollection extends ThreeCollection {
-	protected _apps = new Map<string, AppWrapper>();
+class ThreeAppCollection extends ThreeCollection {
+	protected _apps = new Map<string, ThreeAppWrapper>();
 	protected _fbo: THREE.WebGLRenderTarget;
 
-	constructor(renderRoot: (HTMLElement | ShadowRoot), public readonly renderer: THREE.WebGLRenderer) {
+	constructor(
+		renderRoot: (HTMLElement | ShadowRoot),
+		public readonly renderer: THREE.WebGLRenderer,
+	) {
 		super(renderRoot);
 		// this.#mesh width & height;
 		const width = 1024;  // * renderer.getPixelRatio();
@@ -564,14 +601,18 @@ class AppCollection extends ThreeCollection {
 		if(typeof module === 'undefined') {
 			const { default: App } = await import(src);
 console.log('MEDIA: Dynamically imported', App);
-			this._apps.set(src, new AppWrapper(App));
+			this._apps.set(src, new ThreeAppWrapper(App));
 			return App;
 		}
 		return module.app;
 	}
 
-	override createThreeAsset(src: string, duration: number): ThreeApp {
-		return new ThreeApp(src, duration, this);
+	override createThreeAsset(
+		src: string,
+		params: any,
+		duration: number,
+	): ThreeApp {
+		return new ThreeApp(src, params, duration, this);
 	}
 
 	override release(_fbo: THREE.WebGLRenderTarget): void {}
@@ -594,12 +635,15 @@ export class ThreeAssetManager {
 		this._renderer = renderer;
 	}
 
-	protected _createCollection(renderTarget: HTMLElement, renderer: THREE.WebGLRenderer): Map<string, ThreeCollection> {
+	protected _createCollection(
+		renderTarget: HTMLElement,
+		renderer: THREE.WebGLRenderer,
+	): Map<string, ThreeCollection> {
 		// TypeScript assumes iterator of first type.
 		const collection = new Map([
-			['HTMLImageElement', new ImageCollection(renderTarget) as ThreeCollection],
-			['HTMLVideoElement', new VideoCollection(renderTarget) as ThreeCollection],
-			['CustomElement', new AppCollection(renderTarget, renderer) as ThreeCollection],
+			['HTMLImageElement', new ThreeImageCollection(renderTarget) as ThreeCollection],
+			['HTMLVideoElement', new ThreeVideoCollection(renderTarget) as ThreeCollection],
+			['CustomElement', new ThreeAppCollection(renderTarget, renderer) as ThreeCollection],
 		]);
 		return collection;
 	}
@@ -620,7 +664,11 @@ export class ThreeAssetManager {
 		if(typeof collection === "undefined") {
 			throw new Error('Undefined collection.');
 		}
-		return collection.createThreeAsset(decl.href, decl.duration);
+		return collection.createThreeAsset(
+			decl.href,
+			decl.params,
+			decl.duration,
+		);
 	}
 
 	clear(): void {

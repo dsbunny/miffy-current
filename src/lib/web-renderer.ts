@@ -5,16 +5,15 @@
 
 import * as Comlink from 'comlink';
 import EventTarget from '@ungap/event-target';
-import { View, Renderer } from '../lib/renderer.js';
+import { View, Renderer } from './renderer.js';
 import {
 	SchedulerState,
 	SchedulerAssetDecl,
 	SchedulerAssetDeclWithRemainingTime,
-	SchedulerAssetTransition,
-} from '../lib/scheduler.js';
-import { AssetDecl, MediaDecl } from '../lib/media.js';
-import { CssAsset, CssAssetManager } from '../lib/css-media.js';
-import { Prefetch } from '../lib/prefetch.js';
+} from './scheduler.js';
+import { AssetDecl, MediaDecl } from './media.js';
+import { WebAsset, WebAssetManager } from './web-media.js';
+import { Prefetch } from './prefetch.js';
 import "./htmlimageelement-decode-polyfill.js";
 
 const DEBUG_SHOW_DETAIL = true;
@@ -68,7 +67,7 @@ class RendererAsset {
 	user_data: any = {};
 	constructor(
 		readonly id: string,
-		public media_asset: CssAsset,
+		public media_asset: WebAsset,
 	) {}
 
 	get paused() { return this.media_asset.paused; }
@@ -123,10 +122,10 @@ class RendererAsset {
 	}
 }
 
-export class CSSRenderer extends EventTarget implements Renderer {
+export class WebRenderer extends EventTarget implements Renderer {
 
 	protected _renderTarget: HTMLElement | null = null;
-	protected _mam = new CssAssetManager();
+	protected _mam = new WebAssetManager();
 	protected _transition_percent = 0;
 	protected _transition_percent_speed = 0;
 	protected _network_loading_count = 0;

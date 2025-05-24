@@ -11,7 +11,7 @@ import summary from 'rollup-plugin-summary';
 export default [
 {
 	input: [
-		'build/src/elements/css-play-list.js',
+		'build/src/elements/web-play-list.js',
 	],
 	onwarn(warning) {
 		if (warning.code !== 'THIS_IS_UNDEFINED') {
@@ -30,7 +30,7 @@ export default [
 		summary(),
 	],
 	output: {
-		file: 'dist/css.bundle.mjs',
+		file: 'dist/web.bundle.mjs',
 		format: 'esm',
 		sourcemap: true,
 	},

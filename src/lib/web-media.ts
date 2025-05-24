@@ -11,7 +11,7 @@ import "./htmlimageelement-decode-polyfill.js";
 // TBD: Audio.
 // TBD: Seeking, within CMS UI.
 // TBD: Poster.
-export abstract class CssAsset extends EventTarget {
+export abstract class WebAsset extends EventTarget {
 	texture: HTMLElement | undefined;
 	autoplay = true;
 	loop = false;
@@ -26,7 +26,7 @@ export abstract class CssAsset extends EventTarget {
 	protected _paused= true;
 	protected _readyState: number = HTMLMediaElement.HAVE_NOTHING;
 
-	constructor(src: string, duration: number, public readonly collection: CssCollection) {
+	constructor(src: string, duration: number, public readonly collection: WebCollection) {
 		super();
 		this._url = new URL(src, self.location.href);
 		this._src = src;
@@ -92,13 +92,13 @@ export abstract class CssAsset extends EventTarget {
 
 // super must be used to call functions only, operation is undefined when
 // accessing variables that are not hidden behind getters and setters.
-export class CssImage extends CssAsset {
+export class WebImage extends WebAsset {
 	protected _image: HTMLImageElement | undefined;
 	protected _startTime: DOMHighResTimeStamp | number = NaN;
 	protected _lastTimeUpdate: DOMHighResTimeStamp = 0;
 	protected _currentTime: DOMHighResTimeStamp = 0;
 
-	constructor(src: string, duration: number, collection: ImageCollection) {
+	constructor(src: string, duration: number, collection: WebImageCollection) {
 		super(src, duration, collection);
 	}
 
@@ -171,7 +171,7 @@ export class CssImage extends CssAsset {
 	override load(): void {
 		console.log(`load image ... ${this.src}`);
 		this.dispatchEvent(new Event('loadstart'));
-		const image = this.texture = this._image = (this.collection as ImageCollection).acquire();
+		const image = this.texture = this._image = (this.collection as WebImageCollection).acquire();
 		image.crossOrigin = 'anonymous';
 		image.src = this.src;
 		this._networkState = HTMLMediaElement.NETWORK_LOADING;
@@ -193,7 +193,7 @@ export class CssImage extends CssAsset {
 			this._networkState = HTMLMediaElement.NETWORK_EMPTY;
 			this._readyState = HTMLMediaElement.HAVE_NOTHING;
 			if(typeof image !== "undefined") {
-				(this.collection as ImageCollection).release(image);
+				(this.collection as WebImageCollection).release(image);
 				this.texture = this._image = undefined;
 			}
 			this.dispatchEvent(new Event('error'));
@@ -204,7 +204,7 @@ export class CssImage extends CssAsset {
 		this.dispatchEvent(new Event('beforeunload'));
 		this.pause();
 		if(typeof this._image !== "undefined") {
-			(this.collection as ImageCollection).release(this._image);
+			(this.collection as WebImageCollection).release(this._image);
 			this.texture = this._image = undefined;
 		}
 		this._readyState = HTMLMediaElement.HAVE_NOTHING;
@@ -254,11 +254,11 @@ export class CssImage extends CssAsset {
 	}
 }
 
-export class CssVideo extends CssAsset {
+export class WebVideo extends WebAsset {
 	protected _video: HTMLVideoElement | undefined;
 	protected _redispatchEvent: (event: string | Event) => any;
 
-	constructor(src: string, duration: number, collection: VideoCollection) {
+	constructor(src: string, duration: number, collection: WebVideoCollection) {
 		super(src, duration, collection);
 		this._redispatchEvent = (event: string | Event) => {
 			this.dispatchEvent(new Event(event instanceof Event ? event.type : event));
@@ -373,7 +373,7 @@ export class CssVideo extends CssAsset {
 
 	override load(): void {
 		console.log(`load video ... ${this.src}`);
-		const video = this.texture = this._video = (this.collection as VideoCollection).acquire();
+		const video = this.texture = this._video = (this.collection as WebVideoCollection).acquire();
 		video.onabort = this._redispatchEvent;
 		video.oncanplay = this._redispatchEvent;
 		video.oncanplaythrough = this._redispatchEvent;
@@ -399,7 +399,7 @@ export class CssVideo extends CssAsset {
 		try {
 			video.load();
 		} catch(encodingError: unknown) {
-			(this.collection as VideoCollection).release(video);
+			(this.collection as WebVideoCollection).release(video);
 			this.texture = this._video = undefined;
 			throw encodingError;
 		}
@@ -410,7 +410,7 @@ export class CssVideo extends CssAsset {
 		this.dispatchEvent(new Event('beforeunload'));
 		this.pause();
 		if(typeof this._video !== "undefined") {
-			(this.collection as VideoCollection).release(this._video);
+			(this.collection as WebVideoCollection).release(this._video);
 			this.texture = this._video = undefined;
 		}
 		this.dispatchEvent(new Event('unload'));
@@ -433,15 +433,15 @@ export class CssVideo extends CssAsset {
 	override paint(_now: DOMHighResTimeStamp, _remaining: number): void {}
 }
 
-abstract class CssCollection {
+export abstract class WebCollection {
 	constructor(readonly renderRoot: (HTMLElement | ShadowRoot)) {}
 	abstract acquire(): HTMLImageElement | HTMLVideoElement;
-	abstract createCssAsset(src: string, duration: number): CssImage | CssVideo;
+	abstract createCssAsset(src: string, duration: number): WebImage | WebVideo;
 	abstract release(asset: HTMLImageElement | HTMLVideoElement): void;
 	abstract clear(): void;
 }
 
-class ImageCollection extends CssCollection {
+export class WebImageCollection extends WebCollection {
 	protected _images: HTMLImageElement[] = [];
 	protected _count = 0;
 
@@ -462,8 +462,8 @@ class ImageCollection extends CssCollection {
 		return img;
 	}
 
-	override createCssAsset(src: string, duration: number): CssImage {
-		return new CssImage(src, duration, this);
+	override createCssAsset(src: string, duration: number): WebImage {
+		return new WebImage(src, duration, this);
 	}
 
 	override release(img: HTMLImageElement): void {
@@ -488,7 +488,7 @@ class ImageCollection extends CssCollection {
 	}
 }
 
-class VideoCollection extends CssCollection {
+export class WebVideoCollection extends WebCollection {
 	protected _videos: HTMLVideoElement[] = [];
 	protected _count = 0;
 
@@ -514,8 +514,8 @@ class VideoCollection extends CssCollection {
 		return video;
 	}
 
-	override createCssAsset(src: string, _duration: number): CssVideo {
-		return new CssVideo(src, NaN, this);
+	override createCssAsset(src: string, _duration: number): WebVideo {
+		return new WebVideo(src, NaN, this);
 	}
 
 	override release(video: HTMLVideoElement): void {
@@ -544,20 +544,9 @@ class VideoCollection extends CssCollection {
 	}
 }
 
-// REF: https://webossignage-docs.developer.lge.com/guides/developer-guides/media-playback/audio-video-attribute/texture-attribute
-type LGHTMLVideoElement = HTMLVideoElement & { texture: boolean };
-
-class LunaVideoCollection extends VideoCollection {
-	override acquire(): HTMLVideoElement {
-		const video = super.acquire();
-		(video as LGHTMLVideoElement).texture = true;
-		return video;
-	}
-}
-
-export class CssAssetManager {
+export class WebAssetManager {
 	protected _renderTarget: HTMLElement | undefined;
-	protected _collection: Map<string, CssCollection> = new Map();
+	protected _collection: Map<string, WebCollection> = new Map();
 
 	setAssetTarget(renderTarget: HTMLElement): void {
 		this._renderTarget = renderTarget;
@@ -565,18 +554,18 @@ export class CssAssetManager {
 
 	setRenderer(_renderer: THREE.WebGLRenderer): void {}
 
-	protected _createCollection(renderTarget: HTMLElement): Map<string, CssCollection> {
+	protected _createCollection(renderTarget: HTMLElement): Map<string, WebCollection> {
 		// TypeScript assumes iterator of first type.
 		const collection = new Map([
-			['HTMLImageElement', new ImageCollection(renderTarget) as CssCollection],
-			['HTMLVideoElement', new VideoCollection(renderTarget) as CssCollection],
+			['HTMLImageElement', new WebImageCollection(renderTarget) as WebCollection],
+			['HTMLVideoElement', new WebVideoCollection(renderTarget) as WebCollection],
 		]);
 		return collection;
 	}
 
 	// decl: { type, href }
 	// Returns: asset.
-	createCssAsset(decl: MediaDecl): CssAsset {
+	createCssAsset(decl: MediaDecl): WebAsset {
 		if(this._collection.size === 0) {
 			if(typeof this._renderTarget === "undefined") {
 				throw new Error("undefined render target.");
@@ -594,16 +583,5 @@ export class CssAssetManager {
 		for(const value of this._collection.values()) {
 			value.clear();
 		}
-	}
-}
-
-export class LunaCssAssetManager extends CssAssetManager {
-	protected override _createCollection(renderTarget: HTMLElement): Map<string, CssCollection> {
-		// TypeScript assumes iterator of first type.
-		const collection = new Map([
-			['HTMLImageElement', new ImageCollection(renderTarget) as CssCollection],
-			['HTMLVideoElement', new LunaVideoCollection(renderTarget) as CssCollection],
-		]);
-		return collection;
 	}
 }
