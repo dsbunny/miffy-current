@@ -35,12 +35,14 @@ class PrefetchServiceWorker {
 	async #install() {
 		const cache = await self.caches.open('miffy');
 		const hrefs = [
-			//'./index.html',
+			'/media/favicon.png',
+			'/index.html',
 			'../dist/calendar.bundle.mjs',
-			'../dist/css.bundle.mjs',
 			'../dist/prefetch.bundle.mjs',
 			'../dist/scheduler.bundle.mjs',
+			'../dist/web.bundle.mjs',
 			'../dist/webgl.bundle.mjs',
+			'/external/node_modules/three/build/three.module.js',
 		];
 		const options = {
 			method: 'GET',

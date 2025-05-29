@@ -16,21 +16,21 @@ const DEBUG_DISABLE_HIDPI = false;
 @customElement('webgl-play-list')
 export default class WebGLPlaylistElement extends WebPlaylistElement {
 
-static override styles = css`
+	static override styles = css`
 		:host {
 			display: block;
 			contain: strict;
 			overflow: clip;
 			font-size: 0;
 		}
-		section {
+		:host > section {
 			display: none;
 		}
-		main {
+		:host > main {
 			position: relative;
 			margin-left: 600px;
 		}
-		main * {
+		:host > main > * {
 			display: block;
 			position: absolute;
 			top: 0;

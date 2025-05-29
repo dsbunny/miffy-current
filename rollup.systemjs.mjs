@@ -23,7 +23,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		includePaths({
 			include: {
 				"requestidlecallback-polyfill": path.join(process.cwd(), 'node_modules/requestidlecallback-polyfill/index.js'),
@@ -49,6 +49,9 @@ export default [
 				"@ungap/event-target": path.join(process.cwd(), 'node_modules/@ungap/event-target/esm/index.js'),
 				"@dsbunny/rtcmesh": path.join(process.cwd(), 'node_modules/@dsbunny/rtcmesh/dist/rtcmesh.js'),
 				"@dsbunny/raft": path.join(process.cwd(), 'node_modules/@dsbunny/raft/raft.js'),
+				"@dsbunny/app": path.join(process.cwd(), 'node_modules/@dsbunny/app/dist/index.js'),
+				"zod": path.join(process.cwd(), 'node_modules/zod/dist/esm/index.js'),
+				"three": path.join(process.cwd(), 'node_modules/three/build/three.module.js'),
 			},
 			paths: [
 				path.join(process.cwd(), 'node_modules/comlink/dist/esm'),
@@ -91,7 +94,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -133,7 +136,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',

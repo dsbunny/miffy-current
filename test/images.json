@@ -54,6 +54,18 @@
 				"md5": "Bpx07vTxRZ//Mh9bwYZsJw==",
 				"integrity": "sha384-qGcHv8KOn+vQMn1FayEwHIfpEkfsAX8VSMvto/H9pewWOqjMOXJkoQtAB+WIWA61",
 				"duration": 5
+			},{
+				"@type": "HTMLImageElement",
+				"id": "8ebd7e5d-3d25-418d-9370-f6ad95296b1e",
+				"href": "https://miffy.dsbunny.com/media/其他.jpg",
+				"size": 785286,
+				"hash": {
+					"method": "SHA256",
+					"hex": "d5368efb354f068d290d65224119ceb652c28e0a522827f4402b273039071f41"
+				},
+				"md5": "CQfGO8vhB59scoP4U30HvA==",
+				"integrity": "sha384-vJwbyiwRtw2I7hZxfVIO13wuOZm2Lx5vgXvKn9v9yT9NUgzdZuKthf1UGBg8Z+ty",
+				"duration": 5
 			}]
 		}
 	}

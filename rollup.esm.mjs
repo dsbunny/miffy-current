@@ -20,7 +20,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -29,6 +29,9 @@ export default [
 		}),
 		summary(),
 	],
+	external: [
+                'three',
+        ],
 	output: {
 		file: 'dist/web.bundle.mjs',
 		format: 'esm',
@@ -47,7 +50,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -56,6 +59,9 @@ export default [
 		}),
 		summary(),
 	],
+	external: [
+                'three',
+        ],
 	output: {
 		file: 'dist/webgl.bundle.mjs',
 		format: 'esm',
@@ -74,7 +80,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -83,6 +89,9 @@ export default [
 		}),
 		summary(),
 	],
+	external: [
+                'three',
+        ],
 	output: {
 		file: 'dist/brightsign.bundle.mjs',
 		format: 'esm',
@@ -101,7 +110,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -110,6 +119,9 @@ export default [
 		}),
 		summary(),
 	],
+	external: [
+                'three',
+        ],
 	output: {
 		file: 'dist/scheduler.bundle.mjs',
 		format: 'esm',
@@ -128,7 +140,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -137,6 +149,9 @@ export default [
 		}),
 		summary(),
 	],
+	external: [
+                'three',
+        ],
 	output: {
 		file: 'dist/calendar.bundle.mjs',
 		format: 'esm',
@@ -155,7 +170,7 @@ export default [
 	},
 	plugins: [
 		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined'}),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -164,6 +179,9 @@ export default [
 		}),
 		summary(),
 	],
+	external: [
+                'three',
+        ],
 	output: {
 		file: 'dist/prefetch.bundle.mjs',
 		format: 'esm',

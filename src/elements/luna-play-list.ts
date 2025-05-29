@@ -8,6 +8,8 @@ import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { LunaRenderer } from '../lib/luna-renderer.js';
 import WebPlaylistElement from './web-play-list.js';
+import { Prefetch } from '../lib/prefetch.js';
+import { LunaPrefetch } from '../lib/luna-prefetch.js';
 
 @customElement('luna-play-list')
 export default class LunaPlaylistElement extends WebPlaylistElement {
@@ -19,28 +21,32 @@ export default class LunaPlaylistElement extends WebPlaylistElement {
 			overflow: clip;
 			font-size: 0;
 		}
-		section {
+		:host > section {
 			display: none;
 		}
-		main {
+		:host > main {
 			position: relative;
 			margin-left: 600px;
 		}
-		main * {
+		:host > main > * {
 			visibility: hidden;
 			display: block;
 			position: absolute;
 			top: 0;
 			left: 0;
 		}
-		main .map1 {
+		:host > main > .map1 {
 			visibility: visible;
 			will-change: opacity;
 			z-index: 2;
 		}
-		main .map2 {
+		:host > main > .map2 {
 			visibility: visible;
 			z-index: 1;
+		}
+		:host > main > article {
+			width: 100%;
+			height: 100%;
 		}
 	`;
 
@@ -54,7 +60,9 @@ export default class LunaPlaylistElement extends WebPlaylistElement {
 	}
 
 	// Override the renderer to use LG WebOS compatible CSS Renderer.
-	protected override _createRenderer(): Renderer {
+	protected override _createRenderer(
+		prefetchFactory: { new(): Prefetch } = LunaPrefetch,
+	): Renderer {
 		if(this._section === null) {
 			throw new Error("cannot find <section> element to attach to.");
 		}
@@ -62,7 +70,7 @@ export default class LunaPlaylistElement extends WebPlaylistElement {
 			throw new Error("cannot find <main> element to attach to.");
 		}
 
-		const renderer = new LunaRenderer();
+		const renderer = new LunaRenderer(prefetchFactory);
 		renderer.init();
 
 		this._connectSchedulerToRenderer(this._scheduler, renderer);

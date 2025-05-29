@@ -64,28 +64,33 @@ export default class WebPlaylistElement extends LitElement {
 			overflow: clip;
 			font-size: 0;
 		}
-		section {
+		:host > section {
 			display: none;
 		}
-		main {
+		:host > main {
 			position: relative;
 			margin-left: 600px;
 		}
-		main * {
+		:host > main > * {
 			visibility: hidden;
 			display: block;
 			position: absolute;
 			top: 0;
 			left: 0;
 		}
-		main .map1 {
+		:host > main > .map1 {
 			visibility: visible;
 			will-change: opacity;
 			z-index: 2;
 		}
-		main .map2 {
+		:host > main > .map2 {
 			visibility: visible;
 			z-index: 1;
+		}
+
+		:host > main > article {
+			width: 100%;
+			height: 100%;
 		}
 	`;
 
@@ -119,7 +124,7 @@ export default class WebPlaylistElement extends LitElement {
 	get debugCluster() { return this._cluster; }
 
 	protected _createWorker(): Worker {
-		return new Worker(new URL('../dist/scheduler.bundle.mjs', location.href).pathname, {
+		return new Worker(new URL('../dist/scheduler.bundle.mjs', import.meta.url).pathname, {
 			type: 'module',
 			credentials: 'omit',
 			name: 'Scheduler',  // Shown in debugger.
@@ -335,11 +340,16 @@ export default class WebPlaylistElement extends LitElement {
 	// Render at native frame rate, which may be variable, e.g. NVIDIA
 	// G-SYNC, or FreeSync.
 	protected _renderOneFrame(timestamp: DOMHighResTimeStamp): void {
+		this._raf_id = undefined;
 		this._renderer.render(timestamp);
 		this._prepareNextFrame();
 	}
 
 	protected _prepareNextFrame(): void {
+		if(typeof this._raf_id !== "undefined") {
+			window.cancelAnimationFrame(this._raf_id);
+			this._raf_id = undefined;
+		}
 		this._raf_id = window.requestAnimationFrame((timestamp: DOMHighResTimeStamp) => this._renderOneFrame(timestamp));
 	}
 
@@ -347,6 +357,7 @@ export default class WebPlaylistElement extends LitElement {
 	// Called during a browser's idle periods, i.e. background or low
 	// priority work.
 	protected _idle(deadline: IdleDeadline): void {
+		this._ric_id = undefined;
 		if(deadline.timeRemaining() > 0) {
 			this._renderer.idle();
 
@@ -362,6 +373,10 @@ export default class WebPlaylistElement extends LitElement {
 	// REF: https://en.wikipedia.org/wiki/Nyquist_frequency
 	// Maximum interval set to half the Raft heartbeat.
 	protected _prepareIdleCallback(): void {
+		if(typeof this._ric_id !== "undefined") {
+			window.cancelIdleCallback(this._ric_id);
+			this._ric_id = undefined;
+		}
 		this._ric_id = window.requestIdleCallback((deadline: IdleDeadline) => this._idle(deadline),
 			{ timeout: 250 });
 	}

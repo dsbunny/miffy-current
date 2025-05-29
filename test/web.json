@@ -1,0 +1,73 @@
+{
+	"transition": {
+		"@type": "Transition",
+		"id": "dc094fbd-20b9-417b-8dce-ce75cb97cac7",
+		"href": "https://miffy.dsbunny.com/media/displacement-map.jpg",
+		"size": 143244,
+		"hash": {
+			"method": "SHA256",
+			"hex": "bba81a0a6516bd639cf4913e7b51f945cf563328d55da60cdd818a9334f3745c"
+		},
+		"md5": "J2N7icrfOk4D/xxwHh7fwA==",
+		"integrity": "sha384-TtijMyJ33SJDdbi6eApfqScqgrlU6Y8dYGjL3gHym2aVGvhDP28OXBCKiA/VF0tV",
+		"duration": 1
+	},
+	"schedule": [
+		{
+			"@type": "Event",
+			"id": "a8d1b7c3-f8ba-482e-9eb1-c034504be17f",
+			"priority": 9,
+			"start": "1900-01-01T00:00:00Z",
+			"timeZone": "UTC",
+			"duration": "P1D",
+			"playlist": { "$ref": "#/$defs/default" },
+			"recurrenceRules": [{
+				"@type": "RecurrenceRule",
+				"frequency": "daily"
+			}]
+		}
+	],
+	"$defs": {
+		"default": {
+			"@type": "Playlist",
+			"entries": [{
+				"@type": "HTMLImageElement",
+				"id": "2701cb89-6740-41cf-9865-da17fac65259",
+				"href": "https://miffy.dsbunny.com/media/椎名林檎台壓封面.jpg",
+				"size": 1572783,
+				"hash": {
+					"method": "SHA256",
+					"hex": "a91ba27c9bb94e7401d3ec0a52bcf9b536941683d66bd99ed4b8b1d00adb487f"
+				},
+				"md5": "dU4x8d/MaNykxXphBJnSXA==",
+				"integrity": "sha384-/+X/ecKO6E0/LZiS48/x54C2FYfkqJ+ZfWIHc2GHSMiTr/4HEeRoaSl4n/wkStBI",
+				"duration": 5
+			},{
+				"@type": "HTMLImageElement",
+				"id": "b49a5647-3806-42de-9e34-01be1f6851a2",
+				"href": "https://miffy.dsbunny.com/media/三毒史.jpg",
+				"size": 159786,
+				"hash": {
+					"method": "SHA256",
+					"hex": "4bd188ce552ac57053a80fd5c5548f5e2364ce6d1ab2d5e82a51a995976bcdec"
+				},
+				"md5": "Bpx07vTxRZ//Mh9bwYZsJw==",
+				"integrity": "sha384-qGcHv8KOn+vQMn1FayEwHIfpEkfsAX8VSMvto/H9pewWOqjMOXJkoQtAB+WIWA61",
+				"duration": 5
+			},{
+				"@type": "CustomElement",
+				"id": "89f1ae26-6679-4726-b594-8de5798a2325",
+				"href": "https://miffy.dsbunny.com/apps/web/nc/dist/bundle.mjs",
+				"size": 147201,
+				"hash": {
+					"method": "SHA256",
+					"hex": "c67318856e51bb8475224264d36dfdc4b89ab6ceaf85e79da4e4d0911a879cfb"
+				},
+				"md5": "Tgvrc5RxHju3GVsya7HrTw==",
+				"integrity": "sha384-G9kckhMgfwQc+EapCQexPy1PIMd4oFAkLmYWVhCbXrCoeHRRxnmsoy3t1mWiL6jk",
+				"duration": 5,
+				"sources": []
+			}]
+		}
+	}
+}

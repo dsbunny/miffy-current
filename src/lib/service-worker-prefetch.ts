@@ -36,10 +36,12 @@ export class ServiceWorkerPrefetch extends EventTarget implements Prefetch {
 			console.log(`PREFETCH: Now controlled by:`, navigator.serviceWorker.controller);
 		});
 		// Note href not URL.
-		const registration = await navigator.serviceWorker.register(new URL('dist/prefetch.bundle.mjs', location.href), {
+		const href = new URL('./prefetch.bundle.mjs', import.meta.url).href;
+		const serviceWorkerOptions: RegistrationOptions = {
 			scope: '/',
 			type: 'module',
-		});
+		};
+		const registration = await navigator.serviceWorker.register(href, serviceWorkerOptions);
 		console.log(`PREFETCH: Service worker registration successful with scope: ${registration.scope}.`);
       		registration.addEventListener('updatefound', () => {
         		console.log("PREFETCH: Service worker updating ...");
@@ -54,9 +56,7 @@ export class ServiceWorkerPrefetch extends EventTarget implements Prefetch {
 			this._serviceWorker = registration.active;
 			console.log("PREFETCH: Service worker active.");
 console.log(navigator.serviceWorker);
-			if(navigator.serviceWorker.controller) {
-				this._onActivatedWorker();
-			}
+			this._onActivatedWorker();
 		}
 		if(typeof this._serviceWorker !== "undefined") {
 			this._serviceWorker.addEventListener('statechange', (e: Event) => {
@@ -68,9 +68,6 @@ console.log(e);
 					return;
 				}
 				console.log(`PREFETCH: Service worker state change: ${e.target.state}.`);
-				if(e.target.state === "activated") {
-					this._onActivatedWorker();
-				}
 			});
 			navigator.serviceWorker.startMessages();
 		}

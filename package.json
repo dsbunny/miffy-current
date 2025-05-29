@@ -35,7 +35,8 @@
 	"license": "MIT",
 	"private": false,
 	"dependencies": {
-		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#acdfe79",
+		"@dsbunny/app": "github:dsbunny/app#496dcbd",
+		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#42aa0aa",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",
 		"@msgpack/msgpack": "^3.1.1",
@@ -51,6 +52,6 @@
 		"subworkers": "^1.0.1",
 		"systemjs": "^6.15.1",
 		"three": "^0.176.0",
-		"troika-three-text": "^0.52.4"
+		"zod": "^3.25.0-beta.20250515T215617"
 	}
 }

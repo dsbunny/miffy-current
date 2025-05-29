@@ -4,23 +4,19 @@
 // https://opensource.org/licenses/MIT.
 
 import * as THREE from 'three';
+import { AppBaseParams, AppManifestSchema, AppParams, WebGLApp, WebGLAppConstructor } from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 
-// TBD: Audio.
-// TBD: Seeking, within CMS UI.
-// TBD: Poster.
-export abstract class ThreeAsset extends EventTarget {
+export abstract class AbstractThreeAsset extends EventTarget {
 	texture: THREE.Texture | undefined;
-	autoplay = true;
-	loop = false;
-	protected _url: URL;
+
 	protected _src: string;
-	protected _params: any;
-	// Per HTMLMediaElement.
+	protected _params: AppBaseParams;
+	// Per `HTMLMediaElement`.
 	protected _duration: number;
 	protected _ended = false;
-	protected _error = null;
-	protected _networkState: number = HTMLMediaElement.NETWORK_EMPTY;
+	protected _error: any | null = null;
+	protected _networkState: number = HTMLMediaElement.NETWORK_NO_SOURCE;
 	protected _paused= true;
 	protected _readyState: number = HTMLMediaElement.HAVE_NOTHING;
 
@@ -31,61 +27,41 @@ export abstract class ThreeAsset extends EventTarget {
 		public readonly collection: ThreeCollection,
 	) {
 		super();
-		this._url = new URL(src, self.location.href);
-		this._src = src;
+		const url = new URL(src, self.location.href);
+		this._src = url.href;
+		if(this._src.length !== 0) {
+			this._networkState = HTMLMediaElement.NETWORK_EMPTY;
+		}
 		this._params = params;
 		this._duration = duration;
 	}
 
 	abstract close(): void;
+	abstract paint(now: DOMHighResTimeStamp, remaining: number) : void;
 
 	get params() { return this._params; }
-	// Per HTMLMediaElement.
-	get src() { return this._src; }
-	get currentSrc() { return this._url.href; }
+	// Per `HTMLMediaElement`.
+	get currentSrc() { return this._src; }
 	get currentTime() { return 0; }
-	set currentTime(_timestamp: DOMHighResTimeStamp) {}
 	get duration() { return this._duration; }
 	get ended() { return this._ended; }
 	get error() { return this._error; }
 	get networkState() { return this._networkState; }
 	get paused() { return this._paused; }
 	get readyState() { return this._readyState; }
-	// Per HTMLVideoElement.
-	get height() { return 0; }
-	get width() { return 0; }
-
-	get debugUrl() { return this._url; }
-
+	get src() { return this._src; }
+	get srcObject(): MediaProvider | null { return null; }
 	abstract load(): void;
 	abstract pause(): void;
 	abstract play(): Promise<void>;
-	abstract paint(now: DOMHighResTimeStamp, remaining: number) : void;
-
-	// Events:
-	// abort
-	// canplay
-	// canplaythrough
-	// durationchange
-	// emptied
-	// ended
-	// error
-	// loadeddata
-	// loadedmetadata
-	// loadstart
-	// pause
-	// play
-	// playing
-	// progress
-	// stalled
-	// suspend
-	// timeupdate
-	// waiting
+	// Per `HTMLVideoElement`.
+	get height() { return 0; }
+	get width() { return 0; }
 }
 
 // super must be used to call functions only, operation is undefined when
 // accessing variables that are not hidden behind getters and setters.
-export class ThreeImage extends ThreeAsset {
+export class ThreeImageAsset extends AbstractThreeAsset {
 	protected _startTime: DOMHighResTimeStamp | number = NaN;
 	protected _lastTimeUpdate: DOMHighResTimeStamp = 0;
 	protected _currentTime: DOMHighResTimeStamp = 0;
@@ -100,28 +76,99 @@ export class ThreeImage extends ThreeAsset {
 	}
 
 	override close(): void {
-		if(this.texture instanceof THREE.Texture) {
-			(this.collection as ThreeImageCollection).release(this.texture.image);
-			this.texture.dispose();
+		if(typeof this.texture === "undefined") {
+			return;
 		}
+		console.log(`unload image ... ${this.src}`);
+		this.pause();
+		const collection = this.collection as ThreeImageCollection;
+		collection.release(this.texture.image);
+		this.texture.dispose();
+		this.texture = undefined;
+		this._readyState = HTMLMediaElement.HAVE_NOTHING;
+		this._networkState = HTMLMediaElement.NETWORK_EMPTY;
+		this._currentTime = 0;
+		this._startTime = NaN;
+		this._lastTimeUpdate = 0;
+		this._ended = false;
+		this._error = null;
+	}
+
+	// FIXME: delta for paused.
+	override paint(now: DOMHighResTimeStamp, _remaining: number): void {
+		if(this.paused || this.ended) return;
+		const elapsed = (now - this._startTime) / 1000;
+		this._currentTime += elapsed;
+		if(this._currentTime > this._duration) {
+			this._setEndedState();
+		} else {
+			if(Math.floor(this._currentTime) > this._lastTimeUpdate) {
+				this._lastTimeUpdate = this._currentTime;
+				super.dispatchEvent(new Event('timeupdate'));
+			}
+		}
+	}
+
+	protected _setEndedState(): void {
+		this._currentTime = this._duration;
+		this._ended = true;
+		this._startTime = NaN;
+		super.dispatchEvent(new Event('ended'));
 	}
 
 	override get params() { return super.params; }
 	// Per HTMLMediaElement.
-	override get src() { return super.src; }
 	override get currentSrc() { return super.currentSrc; }
 	override get currentTime() { return this._currentTime; }
-	override set currentTime(timestamp: DOMHighResTimeStamp) {
-		this._currentTime = timestamp;
-		this._startTime = NaN;
-	}
 	override get duration() { return super.duration; }
-	override set duration(duration: number) { this._duration = duration; }
 	override get ended() { return super.ended; }
 	override get error() { return super.error; }
 	override get networkState() { return super.networkState; }
 	override get paused() { return super.paused; }
 	override get readyState() { return super.readyState; }
+	override get src() { return super.src; }
+	override get srcObject() { return null; }
+
+	override load(): void {
+		(async () => {
+			const collection = this.collection as ThreeImageCollection;
+			const img = collection.acquire();
+			try {
+				img.crossOrigin = 'anonymous';
+				img.src = this.src;
+				this._networkState = HTMLMediaElement.NETWORK_LOADING;
+				console.log(`load image ... ${this.src}`);
+				await img.decode();
+				this.texture = new THREE.Texture(img);
+				this.texture.needsUpdate = true;
+				this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
+				super.dispatchEvent(new Event('canplay'));
+			} catch(encodingError: unknown) {
+				console.warn(`Failed to load image: ${this.src}`, encodingError);
+				this._error = encodingError;
+				this._networkState = HTMLMediaElement.NETWORK_IDLE;
+				collection.release(img);
+				super.dispatchEvent(new Event('error'));
+			}
+		})();
+	}
+
+	override pause(): void {
+		if(this._paused) return;
+		this._paused = true;
+	}
+
+	override async play(): Promise<void> {
+		this._paused = false;
+		if(this._ended) {
+			this._ended = false;
+			this._currentTime = 0;
+		}
+		if(isNaN(this._startTime)) {
+			this._startTime = performance.now() - this._currentTime;
+		}
+	}
+
 	// Per HTMLVideoElement.
 	override get height() {
 		if(typeof this.texture === "undefined") {
@@ -135,103 +182,44 @@ export class ThreeImage extends ThreeAsset {
 		}
 		return this.texture.image.width;
 	}
-
-	override load(): void {
-		super.dispatchEvent(new Event('loadstart'));
-		const img = (this.collection as ThreeImageCollection).acquire();
-//console.info('MEDIA: img.src', this.src);
-		img.src = this.src;
-		this._networkState = HTMLMediaElement.NETWORK_LOADING;
-		img.decode()
-		.then(() => {
-			this._networkState = HTMLMediaElement.NETWORK_IDLE;
-			super.dispatchEvent(new Event('durationchange'));
-			this.texture = new THREE.Texture(img);
-			this._readyState =  HTMLMediaElement.HAVE_METADATA;
-			super.dispatchEvent(new Event('loadedmetadata'));
-			this.texture.needsUpdate = true;
-			this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
-			super.dispatchEvent(new Event('loadeddata'));
-			this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
-			super.dispatchEvent(new Event('canplay'));
-			this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
-			super.dispatchEvent(new Event('canplaythrough'));
-		})
-		.catch((encodingError: DOMException) => {
-			console.error("MEDIA:", encodingError);
-			this._networkState = HTMLMediaElement.NETWORK_IDLE;
-			(this.collection as ThreeImageCollection).release(img);
-			super.dispatchEvent(new Event('error'));
-		});
-	}
-
-	override pause(): void {
-		if(this._paused) return;
-		this._paused = true;
-		super.dispatchEvent(new Event('pause'));
-	}
-
-	override async play(): Promise<void> {
-		this._paused = false;
-		if(this._ended) {
-			this._ended = false;
-			this._currentTime = 0;
-		}
-		if(isNaN(this._startTime)) {
-			this._startTime = performance.now() - this._currentTime;
-		}
-		super.dispatchEvent(new Event('play'));
-		super.dispatchEvent(new Event('playing'));
-	}
-
-	// FIXME: delta for paused.
-	override paint(now: DOMHighResTimeStamp, _remaining: number): void {
-		if(this.paused || this.ended) return;
-		const elapsed = (now - this._startTime) / 1000;
-		this._currentTime += elapsed;
-		if(this._currentTime > this.duration) {
-			this._setEndedState();
-		} else {
-			if(Math.floor(this._currentTime) > this._lastTimeUpdate) {
-				this._lastTimeUpdate = this._currentTime;
-				super.dispatchEvent(new Event('timeupdate'));
-			}
-		}
-	}
-
-	protected _setEndedState(): void {
-		this._currentTime = this.duration;
-		this._ended = true;
-		this._startTime = NaN;
-		super.dispatchEvent(new Event('ended'));
-	}
 }
 
-export class ThreeVideo extends ThreeAsset {
-	protected _redispatchEvent: (event: string | Event) => any;
+export class ThreeVideoAsset extends AbstractThreeAsset {
+	protected _redispatchEvent = (event: string | Event) => {
+		super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
+	};
 
 	constructor(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 		collection: ThreeVideoCollection,
 	) {
 		super(src, params, duration, collection);
-		this._redispatchEvent = (event: string | Event) => {
-			super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
-		};
 	}
 
 	override close(): void {
-		if(this.texture instanceof THREE.Texture) {
-			(this.collection as ThreeVideoCollection).release(this.texture.image);
-			this.texture.dispose();
+		if(typeof this.texture === "undefined") {
+			return;
 		}
+		console.log(`unload video ... ${this.src}`);
+		this.pause();
+		const collection = this.collection as ThreeVideoCollection;
+		const video = this.texture.image as HTMLVideoElement;
+		video.oncanplay = null;
+		video.onended = null;
+		video.onerror = null;
+		video.onloadeddata = null;
+		video.removeAttribute('src');
+		collection.release(video);
+		this.texture.dispose();
+		this.texture = undefined;
 	}
 
+	override paint(_now: DOMHighResTimeStamp, _remaining: number): void {}
+
 	override get params() { return super.params; }
-	// Per HTMLMediaElement.
-	override get src() { return super.src; }
+	// Per `HTMLMediaElement`.
 	override get currentSrc() {
 		if(typeof this.texture === "undefined") {
 			return super.currentSrc;
@@ -243,12 +231,6 @@ export class ThreeVideo extends ThreeAsset {
 			return super.currentTime;
 		}
 		return this.texture.image.currentTime;
-	}
-	override set currentTime(timestamp: DOMHighResTimeStamp) {
-		if(typeof this.texture === "undefined") {
-			return;
-		}
-		this.texture.image.currentTime = timestamp;
 	}
 	override get duration() {
 		if(typeof this.texture === "undefined") {
@@ -286,7 +268,52 @@ export class ThreeVideo extends ThreeAsset {
 		}
 		return this.texture?.image.readyState;
 	}
-	// Per HTMLVideoElement.
+	override get src() { return super.src; }
+	override get srcObject() {
+		if(typeof this.texture === "undefined") {
+			return null;
+		}
+		return this.texture.image.srcObject;
+	}
+
+	override load(): void {
+		const collection = this.collection as ThreeVideoCollection;
+		const video = collection.acquire();
+		video.oncanplay = this._redispatchEvent;
+		video.onended = this._redispatchEvent;
+		video.onerror = this._redispatchEvent;
+		video.src = this.src;
+		// Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
+		video.onloadeddata = (event: Event) => {
+			console.log(`create video texture ... ${this.src}`);
+			this.texture = new THREE.VideoTexture(video);
+			this.texture.needsUpdate = true;
+			this._redispatchEvent(event);
+		};
+		try {
+			console.log(`load video ... ${this.src}`);
+			video.load();
+		} catch(encodingError) {
+			collection.release(video);
+			throw encodingError;
+		}
+	}
+
+	override pause(): void {
+		if(typeof this.texture === "undefined") {
+			return;
+		}
+		this.texture.image.pause();
+	}
+
+	override async play(): Promise<void> {
+		if(typeof this.texture === "undefined") {
+			return;
+		}
+		await this.texture.image.play();
+	}
+
+	// Per `HTMLVideoElement`.
 	override get height() {
 		if(typeof this.texture === "undefined") {
 			return NaN;
@@ -299,194 +326,172 @@ export class ThreeVideo extends ThreeAsset {
 		}
 		return this.texture.image.width;
 	}
-
-	override load(): void {
-		const video = (this.collection as ThreeVideoCollection).acquire();
-		video.onabort = this._redispatchEvent;
-		video.oncanplay = this._redispatchEvent;
-		video.oncanplaythrough = this._redispatchEvent;
-		video.ondurationchange = this._redispatchEvent;
-		video.onemptied = this._redispatchEvent;
-		video.onended = this._redispatchEvent;
-		video.onerror = this._redispatchEvent;
-		video.onloadedmetadata = this._redispatchEvent;
-		video.onloadstart = this._redispatchEvent;
-		video.onpause = this._redispatchEvent;
-		video.onplay = this._redispatchEvent;
-		video.onplaying = this._redispatchEvent;
-		video.onprogress = this._redispatchEvent;
-		video.onstalled = this._redispatchEvent;
-		video.onsuspend = this._redispatchEvent;
-		video.ontimeupdate = this._redispatchEvent;
-		video.onwaiting = this._redispatchEvent;
-		video.src = this.src;
-		// Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
-		video.onloadeddata = (event: Event) => {
-			console.log("create video texture ...");
-			this.texture = new THREE.VideoTexture(video);
-			this.texture.needsUpdate = true;
-			this._redispatchEvent(event);
-		};
-		try {
-			console.log("load video ...");
-			video.load();
-		} catch(encodingError) {
-			(this.collection as ThreeVideoCollection).release(video);
-			throw encodingError;
-		}
-	}
-
-	override pause(): void {
-		this.texture?.image.pause();
-	}
-
-	override async play(): Promise<void> {
-		if(typeof this.texture === "undefined") {
-			return;
-		}
-		await this.texture.image.play();
-	}
-
-	override paint(_now: DOMHighResTimeStamp, _remaining: number): void {}
 }
 
-export class ThreeApp extends ThreeAsset {
-	protected _startTime: DOMHighResTimeStamp | number = NaN;
-	protected _lastTimeUpdate: DOMHighResTimeStamp = 0;
-	protected _currentTime: DOMHighResTimeStamp = 0;
-	protected _redispatchEvent: (event: string | Event) => any;
+export class ThreeAppAsset extends AbstractThreeAsset {
+	protected _app: WebGLApp | undefined;
+	protected _fbo: THREE.WebGLRenderTarget | undefined;
+	protected _redispatchEvent = (event: string | Event) => {
+		super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
+	};
 
 	constructor(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 		collection: ThreeAppCollection,
 	) {
 		super(src, params, duration, collection);
-		this._redispatchEvent = (event: string | Event) => {
-			super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
-		};
 	}
 
 	override close(): void {
-		if(this.texture instanceof THREE.Texture) {
-			this.texture.userData.close();
-			this.texture.userData = {};
-			this.texture.dispose();
+		if(typeof this.texture === "undefined") {
+			return;
 		}
-	}
-
-	override get params() { return super.params; }
-	// Per HTMLMediaElement.
-	override get src() { return super.src; }
-	override get currentSrc() { return super.currentSrc; }
-	override get currentTime() { return this._currentTime; }
-	override set currentTime(timestamp: DOMHighResTimeStamp) {
-		this._currentTime = timestamp;
-		this._startTime = NaN;
-	}
-	override get duration() { return super.duration; }
-	override set duration(duration: number) { this._duration = duration; }
-	override get ended() { return super.ended; }
-	override get error() { return super.error; }
-	override get networkState() { return super.networkState; }
-	override get paused() { return super.paused; }
-	override get readyState() { return super.readyState; }
-	// Per HTMLVideoElement.
-	override get height() { return this.texture?.image.height; }
-	override get width() { return this.texture?.image.width; }
-
-	override load(): void {
-console.log('MEDIA: load');
-		super.dispatchEvent(new Event('loadstart'));
-		this._networkState = HTMLMediaElement.NETWORK_LOADING;
+		console.log(`unload app ... ${this.src}`);
+		this.pause();
 		const collection = this.collection as ThreeAppCollection;
-		const fbo = collection.acquire();
-		collection.importModule(this.src)
-		// FIXME: Possibly an interface?
-		.then((App: any) => {
-			try {
-				const app = new App(this.params);
-				if(typeof app.init !== "function") {
-					throw new Error('App.init() not implemented.');
-				}
-				if(typeof app.animate !== "function") {
-					throw new Error('App.paint() not implemented.');
-				}
-				app.onerror = this._redispatchEvent;
-				app.init(fbo, collection.renderer);
-				fbo.texture.userData = app;
-				this._networkState = HTMLMediaElement.NETWORK_IDLE;
-				super.dispatchEvent(new Event('durationchange'));
-				this.texture = fbo.texture;
-				this._readyState =  HTMLMediaElement.HAVE_METADATA;
-				super.dispatchEvent(new Event('loadedmetadata'));
-				this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
-				super.dispatchEvent(new Event('loadeddata'));
-				this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
-				super.dispatchEvent(new Event('canplay'));
-				this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
-				super.dispatchEvent(new Event('canplaythrough'));
-			} catch(initError: any) {
-				console.error("MEDIA:", initError);
-				this._networkState = HTMLMediaElement.NETWORK_IDLE;
-				collection.release(fbo);
-				super.dispatchEvent(new Event('error'));
-			}
-		})
-		.catch((moduleError: any) => {
-			console.error("MEDIA:", moduleError);
-			this._networkState = HTMLMediaElement.NETWORK_IDLE;
-			collection.release(fbo);
-			super.dispatchEvent(new Event('error'));
-		})
-	}
-
-	override pause(): void {
-		if(this._paused) return;
-		this._paused = true;
-		super.dispatchEvent(new Event('pause'));
-	}
-
-	override async play(): Promise<void> {
-		this._paused = false;
-		if(this._ended) {
-			this._ended = false;
-			this._currentTime = 0;
+		if(typeof this._app !== "undefined") {
+			this._app.close();
+			this._app.removeEventListener('canplay', this._redispatchEvent);
+			this._app.removeEventListener('ended', this._redispatchEvent);
+			this._app.removeEventListener('error', this._redispatchEvent);
+			this._app = undefined;
 		}
-		if(isNaN(this._startTime)) {
-			this._startTime = performance.now() - this._currentTime;
+		if(typeof this._fbo !== "undefined") {
+			collection.release(this._fbo);
+			this._fbo = undefined;
 		}
-		super.dispatchEvent(new Event('play'));
-		super.dispatchEvent(new Event('playing'));
+		this.texture.dispose();
+		this.texture = undefined;
 	}
 
 	override paint(now: DOMHighResTimeStamp, remaining: number): void {
 		if(this.paused || this.ended) return;
-		const elapsed = (now - this._startTime) / 1000;
-		if(this._currentTime > this.duration) {
-			this._setEndedState();
-		} else if(typeof this.texture !== "undefined") {
-			this.texture.userData.animate(now, remaining);
-			if(Math.floor(this._currentTime) > this._lastTimeUpdate) {
-				this._lastTimeUpdate = this._currentTime;
-				super.dispatchEvent(new Event('timeupdate'));
-			}
+		if(typeof this._app === "undefined") {
+			return;
 		}
+		this._app.animate(now, remaining);
 	}
 
-	protected _setEndedState(): void {
-		this._currentTime = this.duration;
-		this._ended = true;
-		this._startTime = NaN;
-		super.dispatchEvent(new Event('ended'));
+	override get params() { return super.params; }
+	// Per `HTMLMediaElement`.
+	override get currentSrc() {
+		if(typeof this._app === "undefined") {
+			return super.currentSrc;
+		}
+		return this._app.currentSrc;
+	}
+	override get currentTime() {
+		if(typeof this._app === "undefined") {
+			return super.currentTime;
+		}
+		return this._app.currentTime;
+	}
+	override get duration() {
+		if(typeof this._app === "undefined") {
+			return NaN;
+		}
+		return this._app.duration;
+	}
+	override get ended() {
+		if(typeof this._app === "undefined") {
+			return false;
+		}
+		return this._app.ended;
+	}
+	override get error() {
+		if(typeof this._app === "undefined") {
+			return false;
+		}
+		return this._app.error;
+	}
+	override get networkState() {
+		if(typeof this._app === "undefined") {
+			return HTMLMediaElement.NETWORK_EMPTY;
+		}
+		return this._app.networkState;
+	}
+	override get paused() {
+		if(typeof this._app === "undefined") {
+			return true;
+		}
+		return this._app.paused;
+	}
+	override get readyState() {
+		if(typeof this._app === "undefined") {
+			return HTMLMediaElement.HAVE_NOTHING;
+		}
+		return this._app.readyState;
+	}
+	override get src() { return super.src; }
+	override get srcObject() { return super.srcObject; }
+
+	override load(): void {
+		(async () => {
+			const collection = this.collection as ThreeAppCollection;
+			const fbo = this._fbo = collection.acquire();
+			try {
+				console.log(`import module ... ${this.src}`);
+				const manifest = await collection.importModule(this.src);
+				console.log(`create WebGLApp ... ${this.src}`);
+				const params = {
+					...this.params,
+					src: this.src,
+					duration: super.duration,  // WARNING: `super` not `this`.
+				}
+				const app = this._app = manifest.WebGLApp!.create(
+					fbo,
+					collection.renderer,
+					params,
+				);
+				console.log(`init ${manifest.name} with params:`, params);
+				app.addEventListener('canplay', this._redispatchEvent);
+				app.addEventListener('ended', this._redispatchEvent);
+				app.addEventListener('error', this._redispatchEvent);
+				this.texture = fbo.texture;
+				app.load();
+			} catch(initError: any) {
+				console.warn(`Failed to load app: ${this.src}`, initError);
+				collection.release(fbo);
+				super.dispatchEvent(new Event('error'));
+			}
+		})();
+	}
+
+	override pause(): void {
+		if(typeof this._app === "undefined") {
+			return;
+		}
+		this._app.pause();
+	}
+
+	override async play(): Promise<void> {
+		if(typeof this._app === "undefined") {
+			return;
+		}
+		await this._app.play();
+	}
+
+	// Per `HTMLVideoElement`.
+	override get height() {
+		if(typeof this._app === "undefined") {
+			return NaN;
+		}
+		return this._app.height;
+	}
+	override get width() {
+		if(typeof this._app === "undefined") {
+			return NaN;
+		}
+		return this._app.width;
 	}
 }
 
 abstract class ThreeCollection {
 	constructor(readonly renderRoot: (HTMLElement | ShadowRoot)) {}
 	abstract acquire(): HTMLImageElement | HTMLVideoElement | THREE.WebGLRenderTarget;
-	abstract createThreeAsset(src: string, params: any, duration: number): ThreeImage | ThreeVideo | ThreeApp;
+	abstract createThreeAsset(src: string, params: AppBaseParams, duration: number): ThreeImageAsset | ThreeVideoAsset | ThreeAppAsset;
 	abstract release(asset: HTMLImageElement | HTMLVideoElement | THREE.WebGLRenderTarget): void;
 	abstract clear(): void;
 }
@@ -509,14 +514,14 @@ class ThreeImageCollection extends ThreeCollection {
 
 	override createThreeAsset(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
-	): ThreeImage {
-		return new ThreeImage(src, params, duration, this);
+	): ThreeImageAsset {
+		return new ThreeImageAsset(src, params, duration, this);
 	}
 
 	override release(img: HTMLImageElement): void {
-		img.src = '';
+		img.removeAttribute('src');
 		this._images.push(img);
 	}
 
@@ -549,14 +554,17 @@ class ThreeVideoCollection extends ThreeCollection {
 
 	override createThreeAsset(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		_duration: number,
-	): ThreeVideo {
-		return new ThreeVideo(src, params, NaN, this);
+	): ThreeVideoAsset {
+		return new ThreeVideoAsset(src, params, NaN, this);
 	}
 
 	override release(video: HTMLVideoElement): void {
-		if(!video.paused) video.pause();
+		if(!video.paused) {
+			video.pause();
+		}
+		video.removeAttribute('src');
 		this._videos.push(video);
 	}
 
@@ -568,57 +576,70 @@ class ThreeVideoCollection extends ThreeCollection {
 	}
 }
 
-class ThreeAppWrapper {
-	constructor(public readonly app: any) {}
-}
-
 class ThreeAppCollection extends ThreeCollection {
-	protected _apps = new Map<string, ThreeAppWrapper>();
-	protected _fbo: THREE.WebGLRenderTarget;
+	protected _manifests = new Map<string, AppManifestSchema>();
+	protected _fbos: THREE.WebGLRenderTarget[] = [];
 
 	constructor(
 		renderRoot: (HTMLElement | ShadowRoot),
 		public readonly renderer: THREE.WebGLRenderer,
 	) {
 		super(renderRoot);
-		// this.#mesh width & height;
-		const width = 1024;  // * renderer.getPixelRatio();
-		const height = 1024;  // * renderer.getPixelRatio();
-		this._fbo = new THREE.WebGLRenderTarget(width, height, {
-			minFilter: THREE.NearestFilter,
-			magFilter: THREE.NearestFilter,
-			depthBuffer: false,
-			stencilBuffer: false,
-		});
 	}
 
 	override acquire(): THREE.WebGLRenderTarget {
-		return this._fbo;
+		let fbo = this._fbos.pop();
+		if(typeof fbo === "undefined") {
+			const width = 1024;  // * this.renderer.getPixelRatio();
+			const height = 1024;  // * this.renderer.getPixelRatio();
+			fbo = new THREE.WebGLRenderTarget(width, height, {
+				minFilter: THREE.NearestFilter,
+				magFilter: THREE.NearestFilter,
+				depthBuffer: false,
+				stencilBuffer: false,
+			});
+		}
+		return fbo;
 	}
 
-	async importModule(src: string): Promise<Function> {
-		const module = this._apps.get(src);
-		if(typeof module === 'undefined') {
-			const { default: App } = await import(src);
-console.log('MEDIA: Dynamically imported', App);
-			this._apps.set(src, new ThreeAppWrapper(App));
-			return App;
+	async importModule(src: string): Promise<AppManifestSchema> {
+		let manifest = this._manifests.get(src);
+		if(typeof manifest === 'undefined') {
+			console.log(`import app manifest ... ${src}`);
+			const module = await import(src);
+			console.log(`validate app manifest ... ${src}`);
+			const result = AppManifestSchema.safeParse(module.default);
+			console.log(`app manifest validation result: ${result.success} ... ${src}`);
+			if(!result.success) {
+				throw new Error(`Invalid app manifest: ${src}`);
+			}
+			if(!result.data.WebGLApp) {
+				throw new Error(`WebGLApp constructor not found in manifest: ${src}`);
+			}
+			manifest = result.data;
+			this._manifests.set(src, manifest);
 		}
-		return module.app;
+		return manifest;
 	}
 
 	override createThreeAsset(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
-	): ThreeApp {
-		return new ThreeApp(src, params, duration, this);
+	): ThreeAppAsset {
+		return new ThreeAppAsset(src, params, duration, this);
 	}
 
-	override release(_fbo: THREE.WebGLRenderTarget): void {}
+	override release(fbo: THREE.WebGLRenderTarget): void {
+		this._fbos.push(fbo);
+	}
 
 	override clear(): void {
-		this._fbo.dispose();
+		for(const fbo of this._fbos) {
+			fbo.dispose();
+		}
+		this._fbos = [];
+		this._manifests.clear();
 	}
 }
 
@@ -650,7 +671,8 @@ export class ThreeAssetManager {
 
 	// decl: { type, href }
 	// Returns: asset.
-	createThreeAsset(decl: MediaDecl): ThreeAsset {
+	createThreeAsset(decl: MediaDecl): AbstractThreeAsset {
+		console.log(`createThreeAsset: ${decl['@type']} ${decl.href} (${decl.duration}s)`);
 		if(this._collection.size === 0) {
 			if(typeof this._renderTarget === "undefined") {
 				throw new Error("undefined render target.");
@@ -666,7 +688,7 @@ export class ThreeAssetManager {
 		}
 		return collection.createThreeAsset(
 			decl.href,
-			decl.params,
+			decl.params ?? {},
 			decl.duration,
 		);
 	}
