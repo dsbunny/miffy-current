@@ -5,7 +5,7 @@
 - Resync _Web_ implementation with _WebGL_ eliminating duplicate logic.
 - Add _SystemJS_ imports for _LG Luna_.
 - Fix _Service Workers_ not started on hard reset, i.e. no `navigator.serviceWorker.controller`.
-- Add module manifest validation on imports.
+- Add module manifest validation on app imports.
 
 ## v18.1.7
 - Bump `@msgpack/msgpack`, `jsonref`, `lit`, and `three`.
