@@ -1,5 +1,5 @@
 {
-	"name": "miffy-current",
+	"name": "@dsbunny/miffy-current",
 	"version": "18.3.9",
 	"description": "Miffy renderer for current browsers",
 	"devDependencies": {
