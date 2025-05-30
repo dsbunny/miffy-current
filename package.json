@@ -1,6 +1,6 @@
 {
 	"name": "miffy-current",
-	"version": "18.2.8",
+	"version": "18.3.9",
 	"description": "Miffy renderer for current browsers",
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.27.1",
@@ -35,7 +35,7 @@
 	"license": "MIT",
 	"private": false,
 	"dependencies": {
-		"@dsbunny/app": "github:dsbunny/app#496dcbd",
+		"@dsbunny/app": "github:dsbunny/app#5f62077",
 		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#42aa0aa",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",

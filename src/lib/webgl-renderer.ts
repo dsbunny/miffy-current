@@ -115,9 +115,9 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 
 	protected _debug = document.createElement('div');
 
-	constructor() {
+	constructor(prefetchFactory: { new(): Prefetch }) {
 		super();
-		this._asset_prefetch = new ServiceWorkerPrefetch();
+		this._asset_prefetch = new prefetchFactory();
 		if(DEBUG_SHOW_DETAIL) {
 			this._debug.className = 'debug';
 			document.body.appendChild(this._debug);

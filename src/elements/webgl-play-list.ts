@@ -8,6 +8,8 @@ import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { WebGLRenderer } from '../lib/webgl-renderer.js';
 import WebPlaylistElement from './web-play-list.js';
+import { Prefetch } from '../lib/prefetch.js';
+import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
 
 // Convenience configuration to disable HiDPI rendering, which can be slow on
 // some platforms, or produce artifacts on low resolution content.
@@ -39,7 +41,9 @@ export default class WebGLPlaylistElement extends WebPlaylistElement {
 	`;
 
 	// Override the renderer to use WebGL.
-	protected override _createRenderer(): Renderer {
+	protected override _createRenderer(
+		prefetchFactory: { new(): Prefetch } = ServiceWorkerPrefetch,
+	): Renderer {
 		if(this._section === null) {
 			throw new Error("cannot find <section> element to attach to.");
 		}
@@ -47,7 +51,7 @@ export default class WebGLPlaylistElement extends WebPlaylistElement {
 			throw new Error("cannot find <main> element to attach to.");
 		}
 
-		const renderer = new WebGLRenderer();
+		const renderer = new WebGLRenderer(prefetchFactory);
 		renderer.init();
 
 		this._connectSchedulerToRenderer(this._scheduler, renderer);

@@ -101,6 +101,36 @@ export default [
 },
 {
 	input: [
+		'build/src/elements/brightsign-webgl-play-list.js',
+	],
+	onwarn(warning) {
+		if (warning.code !== 'THIS_IS_UNDEFINED') {
+			console.error(`(!) ${warning.message}`);
+		}
+	},
+	plugins: [
+		sourcemaps(),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		resolve({
+			moduleDirectories: [
+				'node_modules',
+				'third-party'
+			],
+		}),
+		summary(),
+	],
+	external: [
+                'three',
+        ],
+	output: {
+		file: 'dist/brightsign-webgl.bundle.mjs',
+		format: 'esm',
+		sourcemap: true,
+	},
+	preserveEntrySignatures: 'strict',
+},
+{
+	input: [
 		'build/src/workers/scheduler.worker.js',
 	],
 	onwarn(warning) {

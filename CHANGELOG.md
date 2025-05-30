@@ -1,4 +1,7 @@
 # Changelog
+## v18.3.9
+- Add _BrightSign_ detail including WebGL implementation.
+
 ## v18.2.8
 - Scope CSS to immediate descendants of `:host` to remove infection of app content.
 - Duplicate `web-media.ts` into `luna-media.ts` and eliminate extensions causing typing conflicts.
