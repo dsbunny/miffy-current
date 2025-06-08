@@ -3,13 +3,13 @@
 	"version": "19.0.10",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
-		"brightsign": {
+		"./brightsign": {
 			"import": {
 				"default": "./dist/brightsign.bundle.js",
 				"types": "./dist/brightsign.bundle.d.ts"
 			}
 		},
-		"web": {
+		"./web": {
 			"import": {
 				"default": "./dist/web.bundle.js",
 				"types": "./dist/web.bundle.d.ts"
