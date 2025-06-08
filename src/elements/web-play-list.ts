@@ -19,7 +19,7 @@ import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
 import 'requestidlecallback-polyfill';
 
 @customElement('web-play-list')
-export default class WebPlaylistElement extends LitElement {
+export class WebPlaylistElement extends LitElement {
 
 	@property({ type: String, reflect: true })
 	src = "";
@@ -124,7 +124,7 @@ export default class WebPlaylistElement extends LitElement {
 	get debugCluster() { return this._cluster; }
 
 	protected _createWorker(): Worker {
-		return new Worker(new URL('../dist/scheduler.bundle.mjs', import.meta.url).pathname, {
+		return new Worker(new URL('../dist/scheduler.bundle.js', import.meta.url).pathname, {
 			type: 'module',
 			credentials: 'omit',
 			name: 'Scheduler',  // Shown in debugger.

@@ -24,12 +24,12 @@ const createEndpoint = Symbol("Comlink.endpoint");
 const releaseProxy = Symbol("Comlink.releaseProxy");
 const finalizer = Symbol("Comlink.finalizer");
 const throwMarker = Symbol("Comlink.thrown");
-const isObject$1 = (val) => (typeof val === "object" && val !== null) || typeof val === "function";
+const isObject = (val) => (typeof val === "object" && val !== null) || typeof val === "function";
 /**
  * Internal transfer handle to handle objects marked to proxy.
  */
 const proxyTransferHandler = {
-    canHandle: (val) => isObject$1(val) && val[proxyMarker],
+    canHandle: (val) => isObject(val) && val[proxyMarker],
     serialize(obj) {
         const { port1, port2 } = new MessageChannel();
         expose(obj, port1);
@@ -44,7 +44,7 @@ const proxyTransferHandler = {
  * Internal transfer handler to handle thrown exceptions.
  */
 const throwTransferHandler = {
-    canHandle: (value) => isObject$1(value) && throwMarker in value,
+    canHandle: (value) => isObject(value) && throwMarker in value,
     serialize({ value }) {
         let serialized;
         if (value instanceof Error) {
@@ -2326,7 +2326,7 @@ function bestBy(arr, by, compare) {
   }, null)[1];
 }
 
-function pick$1(obj, keys) {
+function pick(obj, keys) {
   return keys.reduce((a, k) => {
     a[k] = obj[k];
     return a;
@@ -2560,7 +2560,7 @@ function formatOffset(offset, format) {
 }
 
 function timeObject(obj) {
-  return pick$1(obj, ["hour", "minute", "second", "millisecond"]);
+  return pick(obj, ["hour", "minute", "second", "millisecond"]);
 }
 
 /**
@@ -3158,7 +3158,7 @@ function combineExtractors(...extractors) {
       .slice(0, 2);
 }
 
-function parse$2(s, ...patterns) {
+function parse(s, ...patterns) {
   if (s == null) {
     return [null, null];
   }
@@ -3201,16 +3201,16 @@ const sqlTimeRegex = RegExp(
 );
 const sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
 
-function int$1(match, pos, fallback) {
+function int(match, pos, fallback) {
   const m = match[pos];
   return isUndefined(m) ? fallback : parseInteger(m);
 }
 
 function extractISOYmd(match, cursor) {
   const item = {
-    year: int$1(match, cursor),
-    month: int$1(match, cursor + 1, 1),
-    day: int$1(match, cursor + 2, 1),
+    year: int(match, cursor),
+    month: int(match, cursor + 1, 1),
+    day: int(match, cursor + 2, 1),
   };
 
   return [item, null, cursor + 3];
@@ -3218,9 +3218,9 @@ function extractISOYmd(match, cursor) {
 
 function extractISOTime(match, cursor) {
   const item = {
-    hours: int$1(match, cursor, 0),
-    minutes: int$1(match, cursor + 1, 0),
-    seconds: int$1(match, cursor + 2, 0),
+    hours: int(match, cursor, 0),
+    minutes: int(match, cursor + 1, 0),
+    seconds: int(match, cursor + 2, 0),
     milliseconds: parseMillis(match[cursor + 3]),
   };
 
@@ -3403,7 +3403,7 @@ const extractISOTimeAndOffset = combineExtractors(
  */
 
 function parseISODate(s) {
-  return parse$2(
+  return parse(
     s,
     [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
     [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
@@ -3413,11 +3413,11 @@ function parseISODate(s) {
 }
 
 function parseRFC2822Date(s) {
-  return parse$2(preprocessRFC2822(s), [rfc2822, extractRFC2822]);
+  return parse(preprocessRFC2822(s), [rfc2822, extractRFC2822]);
 }
 
 function parseHTTPDate(s) {
-  return parse$2(
+  return parse(
     s,
     [rfc1123, extractRFC1123Or850],
     [rfc850, extractRFC1123Or850],
@@ -3426,13 +3426,13 @@ function parseHTTPDate(s) {
 }
 
 function parseISODuration(s) {
-  return parse$2(s, [isoDuration, extractISODuration]);
+  return parse(s, [isoDuration, extractISODuration]);
 }
 
 const extractISOTimeOnly = combineExtractors(extractISOTime);
 
 function parseISOTimeOnly(s) {
-  return parse$2(s, [isoTimeOnly, extractISOTimeOnly]);
+  return parse(s, [isoTimeOnly, extractISOTimeOnly]);
 }
 
 const sqlYmdWithTimeExtensionRegex = combineRegexes(sqlYmdRegex, sqlTimeExtensionRegex);
@@ -3445,7 +3445,7 @@ const extractISOTimeOffsetAndIANAZone = combineExtractors(
 );
 
 function parseSQL(s) {
-  return parse$2(
+  return parse(
     s,
     [sqlYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
     [sqlTimeCombinedRegex, extractISOTimeOffsetAndIANAZone]
@@ -3553,7 +3553,7 @@ const orderedUnits$1 = [
 const reverseUnits = orderedUnits$1.slice(0).reverse();
 
 // clone really means "create another instance just like this one, but with these changes"
-function clone$2(dur, alts, clear = false) {
+function clone$1(dur, alts, clear = false) {
   // deep merge for vals
   const conf = {
     values: clear ? alts.values : { ...dur.values, ...(alts.values || {}) },
@@ -4093,7 +4093,7 @@ class Duration {
       }
     }
 
-    return clone$2(this, { values: result }, true);
+    return clone$1(this, { values: result }, true);
   }
 
   /**
@@ -4121,7 +4121,7 @@ class Duration {
     for (const k of Object.keys(this.values)) {
       result[k] = asNumber(fn(this.values[k], k));
     }
-    return clone$2(this, { values: result }, true);
+    return clone$1(this, { values: result }, true);
   }
 
   /**
@@ -4147,7 +4147,7 @@ class Duration {
     if (!this.isValid) return this;
 
     const mixed = { ...this.values, ...normalizeObject(values, Duration.normalizeUnit) };
-    return clone$2(this, { values: mixed });
+    return clone$1(this, { values: mixed });
   }
 
   /**
@@ -4158,7 +4158,7 @@ class Duration {
   reconfigure({ locale, numberingSystem, conversionAccuracy, matrix } = {}) {
     const loc = this.loc.clone({ locale, numberingSystem });
     const opts = { loc, matrix, conversionAccuracy };
-    return clone$2(this, opts);
+    return clone$1(this, opts);
   }
 
   /**
@@ -4192,7 +4192,7 @@ class Duration {
     if (!this.isValid) return this;
     const vals = this.toObject();
     normalizeValues(this.matrix, vals);
-    return clone$2(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
 
   /**
@@ -4203,7 +4203,7 @@ class Duration {
   rescale() {
     if (!this.isValid) return this;
     const vals = removeZeroes(this.normalize().shiftToAll().toObject());
-    return clone$2(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
 
   /**
@@ -4264,7 +4264,7 @@ class Duration {
     }
 
     normalizeValues(this.matrix, built);
-    return clone$2(this, { values: built }, true);
+    return clone$1(this, { values: built }, true);
   }
 
   /**
@@ -4297,7 +4297,7 @@ class Duration {
     for (const k of Object.keys(this.values)) {
       negated[k] = this.values[k] === 0 ? 0 : -this.values[k];
     }
-    return clone$2(this, { values: negated }, true);
+    return clone$1(this, { values: negated }, true);
   }
 
   /**
@@ -5879,7 +5879,7 @@ function formatOptsToTokens(formatOpts, locale) {
 }
 
 const INVALID = "Invalid DateTime";
-const MAX_DATE$1 = 8.64e15;
+const MAX_DATE = 8.64e15;
 
 function unsupportedZone(zone) {
   return new Invalid("unsupported zone", `the zone "${zone.name}" is not supported`);
@@ -5912,7 +5912,7 @@ function possiblyCachedLocalWeekData(dt) {
 
 // clone really means, "make a new object with these modifications". all "setters" really use this
 // to create a new object while only changing some of the properties
-function clone$1(inst, alts) {
+function clone(inst, alts) {
   const current = {
     ts: inst.ts,
     zone: inst.zone,
@@ -6530,7 +6530,7 @@ let DateTime$1 = class DateTime {
       throw new InvalidArgumentError(
         `fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`
       );
-    } else if (milliseconds < -MAX_DATE$1 || milliseconds > MAX_DATE$1) {
+    } else if (milliseconds < -MAX_DATE || milliseconds > MAX_DATE) {
       // this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
       return DateTime.invalid("Timestamp out of range");
     } else {
@@ -7262,7 +7262,7 @@ let DateTime$1 = class DateTime {
       c1.second === c2.second &&
       c1.millisecond === c2.millisecond
     ) {
-      return [clone$1(this, { ts: ts1 }), clone$1(this, { ts: ts2 })];
+      return [clone(this, { ts: ts1 }), clone(this, { ts: ts2 })];
     }
     return [this];
   }
@@ -7384,7 +7384,7 @@ let DateTime$1 = class DateTime {
         const asObj = this.toObject();
         [newTS] = objToTS(asObj, offsetGuess, zone);
       }
-      return clone$1(this, { ts: newTS, zone });
+      return clone(this, { ts: newTS, zone });
     }
   }
 
@@ -7396,7 +7396,7 @@ let DateTime$1 = class DateTime {
    */
   reconfigure({ locale, numberingSystem, outputCalendar } = {}) {
     const loc = this.loc.clone({ locale, numberingSystem, outputCalendar });
-    return clone$1(this, { loc });
+    return clone(this, { loc });
   }
 
   /**
@@ -7468,7 +7468,7 @@ let DateTime$1 = class DateTime {
     }
 
     const [ts, o] = objToTS(mixed, this.o, this.zone);
-    return clone$1(this, { ts, o });
+    return clone(this, { ts, o });
   }
 
   /**
@@ -7487,7 +7487,7 @@ let DateTime$1 = class DateTime {
   plus(duration) {
     if (!this.isValid) return this;
     const dur = Duration.fromDurationLike(duration);
-    return clone$1(this, adjustTime(this, dur));
+    return clone(this, adjustTime(this, dur));
   }
 
   /**
@@ -7499,7 +7499,7 @@ let DateTime$1 = class DateTime {
   minus(duration) {
     if (!this.isValid) return this;
     const dur = Duration.fromDurationLike(duration).negate();
-    return clone$1(this, adjustTime(this, dur));
+    return clone(this, adjustTime(this, dur));
   }
 
   /**
@@ -8390,4327 +8390,6 @@ function friendlyDateTime(dateTimeish) {
       `Unknown datetime argument: ${dateTimeish}, of type ${typeof dateTimeish}`
     );
   }
-}
-
-(function(){
-
-  /* Detect if we're in a worker or not */
-  var isWorker = false;
-  try {
-    document;
-  } catch (e){
-    isWorker = true;
-  }
-
-  if (isWorker){
-    if (!self.Worker){
-      self.Worker = function(path){
-        var that = this;
-        this.id = Math.random().toString(36).substr(2, 5);
-
-        this.eventListeners = {
-          "message": []
-        };
-        self.addEventListener("message", function(e){
-          if (e.data._from === that.id){
-            var newEvent = new MessageEvent("message");
-            newEvent.initMessageEvent("message", false, false, e.data.message, that, "", null, []);
-            that.dispatchEvent(newEvent);
-            if (that.onmessage){
-              that.onmessage(newEvent);
-            }
-          }
-        });
-
-        var location = self.location.pathname;
-        var slashedPath = path.charAt(0) == '/' ? path : '/' + path;
-        var absPath = location.substring(0, location.lastIndexOf('/')) + slashedPath;
-        self.postMessage({
-          _subworker: true,
-          cmd: 'newWorker',
-          id: this.id,
-          path: absPath
-        });
-      };
-      Worker.prototype = {
-        onerror: null,
-        onmessage: null,
-        postMessage: function(message, transfer){
-          self.postMessage({
-            _subworker: true,
-            id: this.id,
-            cmd: 'passMessage',
-            message: message,
-            transfer: transfer,
-          }, transfer);
-        },
-        terminate: function(){
-          self.postMessage({
-            _subworker: true,
-            cmd: 'terminate',
-            id: this.id
-          });
-        },
-        addEventListener: function(type, listener, useCapture){
-          if (this.eventListeners[type]){
-            this.eventListeners[type].push(listener);
-          }
-        },
-        removeEventListener: function(type, listener, useCapture){
-          if (!(type in this.eventListeners)) {
-            return;
-          }
-          var index = this.eventListeners[type].indexOf(listener);
-          if (index !== -1){
-            this.eventListeners[type].splice(index, 1);
-          }
-        },
-        dispatchEvent: function(event){
-          var listeners = this.eventListeners[event.type];
-          for (var i = 0; i < listeners.length; i++) {
-            listeners[i](event);
-          }
-        }
-      };
-    }
-  }
-
-  var allWorkers = {};
-  var cmds = {
-    newWorker: function(event){
-      var worker = new Worker(event.data.path);
-      worker.addEventListener("message", function(e){
-        var envelope = {
-          _from: event.data.id,
-          message: e.data
-        };
-        event.target.postMessage(envelope);
-      });
-      allWorkers[event.data.id] = worker;
-    },
-    terminate: function(event){
-      allWorkers[event.data.id].terminate();
-    },
-    passMessage: function(event){
-      allWorkers[event.data.id].postMessage(event.data.message, event.data.transfer);
-    }
-  };
-  var messageRecieved = function(event){
-    if (event.data._subworker){
-      cmds[event.data.cmd](event);
-    }
-  };
-
-
-  /* Hijack Worker */
-  var oldWorker = Worker;
-  Worker = function(path){
-    if (this.constructor !== Worker){
-      throw new TypeError("Failed to construct 'Worker': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");
-    }
-
-    var blobIndex = path.indexOf('blob:');
-    
-    if (blobIndex !== -1 && blobIndex !== 0 ) {
-      path = path.substring(blobIndex);
-    }
-
-    var newWorker = new oldWorker(path);
-    newWorker.addEventListener("message", messageRecieved);
-
-    return newWorker;
-  };
-
-})();
-
-Promise.prototype.finally||(Promise.prototype.finally=function(t){if("function"!=typeof t)return this.then(t,t);const e=this.constructor||Promise;return this.then(o=>e.resolve(t()).then(()=>o),o=>e.resolve(t()).then(()=>{throw o}))});
-
-class RetrieverError extends Error {
-    uri;
-    originalError;
-    constructor(uri, originalError) {
-        super(uri);
-        this.uri = uri;
-        this.originalError = originalError;
-        this.name = 'RetrieverError';
-    }
-}
-class ParserError extends Error {
-    scope;
-    errors;
-    constructor(scope, type, errors) {
-        super(type);
-        this.scope = scope;
-        this.errors = errors;
-        this.name = 'ParserError';
-    }
-}
-
-const TILDE_RE = /~/g;
-const SLASH_RE = /\//g;
-const TILDE_0_RE = /~0/g;
-const TILDE_1_RE = /~1/g;
-function escape(frag) {
-    return frag.replace(TILDE_RE, '~0').replace(SLASH_RE, '~1');
-}
-function unescape(frag) {
-    return frag.replace(TILDE_1_RE, '/').replace(TILDE_0_RE, '~');
-}
-
-const __meta = Symbol();
-const LII_RE = /^[a-zA-Z][a-zA-Z0-9\.\-_:]*$/; // Location-independent identifier, JSON Schema draft 7, par. 8.2.3
-function normalizeUri(input, scope) {
-    const uri = new URL(input, scope);
-    const out = uri.toString();
-    return out + (!uri.hash && out[out.length - 1] !== '#' ? '#' : '');
-}
-function isRef(obj) {
-    return obj !== null && typeof obj === 'object' && typeof obj.$ref === 'string';
-}
-function isAnnotated(obj) {
-    return obj !== null && typeof obj === 'object' && typeof obj[__meta] === 'object';
-}
-function isDerefd(obj) {
-    return isAnnotated(obj) && obj[__meta].derefd === true;
-}
-function getMeta(obj) {
-    if (!isAnnotated(obj)) {
-        throw new Error('Not annotated');
-    }
-    return obj[__meta];
-}
-function getKey(obj) {
-    const parent = getMeta(obj).parent;
-    if (typeof parent === 'undefined') {
-        return undefined;
-    }
-    else if (Array.isArray(parent)) {
-        for (let i = 0; i < parent.length; i++) {
-            if (parent[i] === obj) {
-                return i;
-            }
-        }
-        return undefined;
-    }
-    else {
-        return Object.keys(parent).find((k) => parent[k] === obj);
-    }
-}
-function getById(obj, id) {
-    if (obj === null || typeof obj !== 'object') {
-        throw new TypeError('Invalid object');
-    }
-    const meta = getMeta(obj);
-    return meta.registry[normalizeUri(id, meta.scope)];
-}
-function annotate(obj, options) {
-    if (obj === null || typeof obj !== 'object') {
-        throw new TypeError('Invalid object');
-    }
-    else if (isAnnotated(obj)) {
-        throw new Error('Already annotated');
-    }
-    obj[__meta] = {
-        registry: options.registry || {},
-        refs: options.refs || new Set(),
-        root: obj,
-    };
-    obj[__meta].registry[normalizeUri(options.scope)] = obj;
-    return (function _annotate(obj, scope) {
-        if (isRef(obj)) {
-            const uri = new URL(obj.$ref, scope);
-            uri.hash = '';
-            getMeta(obj).refs.add(uri.toString() + '#');
-            obj[__meta].scope = normalizeUri(scope);
-        }
-        else {
-            if (typeof obj.$id === 'string') {
-                if (!obj.$id || obj.$id === '#') {
-                    throw new SyntaxError(`Invalid identifier ${obj.$id}`);
-                }
-                const id = new URL(obj.$id, scope);
-                if (id.hash && !id.hash.substr(1).match(LII_RE)) {
-                    throw new SyntaxError(`Invalid identifier ${obj.$id}`);
-                }
-                obj[__meta].scope = normalizeUri(obj.$id, scope);
-                obj[__meta].registry[obj[__meta].scope] = obj;
-                obj[__meta].root = obj;
-            }
-            else {
-                obj[__meta].scope = normalizeUri(scope);
-            }
-            const keys = Object.keys(obj);
-            for (let key of keys) {
-                const next = obj[key];
-                if (next !== null && typeof next === 'object' && !isAnnotated(next)) {
-                    const meta = getMeta(obj);
-                    next[__meta] = {
-                        registry: meta.registry,
-                        refs: meta.refs,
-                        parent: obj,
-                        root: meta.root,
-                    };
-                    _annotate(next, `${meta.scope}/${escape(key)}`);
-                }
-            }
-        }
-        return obj;
-    })(obj, options.scope);
-}
-function missingRefs(obj) {
-    const meta = getMeta(obj);
-    const known = new Set(Object.keys(meta.registry));
-    return [...meta.refs].filter((r) => !known.has(r));
-}
-
-const PREFIX_RE = /^(0|[1-9][0-9]*?)([#]?)$/;
-const INDEX_RE = /-|0|[1-9][0-9]*/;
-function resolve$1(obj, path) {
-    if (typeof obj === 'undefined') {
-        throw new TypeError('Bad object');
-    }
-    else if (typeof path !== 'string') {
-        throw new TypeError('Bad path');
-    }
-    else if (!path) {
-        return obj;
-    }
-    let current = obj;
-    const parts = path.split('/');
-    const prefix = parts.shift();
-    if (prefix) {
-        if (prefix.match(LII_RE)) {
-            current = getById(current, `#${prefix}`);
-        }
-        else {
-            const match = prefix.match(PREFIX_RE);
-            if (!match) {
-                throw new SyntaxError(`Bad prefix ${prefix}`);
-            }
-            else {
-                let levels = parseInt(match[1]);
-                while (levels--) {
-                    current = getMeta(current).parent;
-                    if (!current) {
-                        throw new RangeError(`Invalid prefix "${match[1]}"`);
-                    }
-                }
-                if (match[2]) {
-                    return getKey(current);
-                }
-            }
-        }
-    }
-    while (parts.length) {
-        if (current === null || typeof current !== 'object') {
-            throw new TypeError(`Invalid type at path`);
-        }
-        const part = unescape(parts.shift());
-        if (Array.isArray(current)) {
-            if (!part.match(INDEX_RE)) {
-                throw new SyntaxError(`Invalid array index "${part}"`);
-            }
-            else if (part === '-') {
-                throw new RangeError(`Index out of bounds "${part}"`);
-            }
-            else {
-                const index = parseInt(part);
-                if (index > current.length) {
-                    throw new RangeError(`Index out of bounds "${part}"`);
-                }
-                else {
-                    current = current[index];
-                }
-            }
-        }
-        else {
-            current = current[part];
-            if (typeof current === 'undefined') {
-                throw new RangeError(`Cannot find property "${part}"`);
-            }
-        }
-    }
-    return current;
-}
-
-const RELATIVE_RE = /^#(?:0|[1-9][0-9]*?)(?:$|\/)/;
-function deref(obj) {
-    let out;
-    if (obj.$ref.match(RELATIVE_RE)) {
-        out = resolve$1(obj, obj.$ref.substr(1));
-    }
-    else {
-        const scope = getMeta(obj).scope;
-        const uri = new URL(obj.$ref, scope);
-        const path = uri.hash ? uri.hash.substr(1) : undefined;
-        uri.hash = '';
-        out = getMeta(obj).registry[uri.toString() + '#'];
-        if (!out) {
-            throw new Error(`Reference not in registry (${uri.toString()})`);
-        }
-        else if (path) {
-            out = resolve$1(out, path);
-        }
-    }
-    return out;
-}
-function resolve(obj, options) {
-    if (obj === null || typeof obj !== 'object') {
-        return obj;
-    }
-    return (function _parse(obj) {
-        if (!isAnnotated(obj)) {
-            obj = annotate(obj, options);
-        }
-        if (isDerefd(obj)) {
-            return obj;
-        }
-        else if (isRef(obj)) {
-            return deref(obj);
-        }
-        else {
-            const orig = Object.assign({}, obj);
-            Object.defineProperty(obj, 'toJSON', {
-                get: () => () => orig,
-                enumerable: false,
-                configurable: false,
-            });
-            const keys = Object.keys(obj);
-            for (let key of keys) {
-                const next = obj[key];
-                if (next !== null && typeof next === 'object') {
-                    if (isRef(next)) {
-                        Object.defineProperty(obj, key, {
-                            get: () => {
-                                Object.defineProperty(obj, key, {
-                                    value: deref(next),
-                                    enumerable: true,
-                                    configurable: true,
-                                    writable: true,
-                                });
-                                return obj[key];
-                            },
-                            enumerable: true,
-                            configurable: true,
-                        });
-                    }
-                    else {
-                        obj[key] = _parse(next);
-                    }
-                }
-                else {
-                    obj[key] = next;
-                }
-            }
-            getMeta(obj).derefd = true;
-            return obj;
-        }
-    })(obj);
-}
-
-async function parse$1(dataOrUri, opts) {
-    let obj;
-    if (!opts || !opts.scope) {
-        throw new Error('No scope');
-    }
-    if (typeof dataOrUri === 'string') {
-        if (!opts.retriever) {
-            throw new Error('No retriever');
-        }
-        const uri = new URL(dataOrUri).toString();
-        obj = await opts.retriever(uri);
-        if (!opts.registry) {
-            opts.registry = {};
-        }
-        if (uri !== opts.scope) {
-            opts.registry[normalizeUri(uri)] = obj;
-        }
-    }
-    else if (dataOrUri === null || typeof dataOrUri !== 'object') {
-        throw new TypeError('Bad data');
-    }
-    else {
-        obj = dataOrUri;
-    }
-    if (isAnnotated(obj)) {
-        return obj;
-    }
-    else {
-        annotate(obj, opts);
-        if (getMeta(obj).refs.size > 0) {
-            const missingRefs$1 = missingRefs(obj);
-            if (missingRefs$1.length) {
-                if (!opts.retriever) {
-                    throw new Error('No retriever');
-                }
-                const registry = getMeta(obj).registry;
-                const errors = [];
-                for (let r of missingRefs$1) {
-                    try {
-                        registry[r] = await opts.retriever(r);
-                    }
-                    catch (e) {
-                        errors.push(new RetrieverError(r, e));
-                    }
-                }
-                if (errors.length) {
-                    throw new ParserError(getMeta(obj).scope, 'retriever', errors);
-                }
-            }
-            return resolve(obj, opts);
-        }
-        else {
-            return obj;
-        }
-    }
-}
-
-/*! (c) Andrea Giammarchi - ISC */
-var self$1 = {};
-try {
-  self$1.EventTarget = (new EventTarget).constructor;
-} catch(EventTarget) {
-  (function (Object, wm) {
-    var create = Object.create;
-    var defineProperty = Object.defineProperty;
-    var proto = EventTarget.prototype;
-    define(proto, 'addEventListener', function (type, listener, options) {
-      for (var
-        secret = wm.get(this),
-        listeners = secret[type] || (secret[type] = []),
-        i = 0, length = listeners.length; i < length; i++
-      ) {
-        if (listeners[i].listener === listener)
-          return;
-      }
-      listeners.push({target: this, listener: listener, options: options});
-    });
-    define(proto, 'dispatchEvent', function (event) {
-      var secret = wm.get(this);
-      var listeners = secret[event.type];
-      if (listeners) {
-        define(event, 'target', this);
-        define(event, 'currentTarget', this);
-        listeners.slice(0).some(dispatch, event);
-        delete event.currentTarget;
-        delete event.target;
-      }
-      return true;
-    });
-    define(proto, 'removeEventListener', function (type, listener) {
-      for (var
-        secret = wm.get(this),
-        /* istanbul ignore next */
-        listeners = secret[type] || (secret[type] = []),
-        i = 0, length = listeners.length; i < length; i++
-      ) {
-        if (listeners[i].listener === listener) {
-          listeners.splice(i, 1);
-          return;
-        }
-      }
-    });
-    self$1.EventTarget = EventTarget;
-    function EventTarget() {      wm.set(this, create(null));
-    }
-    function define(target, name, value) {
-      defineProperty(
-        target,
-        name,
-        {
-          configurable: true,
-          writable: true,
-          value: value
-        }
-      );
-    }
-    function dispatch(info) {
-      var options = info.options;
-      if (options && options.once)
-        info.target.removeEventListener(this.type, info.listener);
-      if (typeof info.listener === 'function')
-        info.listener.call(info.target, this);
-      else
-        info.listener.handleEvent(this);
-      return this._stopImmediatePropagationFlag;
-    }
-  }(Object, new WeakMap));
-}
-var EventTarget$1 = self$1.EventTarget;
-
-function $constructor(name, initializer) {
-    class _ {
-        constructor(def) {
-            var _a;
-            const th = this;
-            _.init(th, def);
-            (_a = th._zod).deferred ?? (_a.deferred = []);
-            for (const fn of th._zod.deferred) {
-                fn();
-            }
-        }
-        static init(inst, def) {
-            var _a;
-            inst._zod ?? (inst._zod = {});
-            (_a = inst._zod).traits ?? (_a.traits = new Set());
-            // const seen = inst._zod.traits.has(name);
-            inst._zod.traits.add(name);
-            initializer(inst, def);
-            // support prototype modifications
-            for (const k in _.prototype) {
-                Object.defineProperty(inst, k, { value: _.prototype[k].bind(inst) });
-            }
-            inst._zod.constr = _;
-            inst._zod.def = def;
-        }
-        static [Symbol.hasInstance](inst) {
-            return inst?._zod?.traits?.has(name);
-        }
-    }
-    Object.defineProperty(_, "name", { value: name });
-    return _;
-}
-class $ZodAsyncError extends Error {
-    constructor() {
-        super(`Encountered Promise during synchronous parse. Use .parseAsync() instead.`);
-    }
-}
-const globalConfig = {};
-function config(newConfig) {
-    return globalConfig;
-}
-
-const _$ZodError = $constructor("$ZodError", (inst, def) => {
-    Object.defineProperties(inst, {
-        issues: {
-            value: def,
-            enumerable: true,
-        },
-        _zod: {
-            value: inst._zod,
-            enumerable: false,
-        },
-        // message: {
-        //   get() {
-        //     return JSON.stringify(this.issues, util.jsonStringifyReplacer, 2);
-        //   },
-        //   enumerable: false,
-        // },
-    });
-});
-// export interface $ZodError<T = unknown> extends $ZodError<T> {}
-class $ZodError extends Error {
-    constructor(issues) {
-        super();
-        _$ZodError.init(this, issues);
-    }
-}
-function flattenError(error, mapper = (issue) => issue.message) {
-    const fieldErrors = {};
-    const formErrors = [];
-    for (const sub of error.issues) {
-        if (sub.path.length > 0) {
-            fieldErrors[sub.path[0]] = fieldErrors[sub.path[0]] || [];
-            fieldErrors[sub.path[0]].push(mapper(sub));
-        }
-        else {
-            formErrors.push(mapper(sub));
-        }
-    }
-    return { formErrors, fieldErrors };
-}
-function formatError(error, _mapper) {
-    const mapper = _mapper ||
-        function (issue) {
-            return issue.message;
-        };
-    const fieldErrors = { _errors: [] };
-    const processError = (error) => {
-        for (const issue of error.issues) {
-            if (issue.code === "invalid_union") {
-                issue.errors.map((issues) => processError({ issues }));
-            }
-            else if (issue.code === "invalid_key") {
-                processError({ issues: issue.issues });
-            }
-            else if (issue.code === "invalid_element") {
-                processError({ issues: issue.issues });
-            }
-            else if (issue.path.length === 0) {
-                fieldErrors._errors.push(mapper(issue));
-            }
-            else {
-                let curr = fieldErrors;
-                let i = 0;
-                while (i < issue.path.length) {
-                    const el = issue.path[i];
-                    const terminal = i === issue.path.length - 1;
-                    if (!terminal) {
-                        curr[el] = curr[el] || { _errors: [] };
-                    }
-                    else {
-                        curr[el] = curr[el] || { _errors: [] };
-                        curr[el]._errors.push(mapper(issue));
-                    }
-                    curr = curr[el];
-                    i++;
-                }
-            }
-        }
-    };
-    processError(error);
-    return fieldErrors;
-}
-
-// functions
-function cached(getter) {
-    return {
-        get value() {
-            {
-                const value = getter();
-                Object.defineProperty(this, "value", { value });
-                return value;
-            }
-        },
-    };
-}
-function nullish(input) {
-    return input === null || input === undefined;
-}
-function cleanRegex(source) {
-    const start = source.startsWith("^") ? 1 : 0;
-    const end = source.endsWith("$") ? source.length - 1 : source.length;
-    return source.slice(start, end);
-}
-function floatSafeRemainder(val, step) {
-    const valDecCount = (val.toString().split(".")[1] || "").length;
-    const stepDecCount = (step.toString().split(".")[1] || "").length;
-    const decCount = valDecCount > stepDecCount ? valDecCount : stepDecCount;
-    const valInt = Number.parseInt(val.toFixed(decCount).replace(".", ""));
-    const stepInt = Number.parseInt(step.toFixed(decCount).replace(".", ""));
-    return (valInt % stepInt) / 10 ** decCount;
-}
-function defineLazy(object, key, getter) {
-    Object.defineProperty(object, key, {
-        get() {
-            {
-                const value = getter();
-                object[key] = value;
-                return value;
-            }
-        },
-        set(v) {
-            Object.defineProperty(object, key, {
-                value: v,
-                // configurable: true,
-            });
-            // object[key] = v;
-        },
-        configurable: true,
-    });
-}
-function assignProp(target, prop, value) {
-    Object.defineProperty(target, prop, {
-        value,
-        writable: true,
-        enumerable: true,
-        configurable: true,
-    });
-}
-function randomString(length = 10) {
-    const chars = "abcdefghijklmnopqrstuvwxyz";
-    let str = "";
-    for (let i = 0; i < length; i++) {
-        str += chars[Math.floor(Math.random() * chars.length)];
-    }
-    return str;
-}
-function esc(str) {
-    return JSON.stringify(str);
-}
-function isObject(data) {
-    return typeof data === "object" && data !== null;
-}
-const allowsEval = cached(() => {
-    try {
-        new Function("");
-        return true;
-    }
-    catch (_) {
-        return false;
-    }
-});
-function isPlainObject(data) {
-    return typeof data === "object" && data !== null && Object.getPrototypeOf(data) === Object.prototype;
-}
-const propertyKeyTypes = new Set(["string", "number", "symbol"]);
-function escapeRegex(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-// zod-specific utils
-function clone(inst, def) {
-    const cl = new inst._zod.constr(def ?? inst._zod.def);
-    if (!def)
-        cl._zod.parent = inst;
-    return cl;
-}
-function normalizeParams(_params) {
-    const params = _params;
-    if (!params)
-        return {};
-    if (typeof params === "string")
-        return { error: () => params };
-    if (params?.message !== undefined) {
-        if (params?.error !== undefined)
-            throw new Error("Cannot specify both `message` and `error` params");
-        params.error = params.message;
-    }
-    delete params.message;
-    if (typeof params.error === "string")
-        return { ...params, error: () => params.error };
-    return params;
-}
-function optionalKeys(shape) {
-    return Object.keys(shape).filter((k) => {
-        return shape[k]._zod.optionality === "optional";
-    });
-}
-const NUMBER_FORMAT_RANGES = {
-    safeint: [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER],
-    int32: [-2147483648, 2147483647],
-    uint32: [0, 4294967295],
-    float32: [-34028234663852886e22, 3.4028234663852886e38],
-    float64: [-Number.MAX_VALUE, Number.MAX_VALUE],
-};
-function pick(schema, mask) {
-    const newShape = {};
-    const currDef = schema._zod.def; //.shape;
-    for (const key in mask) {
-        if (!(key in currDef.shape)) {
-            throw new Error(`Unrecognized key: "${key}"`);
-        }
-        if (!mask[key])
-            continue;
-        // pick key
-        newShape[key] = currDef.shape[key];
-    }
-    return clone(schema, {
-        ...schema._zod.def,
-        shape: newShape,
-        checks: [],
-    });
-}
-function omit(schema, mask) {
-    const newShape = { ...schema._zod.def.shape };
-    const currDef = schema._zod.def; //.shape;
-    for (const key in mask) {
-        if (!(key in currDef.shape)) {
-            throw new Error(`Unrecognized key: "${key}"`);
-        }
-        if (!mask[key])
-            continue;
-        delete newShape[key];
-    }
-    return clone(schema, {
-        ...schema._zod.def,
-        shape: newShape,
-        checks: [],
-    });
-}
-function extend(schema, shape) {
-    const def = {
-        ...schema._zod.def,
-        get shape() {
-            const _shape = { ...schema._zod.def.shape, ...shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
-        checks: [], // delete existing checks
-    };
-    return clone(schema, def);
-}
-function merge(a, b) {
-    return clone(a, {
-        ...a._zod.def,
-        get shape() {
-            const _shape = { ...a._zod.def.shape, ...b._zod.def.shape };
-            assignProp(this, "shape", _shape); // self-caching
-            return _shape;
-        },
-        catchall: b._zod.def.catchall,
-        checks: [], // delete existing checks
-    });
-}
-function partial(Class, schema, mask) {
-    const oldShape = schema._zod.def.shape;
-    const shape = { ...oldShape };
-    if (mask) {
-        for (const key in mask) {
-            if (!(key in oldShape)) {
-                throw new Error(`Unrecognized key: "${key}"`);
-            }
-            if (!mask[key])
-                continue;
-            shape[key] = Class
-                ? new Class({
-                    type: "optional",
-                    innerType: oldShape[key],
-                })
-                : oldShape[key];
-        }
-    }
-    else {
-        for (const key in oldShape) {
-            shape[key] = Class
-                ? new Class({
-                    type: "optional",
-                    innerType: oldShape[key],
-                })
-                : oldShape[key];
-        }
-    }
-    return clone(schema, {
-        ...schema._zod.def,
-        shape,
-        checks: [],
-    });
-}
-function required(Class, schema, mask) {
-    const oldShape = schema._zod.def.shape;
-    const shape = { ...oldShape };
-    if (mask) {
-        for (const key in mask) {
-            if (!(key in shape)) {
-                throw new Error(`Unrecognized key: "${key}"`);
-            }
-            if (!mask[key])
-                continue;
-            // overwrite with non-optional
-            shape[key] = new Class({
-                type: "nonoptional",
-                innerType: oldShape[key],
-            });
-        }
-    }
-    else {
-        for (const key in oldShape) {
-            // overwrite with non-optional
-            shape[key] = new Class({
-                type: "nonoptional",
-                innerType: oldShape[key],
-            });
-        }
-    }
-    return clone(schema, {
-        ...schema._zod.def,
-        shape,
-        // optional: [],
-        checks: [],
-    });
-}
-function aborted(x, startIndex = 0) {
-    for (let i = startIndex; i < x.issues.length; i++) {
-        if (x.issues[i].continue !== true)
-            return true;
-    }
-    return false;
-}
-function prefixIssues(path, issues) {
-    return issues.map((iss) => {
-        var _a;
-        (_a = iss).path ?? (_a.path = []);
-        iss.path.unshift(path);
-        return iss;
-    });
-}
-function unwrapMessage(message) {
-    return typeof message === "string" ? message : message?.message;
-}
-function finalizeIssue(iss, ctx, config) {
-    const full = { ...iss, path: iss.path ?? [] };
-    // for backwards compatibility
-    // const _ctx: errors.$ZodErrorMapCtx = { data: iss.input, defaultError: undefined as any };
-    if (!iss.message) {
-        const message = unwrapMessage(iss.inst?._zod.def?.error?.(iss)) ??
-            unwrapMessage(ctx?.error?.(iss)) ??
-            unwrapMessage(config.customError?.(iss)) ??
-            unwrapMessage(config.localeError?.(iss)) ??
-            "Invalid input";
-        full.message = message;
-    }
-    // delete (full as any).def;
-    delete full.inst;
-    delete full.continue;
-    if (!ctx?.reportInput) {
-        delete full.input;
-    }
-    return full;
-}
-function getLengthableOrigin(input) {
-    if (Array.isArray(input))
-        return "array";
-    if (typeof input === "string")
-        return "string";
-    return "unknown";
-}
-function issue(...args) {
-    const [iss, input, inst] = args;
-    if (typeof iss === "string") {
-        return {
-            message: iss,
-            code: "custom",
-            input,
-            inst,
-        };
-    }
-    return { ...iss };
-}
-
-const _parse = (_Err) => (schema, value, _ctx, _params) => {
-    const ctx = _ctx ? Object.assign(_ctx, { async: false }) : { async: false };
-    const result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise) {
-        throw new $ZodAsyncError();
-    }
-    if (result.issues.length) {
-        const e = new (_params?.Err ?? _Err)(result.issues.map((iss) => finalizeIssue(iss, ctx, config())));
-        Error.captureStackTrace(e, _params?.callee);
-        throw e;
-    }
-    return result.value;
-};
-const _parseAsync = (_Err) => async (schema, value, _ctx, params) => {
-    const ctx = _ctx ? Object.assign(_ctx, { async: true }) : { async: true };
-    let result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise)
-        result = await result;
-    if (result.issues.length) {
-        const e = new (params?.Err ?? _Err)(result.issues.map((iss) => finalizeIssue(iss, ctx, config())));
-        Error.captureStackTrace(e, params?.callee);
-        throw e;
-    }
-    return result.value;
-};
-const _safeParse = (_Err) => (schema, value, _ctx) => {
-    const ctx = _ctx ? Object.assign(_ctx, { async: false }) : { async: false };
-    const result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise) {
-        throw new $ZodAsyncError();
-    }
-    return result.issues.length
-        ? {
-            success: false,
-            error: new (_Err ?? $ZodError)(result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-        }
-        : { success: true, data: result.value };
-};
-const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
-    const ctx = _ctx ? Object.assign(_ctx, { async: true }) : { async: true };
-    let result = schema._zod.run({ value, issues: [] }, ctx);
-    if (result instanceof Promise)
-        result = await result;
-    return result.issues.length
-        ? {
-            success: false,
-            error: new _Err(result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-        }
-        : { success: true, data: result.value };
-};
-
-const cuid = /^[cC][^\s-]{8,}$/;
-const cuid2 = /^[0-9a-z]+$/;
-const ulid = /^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$/;
-const xid = /^[0-9a-vA-V]{20}$/;
-const ksuid = /^[A-Za-z0-9]{27}$/;
-const nanoid = /^[a-zA-Z0-9_-]{21}$/;
-/** ISO 8601-1 duration regex. Does not support the 8601-2 extensions like negative durations or fractional/negative components. */
-const duration$1 = /^P(?:(\d+W)|(?!.*W)(?=\d|T\d)(\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+([.,]\d+)?S)?)?)$/;
-/** A regex for any UUID-like identifier: 8-4-4-4-12 hex pattern */
-const guid = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
-/** Returns a regex for validating an RFC 4122 UUID.
- *
- * @param version Optionally specify a version 1-8. If no version is specified, all versions are supported. */
-const uuid$1 = (version) => {
-    if (!version)
-        return /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000)$/;
-    return new RegExp(`^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-${version}[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12})$`);
-};
-/** Practical email validation */
-const email = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/;
-// from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
-const _emoji$1 = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`;
-function emoji() {
-    return new RegExp(_emoji$1, "u");
-}
-const ipv4 = /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/;
-const ipv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})$/;
-const cidrv4 = /^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/([0-9]|[1-2][0-9]|3[0-2])$/;
-const cidrv6 = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::|([0-9a-fA-F]{1,4})?::([0-9a-fA-F]{1,4}:?){0,6})\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/;
-// https://stackoverflow.com/questions/7860392/determine-if-string-is-in-base64-using-javascript
-const base64 = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-const base64url = /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/;
-// based on https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
-// export const hostname: RegExp =
-//   /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/;
-const hostname = /^([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+$/;
-// https://blog.stevenlevithan.com/archives/validate-phone-number#r4-3 (regex sans spaces)
-const e164 = /^\+(?:[0-9]){6,14}[0-9]$/;
-const dateSource = `((\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-((0[13578]|1[02])-(0[1-9]|[12]\\d|3[01])|(0[469]|11)-(0[1-9]|[12]\\d|30)|(02)-(0[1-9]|1\\d|2[0-8])))`;
-const date$1 = new RegExp(`^${dateSource}$`);
-function timeSource(args) {
-    // let regex = `\\d{2}:\\d{2}:\\d{2}`;
-    let regex = `([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d`;
-    if (args.precision) {
-        regex = `${regex}\\.\\d{${args.precision}}`;
-    }
-    else if (args.precision == null) {
-        regex = `${regex}(\\.\\d+)?`;
-    }
-    return regex;
-}
-function time$1(args) {
-    return new RegExp(`^${timeSource(args)}$`);
-}
-// Adapted from https://stackoverflow.com/a/3143231
-function datetime$1(args) {
-    let regex = `${dateSource}T${timeSource(args)}`;
-    const opts = [];
-    opts.push(args.local ? `Z?` : `Z`);
-    if (args.offset)
-        opts.push(`([+-]\\d{2}:?\\d{2})`);
-    regex = `${regex}(${opts.join("|")})`;
-    return new RegExp(`^${regex}$`);
-}
-const string$1 = (params) => {
-    const regex = params ? `[\\s\\S]{${params?.minimum ?? 0},${params?.maximum ?? ""}}` : `[\\s\\S]*`;
-    return new RegExp(`^${regex}$`);
-};
-const integer = /^\d+$/;
-const number$1 = /^-?\d+(?:\.\d+)?/i;
-const boolean$1 = /true|false/i;
-// regex for string with no uppercase letters
-const lowercase = /^[^A-Z]*$/;
-// regex for string with no lowercase letters
-const uppercase = /^[^a-z]*$/;
-
-// import { $ZodType } from "./schemas.js";
-const $ZodCheck = /*@__PURE__*/ $constructor("$ZodCheck", (inst, def) => {
-    var _a;
-    inst._zod ?? (inst._zod = {});
-    inst._zod.def = def;
-    (_a = inst._zod).onattach ?? (_a.onattach = []);
-});
-const numericOriginMap = {
-    number: "number",
-    bigint: "bigint",
-    object: "date",
-};
-const $ZodCheckLessThan = /*@__PURE__*/ $constructor("$ZodCheckLessThan", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst) => {
-        const curr = inst._zod.computed.maximum ?? Number.POSITIVE_INFINITY;
-        if (def.value < curr) {
-            inst._zod.computed.maximum = def.value;
-            inst._zod.computed.inclusive = def.inclusive;
-        }
-    });
-    inst._zod.check = (payload) => {
-        if (def.inclusive ? payload.value <= def.value : payload.value < def.value) {
-            return;
-        }
-        payload.issues.push({
-            origin,
-            code: "too_big",
-            maximum: def.value,
-            input: payload.value,
-            inclusive: def.inclusive,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckGreaterThan = /*@__PURE__*/ $constructor("$ZodCheckGreaterThan", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    const origin = numericOriginMap[typeof def.value];
-    inst._zod.onattach.push((inst) => {
-        const curr = inst._zod.computed.minimum ?? Number.NEGATIVE_INFINITY;
-        if (def.value > curr) {
-            inst._zod.computed.minimum = def.value;
-            inst._zod.computed.inclusive = def.inclusive;
-        }
-    });
-    inst._zod.check = (payload) => {
-        if (def.inclusive ? payload.value >= def.value : payload.value > def.value) {
-            return;
-        }
-        payload.issues.push({
-            origin: origin,
-            code: "too_small",
-            minimum: def.value,
-            input: payload.value,
-            inclusive: def.inclusive,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckMultipleOf = 
-/*@__PURE__*/ $constructor("$ZodCheckMultipleOf", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        var _a;
-        (_a = inst._zod.computed).multipleOf ?? (_a.multipleOf = def.value);
-    });
-    inst._zod.check = (payload) => {
-        if (typeof payload.value !== typeof def.value)
-            throw new Error("Cannot mix number and bigint in multiple_of check.");
-        const isMultiple = typeof payload.value === "bigint"
-            ? payload.value % def.value === BigInt(0)
-            : floatSafeRemainder(payload.value, def.value) === 0;
-        if (isMultiple)
-            return;
-        payload.issues.push({
-            origin: typeof payload.value,
-            code: "not_multiple_of",
-            divisor: def.value,
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckNumberFormat = /*@__PURE__*/ $constructor("$ZodCheckNumberFormat", (inst, def) => {
-    $ZodCheck.init(inst, def); // no format checks
-    def.format = def.format || "float64";
-    const isInt = def.format?.includes("int");
-    const origin = isInt ? "int" : "number";
-    const [minimum, maximum] = NUMBER_FORMAT_RANGES[def.format];
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.format = def.format;
-        inst._zod.computed.minimum = minimum;
-        inst._zod.computed.maximum = maximum;
-        inst._zod.computed.inclusive = true;
-        if (isInt)
-            inst._zod.computed.pattern = integer;
-    });
-    inst._zod.check = (payload) => {
-        const input = payload.value;
-        if (isInt) {
-            if (!Number.isInteger(input)) {
-                // invalid_type issue
-                payload.issues.push({
-                    expected: origin,
-                    format: def.format,
-                    code: "invalid_type",
-                    input,
-                    inst,
-                });
-                return;
-                // not_multiple_of issue
-                // payload.issues.push({
-                //   code: "not_multiple_of",
-                //   origin: "number",
-                //   input,
-                //   inst,
-                //   divisor: 1,
-                // });
-            }
-            if (!Number.isSafeInteger(input)) {
-                if (input > 0) {
-                    // too_big
-                    payload.issues.push({
-                        input,
-                        code: "too_big",
-                        maximum: Number.MAX_SAFE_INTEGER,
-                        note: "Integers must be within the the safe integer range.",
-                        inst,
-                        origin,
-                        continue: !def.abort,
-                    });
-                }
-                else {
-                    // too_small
-                    payload.issues.push({
-                        input,
-                        code: "too_small",
-                        minimum: Number.MIN_SAFE_INTEGER,
-                        note: "Integers must be within the safe integer range.",
-                        inst,
-                        origin,
-                        continue: !def.abort,
-                    });
-                }
-                return;
-            }
-        }
-        if (input < minimum) {
-            payload.issues.push({
-                origin: "number",
-                input: input,
-                code: "too_small",
-                minimum: minimum,
-                inclusive: true,
-                inst,
-                continue: !def.abort,
-            });
-        }
-        if (input > maximum) {
-            payload.issues.push({
-                origin: "number",
-                input,
-                code: "too_big",
-                maximum,
-                inst,
-            });
-        }
-    };
-});
-const $ZodCheckMaxLength = /*@__PURE__*/ $constructor("$ZodCheckMaxLength", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    inst._zod.when = (payload) => {
-        const val = payload.value;
-        return !nullish(val) && val.length !== undefined;
-    };
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.computed.maximum ?? Number.POSITIVE_INFINITY);
-        if (def.maximum < curr)
-            inst._zod.computed.maximum = def.maximum;
-    });
-    inst._zod.check = (payload) => {
-        const input = payload.value;
-        const length = input.length;
-        if (length <= def.maximum)
-            return;
-        const origin = getLengthableOrigin(input);
-        payload.issues.push({
-            origin,
-            code: "too_big",
-            maximum: def.maximum,
-            input,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckMinLength = /*@__PURE__*/ $constructor("$ZodCheckMinLength", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    inst._zod.when = (payload) => {
-        const val = payload.value;
-        return !nullish(val) && val.length !== undefined;
-    };
-    inst._zod.onattach.push((inst) => {
-        const curr = (inst._zod.computed.minimum ?? Number.NEGATIVE_INFINITY);
-        if (def.minimum > curr)
-            inst._zod.computed.minimum = def.minimum;
-    });
-    inst._zod.check = (payload) => {
-        const input = payload.value;
-        const length = input.length;
-        if (length >= def.minimum)
-            return;
-        const origin = getLengthableOrigin(input);
-        payload.issues.push({
-            origin,
-            code: "too_small",
-            minimum: def.minimum,
-            input,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckLengthEquals = /*@__PURE__*/ $constructor("$ZodCheckLengthEquals", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    inst._zod.when = (payload) => {
-        const val = payload.value;
-        return !nullish(val) && val.length !== undefined;
-    };
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.minimum = def.length;
-        inst._zod.computed.maximum = def.length;
-        inst._zod.computed.length = def.length;
-    });
-    inst._zod.check = (payload) => {
-        const input = payload.value;
-        const length = input.length;
-        if (length === def.length)
-            return;
-        const origin = getLengthableOrigin(input);
-        const tooBig = length > def.length;
-        payload.issues.push({
-            origin,
-            ...(tooBig ? { code: "too_big", maximum: def.length } : { code: "too_small", minimum: def.length }),
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckStringFormat = /*@__PURE__*/ $constructor("$ZodCheckStringFormat", (inst, def) => {
-    var _a;
-    $ZodCheck.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.format = def.format;
-        if (def.pattern)
-            inst._zod.computed.pattern = def.pattern;
-    });
-    (_a = inst._zod).check ?? (_a.check = (payload) => {
-        if (!def.pattern)
-            throw new Error("Not implemented.");
-        def.pattern.lastIndex = 0;
-        if (def.pattern.test(payload.value))
-            return;
-        payload.issues.push({
-            origin: "string",
-            code: "invalid_format",
-            format: def.format,
-            input: payload.value,
-            ...(def.pattern ? { pattern: def.pattern.toString() } : {}),
-            inst,
-            continue: !def.abort,
-        });
-    });
-});
-const $ZodCheckRegex = /*@__PURE__*/ $constructor("$ZodCheckRegex", (inst, def) => {
-    $ZodCheckStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        def.pattern.lastIndex = 0;
-        if (def.pattern.test(payload.value))
-            return;
-        payload.issues.push({
-            origin: "string",
-            code: "invalid_format",
-            format: "regex",
-            input: payload.value,
-            pattern: def.pattern.toString(),
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckLowerCase = /*@__PURE__*/ $constructor("$ZodCheckLowerCase", (inst, def) => {
-    def.pattern ?? (def.pattern = lowercase);
-    $ZodCheckStringFormat.init(inst, def);
-});
-const $ZodCheckUpperCase = /*@__PURE__*/ $constructor("$ZodCheckUpperCase", (inst, def) => {
-    def.pattern ?? (def.pattern = uppercase);
-    $ZodCheckStringFormat.init(inst, def);
-});
-const $ZodCheckIncludes = /*@__PURE__*/ $constructor("$ZodCheckIncludes", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    const pattern = new RegExp(escapeRegex(def.includes));
-    def.pattern = pattern;
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.pattern = pattern;
-    });
-    inst._zod.check = (payload) => {
-        if (payload.value.includes(def.includes, def.position))
-            return;
-        payload.issues.push({
-            origin: "string",
-            code: "invalid_format",
-            format: "includes",
-            includes: def.includes,
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckStartsWith = /*@__PURE__*/ $constructor("$ZodCheckStartsWith", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    const pattern = new RegExp(`^${escapeRegex(def.prefix)}.*`);
-    def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.pattern = pattern;
-    });
-    inst._zod.check = (payload) => {
-        if (payload.value.startsWith(def.prefix))
-            return;
-        payload.issues.push({
-            origin: "string",
-            code: "invalid_format",
-            format: "starts_with",
-            prefix: def.prefix,
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckEndsWith = /*@__PURE__*/ $constructor("$ZodCheckEndsWith", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    const pattern = new RegExp(`.*${escapeRegex(def.suffix)}$`);
-    def.pattern ?? (def.pattern = pattern);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.pattern = new RegExp(`.*${escapeRegex(def.suffix)}$`);
-    });
-    inst._zod.check = (payload) => {
-        if (payload.value.endsWith(def.suffix))
-            return;
-        payload.issues.push({
-            origin: "string",
-            code: "invalid_format",
-            format: "ends_with",
-            suffix: def.suffix,
-            input: payload.value,
-            inst,
-            continue: !def.abort,
-        });
-    };
-});
-const $ZodCheckOverwrite = /*@__PURE__*/ $constructor("$ZodCheckOverwrite", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    inst._zod.check = (payload) => {
-        payload.value = def.tx(payload.value);
-    };
-});
-
-class Doc {
-    constructor(args = []) {
-        this.content = [];
-        this.indent = 0;
-        if (this)
-            this.args = args;
-    }
-    indented(fn) {
-        this.indent += 1;
-        fn(this);
-        this.indent -= 1;
-    }
-    write(arg) {
-        if (typeof arg === "function") {
-            arg(this, { execution: "sync" });
-            arg(this, { execution: "async" });
-            return;
-        }
-        const content = arg;
-        const lines = content.split("\n").filter((x) => x);
-        const minIndent = Math.min(...lines.map((x) => x.length - x.trimStart().length));
-        const dedented = lines.map((x) => x.slice(minIndent)).map((x) => " ".repeat(this.indent * 2) + x);
-        for (const line of dedented) {
-            this.content.push(line);
-        }
-    }
-    compile() {
-        const args = this?.args;
-        const content = this?.content ?? [``];
-        const lines = [...content.map((x) => `  ${x}`)];
-        return new Function(...args, lines.join("\n"));
-    }
-}
-
-const version = {
-    major: 4,
-    minor: 0,
-    patch: 0,
-};
-
-const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
-    var _a;
-    inst ?? (inst = {});
-    inst._zod.id = def.type + "_" + randomString(10);
-    inst._zod.def = def; // set _def property
-    inst._zod.computed = inst._zod.computed || {}; // initialize _computed object
-    inst._zod.version = version;
-    const checks = [...(inst._zod.def.checks ?? [])];
-    // if inst is itself a checks.$ZodCheck, run it as a check
-    if (inst._zod.traits.has("$ZodCheck")) {
-        checks.unshift(inst);
-    }
-    //
-    for (const ch of checks) {
-        for (const fn of ch._zod.onattach) {
-            fn(inst);
-        }
-    }
-    if (checks.length === 0) {
-        // deferred initializer
-        // inst._zod.parse is not yet defined
-        (_a = inst._zod).deferred ?? (_a.deferred = []);
-        inst._zod.deferred?.push(() => {
-            inst._zod.run = inst._zod.parse;
-        });
-    }
-    else {
-        const runChecks = (payload, checks, ctx) => {
-            let isAborted = aborted(payload);
-            let asyncResult;
-            for (const ch of checks) {
-                if (ch._zod.when) {
-                    const shouldRun = ch._zod.when(payload);
-                    if (!shouldRun)
-                        continue;
-                }
-                else {
-                    if (isAborted) {
-                        continue;
-                    }
-                }
-                const currLen = payload.issues.length;
-                const _ = ch._zod.check(payload);
-                if (_ instanceof Promise && ctx?.async === false) {
-                    throw new $ZodAsyncError();
-                }
-                if (asyncResult || _ instanceof Promise) {
-                    asyncResult = (asyncResult ?? Promise.resolve()).then(async () => {
-                        await _;
-                        const nextLen = payload.issues.length;
-                        if (nextLen === currLen)
-                            return;
-                        if (!isAborted)
-                            isAborted = aborted(payload, currLen);
-                    });
-                }
-                else {
-                    const nextLen = payload.issues.length;
-                    if (nextLen === currLen)
-                        continue;
-                    if (!isAborted)
-                        isAborted = aborted(payload, currLen);
-                }
-            }
-            if (asyncResult) {
-                return asyncResult.then(() => {
-                    return payload;
-                });
-            }
-            return payload;
-        };
-        inst._zod.run = (payload, ctx) => {
-            const result = inst._zod.parse(payload, ctx);
-            if (result instanceof Promise) {
-                if (ctx.async === false)
-                    throw new $ZodAsyncError();
-                return result.then((result) => runChecks(result, checks, ctx));
-            }
-            return runChecks(result, checks, ctx);
-        };
-    }
-    inst["~standard"] = {
-        validate: (value) => {
-            const result = inst._zod.run({ value, issues: [] }, {});
-            if (result instanceof Promise) {
-                return result.then(({ issues, value }) => {
-                    if (issues.length === 0)
-                        return { value };
-                    return {
-                        issues: issues.map((iss) => finalizeIssue(iss, {}, config())),
-                    };
-                });
-            }
-            if (result.issues.length === 0)
-                return { value: result.value };
-            return {
-                issues: result.issues.map((iss) => finalizeIssue(iss, {}, config())),
-            };
-        },
-        vendor: "zod",
-        version: 1,
-    };
-});
-const $ZodString = /*@__PURE__*/ $constructor("$ZodString", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = inst?._zod.computed?.pattern ?? string$1(inst._zod.computed);
-    inst._zod.parse = (payload, _) => {
-        if (def.coerce)
-            try {
-                payload.value = String(payload.value);
-            }
-            catch (_) { }
-        if (typeof payload.value === "string")
-            return payload;
-        payload.issues.push({
-            expected: "string",
-            code: "invalid_type",
-            input: payload.value,
-            inst,
-        });
-        return payload;
-    };
-});
-const $ZodStringFormat = /*@__PURE__*/ $constructor("$ZodStringFormat", (inst, def) => {
-    // check initialization must come first
-    $ZodCheckStringFormat.init(inst, def);
-    $ZodString.init(inst, def);
-});
-const $ZodGUID = /*@__PURE__*/ $constructor("$ZodGUID", (inst, def) => {
-    def.pattern ?? (def.pattern = guid);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodUUID = /*@__PURE__*/ $constructor("$ZodUUID", (inst, def) => {
-    if (def.version) {
-        const versionMap = {
-            v1: 1,
-            v2: 2,
-            v3: 3,
-            v4: 4,
-            v5: 5,
-            v6: 6,
-            v7: 7,
-            v8: 8,
-        };
-        const v = versionMap[def.version];
-        if (v === undefined)
-            throw new Error(`Invalid UUID version: "${def.version}"`);
-        def.pattern ?? (def.pattern = uuid$1(v));
-    }
-    else
-        def.pattern ?? (def.pattern = uuid$1());
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodEmail = /*@__PURE__*/ $constructor("$ZodEmail", (inst, def) => {
-    def.pattern ?? (def.pattern = email);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodURL = /*@__PURE__*/ $constructor("$ZodURL", (inst, def) => {
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        try {
-            const url = new URL(payload.value);
-            hostname.lastIndex = 0;
-            if (!hostname.test(url.hostname)) {
-                payload.issues.push({
-                    code: "invalid_format",
-                    format: "url",
-                    note: "Invalid hostname",
-                    pattern: hostname.source,
-                    input: payload.value,
-                    inst,
-                });
-            }
-            if (def.hostname) {
-                def.hostname.lastIndex = 0;
-                if (!def.hostname.test(url.hostname)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid hostname",
-                        pattern: def.hostname.source,
-                        input: payload.value,
-                        inst,
-                    });
-                }
-            }
-            if (def.protocol) {
-                def.protocol.lastIndex = 0;
-                if (!def.protocol.test(url.protocol.endsWith(":") ? url.protocol.slice(0, -1) : url.protocol)) {
-                    payload.issues.push({
-                        code: "invalid_format",
-                        format: "url",
-                        note: "Invalid protocol",
-                        pattern: def.protocol.source,
-                        input: payload.value,
-                        inst,
-                    });
-                }
-            }
-            return;
-        }
-        catch (_) {
-            payload.issues.push({
-                code: "invalid_format",
-                format: "url",
-                input: payload.value,
-                inst,
-            });
-        }
-    };
-});
-const $ZodEmoji = /*@__PURE__*/ $constructor("$ZodEmoji", (inst, def) => {
-    def.pattern ?? (def.pattern = emoji());
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodNanoID = /*@__PURE__*/ $constructor("$ZodNanoID", (inst, def) => {
-    def.pattern ?? (def.pattern = nanoid);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodCUID = /*@__PURE__*/ $constructor("$ZodCUID", (inst, def) => {
-    def.pattern ?? (def.pattern = cuid);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodCUID2 = /*@__PURE__*/ $constructor("$ZodCUID2", (inst, def) => {
-    def.pattern ?? (def.pattern = cuid2);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodULID = /*@__PURE__*/ $constructor("$ZodULID", (inst, def) => {
-    def.pattern ?? (def.pattern = ulid);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodXID = /*@__PURE__*/ $constructor("$ZodXID", (inst, def) => {
-    def.pattern ?? (def.pattern = xid);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodKSUID = /*@__PURE__*/ $constructor("$ZodKSUID", (inst, def) => {
-    def.pattern ?? (def.pattern = ksuid);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodISODateTime = /*@__PURE__*/ $constructor("$ZodISODateTime", (inst, def) => {
-    def.pattern ?? (def.pattern = datetime$1(def));
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodISODate = /*@__PURE__*/ $constructor("$ZodISODate", (inst, def) => {
-    def.pattern ?? (def.pattern = date$1);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodISOTime = /*@__PURE__*/ $constructor("$ZodISOTime", (inst, def) => {
-    def.pattern ?? (def.pattern = time$1(def));
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodISODuration = /*@__PURE__*/ $constructor("$ZodISODuration", (inst, def) => {
-    def.pattern ?? (def.pattern = duration$1);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodIPv4 = /*@__PURE__*/ $constructor("$ZodIPv4", (inst, def) => {
-    def.pattern ?? (def.pattern = ipv4);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.format = `ipv4`;
-    });
-});
-const $ZodIPv6 = /*@__PURE__*/ $constructor("$ZodIPv6", (inst, def) => {
-    def.pattern ?? (def.pattern = ipv6);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.format = `ipv6`;
-    });
-    inst._zod.check = (payload) => {
-        try {
-            new URL(`http://[${payload.value}]`);
-            // return;
-        }
-        catch {
-            payload.issues.push({
-                code: "invalid_format",
-                format: "ipv6",
-                input: payload.value,
-                inst,
-            });
-        }
-    };
-});
-const $ZodCIDRv4 = /*@__PURE__*/ $constructor("$ZodCIDRv4", (inst, def) => {
-    def.pattern ?? (def.pattern = cidrv4);
-    $ZodStringFormat.init(inst, def);
-});
-const $ZodCIDRv6 = /*@__PURE__*/ $constructor("$ZodCIDRv6", (inst, def) => {
-    def.pattern ?? (def.pattern = cidrv6); // not used for validation
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        const [address, prefix] = payload.value.split("/");
-        try {
-            if (!prefix)
-                throw new Error();
-            const prefixNum = Number(prefix);
-            if (`${prefixNum}` !== prefix)
-                throw new Error();
-            if (prefixNum < 0 || prefixNum > 128)
-                throw new Error();
-            new URL(`http://[${address}]`);
-        }
-        catch {
-            payload.issues.push({
-                code: "invalid_format",
-                format: "cidrv6",
-                input: payload.value,
-                inst,
-            });
-        }
-    };
-});
-const $ZodBase64 = /*@__PURE__*/ $constructor("$ZodBase64", (inst, def) => {
-    def.pattern ?? (def.pattern = base64);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.contentEncoding = "base64";
-    });
-});
-const $ZodBase64URL = /*@__PURE__*/ $constructor("$ZodBase64URL", (inst, def) => {
-    def.pattern ?? (def.pattern = base64url);
-    $ZodStringFormat.init(inst, def);
-    inst._zod.onattach.push((inst) => {
-        inst._zod.computed.contentEncoding = "base64url";
-    });
-});
-const $ZodE164 = /*@__PURE__*/ $constructor("$ZodE164", (inst, def) => {
-    def.pattern ?? (def.pattern = e164);
-    $ZodStringFormat.init(inst, def);
-});
-//////////////////////////////   ZodJWT   //////////////////////////////
-function isValidJWT(token, algorithm = null) {
-    try {
-        const tokensParts = token.split(".");
-        if (tokensParts.length !== 3)
-            return false;
-        const [header] = tokensParts;
-        const parsedHeader = JSON.parse(atob(header));
-        if ("typ" in parsedHeader && parsedHeader?.typ !== "JWT")
-            return false;
-        if (algorithm && (!("alg" in parsedHeader) || parsedHeader.alg !== algorithm))
-            return false;
-        return true;
-    }
-    catch {
-        return false;
-    }
-}
-const $ZodJWT = /*@__PURE__*/ $constructor("$ZodJWT", (inst, def) => {
-    $ZodStringFormat.init(inst, def);
-    inst._zod.check = (payload) => {
-        if (isValidJWT(payload.value, def.alg))
-            return;
-        payload.issues.push({
-            code: "invalid_format",
-            format: "jwt",
-            input: payload.value,
-            inst,
-        });
-    };
-});
-const $ZodNumber = /*@__PURE__*/ $constructor("$ZodNumber", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = inst._zod.computed.pattern ?? number$1;
-    inst._zod.parse = (payload, _ctx) => {
-        if (def.coerce)
-            try {
-                payload.value = Number(payload.value);
-            }
-            catch (_) { }
-        const input = payload.value;
-        if (typeof input === "number" && !Number.isNaN(input) && Number.isFinite(input)) {
-            return payload;
-        }
-        const received = typeof input === "number"
-            ? Number.isNaN(input)
-                ? "NaN"
-                : !Number.isFinite(input)
-                    ? "Infinity"
-                    : undefined
-            : undefined;
-        payload.issues.push({
-            expected: "number",
-            code: "invalid_type",
-            input,
-            inst,
-            ...(received ? { received } : {}),
-        });
-        return payload;
-    };
-});
-const $ZodNumberFormat = /*@__PURE__*/ $constructor("$ZodNumber", (inst, def) => {
-    $ZodCheckNumberFormat.init(inst, def);
-    $ZodNumber.init(inst, def); // no format checksp
-});
-const $ZodBoolean = /*@__PURE__*/ $constructor("$ZodBoolean", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.pattern = boolean$1;
-    inst._zod.parse = (payload, _ctx) => {
-        if (def.coerce)
-            try {
-                payload.value = Boolean(payload.value);
-            }
-            catch (_) { }
-        const input = payload.value;
-        if (typeof input === "boolean")
-            return payload;
-        payload.issues.push({
-            expected: "boolean",
-            code: "invalid_type",
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-const $ZodAny = /*@__PURE__*/ $constructor("$ZodAny", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload) => payload;
-});
-const $ZodUnknown = /*@__PURE__*/ $constructor("$ZodUnknown", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload) => payload;
-});
-const $ZodNever = /*@__PURE__*/ $constructor("$ZodNever", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        payload.issues.push({
-            expected: "never",
-            code: "invalid_type",
-            input: payload.value,
-            inst,
-        });
-        return payload;
-    };
-});
-function handleArrayResult(result, final, index) {
-    if (result.issues.length) {
-        final.issues.push(...prefixIssues(index, result.issues));
-    }
-    final.value[index] = result.value;
-}
-const $ZodArray = /*@__PURE__*/ $constructor("$ZodArray", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!Array.isArray(input)) {
-            payload.issues.push({
-                expected: "array",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        payload.value = Array(input.length);
-        const proms = [];
-        for (let i = 0; i < input.length; i++) {
-            const item = input[i];
-            const result = def.element._zod.run({
-                value: item,
-                issues: [],
-            }, ctx);
-            if (result instanceof Promise) {
-                proms.push(result.then((result) => handleArrayResult(result, payload, i)));
-            }
-            else {
-                handleArrayResult(result, payload, i);
-            }
-        }
-        if (proms.length) {
-            return Promise.all(proms).then(() => payload);
-        }
-        return payload; //handleArrayResultsAsync(parseResults, final);
-    };
-});
-function handleObjectResult(result, final, key) {
-    // if(isOptional)
-    if (result.issues.length) {
-        final.issues.push(...prefixIssues(key, result.issues));
-    }
-    else {
-        final.value[key] = result.value;
-    }
-}
-function handleOptionalObjectResult(result, final, key, input) {
-    if (result.issues.length) {
-        // validation failed against value schema
-        if (input[key] === undefined) {
-            // if input was undefined, ignore the error
-            if (key in input) {
-                final.value[key] = undefined;
-            }
-        }
-        else {
-            final.issues.push(...prefixIssues(key, result.issues));
-        }
-    }
-    else if (result.value === undefined) {
-        // validation returned `undefined`
-        if (key in input)
-            final.value[key] = undefined;
-    }
-    else {
-        // non-undefined value
-        final.value[key] = result.value;
-    }
-}
-const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
-    $ZodType.init(inst, def);
-    const _normalized = cached(() => {
-        const keys = Object.keys(def.shape);
-        const okeys = optionalKeys(def.shape);
-        return {
-            shape: def.shape,
-            keys,
-            keySet: new Set(keys),
-            numKeys: keys.length,
-            optionalKeys: new Set(okeys),
-        };
-    });
-    defineLazy(inst._zod, "disc", () => {
-        const shape = def.shape;
-        const discMap = new Map();
-        let hasDisc = false;
-        for (const key in shape) {
-            const field = shape[key]._zod;
-            if (field.values || field.disc) {
-                hasDisc = true;
-                const o = {
-                    values: new Set(field.values ?? []),
-                    maps: field.disc ? [field.disc] : [],
-                };
-                discMap.set(key, o);
-            }
-        }
-        if (!hasDisc) {
-            return undefined;
-        }
-        return discMap;
-    });
-    const generateFastpass = (shape) => {
-        const doc = new Doc(["shape", "payload", "ctx"]);
-        const { keys, optionalKeys } = _normalized.value;
-        const parseStr = (key) => {
-            const k = esc(key);
-            return `shape[${k}]._zod.run({ value: input[${k}], issues: [] }, ctx)`;
-        };
-        // doc.write(`const shape = inst._zod.def.shape;`);
-        doc.write(`const input = payload.value;`);
-        const ids = Object.create(null);
-        for (const key of keys) {
-            ids[key] = randomString(15);
-        }
-        for (const key of keys) {
-            if (optionalKeys.has(key))
-                continue;
-            const id = ids[key];
-            doc.write(`const ${id} = ${parseStr(key)};`);
-            doc.write(`
-          if (${id}.issues.length) payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
-            ...iss,
-            path: iss.path ? [${esc(key)}, ...iss.path] : [${esc(key)}]
-          })));`);
-        }
-        doc.write(`payload.value = {`);
-        doc.indented(() => {
-            for (const key of keys) {
-                if (optionalKeys.has(key))
-                    continue;
-                const id = ids[key];
-                doc.write(`  ${esc(key)}: ${id}.value,`);
-            }
-        });
-        doc.write(`}`);
-        // NEW: always run validation
-        // this lets default values get applied to optionals
-        for (const key of keys) {
-            if (!optionalKeys.has(key))
-                continue;
-            const id = ids[key];
-            doc.write(`const ${id} = ${parseStr(key)};`);
-            const k = esc(key);
-            doc.write(`
-        if (${id}.issues.length) {
-          if (input[${k}] === undefined) {
-            if (${k} in input) {
-              payload.value[${k}] = undefined;
-            }
-          } else {
-            payload.issues = payload.issues.concat(
-              ${id}.issues.map((iss) => ({
-                ...iss,
-                path: iss.path ? [${k}, ...iss.path] : [${k}],
-              }))
-            );
-          }
-        } else if (${id}.value === undefined) {
-          if (${k} in input) payload.value[${k}] = undefined;
-        } else {
-          payload.value[${k}] = ${id}.value;
-        }  
-        `);
-        }
-        doc.write(`return payload;`);
-        const fn = doc.compile();
-        return (payload, ctx) => fn(shape, payload, ctx);
-    };
-    let fastpass;
-    const isObject$1 = isObject;
-    const jit = !globalConfig.jitless;
-    const allowsEval$1 = allowsEval;
-    const fastEnabled = jit && allowsEval$1.value; // && !def.catchall;
-    const { catchall } = def;
-    let value;
-    inst._zod.parse = (payload, ctx) => {
-        value ?? (value = _normalized.value);
-        const input = payload.value;
-        if (!isObject$1(input)) {
-            payload.issues.push({
-                expected: "object",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        const proms = [];
-        if (jit && fastEnabled && ctx?.async === false && ctx.jitless !== true) {
-            // always synchronous
-            if (!fastpass)
-                fastpass = generateFastpass(def.shape);
-            payload = fastpass(payload, ctx);
-        }
-        else {
-            payload.value = {};
-            const shape = value.shape;
-            for (const key of value.keys) {
-                const el = shape[key];
-                // do not add omitted optional keys
-                // if (!(key in input)) {
-                //   if (optionalKeys.has(key)) continue;
-                //   payload.issues.push({
-                //     code: "invalid_type",
-                //     path: [key],
-                //     expected: "nonoptional",
-                //     note: `Missing required key: "${key}"`,
-                //     input,
-                //     inst,
-                //   });
-                // }
-                const r = el._zod.run({ value: input[key], issues: [] }, ctx);
-                const isOptional = el._zod.optionality === "optional";
-                if (r instanceof Promise) {
-                    proms.push(r.then((r) => isOptional ? handleOptionalObjectResult(r, payload, key, input) : handleObjectResult(r, payload, key)));
-                }
-                else {
-                    if (isOptional) {
-                        handleOptionalObjectResult(r, payload, key, input);
-                    }
-                    else {
-                        handleObjectResult(r, payload, key);
-                    }
-                }
-            }
-        }
-        if (!catchall) {
-            // return payload;
-            return proms.length ? Promise.all(proms).then(() => payload) : payload;
-        }
-        const unrecognized = [];
-        // iterate over input keys
-        const keySet = value.keySet;
-        const _catchall = catchall._zod;
-        const t = _catchall.def.type;
-        for (const key of Object.keys(input)) {
-            if (keySet.has(key))
-                continue;
-            if (t === "never") {
-                unrecognized.push(key);
-                continue;
-            }
-            const r = _catchall.run({ value: input[key], issues: [] }, ctx);
-            if (r instanceof Promise) {
-                proms.push(r.then((r) => handleObjectResult(r, payload, key)));
-            }
-            else {
-                handleObjectResult(r, payload, key);
-            }
-        }
-        if (unrecognized.length) {
-            payload.issues.push({
-                code: "unrecognized_keys",
-                keys: unrecognized,
-                input,
-                inst,
-            });
-        }
-        if (!proms.length)
-            return payload;
-        return Promise.all(proms).then(() => {
-            return payload;
-        });
-    };
-});
-function handleUnionResults(results, final, inst, ctx) {
-    for (const result of results) {
-        if (result.issues.length === 0) {
-            final.value = result.value;
-            return final;
-        }
-    }
-    final.issues.push({
-        code: "invalid_union",
-        input: final.value,
-        inst,
-        errors: results.map((result) => result.issues.map((iss) => finalizeIssue(iss, ctx, config()))),
-    });
-    return final;
-}
-const $ZodUnion = /*@__PURE__*/ $constructor("$ZodUnion", (inst, def) => {
-    $ZodType.init(inst, def);
-    const values = new Set();
-    if (def.options.every((o) => o._zod.values)) {
-        for (const option of def.options) {
-            for (const v of option._zod.values) {
-                values.add(v);
-            }
-        }
-        inst._zod.values = values;
-    }
-    // computed union regex for pattern if all options have pattern
-    if (def.options.every((o) => o._zod.pattern)) {
-        const patterns = def.options.map((o) => o._zod.pattern);
-        inst._zod.pattern = new RegExp(`^(${patterns.map((p) => cleanRegex(p.source)).join("|")})$`);
-    }
-    inst._zod.parse = (payload, ctx) => {
-        const results = [];
-        for (const option of def.options) {
-            const result = option._zod.run({
-                value: payload.value,
-                issues: [],
-            }, ctx);
-            if (result instanceof Promise) {
-                results.push(result);
-            }
-            else {
-                if (result.issues.length === 0)
-                    return result;
-                results.push(result);
-            }
-        }
-        return handleUnionResults(results, payload, inst, ctx);
-    };
-});
-const $ZodIntersection = /*@__PURE__*/ $constructor("$ZodIntersection", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const { value: input } = payload;
-        const left = def.left._zod.run({ value: input, issues: [] }, ctx);
-        const right = def.right._zod.run({ value: input, issues: [] }, ctx);
-        const async = left instanceof Promise || right instanceof Promise;
-        if (async) {
-            return Promise.all([left, right]).then(([left, right]) => {
-                return handleIntersectionResults(payload, left, right);
-            });
-        }
-        return handleIntersectionResults(payload, left, right);
-    };
-});
-function mergeValues(a, b) {
-    // const aType = parse.t(a);
-    // const bType = parse.t(b);
-    if (a === b) {
-        return { valid: true, data: a };
-    }
-    if (a instanceof Date && b instanceof Date && +a === +b) {
-        return { valid: true, data: a };
-    }
-    if (isPlainObject(a) && isPlainObject(b)) {
-        const bKeys = Object.keys(b);
-        const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
-        const newObj = { ...a, ...b };
-        for (const key of sharedKeys) {
-            const sharedValue = mergeValues(a[key], b[key]);
-            if (!sharedValue.valid) {
-                return {
-                    valid: false,
-                    mergeErrorPath: [key, ...sharedValue.mergeErrorPath],
-                };
-            }
-            newObj[key] = sharedValue.data;
-        }
-        return { valid: true, data: newObj };
-    }
-    if (Array.isArray(a) && Array.isArray(b)) {
-        if (a.length !== b.length) {
-            return { valid: false, mergeErrorPath: [] };
-        }
-        const newArray = [];
-        for (let index = 0; index < a.length; index++) {
-            const itemA = a[index];
-            const itemB = b[index];
-            const sharedValue = mergeValues(itemA, itemB);
-            if (!sharedValue.valid) {
-                return {
-                    valid: false,
-                    mergeErrorPath: [index, ...sharedValue.mergeErrorPath],
-                };
-            }
-            newArray.push(sharedValue.data);
-        }
-        return { valid: true, data: newArray };
-    }
-    return { valid: false, mergeErrorPath: [] };
-}
-function handleIntersectionResults(result, left, right) {
-    if (left.issues.length) {
-        result.issues.push(...left.issues);
-    }
-    if (right.issues.length) {
-        result.issues.push(...right.issues);
-    }
-    if (aborted(result))
-        return result;
-    const merged = mergeValues(left.value, right.value);
-    if (!merged.valid) {
-        throw new Error(`Unmergable intersection. Error path: ` + `${JSON.stringify(merged.mergeErrorPath)}`);
-    }
-    result.value = merged.data;
-    return result;
-}
-const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, ctx) => {
-        const input = payload.value;
-        if (!isPlainObject(input)) {
-            payload.issues.push({
-                expected: "record",
-                code: "invalid_type",
-                input,
-                inst,
-            });
-            return payload;
-        }
-        const proms = [];
-        if (def.keyType._zod.values) {
-            const values = def.keyType._zod.values;
-            payload.value = {};
-            for (const key of values) {
-                if (typeof key === "string" || typeof key === "number" || typeof key === "symbol") {
-                    const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
-                    if (result instanceof Promise) {
-                        proms.push(result.then((result) => {
-                            if (result.issues.length) {
-                                payload.issues.push(...prefixIssues(key, result.issues));
-                            }
-                            payload.value[key] = result.value;
-                        }));
-                    }
-                    else {
-                        if (result.issues.length) {
-                            payload.issues.push(...prefixIssues(key, result.issues));
-                        }
-                        payload.value[key] = result.value;
-                    }
-                }
-            }
-            let unrecognized;
-            for (const key in input) {
-                if (!values.has(key)) {
-                    unrecognized = unrecognized ?? [];
-                    unrecognized.push(key);
-                }
-            }
-            if (unrecognized && unrecognized.length > 0) {
-                payload.issues.push({
-                    code: "unrecognized_keys",
-                    input,
-                    inst,
-                    keys: unrecognized,
-                });
-            }
-        }
-        else {
-            payload.value = {};
-            for (const key of Reflect.ownKeys(input)) {
-                if (key === "__proto__")
-                    continue;
-                const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
-                if (keyResult instanceof Promise) {
-                    throw new Error("Async schemas not supported in object keys currently");
-                }
-                if (keyResult.issues.length) {
-                    payload.issues.push({
-                        origin: "record",
-                        code: "invalid_key",
-                        issues: keyResult.issues.map((iss) => finalizeIssue(iss, ctx, config())),
-                        input: key,
-                        path: [key],
-                        inst,
-                    });
-                    continue;
-                }
-                const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
-                if (result instanceof Promise) {
-                    proms.push(result.then((result) => {
-                        if (result.issues.length) {
-                            payload.issues.push(...prefixIssues(key, result.issues));
-                        }
-                        else {
-                            payload.value[keyResult.value] = result.value;
-                        }
-                    }));
-                }
-                else {
-                    if (result.issues.length) {
-                        payload.issues.push(...prefixIssues(key, result.issues));
-                    }
-                    else {
-                        payload.value[keyResult.value] = result.value;
-                    }
-                }
-            }
-        }
-        if (proms.length) {
-            return Promise.all(proms).then(() => payload);
-        }
-        return payload;
-    };
-});
-const $ZodEnum = /*@__PURE__*/ $constructor("$ZodEnum", (inst, def) => {
-    $ZodType.init(inst, def);
-    const numericValues = Object.values(def.entries).filter((v) => typeof v === "number");
-    const values = Object.entries(def.entries)
-        .filter(([k, _]) => numericValues.indexOf(+k) === -1)
-        .map(([_, v]) => v);
-    inst._zod.values = new Set(values);
-    inst._zod.pattern = new RegExp(`^(${values
-        .filter((k) => propertyKeyTypes.has(typeof k))
-        .map((o) => (typeof o === "string" ? escapeRegex(o) : o.toString()))
-        .join("|")})$`);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (inst._zod.values.has(input)) {
-            return payload;
-        }
-        payload.issues.push({
-            code: "invalid_value",
-            values,
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-const $ZodLiteral = /*@__PURE__*/ $constructor("$ZodLiteral", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.values = new Set(def.values);
-    inst._zod.pattern = new RegExp(`^(${def.values
-        .map((o) => (typeof o === "string" ? escapeRegex(o) : o ? o.toString() : String(o)))
-        .join("|")})$`);
-    inst._zod.parse = (payload, _ctx) => {
-        const input = payload.value;
-        if (inst._zod.values.has(input)) {
-            return payload;
-        }
-        payload.issues.push({
-            code: "invalid_value",
-            values: def.values,
-            input,
-            inst,
-        });
-        return payload;
-    };
-});
-const $ZodTransform = /*@__PURE__*/ $constructor("$ZodTransform", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        const _out = def.transform(payload.value, payload);
-        if (_ctx.async) {
-            const output = _out instanceof Promise ? _out : Promise.resolve(_out);
-            return output.then((output) => {
-                payload.value = output;
-                return payload;
-            });
-        }
-        if (_out instanceof Promise) {
-            throw new $ZodAsyncError();
-        }
-        payload.value = _out;
-        return payload;
-    };
-});
-const $ZodOptional = /*@__PURE__*/ $constructor("$ZodOptional", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.optionality = "optional";
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values ? new Set([...def.innerType._zod.values, undefined]) : undefined);
-    defineLazy(inst._zod, "pattern", () => {
-        const pattern = def.innerType._zod.pattern;
-        return pattern ? new RegExp(`^(${cleanRegex(pattern.source)})?$`) : undefined;
-    });
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === undefined) {
-            return payload;
-        }
-        return def.innerType._zod.run(payload, ctx);
-    };
-});
-const $ZodNullable = /*@__PURE__*/ $constructor("$ZodNullable", (inst, def) => {
-    $ZodType.init(inst, def);
-    defineLazy(inst._zod, "optionality", () => def.innerType._zod.optionality);
-    defineLazy(inst._zod, "pattern", () => {
-        const pattern = def.innerType._zod.pattern;
-        return pattern ? new RegExp(`^(${cleanRegex(pattern.source)}|null)$`) : undefined;
-    });
-    defineLazy(inst._zod, "values", () => {
-        return def.innerType._zod.values ? new Set([...def.innerType._zod.values, null]) : undefined;
-    });
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === null)
-            return payload;
-        return def.innerType._zod.run(payload, ctx);
-    };
-});
-const $ZodDefault = /*@__PURE__*/ $constructor("$ZodDefault", (inst, def) => {
-    $ZodType.init(inst, def);
-    // inst._zod.qin = "true";
-    inst._zod.optionality = "defaulted";
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === undefined) {
-            payload.value = def.defaultValue;
-            /**
-             * $ZodDefault always returns the default value immediately.
-             * It doesn't pass the default value into the validator ("prefault"). There's no reason to pass the default value through validation. The validity of the default is enforced by TypeScript statically. Otherwise, it's the responsibility of the user to ensure the default is valid. In the case of pipes with divergent in/out types, you can specify the default on the `in` schema of your ZodPipe to set a "prefault" for the pipe.   */
-            return payload;
-        }
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => handleDefaultResult(result, def));
-        }
-        return handleDefaultResult(result, def);
-    };
-});
-function handleDefaultResult(payload, def) {
-    if (payload.value === undefined) {
-        payload.value = def.defaultValue;
-    }
-    return payload;
-}
-const $ZodPrefault = /*@__PURE__*/ $constructor("$ZodPrefault", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst._zod.optionality = "defaulted";
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    inst._zod.parse = (payload, ctx) => {
-        if (payload.value === undefined) {
-            payload.value = def.defaultValue;
-        }
-        return def.innerType._zod.run(payload, ctx);
-    };
-});
-const $ZodNonOptional = /*@__PURE__*/ $constructor("$ZodNonOptional", (inst, def) => {
-    $ZodType.init(inst, def);
-    defineLazy(inst._zod, "values", () => {
-        const v = def.innerType._zod.values;
-        return v ? new Set([...v].filter((x) => x !== undefined)) : undefined;
-    });
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => handleNonOptionalResult(result, inst));
-        }
-        return handleNonOptionalResult(result, inst);
-    };
-});
-function handleNonOptionalResult(payload, inst) {
-    if (!payload.issues.length && payload.value === undefined) {
-        payload.issues.push({
-            code: "invalid_type",
-            expected: "nonoptional",
-            input: payload.value,
-            inst,
-        });
-    }
-    return payload;
-}
-const $ZodCatch = /*@__PURE__*/ $constructor("$ZodCatch", (inst, def) => {
-    $ZodType.init(inst, def);
-    defineLazy(inst._zod, "optionality", () => def.innerType._zod.optionality);
-    defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then((result) => {
-                if (result.issues.length) {
-                    payload.value = def.catchValue({
-                        ...payload,
-                        error: {
-                            issues: result.issues.map((iss) => finalizeIssue(iss, ctx, config())),
-                        },
-                        input: payload.value,
-                    });
-                    payload.issues = [];
-                }
-                else {
-                    payload.value = result.value;
-                }
-                return payload;
-            });
-        }
-        if (result.issues.length) {
-            payload.value = def.catchValue({
-                ...payload,
-                error: {
-                    issues: result.issues.map((iss) => finalizeIssue(iss, ctx, config())),
-                },
-                input: payload.value,
-            });
-            payload.issues = [];
-        }
-        else {
-            payload.value = result.value;
-        }
-        return payload;
-    };
-});
-const $ZodPipe = /*@__PURE__*/ $constructor("$ZodPipe", (inst, def) => {
-    $ZodType.init(inst, def);
-    // inst._zod.qin = def.in._zod.qin;
-    // inst._zod.qout = def.in._zod.qout;
-    inst._zod.values = def.in._zod.values;
-    inst._zod.parse = (payload, ctx) => {
-        const left = def.in._zod.run(payload, ctx);
-        if (left instanceof Promise) {
-            return left.then((left) => handlePipeResult(left, def, ctx));
-        }
-        return handlePipeResult(left, def, ctx);
-    };
-});
-function handlePipeResult(left, def, ctx) {
-    if (aborted(left)) {
-        return left;
-    }
-    return def.out._zod.run({ value: left.value, issues: left.issues }, ctx);
-}
-const $ZodReadonly = /*@__PURE__*/ $constructor("$ZodReadonly", (inst, def) => {
-    $ZodType.init(inst, def);
-    defineLazy(inst._zod, "disc", () => def.innerType._zod.disc);
-    defineLazy(inst._zod, "optionality", () => def.innerType._zod.optionality);
-    inst._zod.parse = (payload, ctx) => {
-        const result = def.innerType._zod.run(payload, ctx);
-        if (result instanceof Promise) {
-            return result.then(handleReadonlyResult);
-        }
-        return handleReadonlyResult(result);
-    };
-});
-function handleReadonlyResult(payload) {
-    payload.value = Object.freeze(payload.value);
-    return payload;
-}
-const $ZodCustom = /*@__PURE__*/ $constructor("$ZodCustom", (inst, def) => {
-    $ZodCheck.init(inst, def);
-    $ZodType.init(inst, def);
-    inst._zod.parse = (payload, _) => {
-        return payload;
-    };
-    inst._zod.check = (payload) => {
-        const input = payload.value;
-        const r = def.fn(input);
-        if (r instanceof Promise) {
-            return r.then((r) => handleRefineResult(r, payload, input, inst));
-        }
-        handleRefineResult(r, payload, input, inst);
-        return;
-    };
-});
-function handleRefineResult(result, payload, input, inst) {
-    if (!result) {
-        const _iss = {
-            code: "custom",
-            input,
-            inst, // incorporates params.error into issue reporting
-            path: inst._zod.def.path, // incorporates params.error into issue reporting
-            continue: !inst._zod.def.abort,
-            // params: inst._zod.def.params,
-        };
-        if (inst._zod.def.params)
-            _iss.params = inst._zod.def.params;
-        payload.issues.push(issue(_iss));
-    }
-}
-
-class $ZodRegistry {
-    constructor() {
-        this._map = new WeakMap();
-        this._idmap = new Map();
-    }
-    add(schema, ..._meta) {
-        const meta = _meta[0];
-        this._map.set(schema, meta);
-        if (meta && typeof meta === "object" && "id" in meta) {
-            if (this._idmap.has(meta.id)) {
-                throw new Error(`ID ${meta.id} already exists in the registry`);
-            }
-            this._idmap.set(meta.id, schema);
-        }
-        return this;
-    }
-    remove(schema) {
-        this._map.delete(schema);
-        return this;
-    }
-    get(schema) {
-        return this._map.get(schema);
-    }
-    has(schema) {
-        return this._map.has(schema);
-    }
-}
-// registries
-function registry() {
-    return new $ZodRegistry();
-}
-const globalRegistry = /*@__PURE__*/ registry();
-
-function _string(Class, params) {
-    return new Class({
-        type: "string",
-        ...normalizeParams(params),
-    });
-}
-function _email(Class, params) {
-    return new Class({
-        type: "string",
-        format: "email",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _guid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "guid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _uuid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "uuid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _uuidv4(Class, params) {
-    return new Class({
-        type: "string",
-        format: "uuid",
-        check: "string_format",
-        abort: false,
-        version: "v4",
-        ...normalizeParams(params),
-    });
-}
-function _uuidv6(Class, params) {
-    return new Class({
-        type: "string",
-        format: "uuid",
-        check: "string_format",
-        abort: false,
-        version: "v6",
-        ...normalizeParams(params),
-    });
-}
-function _uuidv7(Class, params) {
-    return new Class({
-        type: "string",
-        format: "uuid",
-        check: "string_format",
-        abort: false,
-        version: "v7",
-        ...normalizeParams(params),
-    });
-}
-function _url(Class, params) {
-    return new Class({
-        type: "string",
-        format: "url",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _emoji(Class, params) {
-    return new Class({
-        type: "string",
-        format: "emoji",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _nanoid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "nanoid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _cuid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "cuid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _cuid2(Class, params) {
-    return new Class({
-        type: "string",
-        format: "cuid2",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _ulid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "ulid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _xid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "xid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _ksuid(Class, params) {
-    return new Class({
-        type: "string",
-        format: "ksuid",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _ipv4(Class, params) {
-    return new Class({
-        type: "string",
-        format: "ipv4",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _ipv6(Class, params) {
-    return new Class({
-        type: "string",
-        format: "ipv6",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _cidrv4(Class, params) {
-    return new Class({
-        type: "string",
-        format: "cidrv4",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _cidrv6(Class, params) {
-    return new Class({
-        type: "string",
-        format: "cidrv6",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _base64(Class, params) {
-    return new Class({
-        type: "string",
-        format: "base64",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _base64url(Class, params) {
-    return new Class({
-        type: "string",
-        format: "base64url",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _e164(Class, params) {
-    return new Class({
-        type: "string",
-        format: "e164",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _jwt(Class, params) {
-    return new Class({
-        type: "string",
-        format: "jwt",
-        check: "string_format",
-        abort: false,
-        ...normalizeParams(params),
-    });
-}
-function _isoDateTime(Class, params) {
-    return new Class({
-        type: "string",
-        format: "datetime",
-        check: "string_format",
-        offset: false,
-        local: false,
-        precision: null,
-        ...normalizeParams(params),
-    });
-}
-function _isoDate(Class, params) {
-    return new Class({
-        type: "string",
-        format: "date",
-        check: "string_format",
-        ...normalizeParams(params),
-    });
-}
-function _isoTime(Class, params) {
-    return new Class({
-        type: "string",
-        format: "time",
-        check: "string_format",
-        precision: null,
-        ...normalizeParams(params),
-    });
-}
-function _isoDuration(Class, params) {
-    return new Class({
-        type: "string",
-        format: "duration",
-        check: "string_format",
-        ...normalizeParams(params),
-    });
-}
-function _number(Class, params) {
-    return new Class({
-        type: "number",
-        checks: [],
-        ...normalizeParams(params),
-    });
-}
-function _int(Class, params) {
-    return new Class({
-        type: "number",
-        check: "number_format",
-        abort: false,
-        format: "safeint",
-        ...normalizeParams(params),
-    });
-}
-function _boolean(Class, params) {
-    return new Class({
-        type: "boolean",
-        ...normalizeParams(params),
-    });
-}
-function _any(Class) {
-    return new Class({
-        type: "any",
-    });
-}
-function _unknown(Class) {
-    return new Class({
-        type: "unknown",
-    });
-}
-function _never(Class, params) {
-    return new Class({
-        type: "never",
-        ...normalizeParams(params),
-    });
-}
-function _lt(value, params) {
-    return new $ZodCheckLessThan({
-        check: "less_than",
-        ...normalizeParams(params),
-        value,
-        inclusive: false,
-    });
-}
-function _lte(value, params) {
-    return new $ZodCheckLessThan({
-        check: "less_than",
-        ...normalizeParams(params),
-        value,
-        inclusive: true,
-    });
-}
-function _gt(value, params) {
-    return new $ZodCheckGreaterThan({
-        check: "greater_than",
-        ...normalizeParams(params),
-        value,
-        inclusive: false,
-    });
-}
-function _gte(value, params) {
-    return new $ZodCheckGreaterThan({
-        check: "greater_than",
-        ...normalizeParams(params),
-        value,
-        inclusive: true,
-    });
-}
-function _multipleOf(value, params) {
-    return new $ZodCheckMultipleOf({
-        check: "multiple_of",
-        ...normalizeParams(params),
-        value,
-    });
-}
-function _maxLength(maximum, params) {
-    const ch = new $ZodCheckMaxLength({
-        check: "max_length",
-        ...normalizeParams(params),
-        maximum,
-    });
-    return ch;
-}
-function _minLength(minimum, params) {
-    return new $ZodCheckMinLength({
-        check: "min_length",
-        ...normalizeParams(params),
-        minimum,
-    });
-}
-function _length(length, params) {
-    return new $ZodCheckLengthEquals({
-        check: "length_equals",
-        ...normalizeParams(params),
-        length,
-    });
-}
-function _regex(pattern, params) {
-    return new $ZodCheckRegex({
-        check: "string_format",
-        format: "regex",
-        ...normalizeParams(params),
-        pattern,
-    });
-}
-function _lowercase(params) {
-    return new $ZodCheckLowerCase({
-        check: "string_format",
-        format: "lowercase",
-        ...normalizeParams(params),
-    });
-}
-function _uppercase(params) {
-    return new $ZodCheckUpperCase({
-        check: "string_format",
-        format: "uppercase",
-        ...normalizeParams(params),
-    });
-}
-function _includes(includes, params) {
-    return new $ZodCheckIncludes({
-        check: "string_format",
-        format: "includes",
-        ...normalizeParams(params),
-        includes,
-    });
-}
-function _startsWith(prefix, params) {
-    return new $ZodCheckStartsWith({
-        check: "string_format",
-        format: "starts_with",
-        ...normalizeParams(params),
-        prefix,
-    });
-}
-function _endsWith(suffix, params) {
-    return new $ZodCheckEndsWith({
-        check: "string_format",
-        format: "ends_with",
-        ...normalizeParams(params),
-        suffix,
-    });
-}
-function _overwrite(tx) {
-    return new $ZodCheckOverwrite({
-        check: "overwrite",
-        tx,
-    });
-}
-// normalize
-function _normalize(form) {
-    return _overwrite((input) => input.normalize(form));
-}
-// trim
-function _trim() {
-    return _overwrite((input) => input.trim());
-}
-// toLowerCase
-function _toLowerCase() {
-    return _overwrite((input) => input.toLowerCase());
-}
-// toUpperCase
-function _toUpperCase() {
-    return _overwrite((input) => input.toUpperCase());
-}
-function _array(Class, element, params) {
-    return new Class({
-        type: "array",
-        element,
-        // get element() {
-        //   return element;
-        // },
-        ...normalizeParams(params),
-    });
-}
-function _custom(Class, fn, _params) {
-    const schema = new Class({
-        type: "custom",
-        check: "custom",
-        fn: fn,
-        ...normalizeParams(_params),
-    });
-    return schema;
-}
-
-const ZodISODateTime = /*@__PURE__*/ $constructor("ZodISODateTime", (inst, def) => {
-    $ZodISODateTime.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function datetime(params) {
-    return _isoDateTime(ZodISODateTime, params);
-}
-const ZodISODate = /*@__PURE__*/ $constructor("ZodISODate", (inst, def) => {
-    $ZodISODate.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function date(params) {
-    return _isoDate(ZodISODate, params);
-}
-const ZodISOTime = /*@__PURE__*/ $constructor("ZodISOTime", (inst, def) => {
-    $ZodISOTime.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function time(params) {
-    return _isoTime(ZodISOTime, params);
-}
-const ZodISODuration = /*@__PURE__*/ $constructor("ZodISODuration", (inst, def) => {
-    $ZodISODuration.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function duration(params) {
-    return _isoDuration(ZodISODuration, params);
-}
-
-const _ZodError = $constructor("ZodError", (inst, issues) => {
-    _$ZodError.init(inst, issues);
-    Object.defineProperty(inst, "format", {
-        value: (mapper) => formatError(inst, mapper),
-        enumerable: false,
-    });
-    Object.defineProperty(inst, "flatten", {
-        value: (mapper) => flattenError(inst, mapper),
-        enumerable: false,
-    });
-    Object.defineProperty(inst, "addIssue", {
-        value: (issue) => inst.issues.push(issue),
-        enumerable: false,
-    });
-    Object.defineProperty(inst, "addIssues", {
-        value: (issues) => inst.issues.push(...issues),
-        enumerable: false,
-    });
-    Object.defineProperty(inst, "isEmpty", {
-        get() {
-            return inst.issues.length === 0;
-        },
-    });
-});
-class ZodError extends Error {
-    constructor(issues) {
-        super();
-        _ZodError.init(this, issues);
-    }
-}
-// /** @deprecated Use `z.core.$ZodErrorMapCtx` instead. */
-// export type ErrorMapCtx = core.$ZodErrorMapCtx;
-
-const parse = /* @__PURE__ */ _parse(ZodError);
-const parseAsync = /* @__PURE__ */ _parseAsync(ZodError);
-const safeParse = /* @__PURE__ */ _safeParse(_ZodError);
-const safeParseAsync = /* @__PURE__ */ _safeParseAsync(_ZodError);
-
-const ZodType = /*@__PURE__*/ $constructor("ZodType", (inst, def) => {
-    $ZodType.init(inst, def);
-    inst.def = def;
-    inst._def = def;
-    // base methods
-    inst.check = (...checks) => {
-        return inst.clone({
-            ...def,
-            checks: [
-                ...(def.checks ?? []),
-                ...checks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch),
-            ],
-        });
-    };
-    inst.clone = (_def) => clone(inst, _def);
-    inst.brand = () => inst;
-    inst.register = ((reg, meta) => {
-        reg.add(inst, meta);
-        return inst;
-    });
-    //  const parse: <T extends core.$ZodType>(
-    //   schema: T,
-    //   value: unknown,
-    //   _ctx?: core.ParseContext<core.$ZodIssue>
-    
-    //  const safeParse: <T extends core.$ZodType>(
-    //   schema: T,
-    //   value: unknown,
-    //   _ctx?: core.ParseContext<core.$ZodIssue>
-    
-    //  const parseAsync: <T extends core.$ZodType>(
-    //   schema: T,
-    //   value: unknown,
-    //   _ctx?: core.ParseContext<core.$ZodIssue>
-    
-    //  const safeParseAsync: <T extends core.$ZodType>(
-    //   schema: T,
-    //   value: unknown,
-    //   _ctx?: core.ParseContext<core.$ZodIssue>
-    
-    // parsing
-    inst.parse = (data, params) => parse(inst, data, params, { callee: inst.parse });
-    inst.safeParse = (data, params) => safeParse(inst, data, params);
-    inst.parseAsync = async (data, params) => parseAsync(inst, data, params, { callee: inst.parseAsync });
-    inst.safeParseAsync = async (data, params) => safeParseAsync(inst, data, params);
-    inst.spa = inst.safeParseAsync;
-    // refinements
-    inst.refine = (check, params) => inst.check(refine(check, params));
-    inst.superRefine = (refinement) => inst.check(superRefine(refinement));
-    inst.overwrite = (fn) => inst.check(_overwrite(fn));
-    // wrappers
-    inst.optional = () => optional(inst);
-    inst.nullable = () => nullable(inst);
-    inst.nullish = () => optional(nullable(inst));
-    inst.nonoptional = (params) => nonoptional(inst, params);
-    inst.array = () => array(inst);
-    inst.or = (arg) => union([inst, arg]);
-    inst.and = (arg) => intersection(inst, arg);
-    inst.transform = (tx) => pipe(inst, transform(tx));
-    inst.default = (def) => _default(inst, def);
-    inst.prefault = (def) => prefault(inst, def);
-    // inst.coalesce = (def, params) => coalesce(inst, def, params);
-    inst.catch = (params) => _catch(inst, params);
-    inst.pipe = (target) => pipe(inst, target);
-    inst.readonly = () => readonly(inst);
-    // meta
-    inst.describe = (description) => {
-        const cl = inst.clone();
-        const meta = { ...(globalRegistry.get(inst) ?? {}), description };
-        delete meta.id; // do not inherit
-        globalRegistry.add(cl, meta);
-        return cl;
-    };
-    Object.defineProperty(inst, "description", {
-        get() {
-            return globalRegistry.get(inst)?.description;
-        },
-        configurable: true,
-    });
-    inst.meta = (...args) => {
-        if (args.length === 0)
-            return globalRegistry.get(inst);
-        const cl = inst.clone();
-        globalRegistry.add(cl, args[0]);
-        return cl;
-    };
-    // helpers
-    inst.isOptional = () => inst.safeParse(undefined).success;
-    inst.isNullable = () => inst.safeParse(null).success;
-    return inst;
-});
-/** @internal */
-const _ZodString = /*@__PURE__*/ $constructor("_ZodString", (inst, def) => {
-    $ZodString.init(inst, def);
-    ZodType.init(inst, def);
-    inst.format = inst._zod.computed.format ?? null;
-    inst.minLength = inst._zod.computed.minimum ?? null;
-    inst.maxLength = inst._zod.computed.maximum ?? null;
-    // validations
-    inst.regex = (...args) => inst.check(_regex(...args));
-    inst.includes = (...args) => inst.check(_includes(...args));
-    inst.startsWith = (params) => inst.check(_startsWith(params));
-    inst.endsWith = (params) => inst.check(_endsWith(params));
-    inst.min = (...args) => inst.check(_minLength(...args));
-    inst.max = (...args) => inst.check(_maxLength(...args));
-    inst.length = (...args) => inst.check(_length(...args));
-    inst.nonempty = (...args) => inst.check(_minLength(1, ...args));
-    inst.lowercase = (params) => inst.check(_lowercase(params));
-    inst.uppercase = (params) => inst.check(_uppercase(params));
-    // transforms
-    inst.trim = () => inst.check(_trim());
-    inst.normalize = (...args) => inst.check(_normalize(...args));
-    inst.toLowerCase = () => inst.check(_toLowerCase());
-    inst.toUpperCase = () => inst.check(_toUpperCase());
-});
-const ZodString = /*@__PURE__*/ $constructor("ZodString", (inst, def) => {
-    $ZodString.init(inst, def);
-    _ZodString.init(inst, def);
-    inst.email = (params) => inst.check(_email(ZodEmail, params));
-    inst.url = (params) => inst.check(_url(ZodURL, params));
-    inst.jwt = (params) => inst.check(_jwt(ZodJWT, params));
-    inst.emoji = (params) => inst.check(_emoji(ZodEmoji, params));
-    inst.guid = (params) => inst.check(_guid(ZodGUID, params));
-    inst.uuid = (params) => inst.check(_uuid(ZodUUID, params));
-    inst.uuidv4 = (params) => inst.check(_uuidv4(ZodUUID, params));
-    inst.uuidv6 = (params) => inst.check(_uuidv6(ZodUUID, params));
-    inst.uuidv7 = (params) => inst.check(_uuidv7(ZodUUID, params));
-    inst.nanoid = (params) => inst.check(_nanoid(ZodNanoID, params));
-    inst.guid = (params) => inst.check(_guid(ZodGUID, params));
-    inst.cuid = (params) => inst.check(_cuid(ZodCUID, params));
-    inst.cuid2 = (params) => inst.check(_cuid2(ZodCUID2, params));
-    inst.ulid = (params) => inst.check(_ulid(ZodULID, params));
-    inst.base64 = (params) => inst.check(_base64(ZodBase64, params));
-    inst.base64url = (params) => inst.check(_base64url(ZodBase64URL, params));
-    inst.xid = (params) => inst.check(_xid(ZodXID, params));
-    inst.ksuid = (params) => inst.check(_ksuid(ZodKSUID, params));
-    inst.ipv4 = (params) => inst.check(_ipv4(ZodIPv4, params));
-    inst.ipv6 = (params) => inst.check(_ipv6(ZodIPv6, params));
-    inst.cidrv4 = (params) => inst.check(_cidrv4(ZodCIDRv4, params));
-    inst.cidrv6 = (params) => inst.check(_cidrv6(ZodCIDRv6, params));
-    inst.e164 = (params) => inst.check(_e164(ZodE164, params));
-    // iso
-    inst.datetime = (params) => inst.check(datetime(params));
-    inst.date = (params) => inst.check(date(params));
-    inst.time = (params) => inst.check(time(params));
-    inst.duration = (params) => inst.check(duration(params));
-});
-function string(params) {
-    return _string(ZodString, params);
-}
-const ZodStringFormat = /*@__PURE__*/ $constructor("ZodStringFormat", (inst, def) => {
-    $ZodStringFormat.init(inst, def);
-    _ZodString.init(inst, def);
-});
-const ZodEmail = /*@__PURE__*/ $constructor("ZodEmail", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodEmail.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodGUID = /*@__PURE__*/ $constructor("ZodGUID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodGUID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodUUID = /*@__PURE__*/ $constructor("ZodUUID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodUUID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function uuid(params) {
-    return _uuid(ZodUUID, params);
-}
-const ZodURL = /*@__PURE__*/ $constructor("ZodURL", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodURL.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-function url(params) {
-    return _url(ZodURL, params);
-}
-const ZodEmoji = /*@__PURE__*/ $constructor("ZodEmoji", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodEmoji.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodNanoID = /*@__PURE__*/ $constructor("ZodNanoID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodNanoID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodCUID = /*@__PURE__*/ $constructor("ZodCUID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodCUID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodCUID2 = /*@__PURE__*/ $constructor("ZodCUID2", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodCUID2.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodULID = /*@__PURE__*/ $constructor("ZodULID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodULID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodXID = /*@__PURE__*/ $constructor("ZodXID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodXID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodKSUID = /*@__PURE__*/ $constructor("ZodKSUID", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodKSUID.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodIPv4 = /*@__PURE__*/ $constructor("ZodIPv4", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodIPv4.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodIPv6 = /*@__PURE__*/ $constructor("ZodIPv6", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodIPv6.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodCIDRv4 = /*@__PURE__*/ $constructor("ZodCIDRv4", (inst, def) => {
-    $ZodCIDRv4.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodCIDRv6 = /*@__PURE__*/ $constructor("ZodCIDRv6", (inst, def) => {
-    $ZodCIDRv6.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodBase64 = /*@__PURE__*/ $constructor("ZodBase64", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodBase64.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodBase64URL = /*@__PURE__*/ $constructor("ZodBase64URL", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodBase64URL.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodE164 = /*@__PURE__*/ $constructor("ZodE164", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodE164.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodJWT = /*@__PURE__*/ $constructor("ZodJWT", (inst, def) => {
-    // ZodStringFormat.init(inst, def);
-    $ZodJWT.init(inst, def);
-    ZodStringFormat.init(inst, def);
-});
-const ZodNumber = /*@__PURE__*/ $constructor("ZodNumber", (inst, def) => {
-    $ZodNumber.init(inst, def);
-    ZodType.init(inst, def);
-    inst.gt = (value, params) => inst.check(_gt(value, params));
-    inst.gte = (value, params) => inst.check(_gte(value, params));
-    inst.min = (value, params) => inst.check(_gte(value, params));
-    inst.lt = (value, params) => inst.check(_lt(value, params));
-    inst.lte = (value, params) => inst.check(_lte(value, params));
-    inst.max = (value, params) => inst.check(_lte(value, params));
-    inst.int = (params) => inst.check(int(params));
-    inst.safe = (params) => inst.check(int(params));
-    inst.positive = (params) => inst.check(_gt(0, params));
-    inst.nonnegative = (params) => inst.check(_gte(0, params));
-    inst.negative = (params) => inst.check(_lt(0, params));
-    inst.nonpositive = (params) => inst.check(_lte(0, params));
-    inst.multipleOf = (value, params) => inst.check(_multipleOf(value, params));
-    inst.step = (value, params) => inst.check(_multipleOf(value, params));
-    // inst.finite = (params) => inst.check(core.finite(params));
-    inst.finite = () => inst;
-    inst.minValue = inst._zod.computed.minimum ?? null;
-    inst.maxValue = inst._zod.computed.maximum ?? null;
-    inst.isInt =
-        (inst._zod.computed.format ?? "").includes("int") || Number.isSafeInteger(inst._zod.computed.multipleOf ?? 0.5);
-    inst.isFinite = true;
-    inst.format = inst._zod.computed.format ?? null;
-});
-function number(params) {
-    return _number(ZodNumber, params);
-}
-const ZodNumberFormat = /*@__PURE__*/ $constructor("ZodNumberFormat", (inst, def) => {
-    $ZodNumberFormat.init(inst, def);
-    ZodNumber.init(inst, def);
-});
-function int(params) {
-    return _int(ZodNumberFormat, params);
-}
-const ZodBoolean = /*@__PURE__*/ $constructor("ZodBoolean", (inst, def) => {
-    $ZodBoolean.init(inst, def);
-    ZodType.init(inst, def);
-});
-function boolean(params) {
-    return _boolean(ZodBoolean, params);
-}
-const ZodAny = /*@__PURE__*/ $constructor("ZodAny", (inst, def) => {
-    $ZodAny.init(inst, def);
-    ZodType.init(inst, def);
-});
-function any() {
-    return _any(ZodAny);
-}
-const ZodUnknown = /*@__PURE__*/ $constructor("ZodUnknown", (inst, def) => {
-    $ZodUnknown.init(inst, def);
-    ZodType.init(inst, def);
-});
-function unknown() {
-    return _unknown(ZodUnknown);
-}
-const ZodNever = /*@__PURE__*/ $constructor("ZodNever", (inst, def) => {
-    $ZodNever.init(inst, def);
-    ZodType.init(inst, def);
-});
-function never(params) {
-    return _never(ZodNever, params);
-}
-const ZodArray = /*@__PURE__*/ $constructor("ZodArray", (inst, def) => {
-    $ZodArray.init(inst, def);
-    ZodType.init(inst, def);
-    inst.element = def.element;
-    inst.min = (minLength, params) => inst.check(_minLength(minLength, params));
-    inst.nonempty = (params) => inst.check(_minLength(1, params));
-    inst.max = (maxLength, params) => inst.check(_maxLength(maxLength, params));
-    inst.length = (len, params) => inst.check(_length(len, params));
-});
-function array(element, params) {
-    return _array(ZodArray, element, params);
-}
-const ZodObject = /*@__PURE__*/ $constructor("ZodObject", (inst, def) => {
-    $ZodObject.init(inst, def);
-    ZodType.init(inst, def);
-    defineLazy(inst, "shape", () => {
-        return Object.fromEntries(Object.entries(inst._zod.def.shape));
-    });
-    inst.keyof = () => _enum(Object.keys(inst._zod.def.shape));
-    inst.catchall = (catchall) => inst.clone({ ...inst._zod.def, catchall });
-    inst.passthrough = () => inst.clone({ ...inst._zod.def, catchall: unknown() });
-    // inst.nonstrict = () => inst.clone({ ...inst._zod.def, catchall: api.unknown() });
-    inst.loose = () => inst.clone({ ...inst._zod.def, catchall: unknown() });
-    inst.strict = () => inst.clone({ ...inst._zod.def, catchall: never() });
-    inst.strip = () => inst.clone({ ...inst._zod.def, catchall: undefined });
-    inst.extend = (incoming) => {
-        return extend(inst, incoming);
-    };
-    inst.merge = (other) => merge(inst, other);
-    inst.pick = (mask) => pick(inst, mask);
-    inst.omit = (mask) => omit(inst, mask);
-    inst.partial = (...args) => partial(ZodOptional, inst, args[0]);
-    inst.required = (...args) => required(ZodNonOptional, inst, args[0]);
-});
-function object(shape, params) {
-    const def = {
-        type: "object",
-        get shape() {
-            assignProp(this, "shape", { ...shape });
-            return this.shape;
-        },
-        ...normalizeParams(params),
-    };
-    return new ZodObject(def);
-}
-const ZodUnion = /*@__PURE__*/ $constructor("ZodUnion", (inst, def) => {
-    $ZodUnion.init(inst, def);
-    ZodType.init(inst, def);
-    inst.options = def.options;
-});
-function union(options, params) {
-    return new ZodUnion({
-        type: "union",
-        options,
-        ...normalizeParams(params),
-    });
-}
-const ZodIntersection = /*@__PURE__*/ $constructor("ZodIntersection", (inst, def) => {
-    $ZodIntersection.init(inst, def);
-    ZodType.init(inst, def);
-});
-function intersection(left, right) {
-    return new ZodIntersection({
-        type: "intersection",
-        left,
-        right,
-    });
-}
-const ZodRecord = /*@__PURE__*/ $constructor("ZodRecord", (inst, def) => {
-    $ZodRecord.init(inst, def);
-    ZodType.init(inst, def);
-    inst.keyType = def.keyType;
-    inst.valueType = def.valueType;
-});
-function record(keyType, valueType, params) {
-    return new ZodRecord({
-        type: "record",
-        keyType,
-        valueType,
-        ...normalizeParams(params),
-    });
-}
-const ZodEnum = /*@__PURE__*/ $constructor("ZodEnum", (inst, def) => {
-    $ZodEnum.init(inst, def);
-    ZodType.init(inst, def);
-    inst.enum = def.entries;
-    inst.options = Object.values(def.entries);
-    const keys = new Set(Object.keys(def.entries));
-    inst.extract = (values, params) => {
-        const newEntries = {};
-        for (const value of values) {
-            if (keys.has(value)) {
-                newEntries[value] = def.entries[value];
-            }
-            else
-                throw new Error(`Key ${value} not found in enum`);
-        }
-        return new ZodEnum({
-            ...def,
-            checks: [],
-            ...normalizeParams(params),
-            entries: newEntries,
-        });
-    };
-    inst.exclude = (values, params) => {
-        const newEntries = { ...def.entries };
-        for (const value of values) {
-            if (keys.has(value)) {
-                delete newEntries[value];
-            }
-            else
-                throw new Error(`Key ${value} not found in enum`);
-        }
-        return new ZodEnum({
-            ...def,
-            checks: [],
-            ...normalizeParams(params),
-            entries: newEntries,
-        });
-    };
-});
-function _enum(values, params) {
-    const entries = Array.isArray(values) ? Object.fromEntries(values.map((v) => [v, v])) : values;
-    return new ZodEnum({
-        type: "enum",
-        entries,
-        ...normalizeParams(params),
-    });
-}
-const ZodLiteral = /*@__PURE__*/ $constructor("ZodLiteral", (inst, def) => {
-    $ZodLiteral.init(inst, def);
-    ZodType.init(inst, def);
-    inst.values = new Set(def.values);
-});
-function literal(value, params) {
-    return new ZodLiteral({
-        type: "literal",
-        values: Array.isArray(value) ? value : [value],
-        ...normalizeParams(params),
-    });
-}
-const ZodTransform = /*@__PURE__*/ $constructor("ZodTransform", (inst, def) => {
-    $ZodTransform.init(inst, def);
-    ZodType.init(inst, def);
-    inst._zod.parse = (payload, _ctx) => {
-        payload.addIssue = (issue$1) => {
-            if (typeof issue$1 === "string") {
-                payload.issues.push(issue(issue$1, payload.value, def));
-            }
-            else {
-                // for Zod 3 backwards compatibility
-                const _issue = issue$1;
-                if (_issue.fatal)
-                    _issue.continue = false;
-                _issue.code ?? (_issue.code = "custom");
-                _issue.input ?? (_issue.input = payload.value);
-                _issue.inst ?? (_issue.inst = inst);
-                _issue.continue ?? (_issue.continue = !def.abort);
-                payload.issues.push(issue(_issue));
-            }
-        };
-        const output = def.transform(payload.value, payload);
-        if (output instanceof Promise) {
-            return output.then((output) => {
-                payload.value = output;
-                return payload;
-            });
-        }
-        payload.value = output;
-        return payload;
-    };
-});
-function transform(fn, params) {
-    return new ZodTransform({
-        type: "transform",
-        transform: fn,
-        ...normalizeParams(params),
-    });
-}
-const ZodOptional = /*@__PURE__*/ $constructor("ZodOptional", (inst, def) => {
-    $ZodOptional.init(inst, def);
-    ZodType.init(inst, def);
-    inst.unwrap = () => inst._zod.def.innerType;
-});
-function optional(innerType) {
-    return new ZodOptional({
-        type: "optional",
-        innerType,
-    });
-}
-const ZodNullable = /*@__PURE__*/ $constructor("ZodNullable", (inst, def) => {
-    $ZodNullable.init(inst, def);
-    ZodType.init(inst, def);
-    inst.unwrap = () => inst._zod.def.innerType;
-});
-function nullable(innerType) {
-    return new ZodNullable({
-        type: "nullable",
-        innerType,
-    });
-}
-const ZodDefault = /*@__PURE__*/ $constructor("ZodDefault", (inst, def) => {
-    $ZodDefault.init(inst, def);
-    ZodType.init(inst, def);
-    inst.unwrap = () => inst._zod.def.innerType;
-    inst.removeDefault = inst.unwrap;
-});
-function _default(innerType, defaultValue) {
-    return new ZodDefault({
-        type: "default",
-        innerType,
-        get defaultValue() {
-            return typeof defaultValue === "function" ? defaultValue() : defaultValue;
-        },
-    });
-}
-const ZodPrefault = /*@__PURE__*/ $constructor("ZodPrefault", (inst, def) => {
-    $ZodPrefault.init(inst, def);
-    ZodType.init(inst, def);
-    inst.unwrap = () => inst._zod.def.innerType;
-});
-function prefault(innerType, defaultValue) {
-    return new ZodPrefault({
-        type: "prefault",
-        innerType,
-        get defaultValue() {
-            return typeof defaultValue === "function" ? defaultValue() : defaultValue;
-        },
-    });
-}
-const ZodNonOptional = /*@__PURE__*/ $constructor("ZodNonOptional", (inst, def) => {
-    $ZodNonOptional.init(inst, def);
-    ZodType.init(inst, def);
-    inst.unwrap = () => inst._zod.def.innerType;
-});
-function nonoptional(innerType, params) {
-    return new ZodNonOptional({
-        type: "nonoptional",
-        innerType,
-        ...normalizeParams(params),
-    });
-}
-const ZodCatch = /*@__PURE__*/ $constructor("ZodCatch", (inst, def) => {
-    $ZodCatch.init(inst, def);
-    ZodType.init(inst, def);
-    inst.unwrap = () => inst._zod.def.innerType;
-    inst.removeCatch = inst.unwrap;
-});
-function _catch(innerType, catchValue) {
-    return new ZodCatch({
-        type: "catch",
-        innerType,
-        catchValue: (typeof catchValue === "function" ? catchValue : () => catchValue),
-    });
-}
-const ZodPipe = /*@__PURE__*/ $constructor("ZodPipe", (inst, def) => {
-    $ZodPipe.init(inst, def);
-    ZodType.init(inst, def);
-    inst.in = def.in;
-    inst.out = def.out;
-});
-function pipe(in_, out) {
-    return new ZodPipe({
-        type: "pipe",
-        in: in_,
-        out,
-        // ...util.normalizeParams(params),
-    });
-}
-const ZodReadonly = /*@__PURE__*/ $constructor("ZodReadonly", (inst, def) => {
-    $ZodReadonly.init(inst, def);
-    ZodType.init(inst, def);
-});
-function readonly(innerType) {
-    return new ZodReadonly({
-        type: "readonly",
-        innerType,
-    });
-}
-const ZodCustom = /*@__PURE__*/ $constructor("ZodCustom", (inst, def) => {
-    $ZodCustom.init(inst, def);
-    ZodType.init(inst, def);
-});
-// custom checks
-function check(fn, params) {
-    const ch = new $ZodCheck({
-        check: "custom",
-        ...normalizeParams(params),
-    });
-    ch._zod.check = fn;
-    return ch;
-}
-function refine(fn, _params = {}) {
-    return _custom(ZodCustom, fn, _params);
-}
-// superRefine
-function superRefine(fn, params) {
-    const ch = check((payload) => {
-        payload.addIssue = (issue$1) => {
-            if (typeof issue$1 === "string") {
-                payload.issues.push(issue(issue$1, payload.value, ch._zod.def));
-            }
-            else {
-                // for Zod 3 backwards compatibility
-                const _issue = issue$1;
-                if (_issue.fatal)
-                    _issue.continue = false;
-                _issue.code ?? (_issue.code = "custom");
-                _issue.input ?? (_issue.input = payload.value);
-                _issue.inst ?? (_issue.inst = ch);
-                _issue.continue ?? (_issue.continue = !ch._zod.def.abort);
-                payload.issues.push(issue(_issue));
-            }
-        };
-        return fn(payload.value, payload);
-    }, params);
-    return ch;
-}
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-const BaseParams = record(string(), any())
-    .describe('Runtime parameters for an asset');
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-var RecipeTemplateSchema;
-(function (RecipeTemplateSchema) {
-    RecipeTemplateSchema.MediaTemplate = object({
-        asset_id: uuid()
-            .describe('Asset ID'),
-        params: BaseParams.optional()
-            .describe('Runtime parameters for the asset'),
-        // WARNING: 86400 seconds is the maximum duration of a media template
-        duration_seconds: number().min(1).max(86400)
-            .describe('Duration of the asset in seconds'),
-    })
-        .describe('Media template');
-    RecipeTemplateSchema.PlaylistTemplate = object({
-        // WARNING: 1000 media templates is the maximum number of media templates that can be assigned to a playlist template
-        media_templates: array(RecipeTemplateSchema.MediaTemplate).min(1).max(1000)
-            .describe('Array of media templates'),
-    })
-        .describe('Playlist template');
-    // e.g. MO for Monday, 2MO for the second Monday of the month.
-    RecipeTemplateSchema.NDay = object({
-        day: _enum(['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'])
-            .describe('Day of the week'),
-        nthOfPeriod: number().int().optional()
-            .describe('Nth day of the period'),
-    })
-        .describe('Nth day');
-    RecipeTemplateSchema.RecurrenceRuleTemplate = object({
-        frequency: _enum([
-            'secondly',
-            'minutely',
-            'hourly',
-            'daily',
-            'weekly',
-            'monthly',
-            'yearly',
-        ])
-            .describe('Frequency of the recurrence rule'),
-        interval: number().int().min(1).max(1000).optional()
-            .describe('Interval of the recurrence rule'),
-        byDay: array(RecipeTemplateSchema.NDay).optional()
-            .describe('Array of Nth days'),
-        byMonthDay: array(number().int().min(1).max(31)).optional()
-            .describe('Array of month days'),
-        byMonth: array(number().int().min(1).max(12)).optional()
-            .describe('Array of months'),
-        bySetPosition: array(number().int()).optional()
-            .describe('Array of set positions'),
-        times: number().int().min(1).max(1000).optional()
-            .describe('Number of times the recurrence rule repeats'),
-        until: datetime().optional()
-            .describe('DateTime until the recurrence rule repeats'),
-    })
-        .describe('Recurrence rule template');
-    RecipeTemplateSchema.EventTemplate = object({
-        priority: number().int().min(0).max(10)
-            .describe('Priority of the event template'),
-        start: datetime()
-            .describe('ISO datetime of the start of the event template'),
-        timeZone: string()
-            .describe('Time zone of the event template'),
-        duration: string()
-            .describe('Duration of the event template'),
-        playlist: RecipeTemplateSchema.PlaylistTemplate,
-        recurrenceRules: array(RecipeTemplateSchema.RecurrenceRuleTemplate).optional()
-            .describe('Array of recurrence rule templates'),
-    })
-        .describe('Event template');
-    RecipeTemplateSchema.RecipeTemplate = object({
-        events: array(RecipeTemplateSchema.EventTemplate).min(1).max(1000)
-            .describe('Array of event templates'),
-    })
-        .describe('Recipe template');
-})(RecipeTemplateSchema || (RecipeTemplateSchema = {}));
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-const PublisherRequest = object({
-    tenant_id: uuid()
-        .describe('Tenant ID'),
-    reference_id: string().max(255)
-        .describe('Reference ID of the job'),
-    recipe_template: RecipeTemplateSchema.RecipeTemplate,
-    // WARNING: 1000 canvas is the maximum number that can be assigned to a job
-    canvas_ids: array(uuid()).min(1).max(1000)
-        .describe('List of canvas IDs'),
-    identity: string()
-        .describe('Identity of the author of the job'),
-})
-    .describe('Publish job');
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-const PublisherResponse = object({
-    job_id: string().regex(/^\d+$/)
-        .describe('Unique identifier for this job, can be used to query the status of the job.'),
-    reference_id: string().max(255)
-        .describe('User provided reference identifier.'),
-    timestamp: datetime()
-        .describe('ISO datetime of the job.'),
-})
-    .describe('Publisher job output');
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// #region Errors
-object({
-    code: string()
-        .describe('Error code representing the type of error.'),
-    message: string()
-        .describe('Error message describing the issue.'),
-    detail: string()
-        .describe('Additional details about the error, if available.'),
-    timestamp: datetime()
-        .describe('Timestamp when the error occurred (ISO_8601 format).'),
-})
-    .describe('Error response schema');
-// #endregion
-// #region WebHook
-object({
-    ref_id: string(),
-    class: string(),
-})
-    .describe('WebHook request schema');
-object({})
-    .describe('WebHook response schema');
-// #endregion
-// #region Publisher
-object({})
-    .describe('Create UUIDs request schema');
-object({
-    uuids: array(string()),
-})
-    .describe('Create UUIDs response schema');
-object({})
-    .describe('Get Job Status request schema');
-object({
-    status: _enum(["created", "succeeded", "failed", "retrying"])
-        .describe('Job status indicating the current state of the job.'),
-    progress: number()
-        .describe('Progress of the job as a percentage (0-100).'),
-}).or(array(object({
-    error: string()
-        .describe('Error message if the job could not be queried.'),
-}).or(object({
-    status: _enum(["created", "succeeded", "failed", "retrying"])
-        .describe('Job status indicating the current state of the job.'),
-    progress: number()
-        .describe('Progress of the job as a percentage (0-100).'),
-}))))
-    .describe('Get Job Status response schema');
-PublisherRequest
-    .describe('Create Publisher request schema');
-PublisherResponse
-    .describe('Create Publisher response schema');
-// #endregion
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-var RecipeSchema;
-(function (RecipeSchema) {
-    RecipeSchema.HashValue = object({
-        method: literal("SHA256")
-            .describe("Hash method"),
-        hex: string()
-            .describe("Hexadecimal hash value"),
-    })
-        .describe("SHA-256 hash value");
-    // Define types for HTML elements
-    RecipeSchema.HTMLImageElement = object({
-        "@type": literal("HTMLImageElement")
-            .describe("Type of the HTML element"),
-        id: uuid()
-            .describe("ID of the image"),
-        href: url().min(20).max(2048)
-            .describe("URL of the image"),
-        size: number().min(20).max(5368709120) // 5GB
-            .describe("Size of the image in bytes"),
-        hash: RecipeSchema.HashValue,
-        md5: string().length(24) // Base64 encoded 16 bytes.
-            .describe("MD5 hash value"),
-        integrity: string()
-            .describe("Subresource Integrity (SRI) value"),
-        duration: number().min(1).max(86400)
-            .describe("Duration of the image in seconds"),
-        params: BaseParams.optional()
-            .describe("Optional parameters of the image element"),
-    })
-        .describe("HTML image element");
-    RecipeSchema.HTMLVideoElement = object({
-        "@type": literal("HTMLVideoElement")
-            .describe("Type of the HTML element"),
-        id: uuid()
-            .describe("ID of the video"),
-        href: url().min(20).max(2048)
-            .describe("URL of the video"),
-        size: number().min(20).max(5497558138880) // 5TB
-            .describe("Size of the video in bytes"),
-        hash: RecipeSchema.HashValue,
-        md5: string().length(24) // Base64 encoded 16 bytes.
-            .describe("MD5 hash value"),
-        integrity: string()
-            .describe("Subresource Integrity (SRI) value"),
-        duration: number().min(1).max(86400)
-            .describe("Duration of the video in seconds"),
-        params: BaseParams.optional()
-            .describe("Optional parameters of the video element"),
-    })
-        .describe("HTML video element");
-    RecipeSchema.HTMLScriptElement = object({
-        "@type": literal("HTMLScriptElement")
-            .describe("Type of the HTML element"),
-        id: uuid()
-            .describe("ID of the script"),
-        href: url().min(20).max(2048)
-            .describe("URL of the script"),
-        size: number().min(20).max(1073741824) // 1GB
-            .describe("Size of the script in bytes"),
-        hash: RecipeSchema.HashValue,
-        md5: string().length(24) // Base64 encoded 16 bytes.
-            .describe("MD5 hash value"),
-        integrity: string()
-            .describe("Subresource Integrity (SRI) value"),
-    })
-        .describe("HTML script element");
-    RecipeSchema.CustomElement = object({
-        "@type": literal("CustomElement")
-            .describe("Type of the custom element"),
-        id: uuid()
-            .describe("ID of the custom element"),
-        href: url().min(20).max(2048)
-            .describe("URL of the custom element"),
-        size: number().min(20).max(1073741824) // 1GB
-            .describe("Size of the custom element in bytes"),
-        hash: RecipeSchema.HashValue,
-        md5: string().length(24) // Base64 encoded 16 bytes.
-            .describe("MD5 hash value"),
-        integrity: string()
-            .describe("Subresource Integrity (SRI) value"),
-        duration: number().min(1).max(86400)
-            .describe("Duration of the custom element in seconds"),
-        params: BaseParams.optional()
-            .describe("Optional parameters of the custom element"),
-        sources: array(union([
-            RecipeSchema.HTMLImageElement.omit({ duration: true }),
-            RecipeSchema.HTMLVideoElement.omit({ duration: true }),
-            RecipeSchema.HTMLScriptElement,
-        ])).optional()
-            .describe("Array of sources, which can be HTMLImageElement, HTMLVideoElement, or HTMLScriptElement"),
-    })
-        .describe("Custom element");
-    // Define types for other components
-    RecipeSchema.RecurrenceRule = object({
-        "@type": literal("RecurrenceRule")
-            .describe("Type of the recurrence rule"),
-        frequency: _enum([
-            "secondly",
-            "minutely",
-            "hourly",
-            "daily",
-            "weekly",
-            "monthly",
-            "yearly",
-        ])
-            .describe("Frequency of the recurrence rule"),
-        interval: number().int().min(1).max(1000).optional()
-            .describe("Interval of the recurrence rule"),
-        firstDayOfWeek: _enum(["mo", "tu", "we", "th", "fr", "sa", "su"]).optional()
-            .describe("First day of the week"),
-        byDay: array(object({
-            day: _enum(["mo", "tu", "we", "th", "fr", "sa", "su"]),
-            nthOfPeriod: number().int().optional(),
-        })).optional()
-            .describe("Array of Nth days"),
-        byMonthDay: array(number().int().min(1).max(31)).optional()
-            .describe("Array of month days"),
-        byMonth: array(number().int().min(1).max(12)).optional()
-            .describe("Array of months"),
-        byYearDay: array(number().int().min(1).max(366)).optional()
-            .describe("Array of year days"),
-        byWeekNo: array(number().int().min(1).max(53)).optional()
-            .describe("Array of week numbers"),
-        byHour: array(number().int().min(0).max(23)).optional()
-            .describe("Array of hours"),
-        byMinute: array(number().int().min(0).max(59)).optional()
-            .describe("Array of minutes"),
-        bySecond: array(number().int().min(0).max(59)).optional()
-            .describe("Array of seconds"),
-        bySetPosition: array(number().int()).optional()
-            .describe("Array of set positions"),
-        timeZone: string().optional()
-            .describe("Time zone"),
-        times: number().int().min(1).max(1000).optional()
-            .describe("Number of times the recurrence rule repeats"),
-        until: datetime().optional()
-            .describe("ISO datetime until the recurrence rule repeats"),
-    })
-        .describe("Recurrence rule");
-    RecipeSchema.MatchPattern = object({
-        "@type": literal("MatchPattern")
-            .describe("Type of the match pattern"),
-        code: string()
-            .describe("Code of the match pattern"),
-    })
-        .describe("Match pattern");
-    RecipeSchema.DOMEvent = object({
-        "@type": literal("DOMEvent")
-            .describe("Type of the DOM event"),
-        type: string()
-            .describe("Type of the DOM event"),
-        match: RecipeSchema.MatchPattern,
-    })
-        .describe("DOM event");
-    RecipeSchema.Playlist = object({
-        "@type": literal("Playlist")
-            .describe("Type of the playlist"),
-        entries: array(union([RecipeSchema.HTMLImageElement, RecipeSchema.HTMLVideoElement, RecipeSchema.CustomElement]))
-            .describe("Array of entries"),
-    })
-        .describe("Playlist");
-    RecipeSchema.Event = object({
-        "@type": literal("Event")
-            .describe("Type of the event"),
-        id: uuid()
-            .describe("ID of the event"),
-        priority: number().int().min(0).max(10)
-            .describe("Priority of the event"),
-        start: datetime()
-            .describe("ISO datetime of the start of the event"),
-        timeZone: string()
-            .describe("Time zone of the event"),
-        duration: string()
-            .describe("Duration of the event"),
-        playlist: RecipeSchema.Playlist,
-        recurrenceRules: array(RecipeSchema.RecurrenceRule).optional()
-            .describe("Array of recurrence rules"),
-        onceOn: RecipeSchema.DOMEvent.optional()
-            .describe("Once on DOM event"),
-        enableOn: RecipeSchema.DOMEvent.optional()
-            .describe("Enable on DOM event"),
-        disableOn: RecipeSchema.DOMEvent.optional()
-            .describe("Disable on DOM event"),
-    })
-        .describe("Event");
-    RecipeSchema.Transition = object({
-        "@type": literal("Transition")
-            .describe("Type of the transition"),
-        id: uuid()
-            .describe("ID of the transition"),
-        href: url().min(20).max(2048)
-            .describe("URL of the transition"),
-        size: number().min(20).max(1073741824) // 1GB
-            .describe("Size of the transition in bytes"),
-        hash: RecipeSchema.HashValue,
-        md5: string().length(24) // Base64 encoded 16 bytes.
-            .describe("MD5 hash value"),
-        integrity: string()
-            .describe("Subresource Integrity (SRI) value"),
-        duration: number().min(1).max(86400)
-            .describe("Duration of the transition in seconds"),
-        params: BaseParams.optional()
-            .describe("Optional parameters of the transition"),
-        sources: array(union([
-            RecipeSchema.HTMLImageElement.omit({ duration: true }),
-            RecipeSchema.HTMLVideoElement.omit({ duration: true }),
-            RecipeSchema.HTMLScriptElement,
-        ])).optional()
-            .describe("Array of sources, which can be HTMLImageElement, HTMLVideoElement, or HTMLScriptElement"),
-    })
-        .describe("Transition");
-    RecipeSchema.SignalingServer = object({
-        url: url().min(20).max(2048)
-            .describe("URL of the signaling server"),
-    })
-        .describe("Signaling server");
-    // aka RTCIceServer in the DOM.
-    RecipeSchema.IceServer = object({
-        urls: union([string(), array(string())])
-            .describe("URLs of the ICE server"),
-        username: string().optional()
-            .describe("Username of the ICE server"),
-        credential: string().optional()
-            .describe("Credential of the ICE server"),
-    })
-        .describe("ICE server");
-    RecipeSchema.Cluster = object({
-        label: string()
-            .describe("Label of the cluster"),
-        id: uuid()
-            .describe("ID of the cluster"),
-        peers: array(uuid())
-            .describe("Array of peer IDs"),
-        iceServers: array(RecipeSchema.IceServer)
-            .describe("Array of ICE servers"),
-        signalingServers: array(RecipeSchema.SignalingServer)
-            .describe("Array of signaling servers"),
-        enableLoopback: boolean().optional()
-            .describe("Enable loopback"),
-    })
-        .describe("Cluster");
-    // Compose the final type
-    RecipeSchema.Recipe = object({
-        transition: RecipeSchema.Transition,
-        schedule: array(RecipeSchema.Event)
-            .describe("Array of events"),
-        $defs: record(string(), RecipeSchema.Playlist).optional()
-            .describe("Definitions of playlists"),
-        cluster: RecipeSchema.Cluster.optional()
-            .describe("Cluster configuration"),
-    })
-        .describe("Recipe");
-    // Link to a recipe
-    RecipeSchema.RecipeLink = object({
-        "@type": literal("RecipeLink")
-            .describe("Type of the recipe link"),
-        id: uuid()
-            .describe("ID of the recipe"),
-        href: url().min(20).max(2048)
-            .describe("URL of the recipe"),
-        size: number().min(20).max(1073741824) // 1GB
-            .describe("Size of the recipe in bytes"),
-        hash: RecipeSchema.HashValue,
-        md5: string().length(24) // Base64 encoded 16 bytes.
-            .describe("MD5 hash value"),
-        integrity: string()
-            .describe("Subresource Integrity (SRI) value"),
-    })
-        .describe("Recipe link");
-})(RecipeSchema || (RecipeSchema = {}));
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
-// governed by an MIT-style license that can be found in the LICENSE file or at
-// https://opensource.org/licenses/MIT.
-class Constants {
-    static { this.NETWORK_EMPTY = 0; }
-    static { this.NETWORK_IDLE = 1; }
-    static { this.NETWORK_LOADING = 2; }
-    static { this.NETWORK_NO_SOURCE = 3; }
-    static { this.HAVE_NOTHING = 0; }
-    static { this.HAVE_METADATA = 1; }
-    static { this.HAVE_CURRENT_DATA = 2; }
-    static { this.HAVE_FUTURE_DATA = 3; }
-    static { this.HAVE_ENOUGH_DATA = 4; }
 }
 
 //@ts-nocheck
@@ -15623,6 +11302,56 @@ class RRule {
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
+// REF: https://hg.mozilla.org/comm-central/file/d18e33f0603fa1b1f240424041564672869076ca/calendar/base/modules/Ical.jsm#l214
+// Find the index for insertion using binary search.
+function findIndex(list, value, cmp) {
+    if (!list.length) {
+        return 0;
+    }
+    let low = 0, high = list.length - 1, mid = 0, cmpval = 0;
+    while (low <= high) {
+        mid = low + Math.floor((high - low) / 2);
+        cmpval = cmp(value, list[mid]);
+        if (cmpval < 0)
+            high = mid - 1;
+        else if (cmpval > 0)
+            low = mid + 1;
+        else
+            break;
+    }
+    if (cmpval < 0)
+        return mid; // insertion is displacing, so use mid outright.
+    else if (cmpval > 0)
+        return mid + 1;
+    return mid;
+}
+function compareDateTime(a, b) {
+    return a.toMillis() - b.toMillis();
+}
+function RRuleFrequencyFromString(frequency) {
+    switch (frequency) {
+        case 'yearly': return RRule.YEARLY;
+        case 'monthly': return RRule.MONTHLY;
+        case 'weekly': return RRule.WEEKLY;
+        case 'daily': return RRule.DAILY;
+        case 'hourly': return RRule.HOURLY;
+        case 'minutely': return RRule.MINUTELY;
+        case 'secondly': return RRule.SECONDLY;
+        default: throw new Error('invalid frequency.');
+    }
+}
+function RRuleWeekDayFromString(day, nthOfPeriod = 0) {
+    switch (day) {
+        case 'mo': return nthOfPeriod ? RRule.MO.nth(nthOfPeriod) : RRule.MO;
+        case 'tu': return nthOfPeriod ? RRule.TU.nth(nthOfPeriod) : RRule.TU;
+        case 'we': return nthOfPeriod ? RRule.WE.nth(nthOfPeriod) : RRule.WE;
+        case 'th': return nthOfPeriod ? RRule.TH.nth(nthOfPeriod) : RRule.TH;
+        case 'fr': return nthOfPeriod ? RRule.FR.nth(nthOfPeriod) : RRule.FR;
+        case 'sa': return nthOfPeriod ? RRule.SA.nth(nthOfPeriod) : RRule.SA;
+        case 'su': return nthOfPeriod ? RRule.SU.nth(nthOfPeriod) : RRule.SU;
+        default: throw new Error('invalid weekday.');
+    }
+}
 class CalendarEvent {
     constructor(id, parentId, data, startTime, endTime, priority) {
         this.parentId = null;
@@ -15674,72 +11403,502 @@ class CalendarEvent {
         return event;
     }
 }
+class CalendarEventSeries extends CalendarEvent {
+    constructor(id, parentId, data, startTime, endTime, priority, recurrence) {
+        super(id, parentId, data, startTime, endTime, priority);
+        this.recurrence = recurrence;
+    }
+    contains(dateTime) {
+        //console.log('contains', dateTime.toISO());
+        if (dateTime < this.start) {
+            return false;
+        }
+        if (dateTime < this.end) {
+            return true;
+        }
+        const events = this.getEventsForDay(dateTime);
+        //let i = 1;
+        for (const event of events) {
+            //console.log(i++, event.toJSON());
+            if (event.contains(dateTime)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    getEvents(startTime, endTime) {
+        //console.log(`getEvents(${startTime.toISO()},${endTime.toISO()})`);
+        const events = [];
+        const iterator = (dateTime) => {
+            const event = new CalendarEvent(this.id, this.parentId, this.data, dateTime, dateTime.plus(this.duration), this.priority);
+            events.push(event);
+        };
+        this._getEvents(startTime, endTime, iterator);
+        //console.log("events =", JSON.stringify(events));
+        return events;
+    }
+    getEventsForDay(date) {
+        console.log(`getEventsForDay(${date.toISO()})`);
+        const events = [];
+        const iterator = (dateTime) => {
+            const event = new CalendarEvent(this.id, this.parentId, this.data, dateTime, dateTime.plus(this.duration), this.priority);
+            events.push(event);
+        };
+        this._getEvents(date.startOf('day'), date.endOf('day'), iterator);
+        //console.log("events =", JSON.stringify(events));
+        return events;
+    }
+    // This method returns events that start during the given time range, end
+    // during the time range, or encompass the time range.
+    // EXRULE is deprecated, so only process RDATE, RRULE, and EXDATE.
+    _getEvents(start, end, iterator) {
+        const ruleIterators = [];
+        let ruleDateIndex = 0;
+        let exDateIndex = 0;
+        let exDate = null;
+        let ruleDate = null;
+        const from = start.minus(this.duration);
+        let last = from;
+        // RDATE
+        //const t0 = performance.now();
+        const ruleDates = this.recurrence.recurrenceOverrides;
+        if (!this.recurrence.excluded
+            && ruleDates.length !== 0) {
+            if (ruleDates[0] < last) {
+                ruleDateIndex = 0;
+                last = ruleDates[0];
+            }
+            else {
+                ruleDateIndex = findIndex(ruleDates, last, compareDateTime);
+            }
+            ruleDate = ruleDates[ruleDateIndex];
+        }
+        //const t1 = performance.now();
+        //console.log('RDATE', (t1 - t0) / 1000);
+        // RRULE
+        for (const rule of this.recurrence.recurrenceRules) {
+            const it = rule.iterator(this.start, from);
+            ruleIterators.push(it);
+            it.next(); // find first value.
+        }
+        //const t2 = performance.now();
+        //console.log('RRULE', (t2 - t1) / 1000);
+        // EXDATE
+        if (this.recurrence.excluded
+            && ruleDates.length !== 0) {
+            exDateIndex = findIndex(ruleDates, last, compareDateTime);
+            exDate = ruleDates[exDateIndex];
+        }
+        //const t3 = performance.now();
+        //console.log('EXDATE', (t3 - t2) / 1000);
+        // Occurrences.
+        const findNextRuleIterator = () => {
+            if (ruleIterators.length === 0) {
+                return null;
+            }
+            let nextIterator = null;
+            for (const it of ruleIterators) {
+                if (it.done) {
+                    continue;
+                }
+                if (nextIterator === null
+                    || it.value < nextIterator.value) {
+                    nextIterator = it;
+                }
+            }
+            return nextIterator;
+        };
+        const getNextRuleDay = () => {
+            ruleDate = ruleDates[++ruleDateIndex];
+        };
+        const getNextExDay = () => {
+            exDate = ruleDates[++exDateIndex];
+        };
+        const getNextOccurrence = () => {
+            while (true) {
+                let next = ruleDate;
+                const it = findNextRuleIterator();
+                if (next === null && it === null) {
+                    //console.log("no matches");
+                    break;
+                }
+                let has_changed = false;
+                if (next === null
+                    || (it !== null
+                        && it.value < next)) {
+                    //console.log("have rrule ...");
+                    has_changed = true;
+                    // @ts-ignore: Object is possibly 'null'.
+                    next = it.value;
+                    //console.log("value:", next?.toISO());
+                    // @ts-ignore: Object is possibly 'null'.
+                    it.next();
+                }
+                if (!has_changed) {
+                    getNextRuleDay();
+                }
+                // @ts-ignore: Type 'null' is not assignable to type 'DateTime'.
+                last = next;
+                if (exDate !== null) {
+                    if (last > exDate) {
+                        getNextExDay();
+                    }
+                    else if (last.equals(exDate)) {
+                        continue;
+                    }
+                }
+                return last;
+            }
+            return null;
+        };
+        //console.log("loop start", last.toISO(), end.toISO());
+        while (last < end) {
+            const occ = getNextOccurrence();
+            //console.log("occurrence:", occ && occ.toISO());
+            if (!occ)
+                break;
+            iterator(occ);
+        }
+        //console.log("loop end");
+        //const t4 = performance.now();
+        //console.log('occurrences', (t4 - t3) / 1000);
+    }
+    toJSON() {
+        return {
+            id: this.id,
+            start: this.start.toISO(),
+            duration: this.duration.toISO(),
+            priority: this.priority,
+            recurrence: this.recurrence.toJSON(),
+        };
+    }
+    static fromJSON(json) {
+        const startTime = DateTime$1.fromISO(json.start);
+        const endTime = startTime.plus(Duration.fromISO(json.duration));
+        const recurrence = CalendarRecurrence.fromJSON(json.recurrence);
+        const event = new CalendarEventSeries(json.id, json.parentId, json.data, startTime, endTime, json.priority, recurrence);
+        return event;
+    }
+}
+class CalendarRecurrence {
+    constructor() {
+        this.recurrenceRules = [];
+        this.recurrenceOverrides = [];
+        this.excluded = false;
+    }
+    addDailyRule() {
+        const rule = new RecurrenceRule('daily');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    addDateExclusion(date) {
+        this.recurrenceOverrides.push(date);
+        this.excluded = true;
+        return this;
+    }
+    addDate(date) {
+        this.recurrenceOverrides.push(date);
+        return this;
+    }
+    addHourlyRule() {
+        const rule = new RecurrenceRule('hourly');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    addMinutelyRule() {
+        const rule = new RecurrenceRule('minutely');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    addSecondlyRule() {
+        const rule = new RecurrenceRule('secondly');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    addMonthlyRule() {
+        const rule = new RecurrenceRule('monthly');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    addWeeklyRule() {
+        const rule = new RecurrenceRule('weekly');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    addYearlyRule() {
+        const rule = new RecurrenceRule('yearly');
+        this.recurrenceRules.push(rule);
+        return rule;
+    }
+    toJSON() {
+        return {
+            recurrenceRules: this.recurrenceRules.map((element) => element.toJSON()),
+            recurrenceOverrides: this.recurrenceOverrides.map((element) => element.toISO()),
+            excluded: this.excluded,
+        };
+    }
+    static fromJSON(json) {
+        const recurrence = new CalendarRecurrence();
+        for (const rule of json.recurrenceRules) {
+            recurrence.recurrenceRules.push(RecurrenceRule.fromJSON(rule));
+        }
+        for (const override of json.recurrenceOverrides) {
+            recurrence.recurrenceOverrides.push(DateTime$1.fromISO(override));
+        }
+        recurrence.excluded = json.excluded;
+        return recurrence;
+    }
+}
+class NDay {
+    constructor(day, nthOfPeriod) {
+        this.day = day;
+        this.nthOfPeriod = nthOfPeriod;
+        if (nthOfPeriod === 0) {
+            throw new Error('nthOfPeriod must not be zero.');
+        }
+    }
+    toJSON() {
+        return (typeof this.nthOfPeriod === 'number') ? {
+            day: this.day,
+            nthOfPeriod: this.nthOfPeriod,
+        } : {
+            day: this.day,
+        };
+    }
+    static fromJSON(json) {
+        if ('nthOfPeriod' in json) {
+            return new NDay(json.day, json.nthOfPeriod);
+        }
+        return new NDay(json.day);
+    }
+}
+// Some components not supported in Google Apps Script.
+//
+// The rule parts are not ordered in any particular sequence.
+// The FREQ rule part is REQUIRED.
+// The UNTIL or COUNT rule parts are OPTIONAL, but they MUST NOT occur in the
+// same 'recur'.
+// The other rule parts are OPTIONAL.
+//
+// BYxxx rule parts for a period of time that is the same or greater than the
+// frequency generally reduce or limit the number of occurrences of the
+// recurrence generated.
+//
+// BYxxx rule parts for a period of time less than the frequency generally
+// increase or expand the number of occurrences of the recurrence.
+class RecurrenceRule {
+    constructor(frequency) {
+        this._cache = null;
+        this._frequency = frequency;
+        this._interval = 1;
+        //		this.#rscale = 'gregorian';
+        //		this.#skip = 'omit';
+        this._firstDayOfWeek = 'mo';
+        this._byDay = [];
+        this._byMonthDay = [];
+        this._byMonth = [];
+        this._byYearDay = [];
+        this._byWeekNo = [];
+        this._byHour = [];
+        this._byMinute = [];
+        this._bySecond = [];
+        this._bySetPosition = [];
+        this._timeZone = undefined;
+        this._times = undefined;
+        this._until = undefined;
+    }
+    toJSON() {
+        return {
+            frequency: this._frequency,
+            interval: this._interval,
+            //			rscale: this.#rscale,
+            //			skip: this.#skip,
+            firstDayOfWeek: this._firstDayOfWeek,
+            byDay: this._byDay.map(day => day.toJSON()),
+            byMonthDay: this._byMonthDay,
+            byMonth: this._byMonth,
+            byYearDay: this._byYearDay,
+            byWeekNo: this._byWeekNo,
+            byHour: this._byHour,
+            byMinute: this._byMinute,
+            bySecond: this._bySecond,
+            bySetPosition: this._bySetPosition,
+            timeZone: this._timeZone,
+            times: this._times,
+            until: this._until ? this._until.toISO() : undefined,
+        };
+    }
+    static fromJSON(json) {
+        const recurrence = new RecurrenceRule(json.frequency);
+        recurrence.interval(json.interval);
+        if (typeof json.firstDayOfWeek === 'string' && json.firstDayOfWeek.length) {
+            recurrence.weekStartsOn(json.firstDayOfWeek);
+        }
+        if (Array.isArray(json.byDay) && json.byDay.length) {
+            const byDay = [];
+            for (const day of json.byDay) {
+                byDay.push(NDay.fromJSON(day));
+            }
+            recurrence.onlyOnWeekDays(byDay);
+        }
+        if (Array.isArray(json.byMonthDay) && json.byMonthDay.length) {
+            recurrence.onlyOnMonthdays(json.byMonthDay);
+        }
+        if (Array.isArray(json.byMonth) && json.byMonth.length) {
+            recurrence.onlyInMonths(json.byMonth);
+        }
+        if (Array.isArray(json.byYearDay) && json.byYearDay.length) {
+            recurrence.onlyOnYearDays(json.byYearDay);
+        }
+        if (Array.isArray(json.byWeekNo) && json.byWeekNo.length) {
+            recurrence.onlyOnWeeks(json.byWeekNo);
+        }
+        if (Array.isArray(json.byHour) && json.byHour.length) {
+            recurrence.onlyOnHours(json.byHour);
+        }
+        if (Array.isArray(json.byMinute) && json.byMinute.length) {
+            recurrence.onlyOnMinutes(json.byMinute);
+        }
+        if (Array.isArray(json.bySecond) && json.bySecond.length) {
+            recurrence.onlyOnSeconds(json.bySecond);
+        }
+        if (Array.isArray(json.bySetPosition) && json.bySetPosition.length) {
+            recurrence.bySetPosition(json.bySetPosition);
+        }
+        if (typeof json.timeZone === 'string' && json.timeZone.length) {
+            recurrence.setTimeZone(json.timeZone);
+        }
+        if (typeof json.times === 'number') {
+            recurrence.times(json.times);
+        }
+        if (typeof json.until === 'string' && json.until.length) {
+            recurrence.until(DateTime$1.fromISO(json.until));
+        }
+        return recurrence;
+    }
+    getFrequency() { return this._frequency; }
+    getInterval() { return this._interval; }
+    interval(interval) { this._interval = interval; }
+    getWeekStartsOn() { return this._firstDayOfWeek; }
+    weekStartsOn(day) { this._firstDayOfWeek = day; }
+    getOnlyOnWeekDays() { return this._byDay; }
+    onlyOnWeekDays(days) { this._byDay = days; }
+    getOnlyOnMonthDays() { return this._byMonthDay; }
+    onlyOnMonthdays(days) { this._byMonthDay = days; }
+    getOnlyInMonths() { return this._byMonth; }
+    onlyInMonths(months) { this._byMonth = months; }
+    getOnlyOnYearDays() { return this._byYearDay; }
+    onlyOnYearDays(days) { this._byYearDay = days; }
+    getOnlyOnWeeks() { return this._byWeekNo; }
+    onlyOnWeeks(weeks) { this._byWeekNo = weeks; }
+    getOnlyOnHours() { return this._byHour; }
+    onlyOnHours(hours) { this._byHour = hours; }
+    getOnlyOnMinutes() { return this._byMinute; }
+    onlyOnMinutes(minutes) { this._byMinute = minutes; }
+    getOnlyOnSeconds() { return this._bySecond; }
+    onlyOnSeconds(seconds) { this._bySecond = seconds; }
+    bySetPosition(positions) { this._bySetPosition = positions; }
+    getSetPosition() { return this._bySetPosition; }
+    getTimeZone() { return this._timeZone; }
+    setTimeZone(timeZone) { this._timeZone = timeZone; }
+    getTimes() { return this._times; }
+    times(times) { this._times = times; }
+    getUntil() { return this._until; }
+    until(endDate) { this._until = endDate; }
+    isFinite() { return !!(this._times || this._until); }
+    isByCount() { return !!(this._times && !this._until); }
+    iterator(dtstart, from) {
+        let options = {};
+        // RRule is somewhat broken and silently errors on empty or
+        // undefined options.
+        options['freq'] = RRuleFrequencyFromString(this._frequency);
+        options['dtstart'] = dtstart.toJSDate();
+        options['interval'] = this._interval;
+        if (this._firstDayOfWeek) {
+            options['wkst'] = RRuleWeekDayFromString(this._firstDayOfWeek);
+        }
+        if (this._times) {
+            options['count'] = this._times;
+        }
+        if (this._until) {
+            options['until'] = this._until.toJSDate();
+        }
+        if (this._timeZone) {
+            options['tzid'] = this._timeZone;
+        }
+        if (this._bySetPosition.length) {
+            options['bysetpos'] = this._bySetPosition;
+        }
+        if (this._byMonth.length) {
+            options['bymonth'] = this._byMonth;
+        }
+        if (this._byMonthDay.length) {
+            options['bymonthday'] = this._byMonthDay;
+        }
+        if (this._byYearDay.length) {
+            options['byyearday'] = this._byYearDay;
+        }
+        if (this._byWeekNo.length) {
+            options['byweekno'] = this._byWeekNo;
+        }
+        if (this._byDay.length) {
+            options['byweekday'] =
+                this._byDay.map(element => RRuleWeekDayFromString(element.day, element.nthOfPeriod));
+        }
+        if (this._byHour.length) {
+            options['byhour'] = this._byHour;
+        }
+        if (this._byMinute.length) {
+            options['byminute'] = this._byMinute;
+        }
+        if (this._bySecond.length) {
+            options['bysecond'] = this._bySecond;
+        }
+        //		console.info(options);
+        let rrule;
+        if (this._cache === null) {
+            rrule = new RRule(options, false);
+            this._cache = rrule._cache;
+        }
+        else {
+            rrule = new RRule(options, true /* no-cache */);
+            rrule._cache = this._cache;
+        }
+        //		console.info(rrule.toString());
+        let date = from.toJSDate();
+        let value = undefined;
+        let done = false;
+        const next = () => {
+            if (date === null) {
+                return;
+            }
+            //console.info("rrule.after(", date, ")");
+            date = rrule.after(date);
+            //console.group();
+            //console.info("date:", date.toISOString());
+            value = (date !== null) ? DateTime$1.fromJSDate(date) : undefined;
+            //console.info("value:", value && value.toISO());
+            done = value === null;
+            //console.info("done:", done);
+            //console.groupEnd();
+        };
+        const it = {
+            next,
+            get value() { return value; },
+            get done() { return done; },
+        };
+        return it;
+    }
+}
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-const MAX_DATE = DateTime$1.fromJSDate(new Date(8.64e15));
-const MAX_DURATION = Duration.fromMillis(8.64e15);
-// The base meta-data for scheduled events.
-class ScheduleItem {
-    // eventSeries: id of the scheduled event.
-    constructor(eventSeries, decl, start_offset, end_offset) {
-        this.eventSeries = eventSeries;
-        this.decl = decl;
-        this.start_offset = start_offset;
-        this.end_offset = end_offset;
-    }
-    get shortEventSeries() { return this.eventSeries.substring(0, 7); }
-    get id() { return this.decl.id; }
-    get shortId() { return this.decl.id.substring(0, 7); }
-    get duration() { return this.decl.duration; }
-}
-// For a given time window.
-class ScheduleItemView {
-    constructor(schedule_item, playlist_start) {
-        this.schedule_item = schedule_item;
-        this._start_time = playlist_start.plus(schedule_item.start_offset);
-        this._end_time = playlist_start.plus(schedule_item.end_offset);
-    }
-    get eventSeries() { return this.schedule_item.eventSeries; }
-    get shortEventSeries() { return this.schedule_item.shortEventSeries; }
-    get id() { return this.decl.id; }
-    get shortId() { return this.decl.id.substring(0, 7); }
-    get currentSrc() { return this.decl.href; }
-    get start_time() { return this._start_time; }
-    get end_time() { return this._end_time; }
-    get decl() { return this.schedule_item.decl; }
-    get start_offset() { return this.schedule_item.start_offset; }
-    get end_offset() { return this.schedule_item.end_offset; }
-    _remainingTime(datetime) {
-        if (this._end_time.equals(MAX_DATE)) {
-            return "Infinity";
-        }
-        const interval = Interval.fromDateTimes(datetime, this._end_time);
-        return interval.length('milliseconds');
-    }
-    summary(datetime) {
-        if (datetime <= this._end_time) {
-            return {
-                decl: this.decl,
-                remainingTimeMs: this._remainingTime(datetime),
-                startTime: this._start_time.equals(MAX_DATE) ?
-                    "Infinity" : this._start_time.toISO(),
-                endTime: this._end_time.equals(MAX_DATE) ?
-                    "Infinity" : this._end_time.toISO(),
-            };
-        }
-        return {
-            decl: this.decl,
-            remainingTimeMs: "Infinity",
-            startTime: this._start_time.equals(MAX_DATE) ?
-                "Infinity" : this._start_time.toISO(),
-            endTime: this._end_time.equals(MAX_DATE) ?
-                "Infinity" : this._end_time.toISO(),
-        };
-    }
-}
+console.info('CALENDAR: WebWorker started.');
+let calendar_event;
+// Certain objects need special attention to transfer over "Comlink",
+// Luxon's DateTime is coded in milliseconds, ⚠️ losing timezone.
 const DateTimeHandler = {
     canHandle: (val) => val instanceof DateTime$1,
     serialize: (val) => {
@@ -15747,6 +11906,8 @@ const DateTimeHandler = {
     },
     deserialize: (num) => DateTime$1.fromMillis(num),
 };
+// CalendarEvent and CalendarEvent[] are flattened into JSON due to many Luxon
+// DateTime instances within.
 const CalendarEventHandler = {
     canHandle: (val) => val instanceof CalendarEvent,
     serialize: (val) => {
@@ -15764,1246 +11925,107 @@ const CalendarEventArrayHandler = {
 transferHandlers.set("DATETIME", DateTimeHandler);
 transferHandlers.set("CALENDAREVENT", CalendarEventHandler);
 transferHandlers.set("CALENDAREVENTARRAY", CalendarEventArrayHandler);
-class CalendarSchedule {
-    get _isDynamic() { return this._isOnce || this._isToggle; }
-    constructor(decl, lowWatermark, highWatermark) {
-        this.decl = decl;
-        this._queue = [];
-        this._isOnce = false;
-        this._isToggle = false;
-        this._isReady = false;
-        this._hasDeathNote = false;
-        this._isActivated = false;
-        this._isPulling = false;
-        this._worker = this._workerFactory();
-        this._calendar = wrap(this._worker);
-        this._lowWatermark = Duration.fromDurationLike(lowWatermark);
-        this._highWatermark = Duration.fromDurationLike(highWatermark);
-        this._isOnce = this.decl.hasOwnProperty('onceOn');
-        this._isToggle = this.decl.hasOwnProperty('enableOn') && this.decl.hasOwnProperty('disableOn');
-        if (this._isOnce) {
-            const match = this.decl.onceOn.match;
-            console.log(`${this.shortId}: once schedule: ${JSON.stringify(match)}`);
-            this._onceListener = (event) => {
-                console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
-                for (const prop in match) {
-                    console.log('prop', prop);
-                    if (prop[0] === '@') {
-                        continue;
-                    }
-                    if (!event.detail.hasOwnProperty(prop)) {
-                        console.log('no prop');
-                        continue;
-                    }
-                    if (event.detail[prop] === match[prop]) {
-                        const datetime = DateTime$1.now();
-                        this._activate(datetime);
-                    }
-                }
-            };
-            self.addEventListener(this.decl.onceOn.type, this._onceListener);
-        }
-        else if (this._isToggle) {
-            const matchOn = this.decl.enableOn.match;
-            const matchOff = this.decl.disableOn.match;
-            console.log(`${this.shortId}: toggle schedule: ${JSON.stringify(matchOn)}, ${JSON.stringify(matchOff)}`);
-            this._enableListener = (event) => {
-                console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
-                for (const prop in matchOn) {
-                    console.log('prop', prop);
-                    if (prop[0] === '@') {
-                        continue;
-                    }
-                    if (!event.detail.hasOwnProperty(prop)) {
-                        console.log('no prop');
-                        continue;
-                    }
-                    if (event.detail[prop] === matchOn[prop]) {
-                        const datetime = DateTime$1.now();
-                        this._activate(datetime);
-                    }
-                }
-            };
-            this._disableListener = (event) => {
-                console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
-                for (const prop in matchOff) {
-                    console.log('prop', prop);
-                    if (prop[0] === '@') {
-                        continue;
-                    }
-                    if (!event.detail.hasOwnProperty(prop)) {
-                        console.log('no prop');
-                        continue;
-                    }
-                    if (event.detail[prop] === matchOff[prop]) {
-                        const datetime = DateTime$1.now();
-                        this._deactivate(datetime);
-                    }
-                }
-            };
-            self.addEventListener(this.decl.enableOn.type, this._enableListener);
-            self.addEventListener(this.decl.disableOn.type, this._disableListener);
-        }
-        this._isActivated = !this._isDynamic;
-    }
-    // Use relative path on local file system due to LG WebOS security policy.
-    _workerFactory() {
-        if (location.protocol === 'file:') {
-            return new Worker('../dist/calendar.bundle~chrome53.mjs', {
-                type: 'classic',
-                credentials: 'omit',
-                name: `Calendar - ${this.shortId}`,
-            });
-        }
-        return new Worker(new URL('../dist/calendar.bundle.mjs', location.href).pathname, {
-            type: 'module',
-            credentials: 'omit',
-            name: `Calendar - ${this.shortId}`,
-        });
-    }
-    async _activate(datetime) {
-        console.log(`${this.shortId}: _activate(${datetime.toISO()})`);
-        await this._calendar.parseSchedule(this.id, {
-            ...this.decl,
-            start: datetime.toISO(),
-        });
-        this._isActivated = true;
-    }
-    _deactivate(datetime) {
-        console.log(`${this.shortId}: _deactivate(${datetime.toISO()})`);
-        this._isActivated = false;
-    }
-    get id() { return this.decl.id; }
-    get shortId() { return this.id.substring(0, 7); }
-    set isReady(isReady) {
-        console.log(`${this.shortId}: isReady(${isReady})`);
-        this._isReady = isReady;
-    }
-    get isReady() { return this._isReady; }
-    get isActive() { return this._isReady && this._isActivated; }
-    // Forced re-interpretation of Recipe schema to wider type.
-    get entries() { return this.decl.playlist.entries; }
-    get sources() {
-        const hrefs = new Set();
-        for (const decl of this.entries) {
-            // Primary asset,
-            hrefs.add({
-                "@type": decl["@type"],
-                id: decl.id,
-                href: decl.href,
-                size: decl.size,
-                hash: decl.hash,
-                integrity: decl.integrity,
-                md5: decl.md5,
-            });
-            // Dependent assets.
-            if ('sources' in decl
-                && Array.isArray(decl.sources)) {
-                for (const asset of decl.sources) {
-                    hrefs.add(asset);
-                }
-            }
-        }
-        return Array.from(hrefs.values());
-    }
-    summary(datetime) {
-        let pct = 0;
-        if (typeof this.tail !== "undefined") {
-            this.tail.end.toISO();
-            const interval = Interval.fromDateTimes(datetime, this.tail.end);
-            const duration = interval.toDuration('milliseconds');
-            pct = (100 * Math.min(duration.toMillis(), this._highWatermark.toMillis()))
-                / this._highWatermark.toMillis();
-        }
-        const queue = this._queue.map(entry => entry.interval.toISO());
-        return {
-            id: this.shortId,
-            pct,
-            queue,
-        };
-    }
-    async parseSchedule(decl) {
-        console.log(`${this.shortId}: parseSchedule`);
-        if (this._isDynamic) {
-            return;
-        }
-        await this._calendar.parseSchedule(this.id, decl);
-    }
-    async _getEvents(startTime, endTime) {
-        //		console.log(`${this.shortId}: getEvents ${startTime.toISO()} -> ${endTime.toISO()}.`);
-        return await this._calendar.getEvents(startTime, endTime);
-    }
-    setLowWatermark(durationLike) {
-        console.log(`${this.shortId}: setLowWatermark(${JSON.stringify(durationLike)})`);
-        this._lowWatermark = Duration.fromDurationLike(durationLike);
-    }
-    setHighWatermark(durationLike) {
-        console.log(`${this.shortId}: setHighWatermark(${JSON.stringify(durationLike)})`);
-        this._highWatermark = Duration.fromDurationLike(durationLike);
-    }
-    // Fill to high watermark when breaking low.
-    async pull(datetime) {
-        //		console.log(`${this.shortId}: pull(${datetime.toISO()})`);
-        if (!this._isActivated) {
-            return false;
-        }
-        if (this._aboveLowWatermark(datetime)) {
-            return false;
-        }
-        const headTime = typeof this.head === "undefined" ? datetime : this.head.start;
-        const endTime = headTime.plus(this._highWatermark);
-        const t0 = performance.now();
-        const events = await this._getEvents(datetime, endTime);
-        console.log(`${this.shortId}: getEvents ${Math.round(performance.now() - t0)}ms.`);
-        this._queue = events;
-        return true;
-    }
-    prefetch(datetime) {
-        const headTime = typeof this.head === "undefined" ? datetime : this.head.start;
-        const tailTime = typeof this.tail === "undefined" ? datetime : this.tail.end;
-        const endTime = headTime.plus(this._highWatermark).plus(this._lowWatermark);
-        if (endTime > tailTime) {
-            this._calendar.prefetchEvents(headTime, endTime)
-                .catch(err => {
-                console.error(err);
-            });
-        }
-    }
-    // Destructive to queue.
-    getCalendarEvent(datetime) {
-        //		console.log(`${this.shortId}: getCalendarEvent(${datetime.toISO()})`);
-        if (!this.isActive) {
-            return null;
-        }
-        else if (this._isOnce) {
-            if (typeof this.head !== "undefined"
-                && datetime > this.head.end) {
-                this._deactivate(datetime);
-                return null;
-            }
-        }
-        if (!this._isPulling) {
-            this._isPulling = true;
-            this.pull(datetime)
-                .then(() => {
-                this.prefetch(datetime);
-            }).finally(() => {
-                this._isPulling = false;
-            });
-        }
-        while (true) {
-            if (typeof this.head === "undefined") {
-                return null;
-            }
-            if (datetime < this.head.end) {
-                break;
-            }
-            this._queue.shift();
-        }
-        return this.head;
-    }
-    peekCalendarEvent(datetime) {
-        //		console.log(`${this.shortId}: peekCalendarEvent(${datetime.toISO()})`);
-        if (!this.isActive) {
-            return null;
-        }
-        else if (this._isOnce) {
-            if (typeof this.head !== "undefined"
-                && datetime > this.head.end) {
-                this._deactivate(datetime);
-                return null;
-            }
-        }
-        if (!this._isPulling) {
-            this._isPulling = true;
-            this.pull(datetime)
-                .then(() => {
-                this.prefetch(datetime);
-            }).finally(() => {
-                this._isPulling = false;
-            });
-        }
-        for (const entry of this._queue) {
-            if (datetime < entry.end) {
-                return entry;
-            }
-        }
-        return null;
-    }
-    get isEmpty() { return this._queue.length === 0; }
-    get head() { return this.isEmpty ? undefined : this._queue[0]; }
-    get tail() { return this.isEmpty ? undefined : this._queue[this._queue.length - 1]; }
-    _aboveLowWatermark(datetime) {
-        //		console.log(`aboveLowWatermark(${datetime.toISO()})`);
-        if (typeof this.tail === "undefined") {
-            return false;
-        }
-        const interval = Interval.fromDateTimes(datetime, this.tail.end);
-        const duration = interval.toDuration('seconds');
-        return duration > this._lowWatermark;
-    }
-    close() {
-        if (typeof this._onceListener !== "undefined") {
-            self.removeEventListener(this.decl.onceOn.type, this._onceListener);
-        }
-        if (typeof this._enableListener !== "undefined") {
-            self.removeEventListener(this.decl.enableOn.type, this._enableListener);
-        }
-        if (typeof this._disableListener !== "undefined") {
-            self.removeEventListener(this.decl.disableOn.type, this._disableListener);
-        }
-        this._calendar[releaseProxy]();
-        this._worker.terminate();
-        this._isReady = false;
-    }
-    closeWhenHidden() {
-        this._hasDeathNote = true;
-        if (!this.isReady) {
-            console.log(`${this.shortId}: Closing.`);
-            this.close();
-        }
-    }
-    hidden() {
-        if (this._hasDeathNote) {
-            console.log(`${this.shortId}: Closing when hidden.`);
-            this.close();
-        }
-    }
-    toJSON() {
-        return {
-            decl: this.decl,
-            "_lowWatermark": this._lowWatermark.toISO(),
-            "_highWatermark": this._highWatermark.toISO(),
-            "_queue": this._queue.map(x => x.toJSON()),
-        };
-    }
-}
-class BasicScheduler extends EventTarget$1 {
-    constructor() {
-        super();
-        this.autoplay = true;
-        this.mergePlaylist = true;
-        this._src = "";
-        this._src_id = "";
-        this._src_size = 0;
-        this._src_hash = undefined;
-        this._src_integrity = "";
-        this._src_md5 = "";
-        this._currentTime = DateTime$1.fromMillis(0); // UNIX epoch.
-        this._inTransition = false;
-        this._transitionStartTime = DateTime$1.fromMillis(0);
-        this._transitionEndTime = DateTime$1.fromMillis(0);
-        this._transitionPercent = 0;
-        this._transitionPercentSpeed = 0;
-        this._play_resolve = null;
-        this._play_reject = null;
-        this._schedule_cluster = undefined;
-        // Per HTMLMediaElement.
-        this._ended = false;
-        this._error = null;
-        this._networkState = Constants.NETWORK_NO_SOURCE;
-        this._paused = true;
-        this._readyState = Constants.HAVE_NOTHING;
-        this._seeking = false;
-        // Active MediaAssets.
-        this._joined_cluster = undefined;
-        this._active_media_assets = [];
-        this._media_list_duration = Duration.fromMillis(0);
-        this._media_list_current = null;
-        this._media_current = null;
-        this._media_next = null;
-        this._transitionFrom = null;
-        this._transitionTo = null;
-        this._hasInterrupt = false;
-        this._transitionSize = 0;
-        this._calendar_schedules = [];
-        this.addEventListener('loadedmetadata', (event) => this._onLoadedMetadata(event));
-    }
-    get debugInTransition() { return this._inTransition; }
-    _schedulerFactory(decl, lowWatermark, highWatermark) {
-        return new CalendarSchedule(decl, lowWatermark, highWatermark);
-    }
-    close() { }
-    get src() { return this._src; }
-    set src(href) {
-        if (!this.mergePlaylist || href.length === 0) {
-            (async () => {
-                await this._clear();
-            })();
-        }
-        this._src = href;
-        if (this.autoplay
-            && this.src.length !== 0) {
-            console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_id})`);
-            (async () => {
-                await this.play();
-            })();
-        }
-    }
-    get src_id() { return this._src_id; }
-    set src_id(src_id) {
-        this._src_id = src_id;
-    }
-    get src_size() { return this._src_size; }
-    set src_size(size) {
-        this._src_size = size;
-    }
-    get src_hash() { return this._src_hash; }
-    set src_hash(hash) {
-        this._src_hash = hash;
-    }
-    get src_integrity() { return this._src_integrity; }
-    set src_integrity(integrity) {
-        this._src_integrity = integrity;
-    }
-    get src_md5() { return this._src_md5; }
-    set src_md5(md5) {
-        this._src_md5 = md5;
-    }
-    get currentTime() { return this._currentTime; }
-    set currentTime(datetime) {
-        this._currentTime = datetime;
-    }
-    // Per HTMLMediaElement.
-    get ended() { return this._ended; }
-    get error() { return this._error; }
-    get networkState() { return this._networkState; }
-    get paused() { return this._paused; }
-    get readyState() { return this._readyState; }
-    get seeking() { return this._seeking; }
-    load() {
-        (async () => {
-            try {
-                console.log("BASIC-SCHEDULER: load");
-                this.dispatchEvent(new Event('loadstart'));
-                this._networkState = Constants.NETWORK_LOADING;
-                const schedule = await this._fetch(this.src);
-                this._networkState = Constants.NETWORK_IDLE;
-                await this._parseRecipe(schedule);
-                this._readyState = Constants.HAVE_FUTURE_DATA;
-                this.dispatchEvent(new Event('loadedmetadata'));
-                this.dispatchEvent(new Event('loadeddata'));
-            }
-            catch (e) {
-                console.warn(e);
-                this._networkState = Constants.NETWORK_IDLE;
-                const event = new CustomEvent('error', { detail: e });
-                this.dispatchEvent(event);
-            }
-        })();
-    }
-    pause() {
-        if (this.paused) {
-            return;
-        }
-        console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_id})`);
-        this._paused = true;
-        this.dispatchEvent(new Event('pause'));
-    }
-    async play() {
-        console.log("BASIC-SCHEDULER: play");
-        if (this._play_resolve !== null) {
-            this.removeEventListener('canplay', this._play_resolve);
-        }
-        if (this._play_reject !== null) {
-            this.removeEventListener('error', this._play_reject);
-        }
-        await new Promise((resolve, reject) => {
-            this._play_resolve = (_event) => {
-                this._play_resolve = null;
-                resolve();
-            };
-            this._play_reject = (event) => {
-                this._play_reject = null;
-                console.warn(event);
-                reject(event);
-            };
-            this.addEventListener('canplay', this._play_resolve, { once: true });
-            this.addEventListener('error', this._play_reject, { once: true });
-            try {
-                this.load();
-            }
-            catch (ex) {
-                console.warn(ex);
-                reject(ex);
-            }
-        });
-        this._paused = false;
-        this.dispatchEvent(new Event('play'));
-        this.dispatchEvent(new Event('playing'));
-    }
-    update(datetime) {
-        //		console.log("BASIC-SCHEDULER: update", datetime.toISO());
-        if (this.paused) {
-            return;
-        }
-        let need_seek = false;
-        if (this._hasInterrupt) {
-            console.debug(`BASIC-SCHEDULER: Event playback, ${datetime.toISO()}.`);
-            need_seek = true;
-        }
-        else if (datetime < this._currentTime) {
-            console.debug(`BASIC-SCHEDULER: Rewinding playback, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);
-            need_seek = true;
-        }
-        else if (this._media_current === null) {
-            console.debug(`BASIC-SCHEDULER: Fast-seek forward, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);
-            need_seek = true;
-        }
-        else if (datetime >= this._mediaCurrentEndTime) {
-            console.debug(`BASIC-SCHEDULER: Fast-forward playback, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);
-            need_seek = true;
-        }
-        this._currentTime = datetime;
-        if (need_seek) {
-            this._onSeekStarted();
-        }
-        const last_calendar_schedule_id = this._media_list_current?.parentId;
-        this._media_list_current = this._getMediaListContains(datetime);
-        this._updateMediaList(this._media_list_current);
-        if (this._media_list_current !== null) {
-            this._media_current = this._seekMediaList(datetime, this._media_list_current);
-            if (this._media_current !== null) {
-                const next_events = this._peekMediaListContains(this._media_current.end_time);
-                if (next_events !== null) {
-                    this._media_next = this._seekMediaList(this._media_current.end_time, next_events);
-                }
-                else {
-                    this._media_next = null;
-                }
-            }
-        }
-        else {
-            this._media_current = null;
-        }
-        if (typeof last_calendar_schedule_id !== "undefined") {
-            if (this._media_list_current === null
-                || last_calendar_schedule_id !== this._media_list_current.parentId) {
-                const last_calendar_schedule = this._calendar_schedules.find(x => x.id === last_calendar_schedule_id);
-                if (typeof last_calendar_schedule !== "undefined") {
-                    last_calendar_schedule.hidden();
-                }
-            }
-        }
-        if (this._media_current === null) {
-            const next_events = this._peekMediaListAfter(datetime);
-            if (next_events !== null) {
-                const next_datetime = DateTime$1.max(datetime, next_events.start);
-                this._media_next = this._seekMediaList(next_datetime, next_events);
-            }
-            else {
-                this._media_next = null;
-            }
-        }
-        if (need_seek) {
-            this._onSeekEnded();
-        }
-        // [ intro ] -- content -- [ outro ] [ intro ] -- next content --
-        // Into and outro are scoped to the current media, thus after current media
-        // end time, i.e. the intro of the next content, the values for both intro
-        // and outro will have advanced in time.
-        if (!this._inTransition) {
-            if (datetime >= this._transitionOutroStartTime
-                && datetime < this._transitionOutroEndTime) {
-                console.debug(`BASIC-SCHEDULER: Start transition on outro: ${this._transitionOutroEndTime} > ${datetime.toISO()} >= ${this._transitionOutroStartTime.toISO()}`);
-                this._onTransitionStart(this._transitionOutroStartTime);
-            }
-            else if (datetime >= this._transitionIntroStartTime
-                && datetime < this._transitionIntroEndTime) {
-                console.debug(`BASIC-SCHEDULER: Start transition on intro: ${this._transitionIntroEndTime.toISO()} > ${datetime.toISO()} >= ${this._transitionIntroStartTime.toISO()}`);
-                this._onTransitionStart(this._transitionPreviousOutroStartTime);
-            }
-        }
-        else {
-            // Explicitly only a transition that has been started.
-            if (datetime >= this._transitionEndTime) {
-                this._onTransitionEnded(this._transitionEndTime);
-            }
-        }
-        if (this._inTransition) {
-            this._updateTransition(datetime);
-        }
-        //		console.info(this.state(datetime));
-    }
-    _onTransitionStart(datetime) {
-        console.debug(`BASIC-SCHEDULER: _onTransitionStart(${datetime.toISO()})`);
-        if (this._media_current === null) {
-            throw new Error("current is null.");
-        }
-        this._transitionFrom = this._media_current.decl;
-        // Schedule may have updated and next media has not been set.
-        if (this._media_next === null) {
-            console.warn("next is null.");
-            return;
-        }
-        if (typeof this._transitionTime === "undefined") {
-            throw new Error("transition time is undefined.");
-        }
-        this._transitionTo = this._media_next.decl;
-        this._inTransition = true;
-        this._transitionStartTime = datetime;
-        this._transitionEndTime = datetime.plus({ seconds: this._transitionTime });
-        console.debug(`BASIC-SCHEDULER: Transition end: ${this._transitionEndTime.toISO()}`);
-    }
-    _updateTransition(datetime) {
-        //		console.log("BASIC-SCHEDULER: _updateTransition");
-        const interval = Interval.fromDateTimes(this._transitionStartTime, datetime);
-        const elapsed = interval.length('seconds');
-        if (typeof this._transitionTime === "undefined") {
-            throw new Error("transition time is undefined.");
-        }
-        this._transitionPercent = Math.min(1.0, elapsed / this._transitionTime);
-        this._transitionPercentSpeed = 1 / this._transitionTime;
-        if (this._media_next === null) {
-            throw new Error("next is null.");
-        }
-    }
-    _onTransitionEnded(datetime) {
-        console.debug(`BASIC-SCHEDULER: _onTransitionEnded(${datetime.toISO()}`);
-        this._inTransition = false;
-        this._transitionFrom = null;
-        this._transitionTo = null;
-    }
-    _onSeekStarted() {
-        //		console.log("BASIC-SCHEDULER: _onSeekStarted");
-        this._seeking = true;
-        this.dispatchEvent(new Event('seeking'));
-    }
-    _onSeekEnded() {
-        //		console.log("BASIC-SCHEDULER: _onSeekEnded");
-        this._seeking = false;
-        this.dispatchEvent(new Event('seeked'));
-        this.dispatchEvent(new Event('playing'));
-    }
-    state(datetime) {
-        const currentTime = datetime.toISO();
-        if (currentTime === null) {
-            throw new Error("Cannot convert datetime to ISO.");
-        }
-        const eventSeries = this._calendar_schedules.map(calendar => calendar.summary(datetime));
-        const mediaList = this._active_media_assets.map(asset => {
-            const start = asset.start_offset.equals(MAX_DURATION)
-                ? "Infinity"
-                : asset.start_offset.toISO();
-            if (start === null) {
-                throw new Error("Cannot convert start offset to ISO.");
-            }
-            const end = asset.end_offset.equals(MAX_DURATION)
-                ? "Infinity"
-                : asset.end_offset.toISO();
-            if (end === null) {
-                throw new Error("Cannot convert end offset to ISO.");
-            }
-            const media = {
-                id: asset.shortId,
-                start,
-                end,
-            };
-            return media;
-        });
-        const mediaCurrent = this._media_current === null ? null : this._media_current.summary(datetime);
-        const mediaNext = this._media_next === null ? null : this._media_next.summary(datetime);
-        const transition = (this._inTransition
-            && this._transitionFrom !== null
-            && this._transitionTo !== null
-            && typeof this._transitionUrl === "string") ? {
-            from: {
-                decl: this._transitionFrom,
-            },
-            to: {
-                decl: this._transitionTo,
-            },
-            url: this._transitionUrl,
-            percent: this._transitionPercent,
-            percentSpeed: this._transitionPercentSpeed,
-        } : null;
-        return {
-            currentTime,
-            eventSeries,
-            mediaList,
-            mediaCurrent,
-            mediaNext,
-            transition,
-        };
-    }
-    _onLoadedMetadata(_event) {
-        (async () => {
-            console.groupCollapsed("BASIC-SCHEDULER: _onLoadedMetadata");
-            this._media_list_current = this._getMediaListContains(this._currentTime);
-            this._updateMediaList(this._media_list_current);
-            if (this._media_list_current !== null) {
-                this._media_current = this._seekMediaList(this._currentTime, this._media_list_current);
-            }
-            if (this._media_current !== null) {
-                const event = this._peekMediaListContains(this._mediaCurrentEndTime);
-                this._media_next = null;
-                if (event !== null
-                    && event.data.entries.length !== 0) {
-                    this._media_next = this._seekMediaList(this._mediaCurrentEndTime, event);
-                }
-            }
-            else if (this._media_next !== null) {
-                const event = this._peekMediaListAfter(this._currentTime);
-                if (event !== null) {
-                    this._media_next = this._seekMediaList(event.start, event);
-                }
-            }
-            this.dispatchEvent(new Event('canplay'));
-            console.groupEnd();
-        })();
-    }
-    async _fetch(url) {
-        console.log("BASIC-SCHEDULER: _fetch", url);
-        const response = await fetch(url);
-        const referenced = await response.json();
-        const result = await parse$1(referenced, {
-            scope: self.location.href,
-        });
-        return structuredClone(result);
-    }
-    async _clear() {
-        this._currentTime = DateTime$1.fromMillis(0);
-        this._inTransition = false;
-        this._transitionStartTime = DateTime$1.fromMillis(0);
-        this._transitionEndTime = DateTime$1.fromMillis(0);
-        this._transitionPercent = 0;
-        this._transitionPercentSpeed = 0;
-        this._ended = false;
-        this._error = null;
-        this._networkState = Constants.NETWORK_NO_SOURCE;
-        this._paused = true;
-        this._readyState = Constants.HAVE_NOTHING;
-        this._seeking = false;
-        if (typeof this._joined_cluster === "string"
-            && typeof this._leave === "function") {
-            await this._leave();
-            this._joined_cluster = undefined;
-        }
-        this._active_media_assets = [];
-        this._media_list_duration = Duration.fromMillis(0);
-        this._media_list_current = null;
-        this._media_current = null;
-        this._media_next = null;
-        this._transitionFrom = null;
-        this._transitionTo = null;
-        this._hasInterrupt = false;
-        this._transitionId = undefined;
-        this._transitionUrl = undefined;
-        this._transitionSize = 0;
-        this._transitionHash = undefined;
-        this._transitionIntegrity = undefined;
-        this._transitionTime = undefined;
-        for (const calendar of this._calendar_schedules) {
-            calendar.close();
-        }
-        this._calendar_schedules = [];
-    }
-    get currentSrc() {
-        if (this._media_current === null) {
-            return this._media_current;
-        }
-        return this._media_current.currentSrc;
-    }
-    // All MediaDecl's for set of schedules.
-    get entries() {
-        let entries = [];
-        for (const schedule of this._calendar_schedules) {
-            entries = entries.concat(schedule.entries);
-        }
-        return entries;
-    }
-    // Unique media URLs for set of schedules.
-    get sources() {
-        const sources = [];
-        if (this._src) {
-            sources.push({
-                scope: 'schedule',
-                entries: [{
-                        '@type': 'Text',
-                        id: this._src_id,
-                        href: this._src,
-                        size: this._src_size,
-                        hash: this._src_hash,
-                        integrity: this._src_integrity,
-                        md5: this._src_md5,
-                        duration: 0,
-                    }],
-                isReady: true,
-            });
-        }
-        if (this._transitionId
-            && this._transitionUrl
-            && this._transitionSize
-            && this._transitionHash
-            && this._transitionIntegrity
-            && this._transitionMd5
-            && this._transitionTime) {
-            sources.push({
-                scope: this._transitionId,
-                entries: [{
-                        '@type': 'HTMLImageElement',
-                        id: this._transitionId,
-                        href: this._transitionUrl,
-                        size: this._transitionSize,
-                        hash: this._transitionHash,
-                        integrity: this._transitionIntegrity,
-                        md5: this._transitionMd5,
-                        duration: this._transitionTime,
-                    }],
-                // TODO: enable transition once it is ready.
-                isReady: false,
-            });
-        }
-        for (const schedule of this._calendar_schedules) {
-            sources.push({
-                scope: schedule.id,
-                entries: schedule.entries,
-                // Forward getter/setter to calendar schedule.
-                get isReady() { return schedule.isReady; },
-                set isReady(isReady) { schedule.isReady = isReady; },
-            });
-        }
-        return sources;
-    }
-    // Duration of one iteration of content inside the media list,
-    // as opposed to the window of playback.
-    _calculateMediaListIterationDuration(calendar_event) {
-        return calendar_event.data.entries.reduce((accumulator, currentValue) => accumulator + currentValue.duration, 0);
-    }
-    _calculateMediaListStart(datetime, duration) {
-        const start_time = datetime.minus({
-            milliseconds: datetime.toMillis() % duration.toMillis(),
-        });
-        //		console.log('list-start', datetime.toISO(), duration.toISO(), '->', start_time.toISO());
-        return start_time;
-    }
-    // ScheduleItemView must be in respect to the media list boundary.
-    _seekMediaList(datetime, calendar_event) {
-        //		console.log("BASIC-SCHEDULER: _seekMediaList", datetime.toISO());
-        if (calendar_event.data.entries.length === 0) {
-            return null;
-        }
-        const duration = Duration.fromMillis(1000 * this._calculateMediaListIterationDuration(calendar_event));
-        let media_list_start = this._calculateMediaListStart(datetime, duration);
-        while (datetime >= media_list_start.plus(duration)) {
-            media_list_start = media_list_start.plus(duration);
-        }
-        let start_offset = Duration.fromMillis(0);
-        for (let i = 0; i < calendar_event.data.entries.length; i++) {
-            const end_offset = start_offset.plus({ seconds: calendar_event.data.entries[i].duration });
-            const entry = new ScheduleItem(calendar_event.id, calendar_event.data.entries[i], start_offset, end_offset);
-            const view = new ScheduleItemView(entry, media_list_start);
-            if (datetime >= view.start_time
-                && datetime < view.end_time) {
-                return view;
-            }
-            start_offset = end_offset;
-        }
-        return null;
-    }
-    _add(eventSeries, decl) {
-        //		console.log("BASIC-SCHEDULER: _add", decl.toString());
-        const start_offset = this._media_list_duration;
-        const end_offset = start_offset.plus({ seconds: decl.duration });
-        //console.log("BASIC-SCHEDULER: start", start_offset.toISO(), "end", end_offset.toISO());
-        this._active_media_assets.push(new ScheduleItem(eventSeries, decl, start_offset, end_offset));
-        this._media_list_duration = end_offset;
-    }
-    //	protected _has(id: string): boolean {
-    //		const pos = this.values().findIndex(x => x.decl.id === id);
-    //		return pos !== -1;
-    //	}
-    _remove(id) {
-        //		console.log("BASIC-SCHEDULER: _remove", id);
-        const pos = this._active_media_assets.findIndex(x => x.decl.id === id);
-        const media_asset = this._active_media_assets[pos];
-        this._media_list_duration = this._media_list_duration.minus({ seconds: media_asset.duration });
-        this._active_media_assets.splice(pos, 1);
-    }
-    exposeNetwork(join, leave) {
-        this._join = join;
-        this._leave = leave;
-    }
-    async _parseRecipe(json) {
-        console.groupCollapsed("BASIC-SCHEDULER: _parseRecipe");
-        // Parse and validate through ZOD.
-        const recipe = RecipeSchema.Recipe.parse(json);
-        if ('cluster' in recipe
-            && typeof recipe.cluster === 'object'
-            && typeof this._join === 'function') {
-            const cluster_as_text = JSON.stringify(recipe.cluster);
-            if (typeof this._joined_cluster === 'string'
-                && this._joined_cluster === cluster_as_text) {
-                console.log("BASIC-SCHEDULER: Already joined cluster.");
-            }
-            else if (typeof this._leave === 'function') {
-                await this._leave();
-            }
-            await this._join(recipe.cluster);
-            this._joined_cluster = cluster_as_text;
-        }
-        else if (typeof this._leave === 'function') {
-            await this._leave();
-            this._joined_cluster = undefined;
-        }
-        this._transitionId = recipe.transition.id;
-        this._transitionUrl = recipe.transition.href;
-        this._transitionSize = recipe.transition.size;
-        this._transitionHash = recipe.transition.hash;
-        this._transitionIntegrity = recipe.transition.integrity;
-        this._transitionMd5 = recipe.transition.md5;
-        this._transitionTime = recipe.transition.duration;
-        const calendar_schedules = [];
-        let trash_stack = [];
-        // Copy umodified calendar schedules from running state.
-        const running_schedules_by_id = new Map();
-        for (const schedule of this._calendar_schedules) {
-            running_schedules_by_id.set(schedule.id, schedule);
-        }
-        for (const decl of recipe.schedule) {
-            const calendar_schedule = running_schedules_by_id.get(decl.id);
-            if (typeof calendar_schedule !== "undefined") {
-                calendar_schedules.push(calendar_schedule);
-                running_schedules_by_id.delete(decl.id);
-            }
-        }
-        trash_stack = trash_stack.concat(Array.from(running_schedules_by_id.values()));
-        let promises = [];
-        const now = DateTime$1.local();
-        const lowWatermark = { 'seconds': 30 };
-        let highWatermark = { 'seconds': 90 };
-        const t0 = performance.now();
-        for (const decl of recipe.schedule) {
-            const schedule = new CalendarSchedule(decl, lowWatermark, highWatermark);
-            promises.push(schedule.parseSchedule(decl));
-            calendar_schedules.push(schedule);
-        }
-        await Promise.all(promises);
-        // preload events, ensuring calculation time is less than 60% of playback time.
-        let round = 1;
-        let t1 = t0;
-        while (true) {
-            promises = [];
-            for (const schedule of calendar_schedules) {
-                schedule.setHighWatermark(highWatermark);
-                promises.push(schedule.pull(now));
-            }
-            console.log(`Round ${round}: High watermark: ${highWatermark.seconds / 60} minutes.`);
-            await Promise.all(promises);
-            const t2 = performance.now();
-            const elapsed = (t2 - t1) / 1000;
-            const limit = .1 * highWatermark.seconds;
-            console.log(`Round ${round}: ${elapsed}s, limit: ${limit}s.`);
-            if (elapsed < limit) {
-                break;
-            }
-            t1 = t2;
-            highWatermark.seconds *= 2;
-            round++;
-            if (round >= 8) { // 768 minutes.
-                break;
-            }
-        }
-        const t3 = performance.now();
-        console.log(`Schedule parsed after ${(t3 - t0) / 1000}s.`);
-        console.groupEnd();
-        for (const schedule of calendar_schedules) {
-            schedule.prefetch(now);
-        }
-        this._calendar_schedules = calendar_schedules;
-        // FIXME: Needs a close on complete flag to prevent interruption
-        // of playing content.
-        for (const schedule of trash_stack) {
-            schedule.closeWhenHidden();
-        }
-    }
-    // ---> current playlist, respect end date within media.
-    _updateMediaList(calendar_event) {
-        //		console.log("BASIC-SCHEDULER: _updateMediaList");
-        if (calendar_event === null) {
-            for (const entry of this._active_media_assets) {
-                this._remove(entry.decl.id);
-            }
-        }
-        else {
-            const old_list = this._active_media_assets;
-            const new_list = this._createMediaListFromCalendarEvent(calendar_event);
-            // dirty playlist needs evaluation.
-            const additions = (x, y) => x.filter(z => y.findIndex(w => w.decl.id === z.id) === -1);
-            const deletions = (x, y) => x.filter(z => y.findIndex(w => w.id === z.decl.id) === -1);
-            for (const entry of additions(new_list, old_list)) {
-                this._add(calendar_event.id, entry);
-            }
-            for (const entry of deletions(old_list, new_list)) {
-                this._remove(entry.decl.id);
-            }
-        }
-    }
-    _getMediaListContains(datetime) {
-        //		console.groupCollapsed("BASIC-SCHEDULER: _getMediaListContains", datetime.toISO());
-        const all_events = [];
-        for (const schedule of this._calendar_schedules) {
-            const event = schedule.getCalendarEvent(datetime);
-            if (event === null) {
-                continue;
-            }
-            if (event.contains(datetime)) {
-                all_events.push(event);
-            }
-        }
-        // 0 = undefined, 1 = highest priority, 9 = lowest priority.
-        // Sort to find the active media list, but does not determine playback boundary.
-        all_events.sort((a, b) => {
-            const priority = a.priority - b.priority;
-            if (priority !== 0) {
-                return priority;
-            }
-            const start = a.start.toMillis() - b.start.toMillis();
-            return start;
-        });
-        const events = all_events.slice(0, 1);
-        //		console.groupEnd();
-        return events.length === 0 ? null : events[0];
-    }
-    _peekMediaListContains(datetime) {
-        //		console.groupCollapsed("BASIC-SCHEDULER: _peekMediaListContains", datetime.toISO());
-        const all_events = [];
-        for (const schedule of this._calendar_schedules) {
-            const event = schedule.peekCalendarEvent(datetime);
-            if (event === null) {
-                continue;
-            }
-            if (event.contains(datetime)) {
-                all_events.push(event);
-            }
-        }
-        // 0 = undefined, 1 = highest priority, 9 = lowest priority.
-        //		console.log("raw", JSON.stringify(all_events.map(x => {
-        //			return {
-        //				id: x.shortId,
-        //				start: x.start.toMillis(),
-        //				text: x.start.toISO(),
-        //				priority: x.priority,
-        //			};
-        //		})));
-        // Sort to find the active media list, but does not determine playback boundary.
-        all_events.sort((a, b) => {
-            const priority = a.priority - b.priority;
-            if (priority !== 0) {
-                return priority;
-            }
-            const start = a.start.toMillis() - b.start.toMillis();
-            return start;
-        });
-        //		console.log("sorted", JSON.stringify(all_events.map(x => {
-        //			return {
-        //				id: x.shortId,
-        //				start: x.start.toMillis(),
-        //				text: x.start.toISO(),
-        //				priority: x.priority,
-        //			};
-        //		})));
-        const events = all_events.slice(0, 1);
-        //		console.groupEnd();
-        return events.length === 0 ? null : events[0];
-    }
-    _peekMediaListAfter(datetime) {
-        //		console.groupCollapsed("BASIC-SCHEDULER: _peekMediaListAfter", datetime.toISO());
-        const all_events = [];
-        for (const schedule of this._calendar_schedules) {
-            const event = schedule.peekCalendarEvent(datetime);
-            if (event === null) {
-                continue;
-            }
-            if (event.start >= datetime
-                || event.end >= datetime) {
-                all_events.push(event);
-            }
-        }
-        all_events.sort((a, b) => {
-            const priority = a.priority - b.priority;
-            if (priority !== 0) {
-                return priority;
-            }
-            const start = a.start.toMillis() - b.start.toMillis();
-            return start;
-        });
-        const events = all_events.slice(0, 1);
-        //		console.log("events", all_events);
-        //		console.groupEnd();
-        return events.length === 0 ? null : events[0];
-    }
-    _createMediaListFromCalendarEvent(calendar_event) {
-        const media_list = [];
-        for (const entry of calendar_event.data.entries) {
-            switch (entry["@type"]) {
-                case "HTMLImageElement":
-                case "HTMLVideoElement": {
-                    const { '@type': type, id, href, size, hash, md5, integrity, params, duration } = entry;
-                    media_list.push({ '@type': type, id, href, size, hash, md5, integrity, params, duration });
-                    break;
-                }
-                case 'CustomElement': {
-                    const { '@type': type, id, href, size, hash, md5, integrity, params, duration, sources = undefined } = entry;
-                    media_list.push({ '@type': type, id, href, size, hash, md5, integrity, params, duration, sources });
-                    break;
-                }
-                default:
-                    console.warn(`BASIC-SCHEDULER: Unknown media type ${entry["@type"]}`);
-                    break;
-            }
-        }
-        return media_list;
-    }
-    get _mediaCurrentEndTime() {
-        if (this._media_current === null) {
-            // By definition, end time is infinite.
-            return MAX_DATE;
-        }
-        return this._media_current.end_time;
-    }
-    get _transitionIntroStartTime() {
-        if (this._media_current === null) {
-            // By definition, start time is infinite.
-            return MAX_DATE;
-        }
-        return this._media_current.start_time;
-    }
-    get _transitionIntroEndTime() {
-        if (this._media_current === null) {
-            // By definition, end time is infinite.
-            return MAX_DATE;
-        }
-        if (typeof this._transitionTime === "undefined") {
-            throw new Error("transition time is undefined.");
-        }
-        return this._media_current.start_time.plus({ seconds: this._transitionTime / 2 });
-    }
-    get _transitionOutroStartTime() {
-        if (this._media_current === null) {
-            // By definition, end time is infinite.
-            return MAX_DATE;
-        }
-        if (typeof this._transitionTime === "undefined") {
-            throw new Error("transition time is undefined.");
-        }
-        // Has to be current for calculation post start-time to be valid.
-        return this._media_current.end_time.minus({ seconds: this._transitionTime / 2 });
-    }
-    get _transitionOutroEndTime() {
-        if (this._media_current === null) {
-            // By definition, end time is infinite.
-            return MAX_DATE;
-        }
-        return this._media_current.end_time;
-    }
-    get _transitionPreviousOutroStartTime() {
-        if (this._media_current === null) {
-            // By definition, end time is infinite.
-            return MAX_DATE;
-        }
-        if (typeof this._transitionTime === "undefined") {
-            throw new Error("transition time is undefined.");
-        }
-        // Has to be current for calculation post start-time to be valid.
-        return this._media_current.start_time.minus({ seconds: this._transitionTime / 2 });
-    }
-}
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
-// governed by an MIT-style license that can be found in the LICENSE file or at
-// https://opensource.org/licenses/MIT.
-console.info('SCHEDULER: WebWorker started.');
-const scheduler = new BasicScheduler();
-scheduler.autoplay = false;
-scheduler.addEventListener('loadeddata', () => {
-    console.log(`SCHEDULER: Media list loaded.`);
-    (async () => {
-        for (const sources of scheduler.sources) {
-            console.log(`SCHEDULER: Preparing scope "${sources.scope}" with ${sources.entries.length} entries.`);
-            await renderer.setSources(sources.scope, sources.entries);
-            console.log(`SCHEDULER: Scope "${sources.scope}" ready.`);
-            // Scope content is loaded and ready for usage.
-            sources.isReady = true;
-        }
-    })();
-});
-let statePort;
-let update_id;
-let renderer;
-// An equivalent to self.requestAnimationFrame() or self.requestIdleCallback()
-// that runs at a constant fixed frequency.
-const interval = 1000 / 10 /* 10 Hz */;
-let lastTime = 0;
-function requestUpdate(callback) {
-    const now = performance.now();
-    const target = Math.max(0, interval - (now - lastTime));
-    const id = self.setTimeout(() => callback(now + target), target);
-    lastTime = now + target;
-    return id;
-}
-function clearUpdate(id) {
-    self.clearTimeout(id);
-}
+// The APIs exposed to the caller.
 expose({
-    setStatePort(port) {
-        statePort = port;
-        if (statePort instanceof MessagePort) {
-            console.log(`SCHEDULER: Received "statePort" ${statePort}.`);
-            renderer = wrap(statePort);
-        }
-    },
-    exposeNetwork(join, leave) {
-        scheduler.exposeNetwork(join, leave);
-    },
-    setSource(src, id, size, hash, integrity, md5) {
-        console.log(`SCHEDULER: ${JSON.stringify({ src, id, size, hash, integrity, md5 })}`);
-        scheduler.src_md5 = md5;
-        scheduler.src_integrity = integrity;
-        scheduler.src_hash = hash;
-        scheduler.src_size = size;
-        scheduler.src_id = id;
-        scheduler.src = src;
-    },
-    // Plural meaning sources of set source.
-    getScopedSources() {
-        return scheduler.sources;
-    },
-    async play() {
-        await scheduler.play();
-        prepareNextUpdate();
-    },
-    pause() {
-        if (typeof update_id === "number") {
-            clearUpdate(update_id);
-            update_id = undefined;
-        }
-    },
+    parseSchedule,
+    getEvents,
+    prefetchEvents,
 });
-// Run one step of the scheduler state engine.  Note we use the real-time clock
-// instead of the performance counter as we need to refer to calendar
-// entries for starting and stopping schedules.
-function update(_timestamp) {
-    //	console.log("update", timestamp);
-    (async () => {
-        try {
-            const now = DateTime$1.local();
-            scheduler.update(now);
-            // Serialize the state to forward to the renderer.
-            if (typeof renderer !== 'undefined') {
-                const state = scheduler.state(now);
-                await renderer.setState(state);
+// Create a CalendarEvent or CalendarEventSeries from JSON schedule.
+function parseSchedule(parentId, json) {
+    if (json['@type'] !== 'Event') {
+        console.warn(`CALENDAR: @type is not Event (${json['@type']})`, parentId, json);
+        throw new Error('Invalid @type in schedule.');
+    }
+    console.log('CALENDAR: json', json);
+    const startTime = DateTime$1.fromISO(json.start, { zone: json.timeZone });
+    const endTime = startTime.plus(Duration.fromISO(json.duration));
+    if ('recurrenceRules' in json) {
+        const recurrence = new CalendarRecurrence();
+        for (const rule of json.recurrenceRules) {
+            switch (rule.frequency) {
+                case 'yearly':
+                    if ('interval' in rule) {
+                        recurrence.addYearlyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addYearlyRule();
+                    }
+                    break;
+                case 'monthly':
+                    if ('interval' in rule) {
+                        recurrence.addMonthlyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addMonthlyRule();
+                    }
+                    break;
+                case 'weekly':
+                    if ('interval' in rule) {
+                        recurrence.addWeeklyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addWeeklyRule();
+                    }
+                    break;
+                case 'daily':
+                    if ('interval' in rule) {
+                        recurrence.addDailyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addDailyRule();
+                    }
+                    break;
+                case 'hourly':
+                    if ('interval' in rule) {
+                        recurrence.addHourlyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addHourlyRule();
+                    }
+                    break;
+                case 'minutely':
+                    if ('interval' in rule) {
+                        recurrence.addMinutelyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addMinutelyRule();
+                    }
+                    break;
+                case 'secondly':
+                    if ('interval' in rule) {
+                        recurrence.addSecondlyRule().interval(rule.interval);
+                    }
+                    else {
+                        recurrence.addSecondlyRule();
+                    }
+                    break;
             }
-            prepareNextUpdate();
         }
-        catch (ex) {
-            console.warn("SCHEDULER:", ex);
-        }
-    })();
+        calendar_event = new CalendarEventSeries(json.id, parentId, json.playlist, startTime, endTime, json.priority, recurrence);
+    }
+    else {
+        calendar_event = new CalendarEvent(json.id, parentId, json.playlist, startTime, endTime, json.priority);
+    }
 }
-function prepareNextUpdate() {
-    //	console.log("prepareNextUpdate");
-    update_id = requestUpdate((timestamp) => update());
+// Find the events that exist between startTime and endTime for the parsed
+// schedule.
+function getEvents(startTime, endTime) {
+    //	  console.log(`getEvents(${startTime.toISO()}, ${endTime.toISO()})`);
+    if (typeof calendar_event === "undefined") {
+        return [];
+    }
+    try {
+        const events = calendar_event.getEvents(startTime, endTime);
+        return events;
+    }
+    catch (ex) {
+        console.error(ex);
+    }
+    return [];
 }
-//# sourceMappingURL=scheduler.bundle.mjs.map
+// Explicitly not to return a value;
+function prefetchEvents(startTime, endTime) {
+    getEvents(startTime, endTime);
+}
+//# sourceMappingURL=calendar.bundle.js.map

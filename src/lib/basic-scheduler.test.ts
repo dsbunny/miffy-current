@@ -168,7 +168,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 			}, {
 				"@type": "CustomElement",
 				"id": "0c8f3cc3-7d9f-41e4-abf3-fc23a1b25728",
-				"href": "https://miffy.dsbunny.com/app/dist/bundle.mjs",
+				"href": "https://miffy.dsbunny.com/app/dist/bundle.js",
 				"size": 2280,
                                 "hash": {
                                         "method": "SHA256",
@@ -405,7 +405,7 @@ describe('BasicScheduler', () => {
 		}, {
 			'@type': 'CustomElement',
 			id: '0c8f3cc3-7d9f-41e4-abf3-fc23a1b25728',
-			href: 'https://miffy.dsbunny.com/app/dist/bundle.mjs',
+			href: 'https://miffy.dsbunny.com/app/dist/bundle.js',
 			size: 2280,
 			hash: {
 				method: "SHA256",
@@ -471,11 +471,11 @@ describe('BasicScheduler', () => {
 		await scheduler.update(datetime.plus({ seconds: 5 }));
 		expect(scheduler.currentTime).toEqual(DateTime.fromISO('2020-07-04T17:00:05'));
 		expect(scheduler.debugInTransition).toBe(true);
-		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.mjs");
+		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.js");
 		await scheduler.update(datetime.plus({ seconds: 5, milliseconds: 500 }));
 		expect(scheduler.currentTime).toEqual(DateTime.fromISO('2020-07-04T17:00:05.500'));
 		expect(scheduler.debugInTransition).toBe(false);
-		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.mjs");
+		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.js");
 		scheduler.close();
 		expect(parseSchedule).toHaveBeenCalledTimes(2);
 		expect(getEvents).toHaveBeenCalled();
@@ -555,7 +555,7 @@ describe('BasicScheduler', () => {
 		await scheduler.update(datetime.plus({ seconds: 5 }));
 		expect(scheduler.currentTime).toEqual(DateTime.fromISO('2020-07-04T17:00:05'));
 		expect(scheduler.debugInTransition).toBe(true);
-		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.mjs");
+		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.js");
 		expect(parseSchedule).toHaveBeenCalledTimes(2);
 		expect(getEvents).toHaveBeenCalled();
 	});
@@ -595,7 +595,7 @@ describe('BasicScheduler', () => {
 		await scheduler.update(datetime.plus({ seconds: 5, milliseconds: 500 }));
 		expect(scheduler.currentTime).toEqual(DateTime.fromISO('2020-07-04T17:00:05.500'));
 		expect(scheduler.debugInTransition).toBe(false);
-		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.mjs");
+		expect(scheduler.currentSrc).toMatch("https://miffy.dsbunny.com/app/dist/bundle.js");
 		expect(parseSchedule).toHaveBeenCalledTimes(2);
 		expect(getEvents).toHaveBeenCalled();
 	});

@@ -229,13 +229,13 @@ export class CalendarSchedule {
 	// Use relative path on local file system due to LG WebOS security policy.
 	protected _workerFactory() {
 		if(location.protocol === 'file:') {
-			return new Worker('../dist/calendar.bundle~chrome53.mjs', {
+			return new Worker('../dist/calendar.bundle~chrome53.js', {
 				type: 'classic',
 				credentials: 'omit',
 				name: `Calendar - ${this.shortId}`,
 			});
 		}
-		return new Worker(new URL('../dist/calendar.bundle.mjs', location.href).pathname, {
+		return new Worker(new URL('../dist/calendar.bundle.js', location.href).pathname, {
 			type: 'module',
 			credentials: 'omit',
 			name: `Calendar - ${this.shortId}`,

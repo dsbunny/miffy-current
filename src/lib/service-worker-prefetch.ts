@@ -36,7 +36,7 @@ export class ServiceWorkerPrefetch extends EventTarget implements Prefetch {
 			console.log(`PREFETCH: Now controlled by:`, navigator.serviceWorker.controller);
 		});
 		// Note href not URL.
-		const href = new URL('./prefetch.bundle.mjs', import.meta.url).href;
+		const href = new URL('./prefetch.bundle.js', import.meta.url).href;
 		const serviceWorkerOptions: RegistrationOptions = {
 			scope: '/',
 			type: 'module',

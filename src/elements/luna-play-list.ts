@@ -7,12 +7,12 @@ import { css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { LunaRenderer } from '../lib/luna-renderer.js';
-import WebPlaylistElement from './web-play-list.js';
+import { WebPlaylistElement } from './web-play-list.js';
 import { Prefetch } from '../lib/prefetch.js';
 import { LunaPrefetch } from '../lib/luna-prefetch.js';
 
 @customElement('luna-play-list')
-export default class LunaPlaylistElement extends WebPlaylistElement {
+export class LunaPlaylistElement extends WebPlaylistElement {
 
 	// Remove "contain: strict" from the host element for LG WebOS.
 	static override styles = css`
@@ -52,7 +52,7 @@ export default class LunaPlaylistElement extends WebPlaylistElement {
 
 	// Cannot access absolute file:// URLs from LG WebOS.
 	protected override _createWorker(): Worker {
-		return new Worker('./dist/scheduler.bundle~chrome53.mjs', {
+		return new Worker('./dist/scheduler.bundle~chrome53.js', {
 			type: 'classic',
 			credentials: 'omit',
 			name: 'Scheduler',  // Shown in debugger.

@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "18.3.9",
+	"version": "19.0.10",
 	"description": "Miffy renderer for current browsers",
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.27.1",

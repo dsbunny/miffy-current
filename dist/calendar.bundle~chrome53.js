@@ -2540,4 +2540,4 @@ function parseSchedule(parentId,json){if(json['@type']!=='Event'){console.warn(`
 function getEvents(startTime,endTime){//	  console.log(`getEvents(${startTime.toISO()}, ${endTime.toISO()})`);
 if(typeof calendar_event==="undefined"){return[];}try{const events=calendar_event.getEvents(startTime,endTime);return events;}catch(ex){console.error(ex);}return[];}// Explicitly not to return a value;
 function prefetchEvents(startTime,endTime){getEvents(startTime,endTime);}
-//# sourceMappingURL=calendar.bundle~chrome53.mjs.map
+//# sourceMappingURL=calendar.bundle~chrome53.js.map

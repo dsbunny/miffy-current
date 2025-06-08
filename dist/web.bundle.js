@@ -1,43 +1,4 @@
-import 'three';
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-const t$2=t=>(e,o)=>{ void 0!==o?o.addInitializer((()=>{customElements.define(t,e);})):customElements.define(t,e);};
-
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-const t$1=globalThis,e$4=t$1.ShadowRoot&&(void 0===t$1.ShadyCSS||t$1.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$2=Symbol(),o$4=new WeakMap;let n$3 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$4&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$4.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$4.set(s,t));}return t}toString(){return this.cssText}};const r$3=t=>new n$3("string"==typeof t?t:t+"",void 0,s$2),i$3=(t,...e)=>{const o=1===t.length?t[0]:e.reduce(((e,s,o)=>e+(t=>{if(true===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1]),t[0]);return new n$3(o,t,s$2)},S$1=(s,o)=>{if(e$4)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t$1.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$4?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */const{is:i$2,defineProperty:e$3,getOwnPropertyDescriptor:h$1,getOwnPropertyNames:r$2,getOwnPropertySymbols:o$3,getPrototypeOf:n$2}=Object,a$1=globalThis,c$1=a$1.trustedTypes,l$1=c$1?c$1.emptyScript:"",p$1=a$1.reactiveElementPolyfillSupport,d$1=(t,s)=>t,u$1={toAttribute(t,s){switch(s){case Boolean:t=t?l$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f$1=(t,s)=>!i$2(t,s),b={attribute:true,type:String,converter:u$1,reflect:false,useDefault:false,hasChanged:f$1};Symbol.metadata??=Symbol("metadata"),a$1.litPropertyMetadata??=new WeakMap;let y$1 = class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$3(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h$1(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b}static _$Ei(){if(this.hasOwnProperty(d$1("elementProperties")))return;const t=n$2(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d$1("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d$1("properties"))){const t=this.properties,s=[...r$2(t),...o$3(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$2(s));}else void 0!==s&&i.push(c$2(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach((t=>t(this)));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S$1(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach((t=>t.hostConnected?.()));}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach((t=>t.hostDisconnected?.()));}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u$1).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u$1;this._$Em=e,this[e]=h.fromAttribute(s,t.type)??this._$Ej?.get(e)??null,this._$Em=null;}}requestUpdate(t,s,i){if(void 0!==t){const e=this.constructor,h=this[t];if(i??=e.getPropertyOptions(t),!((i.hasChanged??f$1)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(e._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach((t=>t.hostUpdate?.())),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach((t=>t.hostUpdated?.())),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach((t=>this._$ET(t,this[t]))),this._$EM();}updated(t){}firstUpdated(t){}};y$1.elementStyles=[],y$1.shadowRootOptions={mode:"open"},y$1[d$1("elementProperties")]=new Map,y$1[d$1("finalized")]=new Map,p$1?.({ReactiveElement:y$1}),(a$1.reactiveElementVersions??=[]).push("2.1.0");
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */const o$2={attribute:true,type:String,converter:u$1,reflect:false,hasChanged:f$1},r$1=(t=o$2,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t);}}throw Error("Unsupported decorator location: "+n)};function n$1(t){return (e,o)=>"object"==typeof o?r$1(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-const e$2=(e,t,c)=>(c.configurable=true,c.enumerable=true,c);
-
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */function e$1(e,r){return (n,s,i)=>{const o=t=>t.renderRoot?.querySelector(e)??null;return e$2(n,s,{get(){return o(this)}})}}
+import * as THREE from 'three';
 
 /**
  * @license
@@ -390,16 +351,55 @@ function generateUUID() {
 
 /**
  * @license
- * Copyright 2017 Google LLC
+ * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t=globalThis,i$1=t.trustedTypes,s$1=i$1?i$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,e="$lit$",h=`lit$${Math.random().toFixed(9).slice(2)}$`,o$1="?"+h,n=`<${o$1}>`,r=document,l=()=>r.createComment(""),c=t=>null===t||"object"!=typeof t&&"function"!=typeof t,a=Array.isArray,u=t=>a(t)||"function"==typeof t?.[Symbol.iterator],d="[ \t\n\f\r]",f=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,_=/>/g,m=RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),p=/'/g,g=/"/g,$=/^(?:script|style|textarea|title)$/i,y=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),x=y(1),T=Symbol.for("lit-noChange"),E=Symbol.for("lit-nothing"),A=new WeakMap,C=r.createTreeWalker(r,129);function P(t,i){if(!a(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==s$1?s$1.createHTML(i):i}const V=(t,i)=>{const s=t.length-1,o=[];let r,l=2===i?"<svg>":3===i?"<math>":"",c=f;for(let i=0;i<s;i++){const s=t[i];let a,u,d=-1,y=0;for(;y<s.length&&(c.lastIndex=y,u=c.exec(s),null!==u);)y=c.lastIndex,c===f?"!--"===u[1]?c=v:void 0!==u[1]?c=_:void 0!==u[2]?($.test(u[2])&&(r=RegExp("</"+u[2],"g")),c=m):void 0!==u[3]&&(c=m):c===m?">"===u[0]?(c=r??f,d=-1):void 0===u[1]?d=-2:(d=c.lastIndex-u[2].length,a=u[1],c=void 0===u[3]?m:'"'===u[3]?g:p):c===g||c===p?c=m:c===v||c===_?c=f:(c=m,r=void 0);const x=c===m&&t[i+1].startsWith("/>")?" ":"";l+=c===f?s+n:d>=0?(o.push(a),s.slice(0,d)+e+s.slice(d)+h+x):s+h+(-2===d?i:x);}return [P(t,l+(t[s]||"<?>")+(2===i?"</svg>":3===i?"</math>":"")),o]};class N{constructor({strings:t,_$litType$:s},n){let r;this.parts=[];let c=0,a=0;const u=t.length-1,d=this.parts,[f,v]=V(t,s);if(this.el=N.createElement(f,n),C.currentNode=this.el.content,2===s||3===s){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes);}for(;null!==(r=C.nextNode())&&d.length<u;){if(1===r.nodeType){if(r.hasAttributes())for(const t of r.getAttributeNames())if(t.endsWith(e)){const i=v[a++],s=r.getAttribute(t).split(h),e=/([.?@])?(.*)/.exec(i);d.push({type:1,index:c,name:e[2],strings:s,ctor:"."===e[1]?H:"?"===e[1]?I:"@"===e[1]?L:k}),r.removeAttribute(t);}else t.startsWith(h)&&(d.push({type:6,index:c}),r.removeAttribute(t));if($.test(r.tagName)){const t=r.textContent.split(h),s=t.length-1;if(s>0){r.textContent=i$1?i$1.emptyScript:"";for(let i=0;i<s;i++)r.append(t[i],l()),C.nextNode(),d.push({type:2,index:++c});r.append(t[s],l());}}}else if(8===r.nodeType)if(r.data===o$1)d.push({type:2,index:c});else {let t=-1;for(;-1!==(t=r.data.indexOf(h,t+1));)d.push({type:7,index:c}),t+=h.length-1;}c++;}}static createElement(t,i){const s=r.createElement("template");return s.innerHTML=t,s}}function S(t,i,s=t,e){if(i===T)return i;let h=void 0!==e?s._$Co?.[e]:s._$Cl;const o=c(i)?void 0:i._$litDirective$;return h?.constructor!==o&&(h?._$AO?.(false),void 0===o?h=void 0:(h=new o(t),h._$AT(t,s,e)),void 0!==e?(s._$Co??=[])[e]=h:s._$Cl=h),void 0!==h&&(i=S(t,h._$AS(t,i.values),h,e)),i}class M{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:i},parts:s}=this._$AD,e=(t?.creationScope??r).importNode(i,true);C.currentNode=e;let h=C.nextNode(),o=0,n=0,l=s[0];for(;void 0!==l;){if(o===l.index){let i;2===l.type?i=new R(h,h.nextSibling,this,t):1===l.type?i=new l.ctor(h,l.name,l.strings,this,t):6===l.type&&(i=new z(h,this,t)),this._$AV.push(i),l=s[++n];}o!==l?.index&&(h=C.nextNode(),o++);}return C.currentNode=r,e}p(t){let i=0;for(const s of this._$AV) void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class R{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,i,s,e){this.type=2,this._$AH=E,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cv=e?.isConnected??true;}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t?.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=S(this,t,i),c(t)?t===E||null==t||""===t?(this._$AH!==E&&this._$AR(),this._$AH=E):t!==this._$AH&&t!==T&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):u(t)?this.k(t):this._(t);}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}_(t){this._$AH!==E&&c(this._$AH)?this._$AA.nextSibling.data=t:this.T(r.createTextNode(t)),this._$AH=t;}$(t){const{values:i,_$litType$:s}=t,e="number"==typeof s?this._$AC(t):(void 0===s.el&&(s.el=N.createElement(P(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===e)this._$AH.p(i);else {const t=new M(e,this),s=t.u(this.options);t.p(i),this.T(s),this._$AH=t;}}_$AC(t){let i=A.get(t.strings);return void 0===i&&A.set(t.strings,i=new N(t)),i}k(t){a(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const h of t)e===i.length?i.push(s=new R(this.O(l()),this.O(l()),this,this.options)):s=i[e],s._$AI(h),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){for(this._$AP?.(false,true,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){ void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t));}}class k{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,i,s,e,h){this.type=1,this._$AH=E,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=h,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=E;}_$AI(t,i=this,s,e){const h=this.strings;let o=false;if(void 0===h)t=S(this,t,i,0),o=!c(t)||t!==this._$AH&&t!==T,o&&(this._$AH=t);else {const e=t;let n,r;for(t=h[0],n=0;n<h.length-1;n++)r=S(this,e[s+n],i,n),r===T&&(r=this._$AH[n]),o||=!c(r)||r!==this._$AH[n],r===E?t=E:t!==E&&(t+=(r??"")+h[n+1]),this._$AH[n]=r;}o&&!e&&this.j(t);}j(t){t===E?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"");}}class H extends k{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===E?void 0:t;}}class I extends k{constructor(){super(...arguments),this.type=4;}j(t){this.element.toggleAttribute(this.name,!!t&&t!==E);}}class L extends k{constructor(t,i,s,e,h){super(t,i,s,e,h),this.type=5;}_$AI(t,i=this){if((t=S(this,t,i,0)??E)===T)return;const s=this._$AH,e=t===E&&s!==E||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,h=t!==E&&(s===E||e);e&&this.element.removeEventListener(this.name,this,s),h&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t);}}class z{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){S(this,t);}}const j=t.litHtmlPolyfillSupport;j?.(N,R),(t.litHtmlVersions??=[]).push("3.3.0");const B=(t,i,s)=>{const e=s?.renderBefore??i;let h=e._$litPart$;if(void 0===h){const t=s?.renderBefore??null;e._$litPart$=h=new R(i.insertBefore(l(),t),t,void 0,s??{});}return h._$AI(t),h};
+const t$2=globalThis,e$4=t$2.ShadowRoot&&(void 0===t$2.ShadyCSS||t$2.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s$2=Symbol(),o$4=new WeakMap;let n$3 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s$2)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$4&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$4.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$4.set(s,t));}return t}toString(){return this.cssText}};const r$3=t=>new n$3("string"==typeof t?t:t+"",void 0,s$2),i$3=(t,...e)=>{const o=1===t.length?t[0]:e.reduce(((e,s,o)=>e+(t=>{if(true===t._$cssResult$)return t.cssText;if("number"==typeof t)return t;throw Error("Value passed to 'css' function must be a 'css' function result: "+t+". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.")})(s)+t[o+1]),t[0]);return new n$3(o,t,s$2)},S$1=(s,o)=>{if(e$4)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t$2.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$2=e$4?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const s=globalThis;class i extends y$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const r=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=B(r,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(true);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(false);}render(){return T}}i._$litElement$=true,i["finalized"]=true,s.litElementHydrateSupport?.({LitElement:i});const o=s.litElementPolyfillSupport;o?.({LitElement:i});(s.litElementVersions??=[]).push("4.2.0");
+ */const{is:i$2,defineProperty:e$3,getOwnPropertyDescriptor:h$1,getOwnPropertyNames:r$2,getOwnPropertySymbols:o$3,getPrototypeOf:n$2}=Object,a$1=globalThis,c$1=a$1.trustedTypes,l$1=c$1?c$1.emptyScript:"",p$1=a$1.reactiveElementPolyfillSupport,d$1=(t,s)=>t,u$1={toAttribute(t,s){switch(s){case Boolean:t=t?l$1:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f$1=(t,s)=>!i$2(t,s),b={attribute:true,type:String,converter:u$1,reflect:false,useDefault:false,hasChanged:f$1};Symbol.metadata??=Symbol("metadata"),a$1.litPropertyMetadata??=new WeakMap;let y$1 = class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$3(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h$1(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b}static _$Ei(){if(this.hasOwnProperty(d$1("elementProperties")))return;const t=n$2(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d$1("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d$1("properties"))){const t=this.properties,s=[...r$2(t),...o$3(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$2(s));}else void 0!==s&&i.push(c$2(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach((t=>t(this)));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S$1(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach((t=>t.hostConnected?.()));}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach((t=>t.hostDisconnected?.()));}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u$1).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u$1;this._$Em=e,this[e]=h.fromAttribute(s,t.type)??this._$Ej?.get(e)??null,this._$Em=null;}}requestUpdate(t,s,i){if(void 0!==t){const e=this.constructor,h=this[t];if(i??=e.getPropertyOptions(t),!((i.hasChanged??f$1)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(e._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach((t=>t.hostUpdate?.())),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach((t=>t.hostUpdated?.())),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach((t=>this._$ET(t,this[t]))),this._$EM();}updated(t){}firstUpdated(t){}};y$1.elementStyles=[],y$1.shadowRootOptions={mode:"open"},y$1[d$1("elementProperties")]=new Map,y$1[d$1("finalized")]=new Map,p$1?.({ReactiveElement:y$1}),(a$1.reactiveElementVersions??=[]).push("2.1.0");
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const t$1=globalThis,i$1=t$1.trustedTypes,s$1=i$1?i$1.createPolicy("lit-html",{createHTML:t=>t}):void 0,e$2="$lit$",h=`lit$${Math.random().toFixed(9).slice(2)}$`,o$2="?"+h,n$1=`<${o$2}>`,r$1=document,l=()=>r$1.createComment(""),c=t=>null===t||"object"!=typeof t&&"function"!=typeof t,a=Array.isArray,u=t=>a(t)||"function"==typeof t?.[Symbol.iterator],d="[ \t\n\f\r]",f=/<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g,v=/-->/g,_=/>/g,m=RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ \t\n\f\r"'\`<>=]|("|')|))|$)`,"g"),p=/'/g,g=/"/g,$=/^(?:script|style|textarea|title)$/i,y=t=>(i,...s)=>({_$litType$:t,strings:i,values:s}),x=y(1),T=Symbol.for("lit-noChange"),E=Symbol.for("lit-nothing"),A=new WeakMap,C=r$1.createTreeWalker(r$1,129);function P(t,i){if(!a(t)||!t.hasOwnProperty("raw"))throw Error("invalid template strings array");return void 0!==s$1?s$1.createHTML(i):i}const V=(t,i)=>{const s=t.length-1,o=[];let r,l=2===i?"<svg>":3===i?"<math>":"",c=f;for(let i=0;i<s;i++){const s=t[i];let a,u,d=-1,y=0;for(;y<s.length&&(c.lastIndex=y,u=c.exec(s),null!==u);)y=c.lastIndex,c===f?"!--"===u[1]?c=v:void 0!==u[1]?c=_:void 0!==u[2]?($.test(u[2])&&(r=RegExp("</"+u[2],"g")),c=m):void 0!==u[3]&&(c=m):c===m?">"===u[0]?(c=r??f,d=-1):void 0===u[1]?d=-2:(d=c.lastIndex-u[2].length,a=u[1],c=void 0===u[3]?m:'"'===u[3]?g:p):c===g||c===p?c=m:c===v||c===_?c=f:(c=m,r=void 0);const x=c===m&&t[i+1].startsWith("/>")?" ":"";l+=c===f?s+n$1:d>=0?(o.push(a),s.slice(0,d)+e$2+s.slice(d)+h+x):s+h+(-2===d?i:x);}return [P(t,l+(t[s]||"<?>")+(2===i?"</svg>":3===i?"</math>":"")),o]};class N{constructor({strings:t,_$litType$:s},n){let r;this.parts=[];let c=0,a=0;const u=t.length-1,d=this.parts,[f,v]=V(t,s);if(this.el=N.createElement(f,n),C.currentNode=this.el.content,2===s||3===s){const t=this.el.content.firstChild;t.replaceWith(...t.childNodes);}for(;null!==(r=C.nextNode())&&d.length<u;){if(1===r.nodeType){if(r.hasAttributes())for(const t of r.getAttributeNames())if(t.endsWith(e$2)){const i=v[a++],s=r.getAttribute(t).split(h),e=/([.?@])?(.*)/.exec(i);d.push({type:1,index:c,name:e[2],strings:s,ctor:"."===e[1]?H:"?"===e[1]?I:"@"===e[1]?L:k}),r.removeAttribute(t);}else t.startsWith(h)&&(d.push({type:6,index:c}),r.removeAttribute(t));if($.test(r.tagName)){const t=r.textContent.split(h),s=t.length-1;if(s>0){r.textContent=i$1?i$1.emptyScript:"";for(let i=0;i<s;i++)r.append(t[i],l()),C.nextNode(),d.push({type:2,index:++c});r.append(t[s],l());}}}else if(8===r.nodeType)if(r.data===o$2)d.push({type:2,index:c});else {let t=-1;for(;-1!==(t=r.data.indexOf(h,t+1));)d.push({type:7,index:c}),t+=h.length-1;}c++;}}static createElement(t,i){const s=r$1.createElement("template");return s.innerHTML=t,s}}function S(t,i,s=t,e){if(i===T)return i;let h=void 0!==e?s._$Co?.[e]:s._$Cl;const o=c(i)?void 0:i._$litDirective$;return h?.constructor!==o&&(h?._$AO?.(false),void 0===o?h=void 0:(h=new o(t),h._$AT(t,s,e)),void 0!==e?(s._$Co??=[])[e]=h:s._$Cl=h),void 0!==h&&(i=S(t,h._$AS(t,i.values),h,e)),i}class M{constructor(t,i){this._$AV=[],this._$AN=void 0,this._$AD=t,this._$AM=i;}get parentNode(){return this._$AM.parentNode}get _$AU(){return this._$AM._$AU}u(t){const{el:{content:i},parts:s}=this._$AD,e=(t?.creationScope??r$1).importNode(i,true);C.currentNode=e;let h=C.nextNode(),o=0,n=0,l=s[0];for(;void 0!==l;){if(o===l.index){let i;2===l.type?i=new R(h,h.nextSibling,this,t):1===l.type?i=new l.ctor(h,l.name,l.strings,this,t):6===l.type&&(i=new z(h,this,t)),this._$AV.push(i),l=s[++n];}o!==l?.index&&(h=C.nextNode(),o++);}return C.currentNode=r$1,e}p(t){let i=0;for(const s of this._$AV) void 0!==s&&(void 0!==s.strings?(s._$AI(t,s,i),i+=s.strings.length-2):s._$AI(t[i])),i++;}}class R{get _$AU(){return this._$AM?._$AU??this._$Cv}constructor(t,i,s,e){this.type=2,this._$AH=E,this._$AN=void 0,this._$AA=t,this._$AB=i,this._$AM=s,this.options=e,this._$Cv=e?.isConnected??true;}get parentNode(){let t=this._$AA.parentNode;const i=this._$AM;return void 0!==i&&11===t?.nodeType&&(t=i.parentNode),t}get startNode(){return this._$AA}get endNode(){return this._$AB}_$AI(t,i=this){t=S(this,t,i),c(t)?t===E||null==t||""===t?(this._$AH!==E&&this._$AR(),this._$AH=E):t!==this._$AH&&t!==T&&this._(t):void 0!==t._$litType$?this.$(t):void 0!==t.nodeType?this.T(t):u(t)?this.k(t):this._(t);}O(t){return this._$AA.parentNode.insertBefore(t,this._$AB)}T(t){this._$AH!==t&&(this._$AR(),this._$AH=this.O(t));}_(t){this._$AH!==E&&c(this._$AH)?this._$AA.nextSibling.data=t:this.T(r$1.createTextNode(t)),this._$AH=t;}$(t){const{values:i,_$litType$:s}=t,e="number"==typeof s?this._$AC(t):(void 0===s.el&&(s.el=N.createElement(P(s.h,s.h[0]),this.options)),s);if(this._$AH?._$AD===e)this._$AH.p(i);else {const t=new M(e,this),s=t.u(this.options);t.p(i),this.T(s),this._$AH=t;}}_$AC(t){let i=A.get(t.strings);return void 0===i&&A.set(t.strings,i=new N(t)),i}k(t){a(this._$AH)||(this._$AH=[],this._$AR());const i=this._$AH;let s,e=0;for(const h of t)e===i.length?i.push(s=new R(this.O(l()),this.O(l()),this,this.options)):s=i[e],s._$AI(h),e++;e<i.length&&(this._$AR(s&&s._$AB.nextSibling,e),i.length=e);}_$AR(t=this._$AA.nextSibling,i){for(this._$AP?.(false,true,i);t&&t!==this._$AB;){const i=t.nextSibling;t.remove(),t=i;}}setConnected(t){ void 0===this._$AM&&(this._$Cv=t,this._$AP?.(t));}}class k{get tagName(){return this.element.tagName}get _$AU(){return this._$AM._$AU}constructor(t,i,s,e,h){this.type=1,this._$AH=E,this._$AN=void 0,this.element=t,this.name=i,this._$AM=e,this.options=h,s.length>2||""!==s[0]||""!==s[1]?(this._$AH=Array(s.length-1).fill(new String),this.strings=s):this._$AH=E;}_$AI(t,i=this,s,e){const h=this.strings;let o=false;if(void 0===h)t=S(this,t,i,0),o=!c(t)||t!==this._$AH&&t!==T,o&&(this._$AH=t);else {const e=t;let n,r;for(t=h[0],n=0;n<h.length-1;n++)r=S(this,e[s+n],i,n),r===T&&(r=this._$AH[n]),o||=!c(r)||r!==this._$AH[n],r===E?t=E:t!==E&&(t+=(r??"")+h[n+1]),this._$AH[n]=r;}o&&!e&&this.j(t);}j(t){t===E?this.element.removeAttribute(this.name):this.element.setAttribute(this.name,t??"");}}class H extends k{constructor(){super(...arguments),this.type=3;}j(t){this.element[this.name]=t===E?void 0:t;}}class I extends k{constructor(){super(...arguments),this.type=4;}j(t){this.element.toggleAttribute(this.name,!!t&&t!==E);}}class L extends k{constructor(t,i,s,e,h){super(t,i,s,e,h),this.type=5;}_$AI(t,i=this){if((t=S(this,t,i,0)??E)===T)return;const s=this._$AH,e=t===E&&s!==E||t.capture!==s.capture||t.once!==s.once||t.passive!==s.passive,h=t!==E&&(s===E||e);e&&this.element.removeEventListener(this.name,this,s),h&&this.element.addEventListener(this.name,this,t),this._$AH=t;}handleEvent(t){"function"==typeof this._$AH?this._$AH.call(this.options?.host??this.element,t):this._$AH.handleEvent(t);}}class z{constructor(t,i,s){this.element=t,this.type=6,this._$AN=void 0,this._$AM=i,this.options=s;}get _$AU(){return this._$AM._$AU}_$AI(t){S(this,t);}}const j=t$1.litHtmlPolyfillSupport;j?.(N,R),(t$1.litHtmlVersions??=[]).push("3.3.0");const B=(t,i,s)=>{const e=s?.renderBefore??i;let h=e._$litPart$;if(void 0===h){const t=s?.renderBefore??null;e._$litPart$=h=new R(i.insertBefore(l(),t),t,void 0,s??{});}return h._$AI(t),h};
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const s=globalThis;class i extends y$1{constructor(){super(...arguments),this.renderOptions={host:this},this._$Do=void 0;}createRenderRoot(){const t=super.createRenderRoot();return this.renderOptions.renderBefore??=t.firstChild,t}update(t){const r=this.render();this.hasUpdated||(this.renderOptions.isConnected=this.isConnected),super.update(t),this._$Do=B(r,this.renderRoot,this.renderOptions);}connectedCallback(){super.connectedCallback(),this._$Do?.setConnected(true);}disconnectedCallback(){super.disconnectedCallback(),this._$Do?.setConnected(false);}render(){return T}}i._$litElement$=true,i["finalized"]=true,s.litElementHydrateSupport?.({LitElement:i});const o$1=s.litElementPolyfillSupport;o$1?.({LitElement:i});(s.litElementVersions??=[]).push("4.2.0");
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const t=t=>(e,o)=>{ void 0!==o?o.addInitializer((()=>{customElements.define(t,e);})):customElements.define(t,e);};
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */const o={attribute:true,type:String,converter:u$1,reflect:false,hasChanged:f$1},r=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const e$1=(e,t,c)=>(c.configurable=true,c.enumerable=true,c);
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */function e(e,r){return (n,s,i)=>{const o=t=>t.renderRoot?.querySelector(e)??null;return e$1(n,s,{get(){return o(this)}})}}
 
 /*! (c) Andrea Giammarchi - ISC */
 var self$1 = {};
@@ -5075,7 +5075,7 @@ class WebRendererAsset {
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 // REF: http://jsfiddle.net/unLSJ/
-function replacer(_match, pIndent, pKey, pVal, pEnd) {
+function replacer$1(_match, pIndent, pKey, pVal, pEnd) {
     const key = '<span class=json-key>';
     const val = '<span class=json-value>';
     const str = '<span class=json-string>';
@@ -5088,12 +5088,12 @@ function replacer(_match, pIndent, pKey, pVal, pEnd) {
     }
     return r + (pEnd || '');
 }
-function prettyPrint(obj) {
+function prettyPrint$1(obj) {
     const jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
     return JSON.stringify(obj, null, 3)
         .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
         .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-        .replace(jsonLine, replacer);
+        .replace(jsonLine, replacer$1);
 }
 function minimize(value) {
     const obj = {
@@ -5204,7 +5204,7 @@ class WebRenderer extends EventTarget {
     }
     async setStateUnhooked(value) {
         {
-            const html = prettyPrint(minimize(value));
+            const html = prettyPrint$1(minimize(value));
             if (html !== this._lastDebug) {
                 this._debug.innerHTML = this._lastDebug = html;
             }
@@ -8390,7 +8390,7 @@ class ServiceWorkerPrefetch extends EventTarget$1 {
             console.log(`PREFETCH: Now controlled by:`, navigator.serviceWorker.controller);
         });
         // Note href not URL.
-        const href = new URL('./prefetch.bundle.mjs', import.meta.url).href;
+        const href = new URL('./prefetch.bundle.js', import.meta.url).href;
         const serviceWorkerOptions = {
             scope: '/',
             type: 'module',
@@ -8564,7 +8564,7 @@ let WebPlaylistElement = class WebPlaylistElement extends i {
     get debugRenderer() { return this._renderer; }
     get debugCluster() { return this._cluster; }
     _createWorker() {
-        return new Worker(new URL('../dist/scheduler.bundle.mjs', import.meta.url).pathname, {
+        return new Worker(new URL('../dist/scheduler.bundle.js', import.meta.url).pathname, {
             type: 'module',
             credentials: 'omit',
             name: 'Scheduler', // Shown in debugger.
@@ -8763,171 +8763,1422 @@ let WebPlaylistElement = class WebPlaylistElement extends i {
     }
 };
 __decorate$1([
-    n$1({ type: String, reflect: true })
+    n({ type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src", void 0);
 __decorate$1([
-    n$1({ attribute: 'src-id', type: String, reflect: true })
+    n({ attribute: 'src-id', type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src_id", void 0);
 __decorate$1([
-    n$1({ attribute: 'src-size', type: Number, reflect: true })
+    n({ attribute: 'src-size', type: Number, reflect: true })
 ], WebPlaylistElement.prototype, "src_size", void 0);
 __decorate$1([
-    n$1({ attribute: 'src-hash', type: Object, reflect: true })
+    n({ attribute: 'src-hash', type: Object, reflect: true })
 ], WebPlaylistElement.prototype, "src_hash", void 0);
 __decorate$1([
-    n$1({ attribute: 'src-integrity', type: String, reflect: true })
+    n({ attribute: 'src-integrity', type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src_integrity", void 0);
 __decorate$1([
-    n$1({ attribute: 'src-md5', type: String, reflect: true })
+    n({ attribute: 'src-md5', type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src_md5", void 0);
 __decorate$1([
-    n$1({ type: Array, reflect: false })
+    n({ type: Array, reflect: false })
 ], WebPlaylistElement.prototype, "views", void 0);
 __decorate$1([
-    n$1({ type: Number, reflect: false })
+    n({ type: Number, reflect: false })
 ], WebPlaylistElement.prototype, "width", void 0);
 __decorate$1([
-    n$1({ type: Number, reflect: false })
+    n({ type: Number, reflect: false })
 ], WebPlaylistElement.prototype, "height", void 0);
 __decorate$1([
-    n$1({ type: Boolean, reflect: true })
+    n({ type: Boolean, reflect: true })
 ], WebPlaylistElement.prototype, "autoplay", void 0);
 __decorate$1([
-    e$1('main')
+    e('main')
 ], WebPlaylistElement.prototype, "_main", void 0);
 __decorate$1([
-    e$1('section')
+    e('section')
 ], WebPlaylistElement.prototype, "_section", void 0);
 WebPlaylistElement = __decorate$1([
-    t$2('web-play-list')
+    t('web-play-list')
 ], WebPlaylistElement);
-var WebPlaylistElement$1 = WebPlaylistElement;
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-const fs = require('fs');
-const AssetPool = require("@brightsign/assetpool");
-const AssetPoolFiles = require("@brightsign/assetpoolfiles");
-const AssetFetcher = require("@brightsign/assetfetcher");
-const BRIGHTSIGN_STORAGE_PATH = "/storage/sd/";
-const BRIGHTSIGN_POOL_PATH = `${BRIGHTSIGN_STORAGE_PATH}/p`;
-class BrightSignPrefetch extends EventTarget {
-    #map = new Map();
-    #pool;
-    #files;
-    #is_configured = false;
-    constructor() {
+const shader = (strings, ...values) => {
+    const shaderText = values.reduce((acc, v, idx) => acc + v + strings[idx + 1], strings[0]);
+    return shaderText?.replace(/^\s+#/, '#');
+};
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+class AbstractThreeAsset extends EventTarget {
+    constructor(src, params, duration, collection) {
         super();
-        try {
-            fs.mkdirSync(BRIGHTSIGN_POOL_PATH);
-            console.log(`PREFETCH: Created BrightSign AssetPool(${BRIGHTSIGN_POOL_PATH})`);
+        this.collection = collection;
+        this._ended = false;
+        this._error = null;
+        this._networkState = HTMLMediaElement.NETWORK_NO_SOURCE;
+        this._paused = true;
+        this._readyState = HTMLMediaElement.HAVE_NOTHING;
+        const url = new URL(src, self.location.href);
+        this._src = url.href;
+        if (this._src.length !== 0) {
+            this._networkState = HTMLMediaElement.NETWORK_EMPTY;
         }
-        catch (e) {
-            // Error: EEXIST: file already exists, mkdir '/storage/sd//p'
-            // {"errno":-17,"syscall":"mkdir","code":"EEXIST","path":"/storage/sd//p"}
-            if (e.code !== 'EEXIST') {
-                console.warn(e);
-                console.warn(JSON.stringify(e));
-                throw e;
-            }
-            console.log(`PREFETCH: Using BrightSign AssetPool(${BRIGHTSIGN_POOL_PATH})`);
-        }
-        this.#pool = new AssetPool(BRIGHTSIGN_POOL_PATH);
+        this._params = params;
+        this._duration = duration;
     }
-    // Use space as available reserving 128MB free.
-    async #configurePool() {
-        await this.#pool.reserveStorage(128 * 1024 * 1024);
-        this.#is_configured = true;
+    get params() { return this._params; }
+    // Per `HTMLMediaElement`.
+    get currentSrc() { return this._src; }
+    get currentTime() { return 0; }
+    get duration() { return this._duration; }
+    get ended() { return this._ended; }
+    get error() { return this._error; }
+    get networkState() { return this._networkState; }
+    get paused() { return this._paused; }
+    get readyState() { return this._readyState; }
+    get src() { return this._src; }
+    get srcObject() { return null; }
+    // Per `HTMLVideoElement`.
+    get height() { return 0; }
+    get width() { return 0; }
+}
+// super must be used to call functions only, operation is undefined when
+// accessing variables that are not hidden behind getters and setters.
+class ThreeImageAsset extends AbstractThreeAsset {
+    constructor(src, params, duration, collection) {
+        super(src, params, duration, collection);
+        this._startTime = NaN;
+        this._lastTimeUpdate = 0;
+        this._currentTime = 0;
     }
-    async #fetchAssets(pool, assets) {
-        //		console.log(`PREFETCH: #fetchAssets: ${JSON.stringify(assets.map(asset => asset.name))}`);
-        console.log(`PREFETCH: #fetchAssets: ${JSON.stringify(assets)}`);
-        const fetcher = new AssetFetcher(pool);
-        fetcher.addEventListener("fileevent", (event) => {
-            // This is called each time the fetcher has finished trying to
-            // download an asset, whether successful or not. It is not
-            // called for any assets that are already in the pool.
-            console.log(`PREFETCH: ASSET ${event.fileName} complete: ${event.responseCode.toString()} ${event.error}`);
-        });
-        function progressString(event) {
-            if (typeof event.currentFileTotal === "undefined") {
-                // If the size of the asset was not specified in the asset collection, then the total size may not be reported
-                // during the fetch.
-                return `${event.currentFileTransferred.toString()} of unknown`;
-            }
-            else {
-                const percent = (100 * event.currentFileTransferred / event.currentFileTotal).toFixed(0);
-                return `${event.currentFileTransferred.toString()} of ${event.currentFileTotal.toString()} ${percent}%`;
+    close() {
+        if (typeof this.texture === "undefined") {
+            return;
+        }
+        console.log(`unload image ... ${this.src}`);
+        this.pause();
+        const collection = this.collection;
+        collection.release(this.texture.image);
+        this.texture.dispose();
+        this.texture = undefined;
+        this._readyState = HTMLMediaElement.HAVE_NOTHING;
+        this._networkState = HTMLMediaElement.NETWORK_EMPTY;
+        this._currentTime = 0;
+        this._startTime = NaN;
+        this._lastTimeUpdate = 0;
+        this._ended = false;
+        this._error = null;
+    }
+    // FIXME: delta for paused.
+    paint(now, _remaining) {
+        if (this.paused || this.ended)
+            return;
+        const elapsed = (now - this._startTime) / 1000;
+        this._currentTime += elapsed;
+        if (this._currentTime > this._duration) {
+            this._setEndedState();
+        }
+        else {
+            if (Math.floor(this._currentTime) > this._lastTimeUpdate) {
+                this._lastTimeUpdate = this._currentTime;
+                super.dispatchEvent(new Event('timeupdate'));
             }
         }
-        fetcher.addEventListener("progressevent", (event) => {
-            // This is called at approximately the progress interval
-            // specified in the options to indicate how far through the
-            // download
-            console.log(`PREFETCH: ASSET ${event.fileName} progress: ${progressString(event)}`);
-        });
-        const fetchOptions = {
-            // receive asset progress events about every five seconds.
-            progressInterval: 5,
-            // try to download each asset three times before giving up.
-            fileRetryCount: 3,
-            // Give up if we fail to download at least 1024 bytes in each
-            // ten second period.
-            minimumTransferRate: { bytesPerSecond: 1024, periodInSeconds: 10 },
+    }
+    _setEndedState() {
+        this._currentTime = this._duration;
+        this._ended = true;
+        this._startTime = NaN;
+        super.dispatchEvent(new Event('ended'));
+    }
+    get params() { return super.params; }
+    // Per HTMLMediaElement.
+    get currentSrc() { return super.currentSrc; }
+    get currentTime() { return this._currentTime; }
+    get duration() { return super.duration; }
+    get ended() { return super.ended; }
+    get error() { return super.error; }
+    get networkState() { return super.networkState; }
+    get paused() { return super.paused; }
+    get readyState() { return super.readyState; }
+    get src() { return super.src; }
+    get srcObject() { return null; }
+    load() {
+        (async () => {
+            const collection = this.collection;
+            const img = collection.acquire();
+            try {
+                img.crossOrigin = 'anonymous';
+                img.src = this.src;
+                this._networkState = HTMLMediaElement.NETWORK_LOADING;
+                console.log(`load image ... ${this.src}`);
+                await img.decode();
+                this.texture = new THREE.Texture(img);
+                this.texture.needsUpdate = true;
+                this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA;
+                super.dispatchEvent(new Event('canplay'));
+            }
+            catch (encodingError) {
+                console.warn(`Failed to load image: ${this.src}`, encodingError);
+                this._error = encodingError;
+                this._networkState = HTMLMediaElement.NETWORK_IDLE;
+                collection.release(img);
+                super.dispatchEvent(new Event('error'));
+            }
+        })();
+    }
+    pause() {
+        if (this._paused)
+            return;
+        this._paused = true;
+    }
+    async play() {
+        this._paused = false;
+        if (this._ended) {
+            this._ended = false;
+            this._currentTime = 0;
+        }
+        if (isNaN(this._startTime)) {
+            this._startTime = performance.now() - this._currentTime;
+        }
+    }
+    // Per HTMLVideoElement.
+    get height() {
+        if (typeof this.texture === "undefined") {
+            return NaN;
+        }
+        return this.texture.image.height;
+    }
+    get width() {
+        if (typeof this.texture === "undefined") {
+            return NaN;
+        }
+        return this.texture.image.width;
+    }
+}
+class ThreeVideoAsset extends AbstractThreeAsset {
+    constructor(src, params, duration, collection) {
+        super(src, params, duration, collection);
+        this._redispatchEvent = (event) => {
+            super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
+        };
+    }
+    close() {
+        if (typeof this.texture === "undefined") {
+            return;
+        }
+        console.log(`unload video ... ${this.src}`);
+        this.pause();
+        const collection = this.collection;
+        const video = this.texture.image;
+        video.oncanplay = null;
+        video.onended = null;
+        video.onerror = null;
+        video.onloadeddata = null;
+        video.removeAttribute('src');
+        collection.release(video);
+        this.texture.dispose();
+        this.texture = undefined;
+    }
+    paint(_now, _remaining) { }
+    get params() { return super.params; }
+    // Per `HTMLMediaElement`.
+    get currentSrc() {
+        if (typeof this.texture === "undefined") {
+            return super.currentSrc;
+        }
+        return this.texture.image.currentSrc;
+    }
+    get currentTime() {
+        if (typeof this.texture === "undefined") {
+            return super.currentTime;
+        }
+        return this.texture.image.currentTime;
+    }
+    get duration() {
+        if (typeof this.texture === "undefined") {
+            return NaN;
+        }
+        return this.texture.image.duration;
+    }
+    get ended() {
+        if (typeof this.texture === "undefined") {
+            return false;
+        }
+        return this.texture?.image.ended;
+    }
+    get error() {
+        if (typeof this.texture === "undefined") {
+            return false;
+        }
+        return this.texture?.image.error;
+    }
+    get networkState() {
+        if (typeof this.texture === "undefined") {
+            return HTMLMediaElement.NETWORK_EMPTY;
+        }
+        return this.texture?.image.networkState;
+    }
+    get paused() {
+        if (typeof this.texture === "undefined") {
+            return true;
+        }
+        return this.texture?.image.paused;
+    }
+    get readyState() {
+        if (typeof this.texture === "undefined") {
+            return HTMLMediaElement.HAVE_NOTHING;
+        }
+        return this.texture?.image.readyState;
+    }
+    get src() { return super.src; }
+    get srcObject() {
+        if (typeof this.texture === "undefined") {
+            return null;
+        }
+        return this.texture.image.srcObject;
+    }
+    load() {
+        const collection = this.collection;
+        const video = collection.acquire();
+        video.oncanplay = this._redispatchEvent;
+        video.onended = this._redispatchEvent;
+        video.onerror = this._redispatchEvent;
+        video.src = this.src;
+        // Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
+        video.onloadeddata = (event) => {
+            console.log(`create video texture ... ${this.src}`);
+            this.texture = new THREE.VideoTexture(video);
+            this.texture.needsUpdate = true;
+            this._redispatchEvent(event);
         };
         try {
-            await fetcher.start(assets, fetchOptions);
+            console.log(`load video ... ${this.src}`);
+            video.load();
         }
-        catch (e) {
-            console.log(`PREFETCH: Fetcher failed: ${e.message}`);
-            throw (e);
+        catch (encodingError) {
+            collection.release(video);
+            throw encodingError;
         }
-        console.log(`PREFETCH: Fetcher complete ${JSON.stringify(assets)}.`);
     }
-    // Protect API to limit space reclamation without time priority.
-    async acquireSources(scope, sources) {
-        console.log(`PREFETCH: acquireSources ${scope} ${JSON.stringify(sources)}`);
-        if (!this.#is_configured) {
-            await this.#configurePool();
+    pause() {
+        if (typeof this.texture === "undefined") {
+            return;
         }
-        const assets = sources.map(source => {
-            return {
-                name: source.id,
-                size: source.size,
-                hash: source.hash,
-                link: source.href,
-                change_hint: source.integrity,
-            };
+        this.texture.image.pause();
+    }
+    async play() {
+        if (typeof this.texture === "undefined") {
+            return;
+        }
+        await this.texture.image.play();
+    }
+    // Per `HTMLVideoElement`.
+    get height() {
+        if (typeof this.texture === "undefined") {
+            return NaN;
+        }
+        return this.texture.image.height;
+    }
+    get width() {
+        if (typeof this.texture === "undefined") {
+            return NaN;
+        }
+        return this.texture.image.width;
+    }
+}
+class ThreeAppAsset extends AbstractThreeAsset {
+    constructor(src, params, duration, collection) {
+        super(src, params, duration, collection);
+        this._redispatchEvent = (event) => {
+            super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
+        };
+    }
+    close() {
+        if (typeof this.texture === "undefined") {
+            return;
+        }
+        console.log(`unload app ... ${this.src}`);
+        this.pause();
+        const collection = this.collection;
+        if (typeof this._app !== "undefined") {
+            this._app.close();
+            this._app.removeEventListener('canplay', this._redispatchEvent);
+            this._app.removeEventListener('ended', this._redispatchEvent);
+            this._app.removeEventListener('error', this._redispatchEvent);
+            this._app = undefined;
+        }
+        if (typeof this._fbo !== "undefined") {
+            collection.release(this._fbo);
+            this._fbo = undefined;
+        }
+        this.texture.dispose();
+        this.texture = undefined;
+    }
+    paint(now, remaining) {
+        if (this.paused || this.ended)
+            return;
+        if (typeof this._app === "undefined") {
+            return;
+        }
+        this._app.animate(now, remaining);
+    }
+    get params() { return super.params; }
+    // Per `HTMLMediaElement`.
+    get currentSrc() {
+        if (typeof this._app === "undefined") {
+            return super.currentSrc;
+        }
+        return this._app.currentSrc;
+    }
+    get currentTime() {
+        if (typeof this._app === "undefined") {
+            return super.currentTime;
+        }
+        return this._app.currentTime;
+    }
+    get duration() {
+        if (typeof this._app === "undefined") {
+            return NaN;
+        }
+        return this._app.duration;
+    }
+    get ended() {
+        if (typeof this._app === "undefined") {
+            return false;
+        }
+        return this._app.ended;
+    }
+    get error() {
+        if (typeof this._app === "undefined") {
+            return false;
+        }
+        return this._app.error;
+    }
+    get networkState() {
+        if (typeof this._app === "undefined") {
+            return HTMLMediaElement.NETWORK_EMPTY;
+        }
+        return this._app.networkState;
+    }
+    get paused() {
+        if (typeof this._app === "undefined") {
+            return true;
+        }
+        return this._app.paused;
+    }
+    get readyState() {
+        if (typeof this._app === "undefined") {
+            return HTMLMediaElement.HAVE_NOTHING;
+        }
+        return this._app.readyState;
+    }
+    get src() { return super.src; }
+    get srcObject() { return super.srcObject; }
+    load() {
+        (async () => {
+            const collection = this.collection;
+            const fbo = this._fbo = collection.acquire();
+            try {
+                console.log(`import module ... ${this.src}`);
+                const manifest = await collection.importModule(this.src);
+                console.log(`create WebGLApp ... ${this.src}`);
+                const params = {
+                    ...this.params,
+                    src: this.src,
+                    duration: super.duration, // WARNING: `super` not `this`.
+                };
+                const app = this._app = manifest.WebGLApp.create(fbo, collection.renderer, params);
+                console.log(`init ${manifest.name} with params:`, params);
+                app.addEventListener('canplay', this._redispatchEvent);
+                app.addEventListener('ended', this._redispatchEvent);
+                app.addEventListener('error', this._redispatchEvent);
+                this.texture = fbo.texture;
+                app.load();
+            }
+            catch (initError) {
+                console.warn(`Failed to load app: ${this.src}`, initError);
+                collection.release(fbo);
+                super.dispatchEvent(new Event('error'));
+            }
+        })();
+    }
+    pause() {
+        if (typeof this._app === "undefined") {
+            return;
+        }
+        this._app.pause();
+    }
+    async play() {
+        if (typeof this._app === "undefined") {
+            return;
+        }
+        await this._app.play();
+    }
+    // Per `HTMLVideoElement`.
+    get height() {
+        if (typeof this._app === "undefined") {
+            return NaN;
+        }
+        return this._app.height;
+    }
+    get width() {
+        if (typeof this._app === "undefined") {
+            return NaN;
+        }
+        return this._app.width;
+    }
+}
+class ThreeCollection {
+    constructor(renderRoot) {
+        this.renderRoot = renderRoot;
+    }
+}
+class ThreeImageCollection extends ThreeCollection {
+    constructor(renderRoot) {
+        super(renderRoot);
+        this._images = [];
+    }
+    // TSC forces pop() to return undefined even if length is checked.
+    acquire() {
+        let img = this._images.pop();
+        if (typeof img === "undefined") {
+            img = new Image();
+        }
+        return img;
+    }
+    createThreeAsset(src, params, duration) {
+        return new ThreeImageAsset(src, params, duration, this);
+    }
+    release(img) {
+        img.removeAttribute('src');
+        this._images.push(img);
+    }
+    clear() {
+        this._images = [];
+    }
+}
+class ThreeVideoCollection extends ThreeCollection {
+    constructor(renderRoot) {
+        super(renderRoot);
+        this._videos = [];
+    }
+    acquire() {
+        let video = this._videos.pop();
+        if (typeof video === "undefined") {
+            video = document.createElement('video');
+            video.autoplay = false;
+            video.crossOrigin = 'anonymous';
+            video.muted = true;
+            video.playsInline = true;
+            video.preload = 'auto'; // The video will be played soon.
+            // Video must be within DOM to playback.
+            this.renderRoot.appendChild(video);
+        }
+        return video;
+    }
+    createThreeAsset(src, params, _duration) {
+        return new ThreeVideoAsset(src, params, NaN, this);
+    }
+    release(video) {
+        if (!video.paused) {
+            video.pause();
+        }
+        video.removeAttribute('src');
+        this._videos.push(video);
+    }
+    clear() {
+        for (const video of this._videos) {
+            this.renderRoot.removeChild(video);
+        }
+        this._videos = [];
+    }
+}
+class ThreeAppCollection extends ThreeCollection {
+    constructor(renderRoot, renderer) {
+        super(renderRoot);
+        this.renderer = renderer;
+        this._manifests = new Map();
+        this._fbos = [];
+    }
+    acquire() {
+        let fbo = this._fbos.pop();
+        if (typeof fbo === "undefined") {
+            const width = 1024; // * this.renderer.getPixelRatio();
+            const height = 1024; // * this.renderer.getPixelRatio();
+            fbo = new THREE.WebGLRenderTarget(width, height, {
+                minFilter: THREE.NearestFilter,
+                magFilter: THREE.NearestFilter,
+                depthBuffer: false,
+                stencilBuffer: false,
+            });
+        }
+        return fbo;
+    }
+    async importModule(src) {
+        let manifest = this._manifests.get(src);
+        if (typeof manifest === 'undefined') {
+            console.log(`import app manifest ... ${src}`);
+            const module = await import(src);
+            console.log(`validate app manifest ... ${src}`);
+            const result = AppManifestSchema.safeParse(module.default);
+            console.log(`app manifest validation result: ${result.success} ... ${src}`);
+            if (!result.success) {
+                throw new Error(`Invalid app manifest: ${src}`);
+            }
+            if (!result.data.WebGLApp) {
+                throw new Error(`WebGLApp constructor not found in manifest: ${src}`);
+            }
+            manifest = result.data;
+            this._manifests.set(src, manifest);
+        }
+        return manifest;
+    }
+    createThreeAsset(src, params, duration) {
+        return new ThreeAppAsset(src, params, duration, this);
+    }
+    release(fbo) {
+        this._fbos.push(fbo);
+    }
+    clear() {
+        for (const fbo of this._fbos) {
+            fbo.dispose();
+        }
+        this._fbos = [];
+        this._manifests.clear();
+    }
+}
+class ThreeAssetManager {
+    constructor() {
+        this._collection = new Map();
+    }
+    setAssetTarget(renderTarget) {
+        this._renderTarget = renderTarget;
+    }
+    setRenderer(renderer) {
+        this._renderer = renderer;
+    }
+    _createCollection(renderTarget, renderer) {
+        // TypeScript assumes iterator of first type.
+        const collection = new Map([
+            ['HTMLImageElement', new ThreeImageCollection(renderTarget)],
+            ['HTMLVideoElement', new ThreeVideoCollection(renderTarget)],
+            ['CustomElement', new ThreeAppCollection(renderTarget, renderer)],
+        ]);
+        return collection;
+    }
+    // decl: { type, href }
+    // Returns: asset.
+    createThreeAsset(decl) {
+        console.log(`createThreeAsset: ${decl['@type']} ${decl.href} (${decl.duration}s)`);
+        if (this._collection.size === 0) {
+            if (typeof this._renderTarget === "undefined") {
+                throw new Error("undefined render target.");
+            }
+            if (typeof this._renderer === "undefined") {
+                throw new Error("undefined renderer.");
+            }
+            this._collection = this._createCollection(this._renderTarget, this._renderer);
+        }
+        const collection = this._collection.get(decl['@type']);
+        if (typeof collection === "undefined") {
+            throw new Error('Undefined collection.');
+        }
+        return collection.createThreeAsset(decl.href, decl.params ?? {}, decl.duration);
+    }
+    clear() {
+        for (const value of this._collection.values()) {
+            value.clear();
+        }
+    }
+}
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+class WebGLRendererAsset {
+    constructor(id, media_asset) {
+        this.id = id;
+        this.media_asset = media_asset;
+        this.is_loading = false;
+        this.has_texture = false;
+        this.end_time = NaN;
+        this._ref_count = 0;
+    }
+    get paused() { return this.media_asset.paused; }
+    get ended() { return this.media_asset.ended; }
+    get readyState() { return this.media_asset.readyState; }
+    get networkState() { return this.media_asset.networkState; }
+    get texture() { return this.media_asset.texture; }
+    get currentSrc() { return this.media_asset.currentSrc; }
+    get currentTime() { return this.media_asset.currentTime; }
+    load() {
+        try {
+            this.media_asset.load();
+        }
+        catch (ex) {
+            console.error(`RENDERER: ${ex.message}`);
+        }
+    }
+    async play() {
+        await this.media_asset.play();
+    }
+    paint(now, remaining) {
+        this.media_asset.paint(now, remaining);
+    }
+    pause() {
+        this.media_asset.pause();
+    }
+    close() {
+        this.media_asset.close();
+    }
+    get ref_count() { return this._ref_count; }
+    ref() {
+        this._ref_count++;
+    }
+    unref() {
+        this._ref_count--;
+    }
+}
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
+// REF: http://jsfiddle.net/unLSJ/
+function replacer(_match, pIndent, pKey, pVal, pEnd) {
+    const key = '<span class=json-key>';
+    const val = '<span class=json-value>';
+    const str = '<span class=json-string>';
+    let r = pIndent || '';
+    if (pKey) {
+        r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
+    }
+    if (pVal) {
+        r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
+    }
+    return r + (pEnd || '');
+}
+function prettyPrint(obj) {
+    const jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
+    return JSON.stringify(obj, null, 3)
+        .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
+        .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(jsonLine, replacer);
+}
+class WebGLRenderer extends EventTarget {
+    static { this.vertexShader = shader `
+		precision mediump float;
+		in vec2 uv;
+		in vec4 position;
+		uniform mat4 projectionMatrix;
+		uniform mat4 modelViewMatrix;
+		out vec2 vUv;
+		void main() {
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * position;
+		}
+	`; }
+    static { this.fragmentShader = shader `
+		precision mediump float;
+		uniform sampler2D map1;
+		uniform sampler2D map2;
+		uniform sampler2D displacement;
+		uniform float pct;
+		in vec2 vUv;
+		out vec4 OutputColor;
+
+		#define PI radians(180.0)
+
+		void main() {
+			vec4 displacementColor = texture(displacement, vUv);
+			float effectFactor = 1.0;
+			vec2 uv1 = vec2(vUv.x + pct * (displacementColor.r * effectFactor), vUv.y);
+			vec2 uv2 = vec2(vUv.x - (1.0 - pct) * (displacementColor.r * effectFactor), vUv.y);
+			OutputColor = mix(texture(map1, uv1), texture(map2, uv2), pct);
+		}
+	`; }
+    constructor(prefetchFactory) {
+        super();
+        this._mam = new ThreeAssetManager();
+        this._scene = new THREE.Scene();
+        this._views = [];
+        this._displacement_url = "";
+        this._transition_percent = 0;
+        this._transition_percent_speed = 0;
+        this._displacement_texture = new THREE.Texture();
+        this._empty_texture = new THREE.Texture();
+        this._network_loading_count = 0;
+        this._current_asset = null;
+        this._next_asset = null;
+        this._shader = new THREE.RawShaderMaterial({
+            side: THREE.DoubleSide,
+            transparent: true,
+            depthTest: false,
+            depthWrite: false,
+            uniforms: {
+                map1: { value: this._empty_texture },
+                map2: { value: this._empty_texture },
+                displacement: { value: this._empty_texture },
+                pct: { value: this._transition_percent }
+            },
+            vertexShader: WebGLRenderer.vertexShader,
+            fragmentShader: WebGLRenderer.fragmentShader,
+            glslVersion: THREE.GLSL3,
         });
-        await this.#pool.protectAssets(scope, assets);
-        console.log(`PREFETCH: Protected assets.`);
-        await this.#fetchAssets(this.#pool, assets);
-        console.log(`PREFETCH: Fetched assets.`);
-        if (!await this.#pool.areAssetsReady(assets)) {
-            throw new Error("Assets not ready");
+        this._map1_asset = null;
+        this._map2_asset = null;
+        this._asset_cache = new Map();
+        this._asset_trash = new Map();
+        // Per HTMLMediaElement.
+        this._ended = false;
+        this._error = null;
+        this._networkState = HTMLMediaElement.NETWORK_EMPTY;
+        this._paused = true;
+        this._readyState = HTMLMediaElement.HAVE_NOTHING;
+        this._debug = document.createElement('div');
+        this._lastDebug = "";
+        // on requestAnimationFrame() callback.
+        this._previousTimestamp = 0;
+        this._asset_prefetch = new prefetchFactory();
+        {
+            this._debug.className = 'debug';
+            document.body.appendChild(this._debug);
         }
-        console.log(`PREFETCH: Assets are ready.`);
-        this.#files = new AssetPoolFiles(this.#pool, assets);
-        console.log(`PREFETCH: Mapping assets to local storage.`);
-        for (const asset of assets) {
-            const local = await this.#getPath(asset.name);
-            this.#map.set(asset.link, local);
-            console.info(`${local} -> ${asset.link}`);
+    }
+    get ended() { return this._ended; }
+    get error() { return this._error; }
+    get networkState() { return this._networkState; }
+    get paused() { return this._paused; }
+    get readyState() { return this._readyState; }
+    // Called after placement in DOM.
+    init() {
+        console.groupCollapsed("WEBGL-RENDERER: init");
+        this._initThreeJSRenderer();
+        const mesh = this._createMesh(this._shader, this._empty_texture);
+        this._scene.add(mesh);
+        if (typeof this._renderer === "undefined") {
+            throw new Error("undefined renderer.");
         }
-        console.log(`PREFETCH: Mapping complete.`);
+        this._mam.setRenderer(this._renderer);
+        console.groupEnd();
     }
-    async releaseSources(scope) {
-        await this.#pool.unprotectAssets(scope);
+    close() {
+        console.log("WEBGL-RENDERER: close");
+        for (const asset of this._asset_cache.values()) {
+            asset.pause();
+            asset.close();
+        }
+        this._asset_cache.clear();
     }
-    // Translate origin URLs to local assets on persistent storage.
-    async #getPath(origin) {
-        const file_path = await this.#files.getPath(origin);
-        return file_path.replace(BRIGHTSIGN_STORAGE_PATH, "file:///sd:/");
+    setSetStateHook(cb) {
+        this._set_state_hook = cb;
     }
-    getPath(origin) {
-        return this.#map.get(origin) || "";
+    clearSetStateHook() {
+        this._set_state_hook = undefined;
+    }
+    setSchedulerMessagePort(scheduler) {
+        console.log("WEBGL-RENDERER: setSchedulerMessagePort", scheduler);
+        expose({
+            setState: (value) => this.setState(value),
+            setSources: async (scope, decls) => {
+                await this.setSources(scope, decls.map(decl => {
+                    return {
+                        '@type': decl['@type'],
+                        id: decl.id,
+                        href: decl.href,
+                        size: decl.size,
+                        hash: decl.hash,
+                        integrity: decl.integrity,
+                    };
+                }));
+            },
+        }, scheduler);
+    }
+    // Called by Scheduler or via Cluster as a follower.  This API receives
+    // the near and immediate scheduling state to render the current and
+    // next media asset, including the transition between the two.
+    async setState(value) {
+        // In a cluster we need to forward the state to all nodes
+        // before we can process.
+        if (typeof this._set_state_hook !== "undefined") {
+            this._set_state_hook(value);
+            return;
+        }
+        await this.setStateUnhooked(value);
+    }
+    async setStateUnhooked(value) {
+        {
+            const html = prettyPrint(value);
+            if (html !== this._lastDebug) {
+                this._debug.innerHTML = this._lastDebug = html;
+            }
+        }
+        await this._onSchedulerCurrent(value.mediaCurrent);
+        this._onSchedulerNext(value.mediaNext);
+        await this._onSchedulerTransition(value.transition);
+    }
+    setAssetTarget(assetTarget) {
+        console.log("WEBGL-RENDERER: setAssetTarget", assetTarget);
+        this._mam.setAssetTarget(assetTarget);
+    }
+    setRenderTarget(renderTarget) {
+        console.log("WEBGL-RENDERER: setRenderTarget", renderTarget);
+        if (typeof this._renderer === "undefined") {
+            throw new Error("ThreeJS renderer not defined.");
+        }
+        renderTarget.appendChild(this._renderer.domElement);
+    }
+    setPixelRatio(value) {
+        console.log("WEBGL-RENDERER: setPixelRatio", value);
+        if (typeof this._renderer === "undefined") {
+            throw new Error("ThreeJS renderer not defined.");
+        }
+        this._renderer.setPixelRatio(value);
+    }
+    setSize(width, height) {
+        console.log("WEBGL-RENDERER: setSize", width, height);
+        if (typeof this._renderer === "undefined") {
+            throw new Error("ThreeJS renderer not defined.");
+        }
+        this._renderer.setSize(width, height);
+        const near = 0.1;
+        const far = 10000;
+        const z = 2000;
+        this._camera = this._createThreeJSCamera(width, height, near, far, z);
+    }
+    setViews(views) {
+        console.log("WEBGL-RENDERER: setViews", views);
+        this._views = views;
+    }
+    async setSources(scope, sources) {
+        console.log("WEBGL-RENDERER: setSources", scope, sources);
+        await this._asset_prefetch.acquireSources(scope, sources);
+    }
+    _createMesh(material, displacement_texture) {
+        console.log("WEBGL-RENDERER: _createMesh", material, displacement_texture);
+        // FIXME: Tied to image resolution.
+        const media_width = 1000;
+        const media_height = 1000;
+        const mesh = this._meshFrom(material, 0, media_width, 0, media_height, media_width, media_height);
+        this._shader.uniforms.displacement.value = displacement_texture;
+        console.log('WEBGL-RENDERER: Created new mesh', mesh);
+        return mesh;
+    }
+    _initTexture(texture) {
+        console.log("WEBGL-RENDERER: _initTexture", texture);
+        if (texture instanceof THREE.Texture) {
+            // Force GPU upload.
+            this._renderer?.initTexture(texture);
+        }
+    }
+    _isEmptyTexture(texture) {
+        return texture.uuid === this._empty_texture.uuid;
+    }
+    render(timestamp) {
+        //		console.log('update', timestamp);
+        const elapsed = timestamp - this._previousTimestamp;
+        this._previousTimestamp = timestamp;
+        if (typeof this._renderer === "undefined") {
+            throw new Error("ThreeJS renderer not defined.");
+        }
+        if (typeof this._camera === "undefined") {
+            throw new Error("ThreeJS camera not defined.");
+        }
+        if (this._canPaintCurrent()) {
+            if (this._current_asset === null) {
+                throw new Error("current asset is null.");
+            }
+            const remaining = this._current_asset.end_time - timestamp;
+            try {
+                this._paintCurrent(timestamp, remaining);
+            }
+            catch (ex) {
+                console.error(ex);
+                console.error(this._current_asset);
+            }
+        }
+        else if (this._hasWaitingDuration()) {
+            if (this._current_asset === null) {
+                throw new Error("current asset is null.");
+            }
+            const remaining = this._current_asset.end_time - timestamp;
+            this._paintWaitingDuration(timestamp, remaining);
+        }
+        else {
+            this._paintWaiting(timestamp);
+        }
+        if (this._canPaintNext()) {
+            if (this._next_asset === null) {
+                throw new Error("next asset is null.");
+            }
+            const remaining = this._next_asset.end_time - timestamp;
+            try {
+                this._paintNext(timestamp, remaining);
+            }
+            catch (ex) {
+                console.error(ex);
+                console.error(this._next_asset);
+            }
+        }
+        this._interpolateTransition(elapsed);
+        this._renderer.setScissorTest(true);
+        const size = this._renderer.getSize(new THREE.Vector2());
+        for (const view of this._views) {
+            this._renderer.setViewport(view.x, view.y, view.width, view.height);
+            this._renderer.setScissor(view.x, view.y, view.width, view.height);
+            this._camera.setViewOffset(size.width, size.height, view.left, view.top, view.width, view.height);
+            this._renderer.render(this._scene, this._camera);
+        }
+        this._renderer.setScissorTest(false);
+    }
+    // on requestIdleCallback() callback.
+    idle() {
+        this._emptyAssetTrash();
+    }
+    _interpolateTransition(elapsed) {
+        let needs_update = false;
+        if (this._transition_percent_speed !== 0) {
+            this._transition_percent += (this._transition_percent_speed * elapsed) / 1000;
+            if (this._transition_percent > 1) {
+                this._transition_percent = 1;
+                this._transition_percent_speed = 0;
+            }
+            this._shader.uniforms.pct.value = this._transition_percent;
+            needs_update = true;
+        }
+        if (needs_update) {
+            this._shader.uniformsNeedUpdate = true;
+        }
+    }
+    _initThreeJSRenderer() {
+        console.log("WEBGL-RENDERER: _initThreeJSRenderer");
+        this._renderer = this._createThreeJSRenderer();
+    }
+    _createThreeJSRenderer() {
+        console.log("WEBGL-RENDERER: _createThreeJSRenderer");
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext("webgl2", {
+            alpha: true,
+            antialias: true, // Significant performance cost with WebGLRenderTarget.
+            desynchronized: false,
+            powerPreference: 'high-performance',
+        });
+        if (context === null) {
+            throw new Error('Failed to obtain canvas context.');
+        }
+        const renderer = new THREE.WebGLRenderer({ canvas, context });
+        return renderer;
+    }
+    _createThreeJSCamera(width, height, near, far, z) {
+        console.log("WEBGL-RENDERER: _createThreeJSCamera", width, height, near, far, z);
+        const camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, near, far);
+        camera.position.z = z;
+        return camera;
+    }
+    async _fetchImage(url) {
+        console.log("WEBGL-RENDERER: _fetchImage", url);
+        const img = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = url;
+            img.decode()
+                .then(() => {
+                resolve(img);
+            })
+                .catch(encodingError => {
+                reject(encodingError);
+            });
+        });
+        console.info("WEBGL-RENDERER: loaded displacement map", img.src);
+        return img;
+    }
+    //	protected _onSchedulerError(err: Error): void {
+    //		console.error(err);
+    //	}
+    // This media asset.
+    async _onSchedulerCurrent(current) {
+        if (current !== null) {
+            if (this._current_asset === null) {
+                //console.info(current.decl.href, current.remainingTimeMs);
+                this._current_asset = await this._updateCurrent(current.decl);
+                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._current_asset.ref();
+                console.log("WEBGL-RENDERER: current", this._current_asset.currentSrc);
+            }
+            else if (current.decl.id !== this._current_asset.id) {
+                //console.info(current.decl.href, current.remainingTimeMs);
+                this._closeCurrent();
+                if (this._next_asset !== null
+                    && current.decl.id === this._next_asset.id) {
+                    console.log("WEBGL-RENDERER: current <- next");
+                    this._current_asset = await this._updateCurrentFromNext();
+                }
+                else {
+                    this._current_asset = await this._updateCurrent(current.decl);
+                }
+                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._current_asset.ref();
+                console.log("WEBGL-RENDERER: current", this._current_asset.currentSrc);
+            }
+            else if (this._current_asset instanceof WebGLRendererAsset) {
+                this._current_asset = await this._updateCurrent(current.decl);
+                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+            }
+            if (this._current_asset === null) {
+                throw new Error("current asset is null.");
+            }
+        }
+        else if (this._current_asset !== null) {
+            this._closeCurrent();
+            console.log(`WEBGL-RENDERER: current null`);
+        }
+    }
+    _onSchedulerNext(next) {
+        // Next media asset.
+        if (next !== null) {
+            if (this._next_asset === null) {
+                this._next_asset = this._updateNext(next.decl);
+                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._next_asset.ref();
+                console.log("WEBGL-RENDERER: next", this._next_asset.currentSrc);
+            }
+            else if (next.decl.id !== this._next_asset.id) {
+                this._closeNext();
+                this._next_asset = this._updateNext(next.decl);
+                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._next_asset.ref();
+                console.log("WEBGL-RENDERER: next", this._next_asset.currentSrc);
+            }
+            else if (this._next_asset instanceof WebGLRendererAsset) {
+                this._next_asset = this._updateNext(next.decl);
+                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+            }
+            if (this._next_asset === null) {
+                throw new Error("next asset is null.");
+            }
+        }
+        else if (this._next_asset !== null) {
+            this._closeNext();
+            console.log(`WEBGL-RENDERER: next null`);
+        }
+    }
+    async _onSchedulerTransition(transition) {
+        // Resources for transitions, explicitly details textures to
+        // avoid confusion when crossing boundary between two assets.
+        let needs_update = false;
+        if (transition !== null) {
+            const from_asset = this._asset_cache.get(transition.from.decl.id);
+            if (typeof from_asset !== "undefined"
+                && typeof from_asset.texture !== "undefined"
+                && from_asset.texture.uuid !== this._shader.uniforms.map1.value.uuid) {
+                if (this._map1_asset instanceof WebGLRendererAsset) {
+                    this._map1_asset.unref();
+                }
+                this._shader.uniforms.map1.value = from_asset.texture;
+                //				console.log('set map1', transition.from.decl.href);
+                from_asset.ref();
+                this._map1_asset = from_asset; // Keep reference to later free.
+                needs_update = true;
+            }
+            const to_asset = this._asset_cache.get(transition.to.decl.id);
+            if (typeof to_asset !== "undefined"
+                && typeof to_asset.texture !== "undefined"
+                && to_asset.texture.uuid !== this._shader.uniforms.map2.value.uuid) {
+                if (this._map2_asset instanceof WebGLRendererAsset) {
+                    this._map2_asset.unref();
+                }
+                this._shader.uniforms.map2.value = to_asset.texture;
+                //				console.log('set map2', transition.to.decl.href);
+                to_asset.ref();
+                this._map2_asset = to_asset;
+                needs_update = true;
+            }
+            if (transition.url !== this._displacement_url) {
+                this._displacement_url = transition.url;
+                //				console.log('set displacement', this.#displacement_url);
+                await this._updateDisplacementMap(transition.url);
+                this._shader.uniforms.displacement.value = this._displacement_texture;
+                needs_update = true;
+            }
+            if (transition.percent !== this._transition_percent) {
+                this._shader.uniforms.pct.value = this._transition_percent = transition.percent;
+                //				console.log('set pct', transition.percent);
+                needs_update = true;
+            }
+            if (transition.percentSpeed !== this._transition_percent_speed) {
+                this._transition_percent_speed = transition.percentSpeed;
+            }
+        }
+        else { // Transition finished, follow settings per "current".
+            if (this._current_asset === null) {
+                if (!this._isEmptyTexture(this._shader.uniforms.map1.value)) {
+                    if (this._map1_asset instanceof WebGLRendererAsset) {
+                        this._map1_asset.unref();
+                    }
+                    this._map1_asset = null;
+                    this._shader.uniforms.map1.value = this._empty_texture;
+                    //					console.log('set map1', "empty");
+                    needs_update = true;
+                }
+            }
+            else if (typeof this._current_asset.texture !== "undefined"
+                && this._current_asset.texture.uuid !== this._shader.uniforms.map1.value.uuid) {
+                if (this._map1_asset instanceof WebGLRendererAsset) {
+                    this._map1_asset.unref();
+                }
+                this._shader.uniforms.map1.value = this._current_asset.texture;
+                //				console.log('set map1', this.#current_asset.currentSrc);
+                this._current_asset.ref();
+                this._map1_asset = this._current_asset;
+                needs_update = true;
+            }
+            if (!this._isEmptyTexture(this._shader.uniforms.map2.value)) {
+                if (this._map2_asset instanceof WebGLRendererAsset) {
+                    this._map2_asset.unref();
+                }
+                this._map2_asset = null;
+                this._shader.uniforms.map2.value = this._empty_texture;
+                //				console.log('set map2', "empty");
+                needs_update = true;
+            }
+            if (this._transition_percent !== 0) {
+                this._shader.uniforms.pct.value = this._transition_percent = 0;
+                //				console.log('set pct', 0);
+                needs_update = true;
+            }
+            if (this._transition_percent_speed !== 0) {
+                this._transition_percent_speed = 0;
+            }
+        }
+        if (needs_update) {
+            this._shader.uniformsNeedUpdate = true;
+        }
+    }
+    _networkLoadingRef() {
+        if (this._network_loading_count === 0) {
+            this._networkState = HTMLMediaElement.NETWORK_LOADING;
+        }
+        this._network_loading_count++;
+    }
+    _networkLoadingUnref() {
+        this._network_loading_count--;
+        if (this._network_loading_count === 0) {
+            this._networkState = HTMLMediaElement.NETWORK_IDLE;
+        }
+    }
+    _emptyAssetTrash() {
+        const remove_list = [];
+        for (const [id, asset] of this._asset_trash) {
+            if (asset.ref_count !== 0) {
+                continue;
+            }
+            asset.close();
+            remove_list.push(id);
+        }
+        for (const id of remove_list) {
+            console.log("WEBGL-RENDERER: Destroying", id);
+            this._asset_cache.delete(id);
+            this._asset_trash.delete(id);
+        }
+    }
+    // Assumes new decl.
+    async _updateCurrent(decl) {
+        const asset = this._asset_cache.get(decl.id);
+        if (typeof asset === "undefined") {
+            const media_asset = this._mam.createThreeAsset(decl);
+            if (typeof media_asset === "undefined") {
+                throw new Error("Failed to create media asset.");
+            }
+            const new_asset = new WebGLRendererAsset(decl.id, media_asset);
+            ///			media_asset.texture.userData = new_asset;
+            this._asset_cache.set(new_asset.id, new_asset);
+            this._networkLoadingRef();
+            new_asset.is_loading = true;
+            new_asset.load();
+            return new_asset; // drop frame.
+        }
+        else if (this._asset_trash.has(decl.id)) {
+            this._asset_trash.delete(decl.id);
+        }
+        if (asset.is_loading
+            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+            this._networkLoadingUnref();
+            asset.is_loading = false;
+        }
+        if (!asset.has_texture
+            && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+            this._initTexture(asset.texture);
+            asset.has_texture = true;
+            await asset.play();
+            if (this._map1_asset !== null) {
+                if (this._map1_asset instanceof WebGLRendererAsset) {
+                    this._map1_asset.unref();
+                }
+            }
+            if (this._map2_asset !== null) {
+                if (this._map2_asset instanceof WebGLRendererAsset) {
+                    this._map2_asset.unref();
+                }
+            }
+            asset.ref();
+            this._map1_asset = asset;
+            this._map2_asset = null;
+            this._shader.uniforms.map1.value = asset.texture;
+            this._shader.uniforms.map2.value = this._empty_texture;
+            this._shader.uniforms.pct.value = this._transition_percent = 0;
+            this._shader.uniformsNeedUpdate = true;
+            this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+        }
+        return asset;
+    }
+    // Keep reference next to current.
+    async _updateCurrentFromNext() {
+        if (this._current_asset !== null) {
+            throw new Error("current asset must be closed before calling.");
+        }
+        if (this._next_asset === null) {
+            throw new Error("next asset must be defined before calling.");
+        }
+        const asset = this._next_asset;
+        this._next_asset = null;
+        if (asset instanceof WebGLRendererAsset
+            && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+            await asset.play();
+            if (this._isEmptyTexture(this._shader.uniforms.map2.value)) {
+                if (this._map1_asset !== null) {
+                    if (this._map1_asset instanceof WebGLRendererAsset) {
+                        this._map1_asset.unref();
+                    }
+                }
+                this._map1_asset = asset;
+                this._shader.uniforms.map1.value = asset.texture;
+                this._shader.uniforms.pct.value = this._transition_percent = 0;
+                this._shader.uniformsNeedUpdate = true;
+            }
+            this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+        }
+        else {
+            console.warn("WEBGL-RENDERER: current asset not ready.");
+            this._readyState = HTMLMediaElement.HAVE_METADATA;
+        }
+        return asset;
+    }
+    _canPaintCurrent() {
+        return this._current_asset !== null
+            && this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+    }
+    _paintCurrent(timestamp, remaining) {
+        if (this._current_asset === null) {
+            throw new Error("undefined current asset.");
+        }
+        this._current_asset.paint(timestamp, remaining);
+        // Very slow loading asset, force playback, avoid seeking as already broken.
+        //		if(this.#current_asset.paused) {
+        //			(async() => {
+        //				if(this.#current_asset !== null
+        //					&& this.#current_asset.paused
+        //					&& !this.#current_asset.ended
+        //					&& this.#current_asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA)
+        //				{
+        //					await this.#current_asset.play();
+        //				}
+        //			})();
+        //		}
+    }
+    _closeCurrent() {
+        if (this._current_asset === null) {
+            return;
+        }
+        this._current_asset.pause();
+        this._current_asset.unref();
+        this._asset_trash.set(this._current_asset.id, this._current_asset);
+        this._current_asset = null;
+    }
+    _hasWaitingDuration() {
+        return false;
+    }
+    _paintWaiting(_timestamp) { }
+    _paintWaitingDuration(_timestamp, _remaining) { }
+    _updateNext(decl) {
+        const asset = this._asset_cache.get(decl.id);
+        if (typeof asset === "undefined") {
+            const media_asset = this._mam.createThreeAsset(decl);
+            if (typeof media_asset === "undefined") {
+                throw new Error("Failed to create media asset.");
+            }
+            const new_asset = new WebGLRendererAsset(decl.id, media_asset);
+            this._asset_cache.set(new_asset.id, new_asset);
+            this._networkLoadingRef();
+            new_asset.is_loading = true;
+            new_asset.load();
+            return new_asset;
+        }
+        else if (this._asset_trash.has(decl.id)) {
+            this._asset_trash.delete(decl.id);
+        }
+        if (asset.is_loading
+            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+            this._networkLoadingUnref();
+            asset.is_loading = false;
+        }
+        if (!asset.has_texture
+            && asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+            this._initTexture(asset.texture);
+            asset.has_texture = true;
+            this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+        }
+        return asset;
+    }
+    _canPaintNext() {
+        return this._next_asset !== null
+            && this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+    }
+    _paintNext(timestamp, remaining) {
+        if (this._next_asset === null) {
+            throw new Error("undefined next asset.");
+        }
+        this._next_asset.paint(timestamp, remaining);
+    }
+    _closeNext() {
+        if (this._next_asset === null) {
+            throw new Error("undefined next asset.");
+        }
+        this._next_asset.unref();
+        this._asset_trash.set(this._next_asset.id, this._next_asset);
+        this._next_asset = null;
+    }
+    // Assumes new URL.
+    async _updateDisplacementMap(url) {
+        this._networkLoadingRef();
+        const img = await this._fetchImage(url);
+        this._displacement_texture.image = img;
+        this._displacement_texture.needsUpdate = true;
+        this._initTexture(this._displacement_texture);
+        this._networkLoadingUnref();
+    }
+    _meshFrom(material, left, right, top, bottom, width, height) {
+        const geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
+        geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([
+            left / width, 1 - (top / height),
+            right / width, 1 - (top / height),
+            left / width, 1 - (bottom / height),
+            right / width, 1 - (bottom / height),
+            0, 0,
+            0, 0
+        ]), 2));
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.scale.set(width, height, 1);
+        return mesh;
     }
 }
 
@@ -8940,16 +10191,50 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
     for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-let BrightSignPlaylistElement = class BrightSignPlaylistElement extends WebPlaylistElement$1 {
-    // Override the renderer to use BrightSign compatible asset prefetcher.
-    _createRenderer() {
-        return super._createRenderer(BrightSignPrefetch);
+let WebGLPlaylistElement = class WebGLPlaylistElement extends WebPlaylistElement {
+    static { this.styles = i$3 `
+		:host {
+			display: block;
+			contain: strict;
+			overflow: clip;
+			font-size: 0;
+		}
+		:host > section {
+			display: none;
+		}
+		:host > main {
+			position: relative;
+			margin-left: 600px;
+		}
+		:host > main > * {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+	`; }
+    // Override the renderer to use WebGL.
+    _createRenderer(prefetchFactory = ServiceWorkerPrefetch) {
+        if (this._section === null) {
+            throw new Error("cannot find <section> element to attach to.");
+        }
+        if (this._main === null) {
+            throw new Error("cannot find <main> element to attach to.");
+        }
+        const renderer = new WebGLRenderer(prefetchFactory);
+        renderer.init();
+        this._connectSchedulerToRenderer(this._scheduler, renderer);
+        this._connectRaftCluster(this._scheduler, renderer);
+        renderer.setAssetTarget(this._section);
+        renderer.setRenderTarget(this._main);
+        // Override for performance testing.
+        renderer.setPixelRatio(window.devicePixelRatio);
+        return renderer;
     }
 };
-BrightSignPlaylistElement = __decorate([
-    t$2('brightsign-play-list')
-], BrightSignPlaylistElement);
-var BrightSignPlaylistElement$1 = BrightSignPlaylistElement;
+WebGLPlaylistElement = __decorate([
+    t('webgl-play-list')
+], WebGLPlaylistElement);
 
-export { BrightSignPlaylistElement$1 as default };
-//# sourceMappingURL=brightsign.bundle.mjs.map
+export { WebGLPlaylistElement, WebPlaylistElement };
+//# sourceMappingURL=web.bundle.js.map

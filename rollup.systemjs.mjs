@@ -119,7 +119,7 @@ export default [
 	external: [
 	],
 	output: {
-		file: 'dist/scheduler.bundle~chrome53.mjs',
+		file: 'dist/scheduler.bundle~chrome53.js',
 		format: 'esm',
 		sourcemap: true,
 	},
@@ -161,7 +161,7 @@ export default [
 	external: [
 	],
 	output: {
-		file: 'dist/calendar.bundle~chrome53.mjs',
+		file: 'dist/calendar.bundle~chrome53.js',
 		format: 'esm',
 		sourcemap: true,
 	},

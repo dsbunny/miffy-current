@@ -7,7 +7,7 @@ import { css } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { WebGLRenderer } from '../lib/webgl-renderer.js';
-import WebPlaylistElement from './web-play-list.js';
+import { WebPlaylistElement } from './web-play-list.js';
 import { Prefetch } from '../lib/prefetch.js';
 import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
 
@@ -16,7 +16,7 @@ import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
 const DEBUG_DISABLE_HIDPI = false;
 
 @customElement('webgl-play-list')
-export default class WebGLPlaylistElement extends WebPlaylistElement {
+export class WebGLPlaylistElement extends WebPlaylistElement {
 
 	static override styles = css`
 		:host {

@@ -11,7 +11,7 @@ import summary from 'rollup-plugin-summary';
 export default [
 {
 	input: [
-		'build/src/elements/web-play-list.js',
+		'build/src/elements/web-bundle.js',
 	],
 	onwarn(warning) {
 		if (warning.code !== 'THIS_IS_UNDEFINED') {
@@ -33,7 +33,7 @@ export default [
                 'three',
         ],
 	output: {
-		file: 'dist/web.bundle.mjs',
+		file: 'dist/web.bundle.js',
 		format: 'esm',
 		sourcemap: true,
 	},
@@ -41,7 +41,7 @@ export default [
 },
 {
 	input: [
-		'build/src/elements/webgl-play-list.js',
+		'build/src/elements/brightsign-bundle.js',
 	],
 	onwarn(warning) {
 		if (warning.code !== 'THIS_IS_UNDEFINED') {
@@ -63,67 +63,7 @@ export default [
                 'three',
         ],
 	output: {
-		file: 'dist/webgl.bundle.mjs',
-		format: 'esm',
-		sourcemap: true,
-	},
-	preserveEntrySignatures: 'strict',
-},
-{
-	input: [
-		'build/src/elements/brightsign-play-list.js',
-	],
-	onwarn(warning) {
-		if (warning.code !== 'THIS_IS_UNDEFINED') {
-			console.error(`(!) ${warning.message}`);
-		}
-	},
-	plugins: [
-		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
-		resolve({
-			moduleDirectories: [
-				'node_modules',
-				'third-party'
-			],
-		}),
-		summary(),
-	],
-	external: [
-                'three',
-        ],
-	output: {
-		file: 'dist/brightsign.bundle.mjs',
-		format: 'esm',
-		sourcemap: true,
-	},
-	preserveEntrySignatures: 'strict',
-},
-{
-	input: [
-		'build/src/elements/brightsign-webgl-play-list.js',
-	],
-	onwarn(warning) {
-		if (warning.code !== 'THIS_IS_UNDEFINED') {
-			console.error(`(!) ${warning.message}`);
-		}
-	},
-	plugins: [
-		sourcemaps(),
-		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
-		resolve({
-			moduleDirectories: [
-				'node_modules',
-				'third-party'
-			],
-		}),
-		summary(),
-	],
-	external: [
-                'three',
-        ],
-	output: {
-		file: 'dist/brightsign-webgl.bundle.mjs',
+		file: 'dist/brightsign.bundle.js',
 		format: 'esm',
 		sourcemap: true,
 	},
@@ -153,7 +93,7 @@ export default [
                 'three',
         ],
 	output: {
-		file: 'dist/scheduler.bundle.mjs',
+		file: 'dist/scheduler.bundle.js',
 		format: 'esm',
 		sourcemap: true,
 	},
@@ -183,7 +123,7 @@ export default [
                 'three',
         ],
 	output: {
-		file: 'dist/calendar.bundle.mjs',
+		file: 'dist/calendar.bundle.js',
 		format: 'esm',
 		sourcemap: true,
 	},
@@ -213,7 +153,7 @@ export default [
                 'three',
         ],
 	output: {
-		file: 'dist/prefetch.bundle.mjs',
+		file: 'dist/prefetch.bundle.js',
 		format: 'esm',
 		sourcemap: true,
 	},

@@ -377,11 +377,10 @@ class PrefetchServiceWorker {
         const hrefs = [
             '/media/favicon.png',
             '/index.html',
-            '../dist/calendar.bundle.mjs',
-            '../dist/prefetch.bundle.mjs',
-            '../dist/scheduler.bundle.mjs',
-            '../dist/web.bundle.mjs',
-            '../dist/webgl.bundle.mjs',
+            '../dist/calendar.bundle.js',
+            '../dist/prefetch.bundle.js',
+            '../dist/scheduler.bundle.js',
+            '../dist/web.bundle.js',
             '/external/node_modules/three/build/three.module.js',
         ];
         const options = {
@@ -506,4 +505,4 @@ self.addEventListener('message', (event) => {
         event.data.start();
     }
 });
-//# sourceMappingURL=prefetch.bundle.mjs.map
+//# sourceMappingURL=prefetch.bundle.js.map
