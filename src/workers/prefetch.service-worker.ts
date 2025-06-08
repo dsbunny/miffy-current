@@ -33,20 +33,13 @@ class PrefetchServiceWorker {
 	}
 
 	async #install() {
-		const cache = await self.caches.open('miffy');
-		const hrefs = [
-			'/media/favicon.png',
-			'/index.html',
-			'../dist/calendar.bundle.js',
-			'../dist/prefetch.bundle.js',
-			'../dist/scheduler.bundle.js',
-			'../dist/web.bundle.js',
-			'/external/node_modules/three/build/three.module.js',
-		];
 		const options = {
 			method: 'GET',
 			cache: 'force-cache' as RequestCache,
 		};
+		const response = await fetch('./manifest.json', options);
+		const hrefs = await response.json() as string[];
+		const cache = await self.caches.open('miffy');
 		const resources = hrefs.map(href => {
 			const request = new Request(href, options);
 			return request;

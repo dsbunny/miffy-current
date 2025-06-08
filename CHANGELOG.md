@@ -2,6 +2,7 @@
 ## v19.0.10
 - Drop `.mjs` extension in preference of `.js`.
 - Merge _Web_ and _WebGL_ bundles, and merge _BrightSign_ and _BrightSign WebGL_.
+- Add `manifest.json` for seeding the _service worker_ cache.
 
 ## v18.3.9
 - Add _BrightSign_ detail including WebGL implementation.

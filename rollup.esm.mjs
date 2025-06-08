@@ -7,6 +7,7 @@ import sourcemaps from 'rollup-plugin-sourcemaps';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { dts } from "rollup-plugin-dts";
+import copy from 'rollup-plugin-copy';
 import summary from 'rollup-plugin-summary';
 
 export default [
@@ -27,6 +28,12 @@ export default [
 				'node_modules',
 				'third-party'
 			],
+		}),
+		copy({
+			targets: [
+				{ src: 'src/manifest.json', dest: 'dist' },
+			],
+			hook: 'writeBundle',
 		}),
 		summary(),
 	],
