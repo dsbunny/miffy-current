@@ -6530,7 +6530,7 @@ let DateTime$1 = class DateTime {
       throw new InvalidArgumentError(
         `fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`
       );
-    } else if (milliseconds < -864e13 || milliseconds > MAX_DATE$1) {
+    } else if (milliseconds < -MAX_DATE$1 || milliseconds > MAX_DATE$1) {
       // this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
       return DateTime.invalid("Timestamp out of range");
     } else {
@@ -12268,12 +12268,16 @@ function superRefine(fn, params) {
 }
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+const BaseParams = record(string(), any())
+    .describe('Runtime parameters for an asset');
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 var RecipeTemplateSchema;
 (function (RecipeTemplateSchema) {
     RecipeTemplateSchema.MediaTemplate = object({
         asset_id: uuid()
             .describe('Asset ID'),
-        params: any()
+        params: BaseParams.optional()
             .describe('Runtime parameters for the asset'),
         // WARNING: 86400 seconds is the maximum duration of a media template
         duration_seconds: number().min(1).max(86400)
@@ -12343,6 +12347,85 @@ var RecipeTemplateSchema;
 })(RecipeTemplateSchema || (RecipeTemplateSchema = {}));
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+const PublisherRequest = object({
+    tenant_id: uuid()
+        .describe('Tenant ID'),
+    reference_id: string().max(255)
+        .describe('Reference ID of the job'),
+    recipe_template: RecipeTemplateSchema.RecipeTemplate,
+    // WARNING: 1000 canvas is the maximum number that can be assigned to a job
+    canvas_ids: array(uuid()).min(1).max(1000)
+        .describe('List of canvas IDs'),
+    identity: string()
+        .describe('Identity of the author of the job'),
+})
+    .describe('Publish job');
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+const PublisherResponse = object({
+    job_id: string().regex(/^\d+$/)
+        .describe('Unique identifier for this job, can be used to query the status of the job.'),
+    reference_id: string().max(255)
+        .describe('User provided reference identifier.'),
+    timestamp: datetime()
+        .describe('ISO datetime of the job.'),
+})
+    .describe('Publisher job output');
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// #region Errors
+object({
+    code: string()
+        .describe('Error code representing the type of error.'),
+    message: string()
+        .describe('Error message describing the issue.'),
+    detail: string()
+        .describe('Additional details about the error, if available.'),
+    timestamp: datetime()
+        .describe('Timestamp when the error occurred (ISO_8601 format).'),
+})
+    .describe('Error response schema');
+// #endregion
+// #region WebHook
+object({
+    ref_id: string(),
+    class: string(),
+})
+    .describe('WebHook request schema');
+object({})
+    .describe('WebHook response schema');
+// #endregion
+// #region Publisher
+object({})
+    .describe('Create UUIDs request schema');
+object({
+    uuids: array(string()),
+})
+    .describe('Create UUIDs response schema');
+object({})
+    .describe('Get Job Status request schema');
+object({
+    status: _enum(["created", "succeeded", "failed", "retrying"])
+        .describe('Job status indicating the current state of the job.'),
+    progress: number()
+        .describe('Progress of the job as a percentage (0-100).'),
+}).or(array(object({
+    error: string()
+        .describe('Error message if the job could not be queried.'),
+}).or(object({
+    status: _enum(["created", "succeeded", "failed", "retrying"])
+        .describe('Job status indicating the current state of the job.'),
+    progress: number()
+        .describe('Progress of the job as a percentage (0-100).'),
+}))))
+    .describe('Get Job Status response schema');
+PublisherRequest
+    .describe('Create Publisher request schema');
+PublisherResponse
+    .describe('Create Publisher response schema');
+// #endregion
+
+// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 var RecipeSchema;
 (function (RecipeSchema) {
     RecipeSchema.HashValue = object({
@@ -12369,7 +12452,7 @@ var RecipeSchema;
             .describe("Subresource Integrity (SRI) value"),
         duration: number().min(1).max(86400)
             .describe("Duration of the image in seconds"),
-        params: any()
+        params: BaseParams.optional()
             .describe("Optional parameters of the image element"),
     })
         .describe("HTML image element");
@@ -12389,7 +12472,7 @@ var RecipeSchema;
             .describe("Subresource Integrity (SRI) value"),
         duration: number().min(1).max(86400)
             .describe("Duration of the video in seconds"),
-        params: any()
+        params: BaseParams.optional()
             .describe("Optional parameters of the video element"),
     })
         .describe("HTML video element");
@@ -12425,13 +12508,13 @@ var RecipeSchema;
             .describe("Subresource Integrity (SRI) value"),
         duration: number().min(1).max(86400)
             .describe("Duration of the custom element in seconds"),
-        params: any()
+        params: BaseParams.optional()
             .describe("Optional parameters of the custom element"),
         sources: array(union([
             RecipeSchema.HTMLImageElement.omit({ duration: true }),
             RecipeSchema.HTMLVideoElement.omit({ duration: true }),
             RecipeSchema.HTMLScriptElement,
-        ]))
+        ])).optional()
             .describe("Array of sources, which can be HTMLImageElement, HTMLVideoElement, or HTMLScriptElement"),
     })
         .describe("Custom element");
@@ -12544,6 +12627,14 @@ var RecipeSchema;
             .describe("Subresource Integrity (SRI) value"),
         duration: number().min(1).max(86400)
             .describe("Duration of the transition in seconds"),
+        params: BaseParams.optional()
+            .describe("Optional parameters of the transition"),
+        sources: array(union([
+            RecipeSchema.HTMLImageElement.omit({ duration: true }),
+            RecipeSchema.HTMLVideoElement.omit({ duration: true }),
+            RecipeSchema.HTMLScriptElement,
+        ])).optional()
+            .describe("Array of sources, which can be HTMLImageElement, HTMLVideoElement, or HTMLScriptElement"),
     })
         .describe("Transition");
     RecipeSchema.SignalingServer = object({
@@ -12605,33 +12696,6 @@ var RecipeSchema;
     })
         .describe("Recipe link");
 })(RecipeSchema || (RecipeSchema = {}));
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-object({
-    tenant_id: uuid()
-        .describe('Tenant ID'),
-    reference_id: string().max(255)
-        .describe('Reference ID of the job'),
-    recipe_template: RecipeTemplateSchema.RecipeTemplate,
-    // WARNING: 1000 agents is the maximum number of agents that can be assigned to a job
-    agent_ids: array(uuid()).min(1).max(1000)
-        .describe('Array of agent IDs'),
-    identity: string()
-        .describe('Identity of the author of the job'),
-})
-    .describe('Publish job');
-
-// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
-object({
-    // A number prefixed with "F/".
-    job_id: string().regex(/^F\/\d+$/)
-        .describe('Unique identifier for this job, can be used to query the status of the job.'),
-    reference_id: string().max(255)
-        .describe('User provided reference identifier.'),
-    timestamp: datetime()
-        .describe('ISO datetime of the job.'),
-})
-    .describe('Publisher job output');
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is

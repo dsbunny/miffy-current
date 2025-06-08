@@ -1344,7 +1344,7 @@ const ot=isNumber$1(config.o)&&!config.old?config.o:zone.offset(this.ts);c=tsToO
    * @param {string} options.numberingSystem - the numbering system to set on the resulting DateTime instance
    * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
    * @return {DateTime}
-   */static fromMillis(milliseconds,options={}){if(!isNumber$1(milliseconds)){throw new InvalidArgumentError(`fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`);}else if(milliseconds<-864e13||milliseconds>MAX_DATE){// this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
+   */static fromMillis(milliseconds,options={}){if(!isNumber$1(milliseconds)){throw new InvalidArgumentError(`fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`);}else if(milliseconds<-MAX_DATE||milliseconds>MAX_DATE){// this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
 return DateTime.invalid("Timestamp out of range");}else{return new DateTime({ts:milliseconds,zone:normalizeZone(options.zone,Settings.defaultZone),loc:Locale.fromObject(options)});}}/**
    * Create a DateTime from a number of seconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
    * @param {number} seconds - a number of seconds since 1970 UTC

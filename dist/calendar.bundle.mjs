@@ -6530,7 +6530,7 @@ let DateTime$1 = class DateTime {
       throw new InvalidArgumentError(
         `fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`
       );
-    } else if (milliseconds < -864e13 || milliseconds > MAX_DATE) {
+    } else if (milliseconds < -MAX_DATE || milliseconds > MAX_DATE) {
       // this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
       return DateTime.invalid("Timestamp out of range");
     } else {

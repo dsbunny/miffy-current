@@ -36,7 +36,7 @@
 	"private": false,
 	"dependencies": {
 		"@dsbunny/app": "github:dsbunny/app#5f62077",
-		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#42aa0aa",
+		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#04eef6b",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",
 		"@msgpack/msgpack": "^3.1.1",
