@@ -2,6 +2,13 @@
 	"name": "@dsbunny/miffy-current",
 	"version": "19.0.10",
 	"description": "Miffy renderer for current browsers",
+	"exports": {
+		"brightsign": "./dist/brightsign.bundle.js",
+		"calendar": "./dist/calendar.bundle.js",
+		"prefetch": "./dist/prefetch.bundle.js",
+		"scheduler": "./dist/scheduler.bundle.js",
+		"web": "./dist/web.bundle.js"
+	},
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.27.1",
 		"@babel/preset-env": "^7.27.2",
