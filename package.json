@@ -3,11 +3,18 @@
 	"version": "19.0.10",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
-		"brightsign": "./dist/brightsign.bundle.js",
-		"calendar": "./dist/calendar.bundle.js",
-		"prefetch": "./dist/prefetch.bundle.js",
-		"scheduler": "./dist/scheduler.bundle.js",
-		"web": "./dist/web.bundle.js"
+		"brightsign": {
+			"import": {
+				"default": "./dist/brightsign.bundle.js",
+				"types": "./dist/brightsign.bundle.d.ts"
+			}
+		},
+		"web": {
+			"import": {
+				"default": "./dist/web.bundle.js",
+				"types": "./dist/web.bundle.d.ts"
+			}
+		}
 	},
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.27.1",
@@ -25,6 +32,7 @@
 		"jest-environment-jsdom": "^29.7.0",
 		"jest-fetch-mock": "^3.0.3",
 		"rollup": "^4.40.2",
+		"rollup-plugin-dts": "^6.2.1",
 		"rollup-plugin-includepaths": "^0.2.4",
 		"rollup-plugin-sourcemaps": "^0.6.3",
 		"rollup-plugin-summary": "^3.0.1",
