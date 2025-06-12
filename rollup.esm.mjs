@@ -117,6 +117,57 @@ export default [
 		file: 'dist/brightsign.bundle.d.ts',
 		format: 'esm',
 	},
+},
+{
+	input: [
+		'build/src/elements/luna-play-list.js',
+	],
+	onwarn(warning) {
+		if (warning.code !== 'THIS_IS_UNDEFINED') {
+			console.error(`(!) ${warning.message}`);
+		}
+	},
+	plugins: [
+		sourcemaps(),
+		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		resolve({
+			moduleDirectories: [
+				'node_modules',
+				'third-party'
+			],
+		}),
+		summary(),
+	],
+	external: [
+                'three',
+        ],
+	output: {
+		file: 'dist/luna.bundle.js',
+		format: 'esm',
+		sourcemap: true,
+	},
+	preserveEntrySignatures: 'strict',
+}, {
+	input: [
+		'build/src/elements/luna-play-list.d.ts',
+	],
+	plugins: [
+		resolve({
+			moduleDirectories: [
+				'node_modules',
+				'third-party'
+			],
+		}),
+		dts(),
+		summary(),
+	],
+	external: [
+                'three',
+        ],
+	output: {
+		file: 'dist/luna.bundle.d.ts',
+		format: 'esm',
+	},
 }, {
 	input: [
 		'build/src/workers/scheduler.worker.js',

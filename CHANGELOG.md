@@ -1,4 +1,7 @@
 # Changelog
+## v19.1.11
+- Add _Luna_ bundles for downstream bundlers.
+
 ## v19.0.10
 - Drop `.mjs` extension in preference of `.js`.
 - Merge _Web_ and _WebGL_ bundles, and merge _BrightSign_ and _BrightSign WebGL_.
