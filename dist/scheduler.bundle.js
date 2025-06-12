@@ -15943,7 +15943,7 @@ class CalendarSchedule {
     }
     // Fill to high watermark when breaking low.
     async pull(datetime) {
-        //		console.log(`${this.shortId}: pull(${datetime.toISO()})`);
+        //console.log(`${this.shortId}: pull(${datetime.toISO()})`);
         if (!this._isActivated) {
             return false;
         }
@@ -15952,9 +15952,9 @@ class CalendarSchedule {
         }
         const headTime = typeof this.head === "undefined" ? datetime : this.head.start;
         const endTime = headTime.plus(this._highWatermark);
-        const t0 = performance.now();
+        performance.now();
         const events = await this._getEvents(datetime, endTime);
-        console.log(`${this.shortId}: getEvents ${Math.round(performance.now() - t0)}ms.`);
+        //console.log(`${this.shortId}: getEvents ${Math.round(performance.now() - t0)}ms.`);
         this._queue = events;
         return true;
     }

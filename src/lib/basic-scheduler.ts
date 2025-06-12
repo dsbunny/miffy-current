@@ -357,7 +357,7 @@ export class CalendarSchedule {
 	async pull(
 		datetime: DateTime,
 	): Promise<boolean> {
-//		console.log(`${this.shortId}: pull(${datetime.toISO()})`);
+		//console.log(`${this.shortId}: pull(${datetime.toISO()})`);
 		if(!this._isActivated) {
 			return false;
 		}
@@ -368,7 +368,7 @@ export class CalendarSchedule {
 		const endTime = headTime.plus(this._highWatermark);
 		const t0 = performance.now();
 		const events = await this._getEvents(datetime, endTime);
-		console.log(`${this.shortId}: getEvents ${Math.round(performance.now() - t0)}ms.`);
+		//console.log(`${this.shortId}: getEvents ${Math.round(performance.now() - t0)}ms.`);
 		this._queue = events;
 		return true;
 	}
