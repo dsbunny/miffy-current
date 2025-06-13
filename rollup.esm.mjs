@@ -6,6 +6,7 @@
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+import commonjs from '@rollup/plugin-commonjs';
 import { dts } from "rollup-plugin-dts";
 import copy from 'rollup-plugin-copy';
 import summary from 'rollup-plugin-summary';
@@ -23,6 +24,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -57,6 +59,7 @@ export default [
 				'third-party'
 			],
 		}),
+		commonjs(),
 		dts(),
 		summary(),
 	],
@@ -79,6 +82,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -107,6 +111,7 @@ export default [
 				'third-party'
 			],
 		}),
+		commonjs(),
 		dts(),
 		summary(),
 	],
@@ -130,6 +135,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -158,6 +164,7 @@ export default [
 				'third-party'
 			],
 		}),
+		commonjs(),
 		dts(),
 		summary(),
 	],
@@ -180,6 +187,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -209,6 +217,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -238,6 +247,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',

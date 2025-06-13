@@ -7,6 +7,7 @@ import path from 'node:path';
 import includePaths from 'rollup-plugin-includepaths';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+import commonjs from '@rollup/plugin-commonjs';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 import summary from 'rollup-plugin-summary';
 import { getBabelOutputPlugin } from '@rollup/plugin-babel';
@@ -24,6 +25,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		includePaths({
 			include: {
 				"requestidlecallback-polyfill": path.join(process.cwd(), 'node_modules/requestidlecallback-polyfill/index.js'),
@@ -95,6 +97,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
@@ -137,6 +140,7 @@ export default [
 	plugins: [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
+		commonjs(),
 		resolve({
 			moduleDirectories: [
 				'node_modules',
