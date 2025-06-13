@@ -52,8 +52,11 @@ export default [
 				"@dsbunny/rtcmesh": path.join(process.cwd(), 'node_modules/@dsbunny/rtcmesh/dist/rtcmesh.js'),
 				"@dsbunny/raft": path.join(process.cwd(), 'node_modules/@dsbunny/raft/raft.js'),
 				"@dsbunny/app": path.join(process.cwd(), 'node_modules/@dsbunny/app/dist/index.js'),
-				"zod": path.join(process.cwd(), 'node_modules/zod/dist/esm/index.js'),
+				"zod/v4": path.join(process.cwd(), 'third-party/zod/dist/esm/v4/index.js'),
+				'zod/v4/core': path.resolve('third-party/zod/dist/esm/v4/core/index.js'),
+				'zod/v4/locales/en.js': path.resolve('third-party/zod/dist/esm/v4/locales/en.js'),
 				"three": path.join(process.cwd(), 'node_modules/three/build/three.module.js'),
+				'three/addons/': path.resolve('node_modules/three/examples/jsm/'),
 			},
 			paths: [
 				path.join(process.cwd(), 'node_modules/comlink/dist/esm'),
@@ -98,11 +101,23 @@ export default [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		commonjs(),
-		resolve({
-			moduleDirectories: [
-				'node_modules',
-				'third-party'
+		includePaths({
+			include: {
+				'core-js/stable': path.join(process.cwd(), 'node_modules/core-js/stable/index.js'),
+				"luxon": path.join(process.cwd(), "node_modules/luxon/build/es6/luxon.js"),
+				"subworkers": path.join(process.cwd(), 'node_modules/subworkers/subworkers.js'),
+				"jsonref": path.join(process.cwd(), "node_modules/jsonref/dist/index.js"),
+				"@ungap/event-target": path.join(process.cwd(), 'node_modules/@ungap/event-target/esm/index.js'),
+				"@dsbunny/publisher-schema": path.join(process.cwd(), 'node_modules/@dsbunny/publisher-schema/dist/index.js'),
+				"rrule": path.join(process.cwd(), "build/third-party/rrule/index.js"),
+				"zod/v4": path.join(process.cwd(), 'third-party/zod/dist/esm/v4/index.js'),
+				'zod/v4/core': path.resolve('third-party/zod/dist/esm/v4/core/index.js'),
+				'zod/v4/locales/en.js': path.resolve('third-party/zod/dist/esm/v4/locales/en.js'),
+			},
+			paths: [
+				path.join(process.cwd(), 'node_modules/comlink/dist/esm'),
 			],
+			extensions: ['.mjs', '.js', '.json']
 		}),
 		getBabelOutputPlugin({
 			compact: true,
@@ -141,11 +156,16 @@ export default [
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		commonjs(),
-		resolve({
-			moduleDirectories: [
-				'node_modules',
-				'third-party'
+		includePaths({
+			include: {
+				'core-js/stable': path.join(process.cwd(), 'node_modules/core-js/stable/index.js'),
+				"luxon": path.join(process.cwd(), "node_modules/luxon/build/es6/luxon.js"),
+				"rrule": path.join(process.cwd(), "build/third-party/rrule/index.js"),
+			},
+			paths: [
+				path.join(process.cwd(), 'node_modules/comlink/dist/esm'),
 			],
+			extensions: ['.mjs', '.js', '.json']
 		}),
 		getBabelOutputPlugin({
 			compact: true,

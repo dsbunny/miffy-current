@@ -1,4 +1,8 @@
 # Changelog
+## v19.2.13
+- Add local copy of _ZOD_ to make dynamic code-generation compliant to Chome 53.
+- Bump `@dsbunny/app` for _ZOD_ version 4.
+
 ## v19.1.12
 - Add polyfills from _CoreJS_.
 

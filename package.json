@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "19.1.12",
+	"version": "19.2.13",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
@@ -58,7 +58,7 @@
 	"license": "MIT",
 	"private": false,
 	"dependencies": {
-		"@dsbunny/app": "github:dsbunny/app#5f62077",
+		"@dsbunny/app": "github:dsbunny/app#ad9be66",
 		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#04eef6b",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",

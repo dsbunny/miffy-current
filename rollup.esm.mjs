@@ -27,8 +27,8 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		copy({
@@ -40,7 +40,9 @@ export default [
 		summary(),
 	],
 	external: [
+		'@dsbunny/publisher-schema',
                 'three',
+		'zod/v4',
         ],
 	output: {
 		file: 'dist/web.bundle.js',
@@ -55,8 +57,8 @@ export default [
 	plugins: [
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		commonjs(),
@@ -64,7 +66,9 @@ export default [
 		summary(),
 	],
 	external: [
+                '@dsbunny/publisher-schema',
                 'three',
+		'zod/v4',
         ],
 	output: {
 		file: 'dist/web.bundle.d.ts',
@@ -85,14 +89,16 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		summary(),
 	],
 	external: [
+                '@dsbunny/publisher-schema',
                 'three',
+		'zod/v4',
         ],
 	output: {
 		file: 'dist/brightsign.bundle.js',
@@ -107,8 +113,8 @@ export default [
 	plugins: [
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		commonjs(),
@@ -116,7 +122,9 @@ export default [
 		summary(),
 	],
 	external: [
+                '@dsbunny/publisher-schema',
                 'three',
+		'zod/v4',
         ],
 	output: {
 		file: 'dist/brightsign.bundle.d.ts',
@@ -138,14 +146,16 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		summary(),
 	],
 	external: [
+                '@dsbunny/publisher-schema',
                 'three',
+		'zod/v4',
         ],
 	output: {
 		file: 'dist/luna.bundle.js',
@@ -160,8 +170,8 @@ export default [
 	plugins: [
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		commonjs(),
@@ -169,7 +179,9 @@ export default [
 		summary(),
 	],
 	external: [
+                '@dsbunny/publisher-schema',
                 'three',
+		'zod/v4',
         ],
 	output: {
 		file: 'dist/luna.bundle.d.ts',
@@ -190,14 +202,13 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		summary(),
 	],
 	external: [
-                'three',
         ],
 	output: {
 		file: 'dist/scheduler.bundle.js',
@@ -220,14 +231,13 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		summary(),
 	],
 	external: [
-                'three',
         ],
 	output: {
 		file: 'dist/calendar.bundle.js',
@@ -250,14 +260,13 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
+				'third-party',
 				'node_modules',
-				'third-party'
 			],
 		}),
 		summary(),
 	],
 	external: [
-                'three',
         ],
 	output: {
 		file: 'dist/prefetch.bundle.js',
