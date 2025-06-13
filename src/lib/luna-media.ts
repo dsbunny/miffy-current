@@ -1,4 +1,7 @@
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 
 import EventTarget from '@ungap/event-target';
 import { AppManifestSchema, LunaApp } from '@dsbunny/app';
@@ -80,18 +83,18 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		super(src, params, duration, collection);
 	}
 
-	get image(): HTMLImageElement | undefined {
+	get image(): HTMLImageElement | null {
 		return this.element as HTMLImageElement;
 	}
 
 	override close(): void {
-		if(typeof this.image === "undefined") {
+		if(this.image === null) {
 			return;
 		}
 		console.log(`unload image ... ${this.src}`);
 		this.pause();
 		const collection = this.collection as LunaImageCollection;
-		collection.release(this.image);
+		collection.release(this.image!);
 		this.element = null;
 		this._readyState = HTMLMediaElement.HAVE_NOTHING;
 		this._networkState = HTMLMediaElement.NETWORK_EMPTY;
@@ -146,7 +149,7 @@ export class LunaImageAsset extends AbstractLunaAsset {
 	override load(): void {
 		(async () => {
 			const collection = this.collection as LunaImageCollection;
-			const img = collection.acquire();
+			const img = this.element = collection.acquire();
 			img.crossOrigin = 'anonymous';
 			img.src = this.src;
 			this._networkState = HTMLMediaElement.NETWORK_LOADING;
@@ -210,24 +213,24 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		super(src, params, duration, collection);
 	}
 
-	get video(): LunaHTMLVideoElement | undefined {
+	get video(): LunaHTMLVideoElement | null {
 		return this.element as LunaHTMLVideoElement;
 	}
 
 	override close(): void {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return;
 		}
 		console.log(`unload video ... ${this.src}`);
 		this.pause();
 		const collection = this.collection as LunaVideoCollection;
-		const video = this.video;
+		const video = this.video as LunaHTMLVideoElement;
 		video.oncanplay = null;
 		video.onended = null;
 		video.onerror = null;
 		video.onloadeddata = null;
 		video.removeAttribute('src');
-		collection.release(this.video);
+		collection.release(video);
 		this.element = null;
 	}
 
@@ -710,7 +713,9 @@ export class LunaAssetManager {
 		this._renderTarget = renderTarget;
 	}
 
-	protected _createCollection(renderTarget: HTMLElement): Map<string, LunaCollection> {
+	protected _createCollection(
+		renderTarget: HTMLElement,
+	): Map<string, LunaCollection> {
 		// TypeScript assumes iterator of first type.
 		const collection = new Map([
 			['HTMLImageElement', new LunaImageCollection(renderTarget) as LunaCollection],

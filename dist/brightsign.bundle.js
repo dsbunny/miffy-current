@@ -643,7 +643,7 @@ class WebImageAsset extends AbstractWebAsset {
         return this.element;
     }
     close() {
-        if (typeof this.image === "undefined") {
+        if (this.image === null) {
             return;
         }
         console.log(`unload image ... ${this.src}`);
@@ -760,7 +760,7 @@ class WebVideoAsset extends AbstractWebAsset {
         return this.element;
     }
     close() {
-        if (typeof this.video === "undefined") {
+        if (this.video === null) {
             return;
         }
         console.log(`unload video ... ${this.src}`);

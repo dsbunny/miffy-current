@@ -87,7 +87,7 @@ export class WebImageAsset extends AbstractWebAsset {
 	}
 
 	override close(): void {
-		if(typeof this.image === "undefined") {
+		if(this.image === null) {
 			return;
 		}
 		console.log(`unload image ... ${this.src}`);
@@ -217,7 +217,7 @@ export class WebVideoAsset extends AbstractWebAsset {
 	}
 
 	override close(): void {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return;
 		}
 		console.log(`unload video ... ${this.src}`);

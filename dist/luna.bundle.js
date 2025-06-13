@@ -542,6 +542,9 @@ window.HTMLImageElement.prototype.decode =
         };
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+// Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
+// governed by an MIT-style license that can be found in the LICENSE file or at
+// https://opensource.org/licenses/MIT.
 class AbstractLunaAsset extends EventTarget$1 {
     constructor(src, params, duration, collection) {
         super();
@@ -595,7 +598,7 @@ class LunaImageAsset extends AbstractLunaAsset {
         return this.element;
     }
     close() {
-        if (typeof this.image === "undefined") {
+        if (this.image === null) {
             return;
         }
         console.log(`unload image ... ${this.src}`);
@@ -653,7 +656,7 @@ class LunaImageAsset extends AbstractLunaAsset {
     load() {
         (async () => {
             const collection = this.collection;
-            const img = collection.acquire();
+            const img = this.element = collection.acquire();
             img.crossOrigin = 'anonymous';
             img.src = this.src;
             this._networkState = HTMLMediaElement.NETWORK_LOADING;
@@ -712,7 +715,7 @@ class LunaVideoAsset extends AbstractLunaAsset {
         return this.element;
     }
     close() {
-        if (typeof this.video === "undefined") {
+        if (this.video === null) {
             return;
         }
         console.log(`unload video ... ${this.src}`);
@@ -724,7 +727,7 @@ class LunaVideoAsset extends AbstractLunaAsset {
         video.onerror = null;
         video.onloadeddata = null;
         video.removeAttribute('src');
-        collection.release(this.video);
+        collection.release(video);
         this.element = null;
     }
     paint(_now, _remaining) { }
@@ -1929,7 +1932,7 @@ class WebImageAsset extends AbstractWebAsset {
         return this.element;
     }
     close() {
-        if (typeof this.image === "undefined") {
+        if (this.image === null) {
             return;
         }
         console.log(`unload image ... ${this.src}`);
@@ -2046,7 +2049,7 @@ class WebVideoAsset extends AbstractWebAsset {
         return this.element;
     }
     close() {
-        if (typeof this.video === "undefined") {
+        if (this.video === null) {
             return;
         }
         console.log(`unload video ... ${this.src}`);
