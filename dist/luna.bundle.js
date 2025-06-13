@@ -6768,7 +6768,7 @@ class LunaPrefetch extends EventTarget$1 {
         this._pool.unprotectAssets(scope);
     }
     getCachedPath(origin) {
-        return this._pool.getFilePath(origin);
+        return this._pool.getHttpPath(origin);
     }
 }
 

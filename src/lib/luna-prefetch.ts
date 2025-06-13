@@ -394,6 +394,6 @@ console.info(`PREFETCH: fsync ...`);
 	}
 
 	getCachedPath(origin: string): string | null {
-		return this._pool.getFilePath(origin);
+		return this._pool.getHttpPath(origin);
 	}
 }

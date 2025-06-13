@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "19.2.13",
+	"version": "19.3.14",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
