@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "19.1.11",
+	"version": "19.1.12",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
@@ -70,6 +70,7 @@
 		"jsonref": "^9.0.0",
 		"lit": "^3.3.0",
 		"luxon": "^3.6.1",
+		"object.fromentries": "^2.0.8",
 		"requestidlecallback-polyfill": "^1.0.2",
 		"subworkers": "^1.0.1",
 		"systemjs": "^6.15.1",
