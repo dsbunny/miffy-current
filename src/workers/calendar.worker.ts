@@ -3,7 +3,7 @@
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-import '@ungap/global-this';
+import 'core-js/stable';
 import * as Comlink from 'comlink';
 import { DateTime, Duration } from 'luxon';
 import { CalendarEvent, CalendarEventSeries, CalendarRecurrence } from '../lib/occurency.js';

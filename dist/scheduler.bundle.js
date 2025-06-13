@@ -1,325 +1,307 @@
-(function (Object) {
-  typeof globalThis !== 'object' && (
-    this ?
-      get() :
-      (Object.defineProperty(Object.prototype, '_T_', {
-        configurable: true,
-        get: get
-      }), _T_)
-  );
-  function get() {
-    var global = this || self;
-    global.globalThis = global;
-    delete Object.prototype._T_;
-  }
-}(Object));
+require('../modules/es.symbol');
+require('../modules/es.symbol.description');
+require('../modules/es.symbol.async-dispose');
+require('../modules/es.symbol.async-iterator');
+require('../modules/es.symbol.dispose');
+require('../modules/es.symbol.has-instance');
+require('../modules/es.symbol.is-concat-spreadable');
+require('../modules/es.symbol.iterator');
+require('../modules/es.symbol.match');
+require('../modules/es.symbol.match-all');
+require('../modules/es.symbol.replace');
+require('../modules/es.symbol.search');
+require('../modules/es.symbol.species');
+require('../modules/es.symbol.split');
+require('../modules/es.symbol.to-primitive');
+require('../modules/es.symbol.to-string-tag');
+require('../modules/es.symbol.unscopables');
+require('../modules/es.error.cause');
+require('../modules/es.error.is-error');
+require('../modules/es.error.to-string');
+require('../modules/es.aggregate-error');
+require('../modules/es.aggregate-error.cause');
+require('../modules/es.suppressed-error.constructor');
+require('../modules/es.array.at');
+require('../modules/es.array.concat');
+require('../modules/es.array.copy-within');
+require('../modules/es.array.every');
+require('../modules/es.array.fill');
+require('../modules/es.array.filter');
+require('../modules/es.array.find');
+require('../modules/es.array.find-index');
+require('../modules/es.array.find-last');
+require('../modules/es.array.find-last-index');
+require('../modules/es.array.flat');
+require('../modules/es.array.flat-map');
+require('../modules/es.array.for-each');
+require('../modules/es.array.from');
+require('../modules/es.array.includes');
+require('../modules/es.array.index-of');
+require('../modules/es.array.is-array');
+require('../modules/es.array.iterator');
+require('../modules/es.array.join');
+require('../modules/es.array.last-index-of');
+require('../modules/es.array.map');
+require('../modules/es.array.of');
+require('../modules/es.array.push');
+require('../modules/es.array.reduce');
+require('../modules/es.array.reduce-right');
+require('../modules/es.array.reverse');
+require('../modules/es.array.slice');
+require('../modules/es.array.some');
+require('../modules/es.array.sort');
+require('../modules/es.array.species');
+require('../modules/es.array.splice');
+require('../modules/es.array.to-reversed');
+require('../modules/es.array.to-sorted');
+require('../modules/es.array.to-spliced');
+require('../modules/es.array.unscopables.flat');
+require('../modules/es.array.unscopables.flat-map');
+require('../modules/es.array.unshift');
+require('../modules/es.array.with');
+require('../modules/es.array-buffer.constructor');
+require('../modules/es.array-buffer.is-view');
+require('../modules/es.array-buffer.slice');
+require('../modules/es.data-view');
+require('../modules/es.data-view.get-float16');
+require('../modules/es.data-view.set-float16');
+require('../modules/es.array-buffer.detached');
+require('../modules/es.array-buffer.transfer');
+require('../modules/es.array-buffer.transfer-to-fixed-length');
+require('../modules/es.date.get-year');
+require('../modules/es.date.now');
+require('../modules/es.date.set-year');
+require('../modules/es.date.to-gmt-string');
+require('../modules/es.date.to-iso-string');
+require('../modules/es.date.to-json');
+require('../modules/es.date.to-primitive');
+require('../modules/es.date.to-string');
+require('../modules/es.disposable-stack.constructor');
+require('../modules/es.escape');
+require('../modules/es.function.bind');
+require('../modules/es.function.has-instance');
+require('../modules/es.function.name');
+require('../modules/es.global-this');
+require('../modules/es.iterator.constructor');
+require('../modules/es.iterator.dispose');
+require('../modules/es.iterator.drop');
+require('../modules/es.iterator.every');
+require('../modules/es.iterator.filter');
+require('../modules/es.iterator.find');
+require('../modules/es.iterator.flat-map');
+require('../modules/es.iterator.for-each');
+require('../modules/es.iterator.from');
+require('../modules/es.iterator.map');
+require('../modules/es.iterator.reduce');
+require('../modules/es.iterator.some');
+require('../modules/es.iterator.take');
+require('../modules/es.iterator.to-array');
+require('../modules/es.json.stringify');
+require('../modules/es.json.to-string-tag');
+require('../modules/es.map');
+require('../modules/es.map.group-by');
+require('../modules/es.math.acosh');
+require('../modules/es.math.asinh');
+require('../modules/es.math.atanh');
+require('../modules/es.math.cbrt');
+require('../modules/es.math.clz32');
+require('../modules/es.math.cosh');
+require('../modules/es.math.expm1');
+require('../modules/es.math.fround');
+require('../modules/es.math.f16round');
+require('../modules/es.math.hypot');
+require('../modules/es.math.imul');
+require('../modules/es.math.log10');
+require('../modules/es.math.log1p');
+require('../modules/es.math.log2');
+require('../modules/es.math.sign');
+require('../modules/es.math.sinh');
+require('../modules/es.math.tanh');
+require('../modules/es.math.to-string-tag');
+require('../modules/es.math.trunc');
+require('../modules/es.number.constructor');
+require('../modules/es.number.epsilon');
+require('../modules/es.number.is-finite');
+require('../modules/es.number.is-integer');
+require('../modules/es.number.is-nan');
+require('../modules/es.number.is-safe-integer');
+require('../modules/es.number.max-safe-integer');
+require('../modules/es.number.min-safe-integer');
+require('../modules/es.number.parse-float');
+require('../modules/es.number.parse-int');
+require('../modules/es.number.to-exponential');
+require('../modules/es.number.to-fixed');
+require('../modules/es.number.to-precision');
+require('../modules/es.object.assign');
+require('../modules/es.object.create');
+require('../modules/es.object.define-getter');
+require('../modules/es.object.define-properties');
+require('../modules/es.object.define-property');
+require('../modules/es.object.define-setter');
+require('../modules/es.object.entries');
+require('../modules/es.object.freeze');
+require('../modules/es.object.from-entries');
+require('../modules/es.object.get-own-property-descriptor');
+require('../modules/es.object.get-own-property-descriptors');
+require('../modules/es.object.get-own-property-names');
+require('../modules/es.object.get-prototype-of');
+require('../modules/es.object.group-by');
+require('../modules/es.object.has-own');
+require('../modules/es.object.is');
+require('../modules/es.object.is-extensible');
+require('../modules/es.object.is-frozen');
+require('../modules/es.object.is-sealed');
+require('../modules/es.object.keys');
+require('../modules/es.object.lookup-getter');
+require('../modules/es.object.lookup-setter');
+require('../modules/es.object.prevent-extensions');
+require('../modules/es.object.proto');
+require('../modules/es.object.seal');
+require('../modules/es.object.set-prototype-of');
+require('../modules/es.object.to-string');
+require('../modules/es.object.values');
+require('../modules/es.parse-float');
+require('../modules/es.parse-int');
+require('../modules/es.promise');
+require('../modules/es.promise.all-settled');
+require('../modules/es.promise.any');
+require('../modules/es.promise.finally');
+require('../modules/es.promise.try');
+require('../modules/es.promise.with-resolvers');
+require('../modules/es.array.from-async');
+require('../modules/es.async-disposable-stack.constructor');
+require('../modules/es.async-iterator.async-dispose');
+require('../modules/es.reflect.apply');
+require('../modules/es.reflect.construct');
+require('../modules/es.reflect.define-property');
+require('../modules/es.reflect.delete-property');
+require('../modules/es.reflect.get');
+require('../modules/es.reflect.get-own-property-descriptor');
+require('../modules/es.reflect.get-prototype-of');
+require('../modules/es.reflect.has');
+require('../modules/es.reflect.is-extensible');
+require('../modules/es.reflect.own-keys');
+require('../modules/es.reflect.prevent-extensions');
+require('../modules/es.reflect.set');
+require('../modules/es.reflect.set-prototype-of');
+require('../modules/es.reflect.to-string-tag');
+require('../modules/es.regexp.constructor');
+require('../modules/es.regexp.escape');
+require('../modules/es.regexp.dot-all');
+require('../modules/es.regexp.exec');
+require('../modules/es.regexp.flags');
+require('../modules/es.regexp.sticky');
+require('../modules/es.regexp.test');
+require('../modules/es.regexp.to-string');
+require('../modules/es.set');
+require('../modules/es.set.difference.v2');
+require('../modules/es.set.intersection.v2');
+require('../modules/es.set.is-disjoint-from.v2');
+require('../modules/es.set.is-subset-of.v2');
+require('../modules/es.set.is-superset-of.v2');
+require('../modules/es.set.symmetric-difference.v2');
+require('../modules/es.set.union.v2');
+require('../modules/es.string.at-alternative');
+require('../modules/es.string.code-point-at');
+require('../modules/es.string.ends-with');
+require('../modules/es.string.from-code-point');
+require('../modules/es.string.includes');
+require('../modules/es.string.is-well-formed');
+require('../modules/es.string.iterator');
+require('../modules/es.string.match');
+require('../modules/es.string.match-all');
+require('../modules/es.string.pad-end');
+require('../modules/es.string.pad-start');
+require('../modules/es.string.raw');
+require('../modules/es.string.repeat');
+require('../modules/es.string.replace');
+require('../modules/es.string.replace-all');
+require('../modules/es.string.search');
+require('../modules/es.string.split');
+require('../modules/es.string.starts-with');
+require('../modules/es.string.substr');
+require('../modules/es.string.to-well-formed');
+require('../modules/es.string.trim');
+require('../modules/es.string.trim-end');
+require('../modules/es.string.trim-start');
+require('../modules/es.string.anchor');
+require('../modules/es.string.big');
+require('../modules/es.string.blink');
+require('../modules/es.string.bold');
+require('../modules/es.string.fixed');
+require('../modules/es.string.fontcolor');
+require('../modules/es.string.fontsize');
+require('../modules/es.string.italics');
+require('../modules/es.string.link');
+require('../modules/es.string.small');
+require('../modules/es.string.strike');
+require('../modules/es.string.sub');
+require('../modules/es.string.sup');
+require('../modules/es.typed-array.float32-array');
+require('../modules/es.typed-array.float64-array');
+require('../modules/es.typed-array.int8-array');
+require('../modules/es.typed-array.int16-array');
+require('../modules/es.typed-array.int32-array');
+require('../modules/es.typed-array.uint8-array');
+require('../modules/es.typed-array.uint8-clamped-array');
+require('../modules/es.typed-array.uint16-array');
+require('../modules/es.typed-array.uint32-array');
+require('../modules/es.typed-array.at');
+require('../modules/es.typed-array.copy-within');
+require('../modules/es.typed-array.every');
+require('../modules/es.typed-array.fill');
+require('../modules/es.typed-array.filter');
+require('../modules/es.typed-array.find');
+require('../modules/es.typed-array.find-index');
+require('../modules/es.typed-array.find-last');
+require('../modules/es.typed-array.find-last-index');
+require('../modules/es.typed-array.for-each');
+require('../modules/es.typed-array.from');
+require('../modules/es.typed-array.includes');
+require('../modules/es.typed-array.index-of');
+require('../modules/es.typed-array.iterator');
+require('../modules/es.typed-array.join');
+require('../modules/es.typed-array.last-index-of');
+require('../modules/es.typed-array.map');
+require('../modules/es.typed-array.of');
+require('../modules/es.typed-array.reduce');
+require('../modules/es.typed-array.reduce-right');
+require('../modules/es.typed-array.reverse');
+require('../modules/es.typed-array.set');
+require('../modules/es.typed-array.slice');
+require('../modules/es.typed-array.some');
+require('../modules/es.typed-array.sort');
+require('../modules/es.typed-array.subarray');
+require('../modules/es.typed-array.to-locale-string');
+require('../modules/es.typed-array.to-reversed');
+require('../modules/es.typed-array.to-sorted');
+require('../modules/es.typed-array.to-string');
+require('../modules/es.typed-array.with');
+require('../modules/es.unescape');
+require('../modules/es.weak-map');
+require('../modules/es.weak-set');
+require('../modules/web.atob');
+require('../modules/web.btoa');
+require('../modules/web.dom-collections.for-each');
+require('../modules/web.dom-collections.iterator');
+require('../modules/web.dom-exception.constructor');
+require('../modules/web.dom-exception.stack');
+require('../modules/web.dom-exception.to-string-tag');
+require('../modules/web.immediate');
+require('../modules/web.queue-microtask');
+require('../modules/web.self');
+require('../modules/web.structured-clone');
+require('../modules/web.timers');
+require('../modules/web.url');
+require('../modules/web.url.can-parse');
+require('../modules/web.url.parse');
+require('../modules/web.url.to-json');
+require('../modules/web.url-search-params');
+require('../modules/web.url-search-params.delete');
+require('../modules/web.url-search-params.has');
+require('../modules/web.url-search-params.size');
 
-var fromEntries = Object.fromEntries || function fromEntries(iterable) {
-  var entries = Array.isArray(iterable) ?
-    createEntries(iterable) :
-    ('entries' in iterable ? iterable.entries() : iterable);
-  var object = {};
-  var entry;
-  while ((entry = entries.next()) && !entry.done) {
-    var pair = entry.value;
-    Object.defineProperty(object, pair[0], {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: pair[1]
-    });
-  }
-  return object;
-};
-
-function createEntries(array) {
-  var i = -1;
-  return {
-    next: function () {
-      var done = array.length <= ++i;
-      return {
-        done: done,
-        value: done ? void 0 : array[i]
-      };
-    }
-  };
-}
-
-const VOID       = -1;
-const PRIMITIVE  = 0;
-const ARRAY      = 1;
-const OBJECT     = 2;
-const DATE       = 3;
-const REGEXP     = 4;
-const MAP        = 5;
-const SET        = 6;
-const ERROR      = 7;
-const BIGINT     = 8;
-// export const SYMBOL = 9;
-
-const env = typeof self === 'object' ? self : globalThis;
-
-const deserializer = ($, _) => {
-  const as = (out, index) => {
-    $.set(index, out);
-    return out;
-  };
-
-  const unpair = index => {
-    if ($.has(index))
-      return $.get(index);
-
-    const [type, value] = _[index];
-    switch (type) {
-      case PRIMITIVE:
-      case VOID:
-        return as(value, index);
-      case ARRAY: {
-        const arr = as([], index);
-        for (const index of value)
-          arr.push(unpair(index));
-        return arr;
-      }
-      case OBJECT: {
-        const object = as({}, index);
-        for (const [key, index] of value)
-          object[unpair(key)] = unpair(index);
-        return object;
-      }
-      case DATE:
-        return as(new Date(value), index);
-      case REGEXP: {
-        const {source, flags} = value;
-        return as(new RegExp(source, flags), index);
-      }
-      case MAP: {
-        const map = as(new Map, index);
-        for (const [key, index] of value)
-          map.set(unpair(key), unpair(index));
-        return map;
-      }
-      case SET: {
-        const set = as(new Set, index);
-        for (const index of value)
-          set.add(unpair(index));
-        return set;
-      }
-      case ERROR: {
-        const {name, message} = value;
-        return as(new env[name](message), index);
-      }
-      case BIGINT:
-        return as(BigInt(value), index);
-      case 'BigInt':
-        return as(Object(BigInt(value)), index);
-      case 'ArrayBuffer':
-        return as(new Uint8Array(value).buffer, value);
-      case 'DataView': {
-        const { buffer } = new Uint8Array(value);
-        return as(new DataView(buffer), value);
-      }
-    }
-    return as(new env[type](value), index);
-  };
-
-  return unpair;
-};
-
-/**
- * @typedef {Array<string,any>} Record a type representation
- */
-
-/**
- * Returns a deserialized value from a serialized array of Records.
- * @param {Record[]} serialized a previously serialized value.
- * @returns {any}
- */
-const deserialize = serialized => deserializer(new Map, serialized)(0);
-
-const EMPTY = '';
-
-const {toString} = {};
-const {keys} = Object;
-
-const typeOf = value => {
-  const type = typeof value;
-  if (type !== 'object' || !value)
-    return [PRIMITIVE, type];
-
-  const asString = toString.call(value).slice(8, -1);
-  switch (asString) {
-    case 'Array':
-      return [ARRAY, EMPTY];
-    case 'Object':
-      return [OBJECT, EMPTY];
-    case 'Date':
-      return [DATE, EMPTY];
-    case 'RegExp':
-      return [REGEXP, EMPTY];
-    case 'Map':
-      return [MAP, EMPTY];
-    case 'Set':
-      return [SET, EMPTY];
-    case 'DataView':
-      return [ARRAY, asString];
-  }
-
-  if (asString.includes('Array'))
-    return [ARRAY, asString];
-
-  if (asString.includes('Error'))
-    return [ERROR, asString];
-
-  return [OBJECT, asString];
-};
-
-const shouldSkip = ([TYPE, type]) => (
-  TYPE === PRIMITIVE &&
-  (type === 'function' || type === 'symbol')
-);
-
-const serializer = (strict, json, $, _) => {
-
-  const as = (out, value) => {
-    const index = _.push(out) - 1;
-    $.set(value, index);
-    return index;
-  };
-
-  const pair = value => {
-    if ($.has(value))
-      return $.get(value);
-
-    let [TYPE, type] = typeOf(value);
-    switch (TYPE) {
-      case PRIMITIVE: {
-        let entry = value;
-        switch (type) {
-          case 'bigint':
-            TYPE = BIGINT;
-            entry = value.toString();
-            break;
-          case 'function':
-          case 'symbol':
-            if (strict)
-              throw new TypeError('unable to serialize ' + type);
-            entry = null;
-            break;
-          case 'undefined':
-            return as([VOID], value);
-        }
-        return as([TYPE, entry], value);
-      }
-      case ARRAY: {
-        if (type) {
-          let spread = value;
-          if (type === 'DataView') {
-            spread = new Uint8Array(value.buffer);
-          }
-          else if (type === 'ArrayBuffer') {
-            spread = new Uint8Array(value);
-          }
-          return as([type, [...spread]], value);
-        }
-
-        const arr = [];
-        const index = as([TYPE, arr], value);
-        for (const entry of value)
-          arr.push(pair(entry));
-        return index;
-      }
-      case OBJECT: {
-        if (type) {
-          switch (type) {
-            case 'BigInt':
-              return as([type, value.toString()], value);
-            case 'Boolean':
-            case 'Number':
-            case 'String':
-              return as([type, value.valueOf()], value);
-          }
-        }
-
-        if (json && ('toJSON' in value))
-          return pair(value.toJSON());
-
-        const entries = [];
-        const index = as([TYPE, entries], value);
-        for (const key of keys(value)) {
-          if (strict || !shouldSkip(typeOf(value[key])))
-            entries.push([pair(key), pair(value[key])]);
-        }
-        return index;
-      }
-      case DATE:
-        return as([TYPE, value.toISOString()], value);
-      case REGEXP: {
-        const {source, flags} = value;
-        return as([TYPE, {source, flags}], value);
-      }
-      case MAP: {
-        const entries = [];
-        const index = as([TYPE, entries], value);
-        for (const [key, entry] of value) {
-          if (strict || !(shouldSkip(typeOf(key)) || shouldSkip(typeOf(entry))))
-            entries.push([pair(key), pair(entry)]);
-        }
-        return index;
-      }
-      case SET: {
-        const entries = [];
-        const index = as([TYPE, entries], value);
-        for (const entry of value) {
-          if (strict || !shouldSkip(typeOf(entry)))
-            entries.push(pair(entry));
-        }
-        return index;
-      }
-    }
-
-    const {message} = value;
-    return as([TYPE, {name: type, message}], value);
-  };
-
-  return pair;
-};
-
-/**
- * @typedef {Array<string,any>} Record a type representation
- */
-
-/**
- * Returns an array of serialized Records.
- * @param {any} value a serializable value.
- * @param {{json?: boolean, lossy?: boolean}?} options an object with a `lossy` or `json` property that,
- *  if `true`, will not throw errors on incompatible types, and behave more
- *  like JSON stringify would behave. Symbol and Function will be discarded.
- * @returns {Record[]}
- */
- const serialize = (value, {json, lossy} = {}) => {
-  const _ = [];
-  return serializer(!(json || lossy), !!json, new Map, _)(value), _;
-};
-
-/**
- * @typedef {Array<string,any>} Record a type representation
- */
-
-/**
- * Returns an array of serialized Records.
- * @param {any} any a serializable value.
- * @param {{transfer?: any[], json?: boolean, lossy?: boolean}?} options an object with
- * a transfer option (ignored when polyfilled) and/or non standard fields that
- * fallback to the polyfill if present.
- * @returns {Record[]}
- */
-var structuredClonePolyfill = typeof structuredClone === "function" ?
-  /* c8 ignore start */
-  (any, options) => (
-    options && ('json' in options || 'lossy' in options) ?
-      deserialize(serialize(any, options)) : structuredClone(any)
-  ) :
-  (any, options) => deserialize(serialize(any, options));
+module.exports = require('../internals/path');
 
 /**
  * @license
@@ -8830,8 +8812,6 @@ function friendlyDateTime(dateTimeish) {
 
 })();
 
-Promise.prototype.finally||(Promise.prototype.finally=function(t){if("function"!=typeof t)return this.then(t,t);const e=this.constructor||Promise;return this.then(o=>e.resolve(t()).then(()=>o),o=>e.resolve(t()).then(()=>{throw o}))});
-
 class RetrieverError extends Error {
     uri;
     originalError;
@@ -17221,12 +17201,6 @@ class BasicScheduler extends EventTarget$1 {
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-if (!Object.fromEntries) {
-    Object.fromEntries = fromEntries;
-}
-if (!globalThis.structuredClone) {
-    globalThis.structuredClone = structuredClonePolyfill;
-}
 console.info('SCHEDULER: WebWorker started.');
 const scheduler = new BasicScheduler();
 scheduler.autoplay = false;

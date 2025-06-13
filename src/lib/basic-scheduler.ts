@@ -3,8 +3,8 @@
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
+import 'core-js/stable';
 import 'subworkers';
-import 'finally-polyfill';
 import * as Comlink from 'comlink';
 import {
 	DateTime,

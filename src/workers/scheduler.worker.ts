@@ -3,15 +3,7 @@
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 
-import '@ungap/global-this';
-import fromEntries from '@ungap/from-entries';
-if(!Object.fromEntries) {
-	Object.fromEntries = fromEntries;
-}
-import structuredClonePolyfill from '@ungap/structured-clone';
-if(!globalThis.structuredClone) {
-	globalThis.structuredClone = structuredClonePolyfill;
-}
+import 'core-js/stable';
 import * as Comlink from 'comlink';
 import { DateTime } from 'luxon';
 import { Scheduler } from '../lib/scheduler.js';

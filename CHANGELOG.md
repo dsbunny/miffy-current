@@ -1,6 +1,6 @@
 # Changelog
 ## v19.1.12
-- Add `Object.fromEntries()` and `structuredClone()` polyfills for scheduler on _Chome_ 53.
+- Add polyfills from _CoreJS_.
 
 ## v19.1.11
 - Add _Luna_ bundles for downstream bundlers.
