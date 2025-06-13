@@ -98,7 +98,7 @@ interface Cluster {
 interface Prefetch extends EventTarget {
     acquireSources(scope: string, sources: AssetDecl[]): Promise<void>;
     releaseSources(scope: string): Promise<void>;
-    getCachedPath(origin: string): string;
+    getCachedPath(origin: string): string | null;
 }
 
 declare class WebPlaylistElement extends LitElement {

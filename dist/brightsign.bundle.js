@@ -654,7 +654,7 @@ class WebImageAsset extends AbstractWebAsset {
         if (this.image === null) {
             return;
         }
-        console.log(`unload image ... ${this.src}`);
+        console.log(`unload image ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         collection.release(this.image);
@@ -673,7 +673,7 @@ class WebImageAsset extends AbstractWebAsset {
             return;
         const elapsed = (now - this._startTime) / 1000;
         this._currentTime += elapsed;
-        if (this._currentTime > this.duration) {
+        if (this._currentTime > this._duration) {
             this._setEndedState();
         }
         else {
@@ -684,7 +684,7 @@ class WebImageAsset extends AbstractWebAsset {
         }
     }
     _setEndedState() {
-        this._currentTime = this.duration;
+        this._currentTime = this._duration;
         this._ended = true;
         this._startTime = NaN;
         this.dispatchEvent(new Event('ended'));
@@ -710,17 +710,17 @@ class WebImageAsset extends AbstractWebAsset {
         (async () => {
             const collection = this.collection;
             const img = this.element = collection.acquire();
-            img.crossOrigin = 'anonymous';
-            img.src = this.src;
             this._networkState = HTMLMediaElement.NETWORK_LOADING;
             try {
-                console.log(`load image ... ${this.src}`);
+                console.log(`load image ... "${this.src}"`);
+                img.crossOrigin = 'anonymous';
+                img.setAttribute('src', this.src);
                 await img.decode();
                 this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA;
                 super.dispatchEvent(new Event('canplay'));
             }
             catch (encodingError) {
-                console.warn(`Failed to load image: ${this.src}`, encodingError);
+                console.warn(`Failed to load image: "${this.src}" Error: ${encodingError}`);
                 this._error = encodingError;
                 this._networkState = HTMLMediaElement.NETWORK_IDLE;
                 collection.release(img);
@@ -771,7 +771,7 @@ class WebVideoAsset extends AbstractWebAsset {
         if (this.video === null) {
             return;
         }
-        console.log(`unload video ... ${this.src}`);
+        console.log(`unload video ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         const video = this.video;
@@ -799,7 +799,7 @@ class WebVideoAsset extends AbstractWebAsset {
     }
     get currentTime() {
         if (this.video === null) {
-            return 0;
+            return super.currentTime;
         }
         return this.video.currentTime;
     }
@@ -839,7 +839,7 @@ class WebVideoAsset extends AbstractWebAsset {
         }
         return this.video.readyState;
     }
-    get src() { return this._src; }
+    get src() { return super.src; }
     get srcObject() {
         if (this.video === null) {
             return null;
@@ -852,11 +852,12 @@ class WebVideoAsset extends AbstractWebAsset {
         video.oncanplay = this._redispatchEvent;
         video.onended = this._redispatchEvent;
         video.onerror = this._redispatchEvent;
-        video.src = this.src;
         // Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
         video.onloadeddata = this._redispatchEvent;
         try {
-            console.log(`load video ... ${this.src}`);
+            console.log(`load video ... "${this.src}"`);
+            video.crossOrigin = 'anonymous';
+            video.setAttribute('src', this.src);
             video.load();
         }
         catch (encodingError) {
@@ -906,7 +907,7 @@ class WebAppAsset extends AbstractWebAsset {
         if (this.element === null) {
             return;
         }
-        console.log(`unload app ... ${this.src}`);
+        console.log(`unload app ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         if (this._app !== null) {
@@ -989,11 +990,11 @@ class WebAppAsset extends AbstractWebAsset {
             const collection = this.collection;
             const renderRoot = this.element = collection.acquire();
             try {
-                console.log(`import module ... ${this.src}`);
+                console.log(`import module ... "${this.src}"`);
                 const manifest = await collection.importModule(this.src);
-                console.log(`create WebApp ... ${this.src}`);
+                console.log(`create WebApp ... "${this.src}"`);
                 const params = {
-                    ...((typeof this.params === "undefined") ? {} : this.params),
+                    ...this.params,
                     src: this.src,
                     duration: super.duration, // WARNING: `super` not `this`.
                 };
@@ -1001,10 +1002,11 @@ class WebAppAsset extends AbstractWebAsset {
                 app.addEventListener('canplay', this._redispatchEvent);
                 app.addEventListener('ended', this._redispatchEvent);
                 app.addEventListener('error', this._redispatchEvent);
-                console.log(`load app ... ${this.src}`);
+                console.log(`init "${manifest.name}" with params:`, params);
                 app.load();
             }
             catch (initError) {
+                console.warn(`Failed to load app: "${this.src}"`, initError);
                 collection.release(renderRoot);
                 super.dispatchEvent(new Event('error'));
             }
@@ -1158,10 +1160,13 @@ class WebAppCollection extends WebCollection {
     async importModule(src) {
         let manifest = this._manifests.get(src);
         if (typeof manifest === 'undefined') {
+            console.log(`import app manifest ... "${src}"`);
             const module = await import(src);
+            console.log(`validate app manifest ... "${src}"`);
             const result = AppManifestSchema.safeParse(module.default);
+            console.log(`app manifest validation result: ${result.success} ... "${src}"`);
             if (!result.success) {
-                throw new Error(`Invalid app manifest: ${src}`);
+                throw new Error(`Invalid app manifest: "${src}"`);
             }
             if (!result.data.WebApp) {
                 throw new Error(`WebApp constructor not found in manifest: ${src}`);
@@ -1234,26 +1239,26 @@ class WebAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class WebRendererAsset {
-    constructor(id, media_asset) {
+    constructor(id, web_asset) {
         this.id = id;
-        this.media_asset = media_asset;
+        this.web_asset = web_asset;
         this.is_loading = false;
         this.has_element = false;
         this.end_time = NaN;
         this._ref_count = 0;
     }
-    get paused() { return this.media_asset.paused; }
-    get ended() { return this.media_asset.ended; }
-    get error() { return this.media_asset.error; }
-    get readyState() { return this.media_asset.readyState; }
-    get networkState() { return this.media_asset.networkState; }
-    get element() { return this.media_asset.element; }
-    get currentSrc() { return this.media_asset.currentSrc; }
-    get currentTime() { return this.media_asset.currentTime; }
-    get className() { return this.media_asset.className; }
-    set className(value) { this.media_asset.className = value; }
-    get classList() { return this.media_asset.classList; }
-    get style() { return this.media_asset.style; }
+    get paused() { return this.web_asset.paused; }
+    get ended() { return this.web_asset.ended; }
+    get error() { return this.web_asset.error; }
+    get readyState() { return this.web_asset.readyState; }
+    get networkState() { return this.web_asset.networkState; }
+    get element() { return this.web_asset.element; }
+    get currentSrc() { return this.web_asset.currentSrc; }
+    get currentTime() { return this.web_asset.currentTime; }
+    get className() { return this.web_asset.className; }
+    set className(value) { this.web_asset.className = value; }
+    get classList() { return this.web_asset.classList; }
+    get style() { return this.web_asset.style; }
     load() {
         if (this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
             return;
@@ -1262,23 +1267,23 @@ class WebRendererAsset {
             return;
         }
         try {
-            this.media_asset.load();
+            this.web_asset.load();
         }
         catch (error) {
             console.error(`WEB-ASSET: ${error}`);
         }
     }
     async play() {
-        await this.media_asset.play();
+        await this.web_asset.play();
     }
     paint(now, remaining) {
-        this.media_asset.paint(now, remaining);
+        this.web_asset.paint(now, remaining);
     }
     pause() {
-        this.media_asset.pause();
+        this.web_asset.pause();
     }
     close() {
-        this.media_asset.close();
+        this.web_asset.close();
     }
     get ref_count() { return this._ref_count; }
     ref() {
@@ -1314,7 +1319,7 @@ function prettyPrint$1(obj) {
         .replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(jsonLine, replacer$1);
 }
-function minimize(value) {
+function minimize$1(value) {
     const obj = {
         currentTime: value.currentTime,
         eventSeries: value.eventSeries,
@@ -1335,20 +1340,20 @@ function minimize(value) {
     };
     return obj;
 }
-class WebRenderer extends EventTarget {
+class WebRenderer extends EventTarget$1 {
     constructor(prefetchFactory) {
         super();
         this._renderTarget = null;
-        this._mam = new WebAssetManager();
+        this._asset_manager = new WebAssetManager();
         this._transition_percent = 0;
         this._transition_percent_speed = 0;
         this._network_loading_count = 0;
-        this._current_asset = null;
-        this._next_asset = null;
-        this._map1_asset = null;
-        this._map2_asset = null;
-        this._asset_cache = new Map();
-        this._asset_trash = new Map();
+        this._current_renderer_asset = null;
+        this._next_renderer_asset = null;
+        this._map1_renderer_asset = null;
+        this._map2_renderer_asset = null;
+        this._renderer_asset_cache = new Map();
+        this._renderer_asset_trash = new Map();
         // Per HTMLMediaElement.
         this._ended = false;
         this._error = null;
@@ -1377,12 +1382,12 @@ class WebRenderer extends EventTarget {
     }
     close() {
         console.log("WEB-RENDERER: close");
-        for (const asset of this._asset_cache.values()) {
+        for (const asset of this._renderer_asset_cache.values()) {
             // Hide from view.
             asset.style.visibility = "hidden";
             asset.close();
         }
-        this._asset_cache.clear();
+        this._renderer_asset_cache.clear();
     }
     setSetStateHook(cb) {
         this._set_state_hook = cb;
@@ -1423,7 +1428,7 @@ class WebRenderer extends EventTarget {
     }
     async setStateUnhooked(value) {
         {
-            const html = prettyPrint$1(minimize(value));
+            const html = prettyPrint$1(minimize$1(value));
             if (html !== this._lastDebug) {
                 this._debug.innerHTML = this._lastDebug = html;
             }
@@ -1434,7 +1439,7 @@ class WebRenderer extends EventTarget {
     }
     setAssetTarget(assetTarget) {
         console.log("WEB-RENDERER: setAssetTarget", assetTarget);
-        this._mam.setAssetTarget(assetTarget);
+        this._asset_manager.setAssetTarget(assetTarget);
     }
     setRenderTarget(renderTarget) {
         console.log("WEB-RENDERER: setRenderTarget", renderTarget);
@@ -1463,39 +1468,39 @@ class WebRenderer extends EventTarget {
         const elapsed = timestamp - this._previousTimestamp;
         this._previousTimestamp = timestamp;
         if (this._canPaintCurrent()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             try {
                 this._paintCurrent(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._current_asset);
+                console.error(this._current_renderer_asset);
             }
         }
         else if (this._hasWaitingDuration()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             this._paintWaitingDuration(timestamp, remaining);
         }
         else {
             this._paintWaiting(timestamp);
         }
         if (this._canPaintNext()) {
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
-            const remaining = this._next_asset.end_time - timestamp;
+            const remaining = this._next_renderer_asset.end_time - timestamp;
             try {
                 this._paintNext(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._next_asset);
+                console.error(this._next_renderer_asset);
             }
         }
         this._interpolateTransition(elapsed);
@@ -1505,12 +1510,12 @@ class WebRenderer extends EventTarget {
         this._emptyAssetTrash();
     }
     _setTransitionPercent(percent) {
-        if (this._map1_asset !== null) {
+        if (this._map1_renderer_asset !== null) {
             const rounded = Math.round((1 - percent + Number.EPSILON) * 100) / 100;
-            this._map1_asset.style.opacity = rounded.toString();
+            this._map1_renderer_asset.style.opacity = rounded.toString();
         }
-        if (this._map2_asset !== null) {
-            this._map2_asset.style.opacity = '1';
+        if (this._map2_renderer_asset !== null) {
+            this._map2_renderer_asset.style.opacity = '1';
         }
         this._transition_percent = percent;
     }
@@ -1546,40 +1551,43 @@ class WebRenderer extends EventTarget {
     // This media asset.
     async _onSchedulerCurrent(current) {
         if (current !== null) {
-            if (this._current_asset === null) {
-                //console.info(current.decl.href, current.remainingTimeMs);
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
-                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("WEB-RENDERER: current", this._current_asset.currentSrc);
+            if (!this._isMediaReady(current.decl)) {
+                return;
             }
-            else if (current.decl.id !== this._current_asset.id) {
+            if (this._current_renderer_asset === null) {
+                //console.info(current.decl.href, current.remainingTimeMs);
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._current_renderer_asset.ref();
+                console.log("WEB-RENDERER: current", this._current_renderer_asset.currentSrc);
+            }
+            else if (current.decl.id !== this._current_renderer_asset.id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
-                if (this._next_asset !== null
-                    && current.decl.id === this._next_asset.id) {
+                if (this._next_renderer_asset !== null
+                    && current.decl.id === this._next_renderer_asset.id) {
                     console.log("WEB-RENDERER: current <- next");
-                    this._current_asset = await this._updateCurrentFromNext();
+                    this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
                 else {
-                    this._current_asset = await this._updateCurrent(current.decl);
+                    this._current_renderer_asset = await this._updateCurrent(current.decl);
                 }
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("WEB-RENDERER: current", this._current_asset.currentSrc);
+                this._current_renderer_asset.ref();
+                console.log("WEB-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (this._current_asset !== null) {
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+            else if (this._current_renderer_asset !== null) {
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
         }
-        else if (this._current_asset !== null) {
+        else if (this._current_renderer_asset !== null) {
             this._closeCurrent();
             console.log(`WEB-RENDERER: current null`);
         }
@@ -1587,31 +1595,34 @@ class WebRenderer extends EventTarget {
     _onSchedulerNext(next) {
         // Next media asset.
         if (next !== null) {
-            if (this._next_asset === null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
-                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("WEB-RENDERER: next", this._next_asset.currentSrc);
+            if (!this._isMediaReady(next.decl)) {
+                return;
             }
-            else if (next.decl.id !== this._next_asset.id) {
+            if (this._next_renderer_asset === null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._next_renderer_asset.ref();
+                console.log("WEB-RENDERER: next", this._next_renderer_asset.currentSrc);
+            }
+            else if (next.decl.id !== this._next_renderer_asset.id) {
                 this._closeNext();
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("WEB-RENDERER: next", this._next_asset.currentSrc);
+                this._next_renderer_asset.ref();
+                console.log("WEB-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (this._next_asset !== null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+            else if (this._next_renderer_asset !== null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
         }
-        else if (this._next_asset !== null) {
+        else if (this._next_renderer_asset !== null) {
             this._closeNext();
             console.log(`WEB-RENDERER: next null`);
         }
@@ -1620,22 +1631,22 @@ class WebRenderer extends EventTarget {
         // Resources for transitions, explicitly details textures to
         // avoid confusion when crossing boundary between two assets.
         if (transition !== null) {
-            const from_asset = this._asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
             if (typeof from_asset !== "undefined"
                 && from_asset.element !== null
-                && from_asset.id !== this._map1_asset?.id) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+                && from_asset.id !== this._map1_renderer_asset?.id) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 from_asset.ref();
                 this._setMap1Asset(from_asset);
             }
-            const to_asset = this._asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
             if (typeof to_asset !== "undefined"
                 && to_asset.element !== null
-                && to_asset.id !== this._map2_asset?.id) {
-                if (this._map2_asset !== null) {
-                    this._map2_asset.unref();
+                && to_asset.id !== this._map2_renderer_asset?.id) {
+                if (this._map2_renderer_asset !== null) {
+                    this._map2_renderer_asset.unref();
                 }
                 to_asset.ref();
                 this._setMap2Asset(to_asset);
@@ -1648,22 +1659,22 @@ class WebRenderer extends EventTarget {
             }
         }
         else { // Transition finished, follow settings per "current".
-            if (this._current_asset === null) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            if (this._current_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                     this._setMap1Asset(null);
                 }
             }
-            else if (this._current_asset.element !== null
-                && this._current_asset.id !== this._map1_asset?.id) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            else if (this._current_renderer_asset.element !== null
+                && this._current_renderer_asset.id !== this._map1_renderer_asset?.id) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
-                this._current_asset.ref();
-                this._setMap1Asset(this._current_asset);
+                this._current_renderer_asset.ref();
+                this._setMap1Asset(this._current_renderer_asset);
             }
-            if (this._map2_asset !== null) {
-                this._map2_asset.unref();
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
                 this._setMap2Asset(null);
             }
             if (this._transition_percent !== 0) {
@@ -1688,7 +1699,7 @@ class WebRenderer extends EventTarget {
     }
     _emptyAssetTrash() {
         const remove_list = [];
-        for (const [id, asset] of this._asset_trash) {
+        for (const [id, asset] of this._renderer_asset_trash) {
             if (asset.ref_count !== 0) {
                 continue;
             }
@@ -1697,85 +1708,67 @@ class WebRenderer extends EventTarget {
         }
         for (const id of remove_list) {
             console.log("WEB-RENDERER: Destroying", id);
-            this._asset_cache.delete(id);
-            this._asset_trash.delete(id);
+            this._renderer_asset_cache.delete(id);
+            this._renderer_asset_trash.delete(id);
         }
     }
     _setMap1Asset(asset) {
-        this._map1_asset?.classList.remove('map1');
+        this._map1_renderer_asset?.classList.remove('map1');
         if (asset === null) {
-            this._map1_asset = null;
+            this._map1_renderer_asset = null;
             return;
         }
-        this._map1_asset = asset;
-        this._map1_asset.className = 'map1';
+        this._map1_renderer_asset = asset;
+        this._map1_renderer_asset.className = 'map1';
     }
     _setMap2Asset(asset) {
-        this._map2_asset?.classList.remove('map2');
+        this._map2_renderer_asset?.classList.remove('map2');
         if (asset === null) {
-            this._map2_asset = null;
+            this._map2_renderer_asset = null;
             return;
         }
-        this._map2_asset = asset;
-        this._map2_asset.className = 'map2';
+        this._map2_renderer_asset = asset;
+        this._map2_renderer_asset.className = 'map2';
     }
     // Assumes new decl.
     async _updateCurrent(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createWebAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new WebRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset; // drop frame.
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_element
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             asset.has_element = true;
             await asset.play();
-            if (this._map1_asset !== null) {
-                this._map1_asset.unref();
+            if (this._map1_renderer_asset !== null) {
+                this._map1_renderer_asset.unref();
             }
-            if (this._map2_asset !== null) {
-                this._map2_asset.unref();
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
             }
             asset.ref();
             this._setMap1Asset(asset);
             this._setMap2Asset(null);
             this._setTransitionPercent(0);
-            this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+            }
         }
         return asset;
     }
     // Keep reference next to current.
     async _updateCurrentFromNext() {
-        if (this._current_asset !== null) {
+        if (this._current_renderer_asset !== null) {
             throw new Error("current asset must be closed before calling.");
         }
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("next asset must be defined before calling.");
         }
-        const asset = this._next_asset;
-        this._next_asset = null;
+        const asset = this._next_renderer_asset;
+        this._next_renderer_asset = null;
         if (asset !== null
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             await asset.play();
-            if (this._map2_asset === null) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            if (this._map2_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 this._setMap1Asset(asset);
                 this._setTransitionPercent(0);
@@ -1789,14 +1782,14 @@ class WebRenderer extends EventTarget {
         return asset;
     }
     _canPaintCurrent() {
-        return this._current_asset !== null
-            && this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._current_renderer_asset !== null
+            && this._current_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintCurrent(timestamp, remaining) {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             throw new Error("undefined current asset.");
         }
-        this._current_asset.paint(timestamp, remaining);
+        this._current_renderer_asset.paint(timestamp, remaining);
         // Very slow loading asset, force playback, avoid seeking as already broken.
         //		if(this.#current_asset.paused) {
         //			(async() => {
@@ -1811,13 +1804,13 @@ class WebRenderer extends EventTarget {
         //		}
     }
     _closeCurrent() {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             return;
         }
-        this._current_asset.pause();
-        this._current_asset.unref();
-        this._asset_trash.set(this._current_asset.id, this._current_asset);
-        this._current_asset = null;
+        this._current_renderer_asset.pause();
+        this._current_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
         return false;
@@ -1825,51 +1818,66 @@ class WebRenderer extends EventTarget {
     _paintWaiting(_timestamp) { }
     _paintWaitingDuration(_timestamp, _remaining) { }
     _updateNext(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createWebAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new WebRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset;
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_element
             && asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
             asset.has_element = true;
-            this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            }
         }
         return asset;
     }
+    _isMediaReady(decl) {
+        const path = this._asset_prefetch.getCachedPath(decl.href);
+        return path !== null;
+    }
+    _resolveMediaAsset(decl) {
+        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        if (typeof existing_asset !== "undefined") {
+            if (this._renderer_asset_trash.has(decl.id)) {
+                this._renderer_asset_trash.delete(decl.id);
+            }
+            if (existing_asset.is_loading
+                && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                this._networkLoadingUnref();
+                existing_asset.is_loading = false;
+            }
+            return existing_asset;
+        }
+        const cached_path = this._asset_prefetch.getCachedPath(decl.href);
+        if (cached_path === null) {
+            throw new Error(`Media asset not cached: ${decl.href}`);
+        }
+        const resolved_decl = {
+            ...decl,
+            href: cached_path,
+        };
+        const web_asset = this._asset_manager.createWebAsset(resolved_decl);
+        const renderer_asset = new WebRendererAsset(decl.id, web_asset);
+        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        this._networkLoadingRef();
+        renderer_asset.is_loading = true;
+        renderer_asset.load();
+        return renderer_asset;
+    }
     _canPaintNext() {
-        return this._next_asset !== null
-            && this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._next_renderer_asset !== null
+            && this._next_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintNext(timestamp, remaining) {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.paint(timestamp, remaining);
+        this._next_renderer_asset.paint(timestamp, remaining);
     }
     _closeNext() {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.unref();
-        this._asset_trash.set(this._next_asset.id, this._next_asset);
-        this._next_asset = null;
+        this._next_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._next_renderer_asset = null;
     }
 }
 
@@ -5061,13 +5069,13 @@ class BrightSignPrefetch extends EventTarget {
     }
     async #fetchAssets(pool, assets) {
         //		console.log(`PREFETCH: #fetchAssets: ${JSON.stringify(assets.map(asset => asset.name))}`);
-        console.log(`PREFETCH: #fetchAssets: ${JSON.stringify(assets)}`);
+        console.log(`PREFETCH: #fetchAssets ...`);
         const fetcher = new AssetFetcher(pool);
         fetcher.addEventListener("fileevent", (event) => {
             // This is called each time the fetcher has finished trying to
             // download an asset, whether successful or not. It is not
             // called for any assets that are already in the pool.
-            console.log(`PREFETCH: ASSET ${event.fileName} complete: ${event.responseCode.toString()} ${event.error}`);
+            console.log(`PREFETCH: ${event.fileName}: complete: ${event.responseCode.toString()} ${event.error}`);
         });
         function progressString(event) {
             if (typeof event.currentFileTotal === "undefined") {
@@ -5084,7 +5092,7 @@ class BrightSignPrefetch extends EventTarget {
             // This is called at approximately the progress interval
             // specified in the options to indicate how far through the
             // download
-            console.log(`PREFETCH: ASSET ${event.fileName} progress: ${progressString(event)}`);
+            console.log(`PREFETCH: ${event.fileName}: progress: ${progressString(event)}`);
         });
         const fetchOptions = {
             // receive asset progress events about every five seconds.
@@ -5102,7 +5110,7 @@ class BrightSignPrefetch extends EventTarget {
             console.log(`PREFETCH: Fetcher failed: ${e.message}`);
             throw (e);
         }
-        console.log(`PREFETCH: Fetcher complete ${JSON.stringify(assets)}.`);
+        console.log(`PREFETCH: #fetchAssets done.`);
     }
     // Protect API to limit space reclamation without time priority.
     async acquireSources(scope, sources) {
@@ -5119,22 +5127,20 @@ class BrightSignPrefetch extends EventTarget {
                 change_hint: source.integrity,
             };
         });
+        console.log(`PREFETCH: Protecting assets ...`);
         await this.#pool.protectAssets(scope, assets);
-        console.log(`PREFETCH: Protected assets.`);
+        console.log(`PREFETCH: Protecting assets done.`);
         await this.#fetchAssets(this.#pool, assets);
-        console.log(`PREFETCH: Fetched assets.`);
         if (!await this.#pool.areAssetsReady(assets)) {
             throw new Error("Assets not ready");
         }
-        console.log(`PREFETCH: Assets are ready.`);
         this.#files = new AssetPoolFiles(this.#pool, assets);
-        console.log(`PREFETCH: Mapping assets to local storage.`);
         for (const asset of assets) {
             const local = await this.#getPath(asset.name);
             this.#map.set(asset.link, local);
             console.info(`${local} -> ${asset.link}`);
         }
-        console.log(`PREFETCH: Mapping complete.`);
+        console.log(`PREFETCH: acquireSources done.`);
     }
     async releaseSources(scope) {
         await this.#pool.unprotectAssets(scope);
@@ -5185,6 +5191,7 @@ class AbstractThreeAsset extends EventTarget {
     constructor(src, params, duration, collection) {
         super();
         this.collection = collection;
+        this.texture = null;
         this._ended = false;
         this._error = null;
         this._networkState = HTMLMediaElement.NETWORK_NO_SOURCE;
@@ -5223,16 +5230,19 @@ class ThreeImageAsset extends AbstractThreeAsset {
         this._lastTimeUpdate = 0;
         this._currentTime = 0;
     }
+    get image() {
+        return this.texture?.image || null;
+    }
     close() {
-        if (typeof this.texture === "undefined") {
+        if (this.texture === null || this.image === null) {
             return;
         }
-        console.log(`unload image ... ${this.src}`);
+        console.log(`unload image ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
-        collection.release(this.texture.image);
+        collection.release(this.image);
         this.texture.dispose();
-        this.texture = undefined;
+        this.texture = null;
         this._readyState = HTMLMediaElement.HAVE_NOTHING;
         this._networkState = HTMLMediaElement.NETWORK_EMPTY;
         this._currentTime = 0;
@@ -5253,7 +5263,7 @@ class ThreeImageAsset extends AbstractThreeAsset {
         else {
             if (Math.floor(this._currentTime) > this._lastTimeUpdate) {
                 this._lastTimeUpdate = this._currentTime;
-                super.dispatchEvent(new Event('timeupdate'));
+                this.dispatchEvent(new Event('timeupdate'));
             }
         }
     }
@@ -5261,7 +5271,7 @@ class ThreeImageAsset extends AbstractThreeAsset {
         this._currentTime = this._duration;
         this._ended = true;
         this._startTime = NaN;
-        super.dispatchEvent(new Event('ended'));
+        this.dispatchEvent(new Event('ended'));
     }
     get params() { return super.params; }
     // Per HTMLMediaElement.
@@ -5279,11 +5289,11 @@ class ThreeImageAsset extends AbstractThreeAsset {
         (async () => {
             const collection = this.collection;
             const img = collection.acquire();
+            this._networkState = HTMLMediaElement.NETWORK_LOADING;
             try {
+                console.log(`load image ... "${this.src}"`);
                 img.crossOrigin = 'anonymous';
-                img.src = this.src;
-                this._networkState = HTMLMediaElement.NETWORK_LOADING;
-                console.log(`load image ... ${this.src}`);
+                img.setAttribute('src', this.src);
                 await img.decode();
                 this.texture = new THREE.Texture(img);
                 this.texture.needsUpdate = true;
@@ -5291,7 +5301,7 @@ class ThreeImageAsset extends AbstractThreeAsset {
                 super.dispatchEvent(new Event('canplay'));
             }
             catch (encodingError) {
-                console.warn(`Failed to load image: ${this.src}`, encodingError);
+                console.warn(`Failed to load image: "${this.src}" Error: ${encodingError}`);
                 this._error = encodingError;
                 this._networkState = HTMLMediaElement.NETWORK_IDLE;
                 collection.release(img);
@@ -5314,18 +5324,18 @@ class ThreeImageAsset extends AbstractThreeAsset {
             this._startTime = performance.now() - this._currentTime;
         }
     }
-    // Per HTMLVideoElement.
+    // Per `HTMLVideoElement`.
     get height() {
-        if (typeof this.texture === "undefined") {
+        if (this.image === null) {
             return NaN;
         }
-        return this.texture.image.height;
+        return this.image.height;
     }
     get width() {
-        if (typeof this.texture === "undefined") {
+        if (this.image === null) {
             return NaN;
         }
-        return this.texture.image.width;
+        return this.image.width;
     }
 }
 class ThreeVideoAsset extends AbstractThreeAsset {
@@ -5335,14 +5345,17 @@ class ThreeVideoAsset extends AbstractThreeAsset {
             super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
         };
     }
+    get video() {
+        return this.texture?.image || null;
+    }
     close() {
-        if (typeof this.texture === "undefined") {
+        if (this.texture === null || this.video === null) {
             return;
         }
-        console.log(`unload video ... ${this.src}`);
+        console.log(`unload video ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
-        const video = this.texture.image;
+        const video = this.video;
         video.oncanplay = null;
         video.onended = null;
         video.onerror = null;
@@ -5350,65 +5363,65 @@ class ThreeVideoAsset extends AbstractThreeAsset {
         video.removeAttribute('src');
         collection.release(video);
         this.texture.dispose();
-        this.texture = undefined;
+        this.texture = null;
     }
     paint(_now, _remaining) { }
     get params() { return super.params; }
     // Per `HTMLMediaElement`.
     get currentSrc() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return super.currentSrc;
         }
-        return this.texture.image.currentSrc;
+        return this.video.currentSrc;
     }
     get currentTime() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return super.currentTime;
         }
-        return this.texture.image.currentTime;
+        return this.video.currentTime;
     }
     get duration() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return NaN;
         }
-        return this.texture.image.duration;
+        return this.video.duration;
     }
     get ended() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return false;
         }
-        return this.texture?.image.ended;
+        return this.video.ended;
     }
     get error() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return false;
         }
-        return this.texture?.image.error;
+        return this.video.error;
     }
     get networkState() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return HTMLMediaElement.NETWORK_EMPTY;
         }
-        return this.texture?.image.networkState;
+        return this.video.networkState;
     }
     get paused() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return true;
         }
-        return this.texture?.image.paused;
+        return this.video.paused;
     }
     get readyState() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return HTMLMediaElement.HAVE_NOTHING;
         }
-        return this.texture?.image.readyState;
+        return this.video.readyState;
     }
     get src() { return super.src; }
     get srcObject() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return null;
         }
-        return this.texture.image.srcObject;
+        return this.video.srcObject;
     }
     load() {
         const collection = this.collection;
@@ -5416,16 +5429,17 @@ class ThreeVideoAsset extends AbstractThreeAsset {
         video.oncanplay = this._redispatchEvent;
         video.onended = this._redispatchEvent;
         video.onerror = this._redispatchEvent;
-        video.src = this.src;
         // Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
         video.onloadeddata = (event) => {
-            console.log(`create video texture ... ${this.src}`);
+            console.log(`create video texture ... "${this.src}"`);
             this.texture = new THREE.VideoTexture(video);
             this.texture.needsUpdate = true;
             this._redispatchEvent(event);
         };
         try {
-            console.log(`load video ... ${this.src}`);
+            console.log(`load video ... "${this.src}"`);
+            video.crossOrigin = 'anonymous';
+            video.setAttribute('src', this.src);
             video.load();
         }
         catch (encodingError) {
@@ -5434,63 +5448,65 @@ class ThreeVideoAsset extends AbstractThreeAsset {
         }
     }
     pause() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return;
         }
-        this.texture.image.pause();
+        this.video.pause();
     }
     async play() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return;
         }
-        await this.texture.image.play();
+        await this.video.play();
     }
     // Per `HTMLVideoElement`.
     get height() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return NaN;
         }
-        return this.texture.image.height;
+        return this.video.height;
     }
     get width() {
-        if (typeof this.texture === "undefined") {
+        if (this.video === null) {
             return NaN;
         }
-        return this.texture.image.width;
+        return this.video.width;
     }
 }
 class ThreeAppAsset extends AbstractThreeAsset {
     constructor(src, params, duration, collection) {
         super(src, params, duration, collection);
+        this._app = null;
+        this._fbo = null;
         this._redispatchEvent = (event) => {
             super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
         };
     }
     close() {
-        if (typeof this.texture === "undefined") {
+        if (this.texture === null) {
             return;
         }
-        console.log(`unload app ... ${this.src}`);
+        console.log(`unload app ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
-        if (typeof this._app !== "undefined") {
+        if (this._app !== null) {
             this._app.close();
             this._app.removeEventListener('canplay', this._redispatchEvent);
             this._app.removeEventListener('ended', this._redispatchEvent);
             this._app.removeEventListener('error', this._redispatchEvent);
-            this._app = undefined;
+            this._app = null;
         }
-        if (typeof this._fbo !== "undefined") {
+        if (this._fbo !== null) {
             collection.release(this._fbo);
-            this._fbo = undefined;
+            this._fbo = null;
         }
         this.texture.dispose();
-        this.texture = undefined;
+        this.texture = null;
     }
     paint(now, remaining) {
         if (this.paused || this.ended)
             return;
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return;
         }
         this._app.animate(now, remaining);
@@ -5498,49 +5514,49 @@ class ThreeAppAsset extends AbstractThreeAsset {
     get params() { return super.params; }
     // Per `HTMLMediaElement`.
     get currentSrc() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return super.currentSrc;
         }
         return this._app.currentSrc;
     }
     get currentTime() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return super.currentTime;
         }
         return this._app.currentTime;
     }
     get duration() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return NaN;
         }
         return this._app.duration;
     }
     get ended() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return false;
         }
         return this._app.ended;
     }
     get error() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return false;
         }
         return this._app.error;
     }
     get networkState() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return HTMLMediaElement.NETWORK_EMPTY;
         }
         return this._app.networkState;
     }
     get paused() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return true;
         }
         return this._app.paused;
     }
     get readyState() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return HTMLMediaElement.HAVE_NOTHING;
         }
         return this._app.readyState;
@@ -5552,50 +5568,50 @@ class ThreeAppAsset extends AbstractThreeAsset {
             const collection = this.collection;
             const fbo = this._fbo = collection.acquire();
             try {
-                console.log(`import module ... ${this.src}`);
+                console.log(`import module ... "${this.src}"`);
                 const manifest = await collection.importModule(this.src);
-                console.log(`create WebGLApp ... ${this.src}`);
+                console.log(`create WebGLApp ... "${this.src}"`);
                 const params = {
                     ...this.params,
                     src: this.src,
                     duration: super.duration, // WARNING: `super` not `this`.
                 };
                 const app = this._app = manifest.WebGLApp.create(fbo, collection.renderer, params);
-                console.log(`init ${manifest.name} with params:`, params);
                 app.addEventListener('canplay', this._redispatchEvent);
                 app.addEventListener('ended', this._redispatchEvent);
                 app.addEventListener('error', this._redispatchEvent);
                 this.texture = fbo.texture;
+                console.log(`init "${manifest.name}" with params:`, params);
                 app.load();
             }
             catch (initError) {
-                console.warn(`Failed to load app: ${this.src}`, initError);
+                console.warn(`Failed to load app: "${this.src}"`, initError);
                 collection.release(fbo);
                 super.dispatchEvent(new Event('error'));
             }
         })();
     }
     pause() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return;
         }
         this._app.pause();
     }
     async play() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return;
         }
         await this._app.play();
     }
     // Per `HTMLVideoElement`.
     get height() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return NaN;
         }
         return this._app.height;
     }
     get width() {
-        if (typeof this._app === "undefined") {
+        if (this._app === null) {
             return NaN;
         }
         return this._app.width;
@@ -5690,16 +5706,16 @@ class ThreeAppCollection extends ThreeCollection {
     async importModule(src) {
         let manifest = this._manifests.get(src);
         if (typeof manifest === 'undefined') {
-            console.log(`import app manifest ... ${src}`);
+            console.log(`import app manifest ... "${src}"`);
             const module = await import(src);
-            console.log(`validate app manifest ... ${src}`);
+            console.log(`validate app manifest ... "${src}"`);
             const result = AppManifestSchema.safeParse(module.default);
-            console.log(`app manifest validation result: ${result.success} ... ${src}`);
+            console.log(`app manifest validation result: ${result.success} ... "${src}"`);
             if (!result.success) {
-                throw new Error(`Invalid app manifest: ${src}`);
+                throw new Error(`Invalid app manifest: "${src}"`);
             }
             if (!result.data.WebGLApp) {
-                throw new Error(`WebGLApp constructor not found in manifest: ${src}`);
+                throw new Error(`WebGLApp constructor not found in manifest: "${src}"`);
             }
             manifest = result.data;
             this._manifests.set(src, manifest);
@@ -5756,7 +5772,7 @@ class ThreeAssetManager {
         if (typeof collection === "undefined") {
             throw new Error('Undefined collection.');
         }
-        return collection.createThreeAsset(decl.href, decl.params ?? {}, decl.duration);
+        return collection.createThreeAsset(decl.href, decl.params, decl.duration);
     }
     clear() {
         for (const value of this._collection.values()) {
@@ -5767,40 +5783,47 @@ class ThreeAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class WebGLRendererAsset {
-    constructor(id, media_asset) {
+    constructor(id, webgl_asset) {
         this.id = id;
-        this.media_asset = media_asset;
+        this.webgl_asset = webgl_asset;
         this.is_loading = false;
         this.has_texture = false;
         this.end_time = NaN;
         this._ref_count = 0;
     }
-    get paused() { return this.media_asset.paused; }
-    get ended() { return this.media_asset.ended; }
-    get readyState() { return this.media_asset.readyState; }
-    get networkState() { return this.media_asset.networkState; }
-    get texture() { return this.media_asset.texture; }
-    get currentSrc() { return this.media_asset.currentSrc; }
-    get currentTime() { return this.media_asset.currentTime; }
+    get paused() { return this.webgl_asset.paused; }
+    get ended() { return this.webgl_asset.ended; }
+    get error() { return this.webgl_asset.error; }
+    get readyState() { return this.webgl_asset.readyState; }
+    get networkState() { return this.webgl_asset.networkState; }
+    get texture() { return this.webgl_asset.texture; }
+    get currentSrc() { return this.webgl_asset.currentSrc; }
+    get currentTime() { return this.webgl_asset.currentTime; }
     load() {
-        try {
-            this.media_asset.load();
+        if (this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
+            return;
         }
-        catch (ex) {
-            console.error(`RENDERER: ${ex.message}`);
+        if (this.networkState !== HTMLMediaElement.NETWORK_EMPTY) {
+            return;
+        }
+        try {
+            this.webgl_asset.load();
+        }
+        catch (error) {
+            console.error(`WEGBL-ASSET: ${error}`);
         }
     }
     async play() {
-        await this.media_asset.play();
+        await this.webgl_asset.play();
     }
     paint(now, remaining) {
-        this.media_asset.paint(now, remaining);
+        this.webgl_asset.paint(now, remaining);
     }
     pause() {
-        this.media_asset.pause();
+        this.webgl_asset.pause();
     }
     close() {
-        this.media_asset.close();
+        this.webgl_asset.close();
     }
     get ref_count() { return this._ref_count; }
     ref() {
@@ -5836,6 +5859,27 @@ function prettyPrint(obj) {
         .replace(/</g, '&lt;').replace(/>/g, '&gt;')
         .replace(jsonLine, replacer);
 }
+function minimize(value) {
+    const obj = {
+        currentTime: value.currentTime,
+        eventSeries: value.eventSeries,
+        mediaList: value.mediaList,
+        mediaCurrent: value.mediaCurrent && {
+            href: value.mediaCurrent.decl.href,
+            duration: value.mediaCurrent.decl.duration,
+            remainingTimeMs: value.mediaCurrent.remainingTimeMs,
+        },
+        mediaNext: value.mediaNext && {
+            href: value.mediaNext.decl.href,
+            duration: value.mediaNext.decl.duration,
+            remainingTimeMs: value.mediaNext.remainingTimeMs,
+        },
+        transition: value.transition && {
+            percent: value.transition.percent,
+        },
+    };
+    return obj;
+}
 class WebGLRenderer extends EventTarget {
     static { this.vertexShader = shader `
 		precision mediump float;
@@ -5870,7 +5914,7 @@ class WebGLRenderer extends EventTarget {
 	`; }
     constructor(prefetchFactory) {
         super();
-        this._mam = new ThreeAssetManager();
+        this._asset_manager = new ThreeAssetManager();
         this._scene = new THREE.Scene();
         this._views = [];
         this._displacement_url = "";
@@ -5879,8 +5923,8 @@ class WebGLRenderer extends EventTarget {
         this._displacement_texture = new THREE.Texture();
         this._empty_texture = new THREE.Texture();
         this._network_loading_count = 0;
-        this._current_asset = null;
-        this._next_asset = null;
+        this._current_renderer_asset = null;
+        this._next_renderer_asset = null;
         this._shader = new THREE.RawShaderMaterial({
             side: THREE.DoubleSide,
             transparent: true,
@@ -5896,10 +5940,10 @@ class WebGLRenderer extends EventTarget {
             fragmentShader: WebGLRenderer.fragmentShader,
             glslVersion: THREE.GLSL3,
         });
-        this._map1_asset = null;
-        this._map2_asset = null;
-        this._asset_cache = new Map();
-        this._asset_trash = new Map();
+        this._map1_renderer_asset = null;
+        this._map2_renderer_asset = null;
+        this._renderer_asset_cache = new Map();
+        this._renderer_asset_trash = new Map();
         // Per HTMLMediaElement.
         this._ended = false;
         this._error = null;
@@ -5930,16 +5974,16 @@ class WebGLRenderer extends EventTarget {
         if (typeof this._renderer === "undefined") {
             throw new Error("undefined renderer.");
         }
-        this._mam.setRenderer(this._renderer);
+        this._asset_manager.setRenderer(this._renderer);
         console.groupEnd();
     }
     close() {
         console.log("WEBGL-RENDERER: close");
-        for (const asset of this._asset_cache.values()) {
+        for (const asset of this._renderer_asset_cache.values()) {
             asset.pause();
             asset.close();
         }
-        this._asset_cache.clear();
+        this._renderer_asset_cache.clear();
     }
     setSetStateHook(cb) {
         this._set_state_hook = cb;
@@ -5952,13 +5996,14 @@ class WebGLRenderer extends EventTarget {
         expose({
             setState: (value) => this.setState(value),
             setSources: async (scope, decls) => {
-                await this.setSources(scope, decls.map(decl => {
+                return await this.setSources(scope, decls.map(decl => {
                     return {
                         '@type': decl['@type'],
                         id: decl.id,
                         href: decl.href,
                         size: decl.size,
                         hash: decl.hash,
+                        md5: decl.md5,
                         integrity: decl.integrity,
                     };
                 }));
@@ -5979,7 +6024,7 @@ class WebGLRenderer extends EventTarget {
     }
     async setStateUnhooked(value) {
         {
-            const html = prettyPrint(value);
+            const html = prettyPrint(minimize(value));
             if (html !== this._lastDebug) {
                 this._debug.innerHTML = this._lastDebug = html;
             }
@@ -5990,7 +6035,7 @@ class WebGLRenderer extends EventTarget {
     }
     setAssetTarget(assetTarget) {
         console.log("WEBGL-RENDERER: setAssetTarget", assetTarget);
-        this._mam.setAssetTarget(assetTarget);
+        this._asset_manager.setAssetTarget(assetTarget);
     }
     setRenderTarget(renderTarget) {
         console.log("WEBGL-RENDERER: setRenderTarget", renderTarget);
@@ -6056,39 +6101,39 @@ class WebGLRenderer extends EventTarget {
             throw new Error("ThreeJS camera not defined.");
         }
         if (this._canPaintCurrent()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             try {
                 this._paintCurrent(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._current_asset);
+                console.error(this._current_renderer_asset);
             }
         }
         else if (this._hasWaitingDuration()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             this._paintWaitingDuration(timestamp, remaining);
         }
         else {
             this._paintWaiting(timestamp);
         }
         if (this._canPaintNext()) {
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
-            const remaining = this._next_asset.end_time - timestamp;
+            const remaining = this._next_renderer_asset.end_time - timestamp;
             try {
                 this._paintNext(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._next_asset);
+                console.error(this._next_renderer_asset);
             }
         }
         this._interpolateTransition(elapsed);
@@ -6106,6 +6151,9 @@ class WebGLRenderer extends EventTarget {
     idle() {
         this._emptyAssetTrash();
     }
+    _setTransitionPercent(percent) {
+        this._shader.uniforms.pct.value = this._transition_percent = percent;
+    }
     _interpolateTransition(elapsed) {
         let needs_update = false;
         if (this._transition_percent_speed !== 0) {
@@ -6114,7 +6162,7 @@ class WebGLRenderer extends EventTarget {
                 this._transition_percent = 1;
                 this._transition_percent_speed = 0;
             }
-            this._shader.uniforms.pct.value = this._transition_percent;
+            this._setTransitionPercent(this._transition_percent);
             needs_update = true;
         }
         if (needs_update) {
@@ -6168,40 +6216,43 @@ class WebGLRenderer extends EventTarget {
     // This media asset.
     async _onSchedulerCurrent(current) {
         if (current !== null) {
-            if (this._current_asset === null) {
-                //console.info(current.decl.href, current.remainingTimeMs);
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
-                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("WEBGL-RENDERER: current", this._current_asset.currentSrc);
+            if (!this._isMediaReady(current.decl)) {
+                return;
             }
-            else if (current.decl.id !== this._current_asset.id) {
+            if (this._current_renderer_asset === null) {
+                //console.info(current.decl.href, current.remainingTimeMs);
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._current_renderer_asset.ref();
+                console.log("WEBGL-RENDERER: current", this._current_renderer_asset.currentSrc);
+            }
+            else if (current.decl.id !== this._current_renderer_asset.id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
-                if (this._next_asset !== null
-                    && current.decl.id === this._next_asset.id) {
+                if (this._next_renderer_asset !== null
+                    && current.decl.id === this._next_renderer_asset.id) {
                     console.log("WEBGL-RENDERER: current <- next");
-                    this._current_asset = await this._updateCurrentFromNext();
+                    this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
                 else {
-                    this._current_asset = await this._updateCurrent(current.decl);
+                    this._current_renderer_asset = await this._updateCurrent(current.decl);
                 }
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("WEBGL-RENDERER: current", this._current_asset.currentSrc);
+                this._current_renderer_asset.ref();
+                console.log("WEBGL-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (this._current_asset instanceof WebGLRendererAsset) {
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+            else if (this._current_renderer_asset !== null) {
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
         }
-        else if (this._current_asset !== null) {
+        else if (this._current_renderer_asset !== null) {
             this._closeCurrent();
             console.log(`WEBGL-RENDERER: current null`);
         }
@@ -6209,31 +6260,34 @@ class WebGLRenderer extends EventTarget {
     _onSchedulerNext(next) {
         // Next media asset.
         if (next !== null) {
-            if (this._next_asset === null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
-                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("WEBGL-RENDERER: next", this._next_asset.currentSrc);
+            if (!this._isMediaReady(next.decl)) {
+                return;
             }
-            else if (next.decl.id !== this._next_asset.id) {
+            if (this._next_renderer_asset === null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._next_renderer_asset.ref();
+                console.log("WEBGL-RENDERER: next", this._next_renderer_asset.currentSrc);
+            }
+            else if (next.decl.id !== this._next_renderer_asset.id) {
                 this._closeNext();
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("WEBGL-RENDERER: next", this._next_asset.currentSrc);
+                this._next_renderer_asset.ref();
+                console.log("WEBGL-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (this._next_asset instanceof WebGLRendererAsset) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+            else if (this._next_renderer_asset !== null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
         }
-        else if (this._next_asset !== null) {
+        else if (this._next_renderer_asset !== null) {
             this._closeNext();
             console.log(`WEBGL-RENDERER: next null`);
         }
@@ -6243,30 +6297,30 @@ class WebGLRenderer extends EventTarget {
         // avoid confusion when crossing boundary between two assets.
         let needs_update = false;
         if (transition !== null) {
-            const from_asset = this._asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
             if (typeof from_asset !== "undefined"
-                && typeof from_asset.texture !== "undefined"
-                && from_asset.texture.uuid !== this._shader.uniforms.map1.value.uuid) {
-                if (this._map1_asset instanceof WebGLRendererAsset) {
-                    this._map1_asset.unref();
+                && from_asset.texture !== null
+                && from_asset.texture.uuid !== this._map1_renderer_asset?.texture?.uuid) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 this._shader.uniforms.map1.value = from_asset.texture;
                 //				console.log('set map1', transition.from.decl.href);
                 from_asset.ref();
-                this._map1_asset = from_asset; // Keep reference to later free.
+                this._setMap1Asset(from_asset);
                 needs_update = true;
             }
-            const to_asset = this._asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
             if (typeof to_asset !== "undefined"
-                && typeof to_asset.texture !== "undefined"
-                && to_asset.texture.uuid !== this._shader.uniforms.map2.value.uuid) {
-                if (this._map2_asset instanceof WebGLRendererAsset) {
-                    this._map2_asset.unref();
+                && to_asset.texture !== null
+                && to_asset.texture.uuid !== this._map2_renderer_asset?.texture?.uuid) {
+                if (this._map2_renderer_asset instanceof WebGLRendererAsset) {
+                    this._map2_renderer_asset.unref();
                 }
                 this._shader.uniforms.map2.value = to_asset.texture;
                 //				console.log('set map2', transition.to.decl.href);
                 to_asset.ref();
-                this._map2_asset = to_asset;
+                this._setMap2Asset(to_asset);
                 needs_update = true;
             }
             if (transition.url !== this._displacement_url) {
@@ -6277,7 +6331,7 @@ class WebGLRenderer extends EventTarget {
                 needs_update = true;
             }
             if (transition.percent !== this._transition_percent) {
-                this._shader.uniforms.pct.value = this._transition_percent = transition.percent;
+                this._setTransitionPercent(transition.percent);
                 //				console.log('set pct', transition.percent);
                 needs_update = true;
             }
@@ -6286,40 +6340,31 @@ class WebGLRenderer extends EventTarget {
             }
         }
         else { // Transition finished, follow settings per "current".
-            if (this._current_asset === null) {
-                if (!this._isEmptyTexture(this._shader.uniforms.map1.value)) {
-                    if (this._map1_asset instanceof WebGLRendererAsset) {
-                        this._map1_asset.unref();
-                    }
-                    this._map1_asset = null;
-                    this._shader.uniforms.map1.value = this._empty_texture;
-                    //					console.log('set map1', "empty");
+            if (this._current_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
+                    this._setMap1Asset(null);
                     needs_update = true;
                 }
             }
-            else if (typeof this._current_asset.texture !== "undefined"
-                && this._current_asset.texture.uuid !== this._shader.uniforms.map1.value.uuid) {
-                if (this._map1_asset instanceof WebGLRendererAsset) {
-                    this._map1_asset.unref();
+            else if (this._current_renderer_asset.texture !== null
+                && this._current_renderer_asset.texture.uuid !== this._map1_renderer_asset?.texture?.uuid) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
-                this._shader.uniforms.map1.value = this._current_asset.texture;
+                this._shader.uniforms.map1.value = this._current_renderer_asset.texture;
                 //				console.log('set map1', this.#current_asset.currentSrc);
-                this._current_asset.ref();
-                this._map1_asset = this._current_asset;
+                this._current_renderer_asset.ref();
+                this._setMap1Asset(this._current_renderer_asset);
                 needs_update = true;
             }
-            if (!this._isEmptyTexture(this._shader.uniforms.map2.value)) {
-                if (this._map2_asset instanceof WebGLRendererAsset) {
-                    this._map2_asset.unref();
-                }
-                this._map2_asset = null;
-                this._shader.uniforms.map2.value = this._empty_texture;
-                //				console.log('set map2', "empty");
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
+                this._setMap2Asset(null);
                 needs_update = true;
             }
             if (this._transition_percent !== 0) {
-                this._shader.uniforms.pct.value = this._transition_percent = 0;
-                //				console.log('set pct', 0);
+                this._setTransitionPercent(0);
                 needs_update = true;
             }
             if (this._transition_percent_speed !== 0) {
@@ -6344,7 +6389,7 @@ class WebGLRenderer extends EventTarget {
     }
     _emptyAssetTrash() {
         const remove_list = [];
-        for (const [id, asset] of this._asset_trash) {
+        for (const [id, asset] of this._renderer_asset_trash) {
             if (asset.ref_count !== 0) {
                 continue;
             }
@@ -6353,55 +6398,36 @@ class WebGLRenderer extends EventTarget {
         }
         for (const id of remove_list) {
             console.log("WEBGL-RENDERER: Destroying", id);
-            this._asset_cache.delete(id);
-            this._asset_trash.delete(id);
+            this._renderer_asset_cache.delete(id);
+            this._renderer_asset_trash.delete(id);
         }
+    }
+    _setMap1Asset(asset) {
+        this._map1_renderer_asset = asset;
+        this._shader.uniforms.map1.value = !!asset ? asset.texture : this._empty_texture;
+    }
+    _setMap2Asset(asset) {
+        this._map2_renderer_asset = asset;
+        this._shader.uniforms.map2.value = !!asset ? asset.texture : this._empty_texture;
     }
     // Assumes new decl.
     async _updateCurrent(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createThreeAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new WebGLRendererAsset(decl.id, media_asset);
-            ///			media_asset.texture.userData = new_asset;
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset; // drop frame.
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_texture
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             this._initTexture(asset.texture);
             asset.has_texture = true;
             await asset.play();
-            if (this._map1_asset !== null) {
-                if (this._map1_asset instanceof WebGLRendererAsset) {
-                    this._map1_asset.unref();
-                }
+            if (this._map1_renderer_asset !== null) {
+                this._map1_renderer_asset.unref();
             }
-            if (this._map2_asset !== null) {
-                if (this._map2_asset instanceof WebGLRendererAsset) {
-                    this._map2_asset.unref();
-                }
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
             }
             asset.ref();
-            this._map1_asset = asset;
-            this._map2_asset = null;
-            this._shader.uniforms.map1.value = asset.texture;
-            this._shader.uniforms.map2.value = this._empty_texture;
-            this._shader.uniforms.pct.value = this._transition_percent = 0;
+            this._setMap1Asset(asset);
+            this._setMap2Asset(null);
+            this._setTransitionPercent(0);
             this._shader.uniformsNeedUpdate = true;
             this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
         }
@@ -6409,26 +6435,23 @@ class WebGLRenderer extends EventTarget {
     }
     // Keep reference next to current.
     async _updateCurrentFromNext() {
-        if (this._current_asset !== null) {
+        if (this._current_renderer_asset !== null) {
             throw new Error("current asset must be closed before calling.");
         }
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("next asset must be defined before calling.");
         }
-        const asset = this._next_asset;
-        this._next_asset = null;
-        if (asset instanceof WebGLRendererAsset
+        const asset = this._next_renderer_asset;
+        this._next_renderer_asset = null;
+        if (asset !== null
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             await asset.play();
-            if (this._isEmptyTexture(this._shader.uniforms.map2.value)) {
-                if (this._map1_asset !== null) {
-                    if (this._map1_asset instanceof WebGLRendererAsset) {
-                        this._map1_asset.unref();
-                    }
+            if (this._map2_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
-                this._map1_asset = asset;
-                this._shader.uniforms.map1.value = asset.texture;
-                this._shader.uniforms.pct.value = this._transition_percent = 0;
+                this._setMap1Asset(asset);
+                this._setTransitionPercent(0);
                 this._shader.uniformsNeedUpdate = true;
             }
             this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
@@ -6440,14 +6463,14 @@ class WebGLRenderer extends EventTarget {
         return asset;
     }
     _canPaintCurrent() {
-        return this._current_asset !== null
-            && this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._current_renderer_asset !== null
+            && this._current_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintCurrent(timestamp, remaining) {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             throw new Error("undefined current asset.");
         }
-        this._current_asset.paint(timestamp, remaining);
+        this._current_renderer_asset.paint(timestamp, remaining);
         // Very slow loading asset, force playback, avoid seeking as already broken.
         //		if(this.#current_asset.paused) {
         //			(async() => {
@@ -6462,13 +6485,13 @@ class WebGLRenderer extends EventTarget {
         //		}
     }
     _closeCurrent() {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             return;
         }
-        this._current_asset.pause();
-        this._current_asset.unref();
-        this._asset_trash.set(this._current_asset.id, this._current_asset);
-        this._current_asset = null;
+        this._current_renderer_asset.pause();
+        this._current_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
         return false;
@@ -6476,52 +6499,67 @@ class WebGLRenderer extends EventTarget {
     _paintWaiting(_timestamp) { }
     _paintWaitingDuration(_timestamp, _remaining) { }
     _updateNext(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createThreeAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new WebGLRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset;
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_texture
             && asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
             this._initTexture(asset.texture);
             asset.has_texture = true;
-            this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            }
         }
         return asset;
     }
+    _isMediaReady(decl) {
+        const path = this._asset_prefetch.getCachedPath(decl.href);
+        return path !== null;
+    }
+    _resolveMediaAsset(decl) {
+        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        if (typeof existing_asset !== "undefined") {
+            if (this._renderer_asset_trash.has(decl.id)) {
+                this._renderer_asset_trash.delete(decl.id);
+            }
+            if (existing_asset.is_loading
+                && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                this._networkLoadingUnref();
+                existing_asset.is_loading = false;
+            }
+            return existing_asset;
+        }
+        const cached_path = this._asset_prefetch.getCachedPath(decl.href);
+        if (cached_path === null) {
+            throw new Error(`Media asset not cached: ${decl.href}`);
+        }
+        const resolved_decl = {
+            ...decl,
+            href: cached_path,
+        };
+        const three_asset = this._asset_manager.createThreeAsset(resolved_decl);
+        const renderer_asset = new WebGLRendererAsset(decl.id, three_asset);
+        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        this._networkLoadingRef();
+        renderer_asset.is_loading = true;
+        renderer_asset.load();
+        return renderer_asset;
+    }
     _canPaintNext() {
-        return this._next_asset !== null
-            && this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._next_renderer_asset !== null
+            && this._next_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintNext(timestamp, remaining) {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.paint(timestamp, remaining);
+        this._next_renderer_asset.paint(timestamp, remaining);
     }
     _closeNext() {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.unref();
-        this._asset_trash.set(this._next_asset.id, this._next_asset);
-        this._next_asset = null;
+        this._next_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._next_renderer_asset = null;
     }
     // Assumes new URL.
     async _updateDisplacementMap(url) {

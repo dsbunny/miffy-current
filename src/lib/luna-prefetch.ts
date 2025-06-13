@@ -104,7 +104,7 @@ console	.info(`PREFETCH: asset #${asset.id} adding to pool ...`);
 			this._url_to_id_map.set(asset.href, asset.id);
 			this._id_to_asset_map.set(asset.id, asset);
 			this._id_to_file_map.set(asset.id, filepath);
-console.info(`PREFETCH: added.`);
+console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 			this._eviction_queue.push(new EvictionEntry(asset.id, now));
 			this._protected_ids.add(asset.id);
 			ids.add(asset.id);
@@ -130,10 +130,10 @@ console.info(`PREFETCH: added.`);
 	}
 
 	// Return native path to asset from external URI.
-	getFilePath(url: string): string {
+	getFilePath(url: string): string | null {
 		const id = this._url_to_id_map.get(url);
 		if(typeof id === "undefined") {
-			return "";
+			return null;
 		}
 		const filename = filenameFromIdAndHref(id, url);
 		const filepath = `${this._base_path}/${filename}`;
@@ -262,13 +262,12 @@ export class LunaPrefetch extends EventTarget implements Prefetch {
 
 	protected async _fetchAssets(pool: LunaPool, assets: AssetDecl[]): Promise<void> {
 //		console.log(`PREFETCH: __fetchAssets: ${JSON.stringify(assets.map(asset => asset.name))}`);
-		console.log(`PREFETCH: _fetchAssets: ${JSON.stringify(assets)}`);
+		console.log(`PREFETCH: _fetchAssets ...`);
 		let change_count = 0;
 		for(const asset of assets) {
 			const filepath = pool.getFilePath(asset.href);
-console.info(`PREFETCH: ${asset.href} -> ${filepath}`);
 			if(!filepath) {
-				console.warn(`asset #${asset.id} not in pool`);
+				console.warn(`PREFETCH: ${asset.id}: Asset not in pool.`);
 				continue;
 			}
 			if(asset.size) {
@@ -277,23 +276,22 @@ console.info(`PREFETCH: ${asset.href} -> ${filepath}`);
 						path: filepath,
 					};
 					const fileInfo = await storagePromises.statFile(statOptions);
-	console.info(`PREFETCH: info: ${JSON.stringify(fileInfo)}`);
 					if(fileInfo.size !== asset.size) {
-	console.info(`PREFETCH: size mismatch, removing file ...`);
+	console.info(`PREFETCH: ${asset.id}: File size mismatch, removing file ...`);
 						const removeOptions: storagePromises.RemoveFileParameters = {
 							file: filepath,
 							recursive: false,
 						};
 						await storagePromises.removeFile(removeOptions);
 						change_count++;
+	console.info(`PREFETCH: ${asset.id}: Removed, expected size: ${asset.size}, actual size: ${fileInfo.size}`);
 					}
-	console.info(`PREFETCH: removed.`);
 				} catch(err: any) {
 					console.warn(err);
 				}
 			}
 			if(asset.md5) {
-				console.info(`PREFETCH: calculating md5 ...`);
+				console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
 				const md5Options: storagePromises.GetMD5HashParameters = {
 					filePath: filepath,
 				};
@@ -301,8 +299,8 @@ console.info(`PREFETCH: ${asset.href} -> ${filepath}`);
 				try {
 					md5Result = await storagePromises.getMD5Hash(md5Options);
 					const md5hash = hexToBase64(md5Result.md5hash);
-					console.info(`PREFETCH: md5: ${md5hash}`);
 					if(md5hash === asset.md5) {
+						console.log(`PREFETCH: ${asset.id}: MD5 matches, skipping download.`);
 						continue;
 					}
 				} catch(err: unknown) {
@@ -312,26 +310,26 @@ console.info(`PREFETCH: ${asset.href} -> ${filepath}`);
 						&& 'errorText' in err
 						&& err['errorText'] === 'No such file')
 					{
-						console.warn(`PREFETCH: file not found: ${filepath}`);
+						console.warn(`PREFETCH: ${asset.id}: File not found: ${filepath}`);
 						continue;
 					}
 					console.warn(err);
 				}
-	console.info(`PREFETCH: checksum mismatch, removing file ...`);
+	console.info(`PREFETCH: ${asset.id}: MD5 mismatch, removing file ...`);
 				const removeOptions: storagePromises.RemoveFileParameters = {
 					file: filepath,
 					recursive: false,
 				};
 				await storagePromises.removeFile(removeOptions);
 				change_count++;
-	console.info(`PREFETCH: removed`);
+	console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5Result?.md5hash}`);
 			}
 			if(!asset.size && !asset.md5) {
-				console.warn("PREFETCH: no size or md5, assuming valid asset.");
+				console.warn(`PREFETCH: ${asset.id}: No size or md5, assuming valid asset.`);
 				continue;
 			}
 			try {
-console.info(`PREFETCH: downloading ...`);
+console.info(`PREFETCH: ${asset.id}: Downloading ...`);
 				const downloadOptions: storagePromises.DownloadFileParameters = {
 					action: 'start',
 					source: asset.href,
@@ -347,27 +345,27 @@ console.info(`PREFETCH: downloading ...`);
 				// REF: https://webossignage.developer.lge.com/api/scap-api/scap18/storage/
 				await storagePromises.downloadFile(downloadOptions);
 				change_count++;
-console.info(`PREFETCH: downloaded.`);
+console.info(`PREFETCH: ${asset.id}: Downloaded to ${filepath}`);
 			} catch(e: any) {
 				console.log(`PREFETCH: Fetcher failed: ${e.message}`);
 				throw(e);
 			}
-console.info(`PREFETCH: calculating md5 ...`);
+console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
 			const md5Options: storagePromises.GetMD5HashParameters = {
 				filePath: filepath,
 			};
 			const md5Result = await storagePromises.getMD5Hash(md5Options);
 			const md5hash = hexToBase64(md5Result.md5hash);
-console.info(`PREFETCH: md5: ${md5hash}`);
+console.info(`PREFETCH: ${asset.id}: MD5: ${md5hash}`);
 			if(md5hash !== asset.md5) {
-console.info(`PREFETCH: checksum mismatch, removing file ...`);
+console.info(`PREFETCH: ${asset.id}: Checksum mismatch, removing file ...`);
 				const removeOptions: storagePromises.RemoveFileParameters = {
 					file: filepath,
 					recursive: false,
 				};
 				await storagePromises.removeFile(removeOptions);
 				change_count++;
-console.info(`PREFETCH: removed`);
+console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5hash}`);
 			}
 		}
 		if(change_count > 0) {
@@ -395,7 +393,7 @@ console.info(`PREFETCH: fsync ...`);
 		this._pool.unprotectAssets(scope);
 	}
 
-	getCachedPath(origin: string): string {
+	getCachedPath(origin: string): string | null {
 		return this._pool.getFilePath(origin);
 	}
 }

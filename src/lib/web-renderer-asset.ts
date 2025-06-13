@@ -10,22 +10,22 @@ export class WebRendererAsset {
 
 	constructor(
 		readonly id: string,
-		public media_asset: AbstractWebAsset,
+		public web_asset: AbstractWebAsset,
 	) {}
 
-	get paused() { return this.media_asset.paused; }
-	get ended() { return this.media_asset.ended; }
-	get error() { return this.media_asset.error; }
-	get readyState() { return this.media_asset.readyState; }
-	get networkState() { return this.media_asset.networkState; }
-	get element() { return this.media_asset.element; }
-	get currentSrc() { return this.media_asset.currentSrc; }
-	get currentTime() { return this.media_asset.currentTime; }
+	get paused() { return this.web_asset.paused; }
+	get ended() { return this.web_asset.ended; }
+	get error() { return this.web_asset.error; }
+	get readyState() { return this.web_asset.readyState; }
+	get networkState() { return this.web_asset.networkState; }
+	get element() { return this.web_asset.element; }
+	get currentSrc() { return this.web_asset.currentSrc; }
+	get currentTime() { return this.web_asset.currentTime; }
 
-	get className() { return this.media_asset.className; }
-	set className(value: string) { this.media_asset.className = value; }
-	get classList() { return this.media_asset.classList; }
-	get style() { return this.media_asset.style; }
+	get className() { return this.web_asset.className; }
+	set className(value: string) { this.web_asset.className = value; }
+	get classList() { return this.web_asset.classList; }
+	get style() { return this.web_asset.style; }
 
 	load(): void {
 		if(this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
@@ -35,26 +35,26 @@ export class WebRendererAsset {
 			return;
 		}
 		try {
-			this.media_asset.load();
+			this.web_asset.load();
 		} catch(error: unknown) {
 			console.error(`WEB-ASSET: ${error}`);
 		}
 	}
 
 	async play() {
-		await this.media_asset.play();
+		await this.web_asset.play();
 	}
 
 	paint(now: number, remaining: number) {
-		this.media_asset.paint(now, remaining);
+		this.web_asset.paint(now, remaining);
 	}
 
 	pause() {
-		this.media_asset.pause();
+		this.web_asset.pause();
 	}
 
 	close(): void {
-		this.media_asset.close();
+		this.web_asset.close();
 	}
 
 	get ref_count() { return this._ref_count; }

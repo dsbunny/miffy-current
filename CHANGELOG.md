@@ -1,4 +1,14 @@
 # Changelog
+## v19.3.14
+- Update _apps_ with `AppBaseParams`.
+- Normalize on using `Node.setAttribute()` when modifying `src` for compatibility with WebOS.
+- Add `HTMLImageElement.decode()` polyfill for _Luna_.
+- Test `readyState` before modifying to stop flapping between _current_ and _next_ asset states.
+- Re-add media resolution stage for non-_Service Worker_ prefetch support.
+- Normalize on using `null` for _renderer_ implementations.
+- Update _WebGL_ renderer with _image_ and _video_ getters matching other implementations.
+- Add `anonymous` cross-origin for _video_ assets.
+
 ## v19.2.13
 - Add local copy of _ZOD_ to make dynamic code-generation compliant to Chome 53.
 - Bump `@dsbunny/app` for _ZOD_ version 4.

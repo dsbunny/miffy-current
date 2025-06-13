@@ -8,38 +8,48 @@ export class WebGLRendererAsset {
 	end_time = NaN;
 	protected _ref_count = 0;
 
-	constructor(readonly id: string, public media_asset: AbstractThreeAsset) {}
+	constructor(
+		readonly id: string,
+		public webgl_asset: AbstractThreeAsset,
+	) {}
 
-	get paused() { return this.media_asset.paused; }
-	get ended() { return this.media_asset.ended; }
-	get readyState() { return this.media_asset.readyState; }
-	get networkState() { return this.media_asset.networkState; }
-	get texture() { return this.media_asset.texture; }
-	get currentSrc() { return this.media_asset.currentSrc; }
-	get currentTime() { return this.media_asset.currentTime; }
+	get paused() { return this.webgl_asset.paused; }
+	get ended() { return this.webgl_asset.ended; }
+	get error() { return this.webgl_asset.error; }
+	get readyState() { return this.webgl_asset.readyState; }
+	get networkState() { return this.webgl_asset.networkState; }
+	get texture() { return this.webgl_asset.texture; }
+	get currentSrc() { return this.webgl_asset.currentSrc; }
+	get currentTime() { return this.webgl_asset.currentTime; }
 
 	load(): void {
+		if(this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
+			return;
+		}
+		if(this.networkState !== HTMLMediaElement.NETWORK_EMPTY) {
+			return;
+		}
 		try {
-			this.media_asset.load();
-		} catch(ex: any) {
-			console.error(`RENDERER: ${ex.message}`);
+			this.webgl_asset.load();
+		} catch(error: any) {
+			console.error(`WEGBL-ASSET: ${error}`);
 		}
 	}
 
 	async play() {
-		await this.media_asset.play();
+		await this.webgl_asset.play();
 	}
 
 	paint(now: number, remaining: number) {
-		this.media_asset.paint(now, remaining);
+		this.webgl_asset.paint(now, remaining);
 	}
 
 	pause() {
-		this.media_asset.pause();
+		this.webgl_asset.pause();
 	}
 
-	close() {
-		this.media_asset.close();
+	close(): void {
+		this.webgl_asset.close();
 	}
 
 	get ref_count() { return this._ref_count; }

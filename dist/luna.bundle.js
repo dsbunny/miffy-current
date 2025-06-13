@@ -609,7 +609,7 @@ class LunaImageAsset extends AbstractLunaAsset {
         if (this.image === null) {
             return;
         }
-        console.log(`unload image ... ${this.src}`);
+        console.log(`unload image ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         collection.release(this.image);
@@ -628,7 +628,7 @@ class LunaImageAsset extends AbstractLunaAsset {
             return;
         const elapsed = (now - this._startTime) / 1000;
         this._currentTime += elapsed;
-        if (this._currentTime > this.duration) {
+        if (this._currentTime > this._duration) {
             this._setEndedState();
         }
         else {
@@ -639,7 +639,7 @@ class LunaImageAsset extends AbstractLunaAsset {
         }
     }
     _setEndedState() {
-        this._currentTime = this.duration;
+        this._currentTime = this._duration;
         this._ended = true;
         this._startTime = NaN;
         this.dispatchEvent(new Event('ended'));
@@ -665,17 +665,17 @@ class LunaImageAsset extends AbstractLunaAsset {
         (async () => {
             const collection = this.collection;
             const img = this.element = collection.acquire();
-            img.crossOrigin = 'anonymous';
-            img.src = this.src;
             this._networkState = HTMLMediaElement.NETWORK_LOADING;
             try {
-                console.log(`load image ... ${this.src}`);
+                console.log(`load image ... "${this.src}"`);
+                img.crossOrigin = 'anonymous';
+                img.setAttribute('src', this.src);
                 await img.decode();
                 this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA;
                 super.dispatchEvent(new Event('canplay'));
             }
             catch (encodingError) {
-                console.warn(`Failed to load image: ${this.src} Error: ${encodingError}`);
+                console.warn(`Failed to load image: "${this.src}" Error: ${encodingError}`);
                 this._error = encodingError;
                 this._networkState = HTMLMediaElement.NETWORK_IDLE;
                 collection.release(img);
@@ -726,7 +726,7 @@ class LunaVideoAsset extends AbstractLunaAsset {
         if (this.video === null) {
             return;
         }
-        console.log(`unload video ... ${this.src}`);
+        console.log(`unload video ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         const video = this.video;
@@ -807,11 +807,12 @@ class LunaVideoAsset extends AbstractLunaAsset {
         video.oncanplay = this._redispatchEvent;
         video.onended = this._redispatchEvent;
         video.onerror = this._redispatchEvent;
-        video.src = this.src;
         // Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
         video.onloadeddata = this._redispatchEvent;
         try {
-            console.log(`load video ... ${this.src}`);
+            console.log(`load video ... "${this.src}"`);
+            video.crossOrigin = 'anonymous';
+            video.setAttribute('src', this.src);
             video.load();
         }
         catch (encodingError) {
@@ -861,7 +862,7 @@ class LunaAppAsset extends AbstractLunaAsset {
         if (this.element === null) {
             return;
         }
-        console.log(`unload app ... ${this.src}`);
+        console.log(`unload app ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         if (this._app !== null) {
@@ -944,11 +945,11 @@ class LunaAppAsset extends AbstractLunaAsset {
             const collection = this.collection;
             const renderRoot = this.element = collection.acquire();
             try {
-                console.log(`import module ... ${this.src}`);
+                console.log(`import module ... "${this.src}"`);
                 const manifest = await collection.importModule(this.src);
-                console.log(`create LunaApp ... ${this.src}`);
+                console.log(`create LunaApp ... "${this.src}"`);
                 const params = {
-                    ...((typeof this.params === "undefined") ? {} : this.params),
+                    ...this.params,
                     src: this.src,
                     duration: super.duration, // WARNING: `super` not `this`.
                 };
@@ -956,7 +957,7 @@ class LunaAppAsset extends AbstractLunaAsset {
                 app.addEventListener('canplay', this._redispatchEvent);
                 app.addEventListener('ended', this._redispatchEvent);
                 app.addEventListener('error', this._redispatchEvent);
-                console.log(`load app ... ${this.src}`);
+                console.log(`init "${manifest.name}" with params:`, params);
                 app.load();
             }
             catch (initError) {
@@ -1114,13 +1115,16 @@ class LunaAppCollection extends LunaCollection {
     async importModule(src) {
         let manifest = this._manifests.get(src);
         if (typeof manifest === 'undefined') {
+            console.log(`import app manifest ... "${src}"`);
             const module = await SystemAsyncImport(src);
+            console.log(`validate app manifest ... "${src}"`);
             const result = AppManifestSchema.safeParse(module.default);
+            console.log(`app manifest validation result: ${result.success} ... "${src}"`);
             if (!result.success) {
-                throw new Error(`Invalid app manifest: ${src}`);
+                throw new Error(`Invalid app manifest: "${src}"`);
             }
-            if (!result.data.WebApp) {
-                throw new Error(`WebApp constructor not found in manifest: ${src}`);
+            if (!result.data.LunaApp) {
+                throw new Error(`LunaApp constructor not found in manifest: ${src}`);
             }
             manifest = result.data;
             this._manifests.set(src, manifest);
@@ -1190,26 +1194,26 @@ class LunaAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class LunaRendererAsset {
-    constructor(id, media_asset) {
+    constructor(id, luna_asset) {
         this.id = id;
-        this.media_asset = media_asset;
+        this.luna_asset = luna_asset;
         this.is_loading = false;
         this.has_element = false;
         this.end_time = NaN;
         this._ref_count = 0;
     }
-    get paused() { return this.media_asset.paused; }
-    get ended() { return this.media_asset.ended; }
-    get error() { return this.media_asset.error; }
-    get readyState() { return this.media_asset.readyState; }
-    get networkState() { return this.media_asset.networkState; }
-    get element() { return this.media_asset.element; }
-    get currentSrc() { return this.media_asset.currentSrc; }
-    get currentTime() { return this.media_asset.currentTime; }
-    get className() { return this.media_asset.className; }
-    set className(value) { this.media_asset.className = value; }
-    get classList() { return this.media_asset.classList; }
-    get style() { return this.media_asset.style; }
+    get paused() { return this.luna_asset.paused; }
+    get ended() { return this.luna_asset.ended; }
+    get error() { return this.luna_asset.error; }
+    get readyState() { return this.luna_asset.readyState; }
+    get networkState() { return this.luna_asset.networkState; }
+    get element() { return this.luna_asset.element; }
+    get currentSrc() { return this.luna_asset.currentSrc; }
+    get currentTime() { return this.luna_asset.currentTime; }
+    get className() { return this.luna_asset.className; }
+    set className(value) { this.luna_asset.className = value; }
+    get classList() { return this.luna_asset.classList; }
+    get style() { return this.luna_asset.style; }
     load() {
         if (this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
             return;
@@ -1218,23 +1222,23 @@ class LunaRendererAsset {
             return;
         }
         try {
-            this.media_asset.load();
+            this.luna_asset.load();
         }
         catch (error) {
             console.error(`LUNA-ASSET: ${error}`);
         }
     }
     async play() {
-        await this.media_asset.play();
+        await this.luna_asset.play();
     }
     paint(now, remaining) {
-        this.media_asset.paint(now, remaining);
+        this.luna_asset.paint(now, remaining);
     }
     pause() {
-        this.media_asset.pause();
+        this.luna_asset.pause();
     }
     close() {
-        this.media_asset.close();
+        this.luna_asset.close();
     }
     get ref_count() { return this._ref_count; }
     ref() {
@@ -1295,16 +1299,16 @@ class LunaRenderer extends EventTarget$1 {
     constructor(prefetchFactory) {
         super();
         this._renderTarget = null;
-        this._mam = new LunaAssetManager();
+        this._asset_manager = new LunaAssetManager();
         this._transition_percent = 0;
         this._transition_percent_speed = 0;
         this._network_loading_count = 0;
-        this._current_asset = null;
-        this._next_asset = null;
-        this._map1_asset = null;
-        this._map2_asset = null;
-        this._asset_cache = new Map();
-        this._asset_trash = new Map();
+        this._current_renderer_asset = null;
+        this._next_renderer_asset = null;
+        this._map1_renderer_asset = null;
+        this._map2_renderer_asset = null;
+        this._renderer_asset_cache = new Map();
+        this._renderer_asset_trash = new Map();
         // Per HTMLMediaElement.
         this._ended = false;
         this._error = null;
@@ -1333,12 +1337,12 @@ class LunaRenderer extends EventTarget$1 {
     }
     close() {
         console.log("LUNA-RENDERER: close");
-        for (const asset of this._asset_cache.values()) {
+        for (const asset of this._renderer_asset_cache.values()) {
             // Hide from view.
             asset.style.visibility = "hidden";
             asset.close();
         }
-        this._asset_cache.clear();
+        this._renderer_asset_cache.clear();
     }
     setSetStateHook(cb) {
         this._set_state_hook = cb;
@@ -1390,7 +1394,7 @@ class LunaRenderer extends EventTarget$1 {
     }
     setAssetTarget(assetTarget) {
         console.log("LUNA-RENDERER: setAssetTarget", assetTarget);
-        this._mam.setAssetTarget(assetTarget);
+        this._asset_manager.setAssetTarget(assetTarget);
     }
     setRenderTarget(renderTarget) {
         console.log("LUNA-RENDERER: setRenderTarget", renderTarget);
@@ -1419,39 +1423,39 @@ class LunaRenderer extends EventTarget$1 {
         const elapsed = timestamp - this._previousTimestamp;
         this._previousTimestamp = timestamp;
         if (this._canPaintCurrent()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             try {
                 this._paintCurrent(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._current_asset);
+                console.error(this._current_renderer_asset);
             }
         }
         else if (this._hasWaitingDuration()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             this._paintWaitingDuration(timestamp, remaining);
         }
         else {
             this._paintWaiting(timestamp);
         }
         if (this._canPaintNext()) {
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
-            const remaining = this._next_asset.end_time - timestamp;
+            const remaining = this._next_renderer_asset.end_time - timestamp;
             try {
                 this._paintNext(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._next_asset);
+                console.error(this._next_renderer_asset);
             }
         }
         this._interpolateTransition(elapsed);
@@ -1461,12 +1465,12 @@ class LunaRenderer extends EventTarget$1 {
         this._emptyAssetTrash();
     }
     _setTransitionPercent(percent) {
-        if (this._map1_asset !== null) {
+        if (this._map1_renderer_asset !== null) {
             const rounded = Math.round((1 - percent + Number.EPSILON) * 100) / 100;
-            this._map1_asset.style.opacity = rounded.toString();
+            this._map1_renderer_asset.style.opacity = rounded.toString();
         }
-        if (this._map2_asset !== null) {
-            this._map2_asset.style.opacity = '1';
+        if (this._map2_renderer_asset !== null) {
+            this._map2_renderer_asset.style.opacity = '1';
         }
         this._transition_percent = percent;
     }
@@ -1502,40 +1506,43 @@ class LunaRenderer extends EventTarget$1 {
     // This media asset.
     async _onSchedulerCurrent(current) {
         if (current !== null) {
-            if (this._current_asset === null) {
-                //console.info(current.decl.href, current.remainingTimeMs);
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
-                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("LUNA-RENDERER: current", this._current_asset.currentSrc);
+            if (!this._isMediaReady(current.decl)) {
+                return;
             }
-            else if (current.decl.id !== this._current_asset.id) {
+            if (this._current_renderer_asset === null) {
+                //console.info(current.decl.href, current.remainingTimeMs);
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._current_renderer_asset.ref();
+                console.log("LUNA-RENDERER: current", this._current_renderer_asset.currentSrc);
+            }
+            else if (current.decl.id !== this._current_renderer_asset.id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
-                if (this._next_asset !== null
-                    && current.decl.id === this._next_asset.id) {
+                if (this._next_renderer_asset !== null
+                    && current.decl.id === this._next_renderer_asset.id) {
                     console.log("LUNA-RENDERER: current <- next");
-                    this._current_asset = await this._updateCurrentFromNext();
+                    this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
                 else {
-                    this._current_asset = await this._updateCurrent(current.decl);
+                    this._current_renderer_asset = await this._updateCurrent(current.decl);
                 }
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("LUNA-RENDERER: current", this._current_asset.currentSrc);
+                this._current_renderer_asset.ref();
+                console.log("LUNA-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (this._current_asset !== null) {
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+            else if (this._current_renderer_asset !== null) {
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
         }
-        else if (this._current_asset !== null) {
+        else if (this._current_renderer_asset !== null) {
             this._closeCurrent();
             console.log(`LUNA-RENDERER: current null`);
         }
@@ -1543,31 +1550,34 @@ class LunaRenderer extends EventTarget$1 {
     _onSchedulerNext(next) {
         // Next media asset.
         if (next !== null) {
-            if (this._next_asset === null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
-                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("LUNA-RENDERER: next", this._next_asset.currentSrc);
+            if (!this._isMediaReady(next.decl)) {
+                return;
             }
-            else if (next.decl.id !== this._next_asset.id) {
+            if (this._next_renderer_asset === null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._next_renderer_asset.ref();
+                console.log("LUNA-RENDERER: next", this._next_renderer_asset.currentSrc);
+            }
+            else if (next.decl.id !== this._next_renderer_asset.id) {
                 this._closeNext();
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("LUNA-RENDERER: next", this._next_asset.currentSrc);
+                this._next_renderer_asset.ref();
+                console.log("LUNA-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (this._next_asset !== null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+            else if (this._next_renderer_asset !== null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
         }
-        else if (this._next_asset !== null) {
+        else if (this._next_renderer_asset !== null) {
             this._closeNext();
             console.log(`LUNA-RENDERER: next null`);
         }
@@ -1576,22 +1586,22 @@ class LunaRenderer extends EventTarget$1 {
         // Resources for transitions, explicitly details textures to
         // avoid confusion when crossing boundary between two assets.
         if (transition !== null) {
-            const from_asset = this._asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
             if (typeof from_asset !== "undefined"
                 && from_asset.element !== null
-                && from_asset.id !== this._map1_asset?.id) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+                && from_asset.id !== this._map1_renderer_asset?.id) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 from_asset.ref();
                 this._setMap1Asset(from_asset);
             }
-            const to_asset = this._asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
             if (typeof to_asset !== "undefined"
                 && to_asset.element !== null
-                && to_asset.id !== this._map2_asset?.id) {
-                if (this._map2_asset !== null) {
-                    this._map2_asset.unref();
+                && to_asset.id !== this._map2_renderer_asset?.id) {
+                if (this._map2_renderer_asset !== null) {
+                    this._map2_renderer_asset.unref();
                 }
                 to_asset.ref();
                 this._setMap2Asset(to_asset);
@@ -1604,22 +1614,22 @@ class LunaRenderer extends EventTarget$1 {
             }
         }
         else { // Transition finished, follow settings per "current".
-            if (this._current_asset === null) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            if (this._current_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                     this._setMap1Asset(null);
                 }
             }
-            else if (this._current_asset.element !== null
-                && this._current_asset.id !== this._map1_asset?.id) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            else if (this._current_renderer_asset.element !== null
+                && this._current_renderer_asset.id !== this._map1_renderer_asset?.id) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
-                this._current_asset.ref();
-                this._setMap1Asset(this._current_asset);
+                this._current_renderer_asset.ref();
+                this._setMap1Asset(this._current_renderer_asset);
             }
-            if (this._map2_asset !== null) {
-                this._map2_asset.unref();
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
                 this._setMap2Asset(null);
             }
             if (this._transition_percent !== 0) {
@@ -1644,7 +1654,7 @@ class LunaRenderer extends EventTarget$1 {
     }
     _emptyAssetTrash() {
         const remove_list = [];
-        for (const [id, asset] of this._asset_trash) {
+        for (const [id, asset] of this._renderer_asset_trash) {
             if (asset.ref_count !== 0) {
                 continue;
             }
@@ -1653,85 +1663,67 @@ class LunaRenderer extends EventTarget$1 {
         }
         for (const id of remove_list) {
             console.log("LUNA-RENDERER: Destroying", id);
-            this._asset_cache.delete(id);
-            this._asset_trash.delete(id);
+            this._renderer_asset_cache.delete(id);
+            this._renderer_asset_trash.delete(id);
         }
     }
     _setMap1Asset(asset) {
-        this._map1_asset?.classList.remove('map1');
+        this._map1_renderer_asset?.classList.remove('map1');
         if (asset === null) {
-            this._map1_asset = null;
+            this._map1_renderer_asset = null;
             return;
         }
-        this._map1_asset = asset;
-        this._map1_asset.className = 'map1';
+        this._map1_renderer_asset = asset;
+        this._map1_renderer_asset.className = 'map1';
     }
     _setMap2Asset(asset) {
-        this._map2_asset?.classList.remove('map2');
+        this._map2_renderer_asset?.classList.remove('map2');
         if (asset === null) {
-            this._map2_asset = null;
+            this._map2_renderer_asset = null;
             return;
         }
-        this._map2_asset = asset;
-        this._map2_asset.className = 'map2';
+        this._map2_renderer_asset = asset;
+        this._map2_renderer_asset.className = 'map2';
     }
     // Assumes new decl.
     async _updateCurrent(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createLunaAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new LunaRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset; // drop frame.
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_element
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             asset.has_element = true;
             await asset.play();
-            if (this._map1_asset !== null) {
-                this._map1_asset.unref();
+            if (this._map1_renderer_asset !== null) {
+                this._map1_renderer_asset.unref();
             }
-            if (this._map2_asset !== null) {
-                this._map2_asset.unref();
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
             }
             asset.ref();
             this._setMap1Asset(asset);
             this._setMap2Asset(null);
             this._setTransitionPercent(0);
-            this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+            }
         }
         return asset;
     }
     // Keep reference next to current.
     async _updateCurrentFromNext() {
-        if (this._current_asset !== null) {
+        if (this._current_renderer_asset !== null) {
             throw new Error("current asset must be closed before calling.");
         }
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("next asset must be defined before calling.");
         }
-        const asset = this._next_asset;
-        this._next_asset = null;
+        const asset = this._next_renderer_asset;
+        this._next_renderer_asset = null;
         if (asset !== null
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             await asset.play();
-            if (this._map2_asset === null) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            if (this._map2_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 this._setMap1Asset(asset);
                 this._setTransitionPercent(0);
@@ -1745,14 +1737,14 @@ class LunaRenderer extends EventTarget$1 {
         return asset;
     }
     _canPaintCurrent() {
-        return this._current_asset !== null
-            && this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._current_renderer_asset !== null
+            && this._current_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintCurrent(timestamp, remaining) {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             throw new Error("undefined current asset.");
         }
-        this._current_asset.paint(timestamp, remaining);
+        this._current_renderer_asset.paint(timestamp, remaining);
         // Very slow loading asset, force playback, avoid seeking as already broken.
         //		if(this.#current_asset.paused) {
         //			(async() => {
@@ -1767,13 +1759,13 @@ class LunaRenderer extends EventTarget$1 {
         //		}
     }
     _closeCurrent() {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             return;
         }
-        this._current_asset.pause();
-        this._current_asset.unref();
-        this._asset_trash.set(this._current_asset.id, this._current_asset);
-        this._current_asset = null;
+        this._current_renderer_asset.pause();
+        this._current_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
         return false;
@@ -1781,51 +1773,66 @@ class LunaRenderer extends EventTarget$1 {
     _paintWaiting(_timestamp) { }
     _paintWaitingDuration(_timestamp, _remaining) { }
     _updateNext(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createLunaAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new LunaRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset;
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_element
-            && asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+            && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             asset.has_element = true;
-            this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            }
         }
         return asset;
     }
+    _isMediaReady(decl) {
+        const path = this._asset_prefetch.getCachedPath(decl.href);
+        return path !== null;
+    }
+    _resolveMediaAsset(decl) {
+        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        if (typeof existing_asset !== "undefined") {
+            if (this._renderer_asset_trash.has(decl.id)) {
+                this._renderer_asset_trash.delete(decl.id);
+            }
+            if (existing_asset.is_loading
+                && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                this._networkLoadingUnref();
+                existing_asset.is_loading = false;
+            }
+            return existing_asset;
+        }
+        const cached_path = this._asset_prefetch.getCachedPath(decl.href);
+        if (cached_path === null) {
+            throw new Error(`Media asset not cached: ${decl.href}`);
+        }
+        const resolved_decl = {
+            ...decl,
+            href: cached_path,
+        };
+        const luna_asset = this._asset_manager.createLunaAsset(resolved_decl);
+        const renderer_asset = new LunaRendererAsset(decl.id, luna_asset);
+        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        this._networkLoadingRef();
+        renderer_asset.is_loading = true;
+        renderer_asset.load();
+        return renderer_asset;
+    }
     _canPaintNext() {
-        return this._next_asset !== null
-            && this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._next_renderer_asset !== null
+            && this._next_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintNext(timestamp, remaining) {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.paint(timestamp, remaining);
+        this._next_renderer_asset.paint(timestamp, remaining);
     }
     _closeNext() {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.unref();
-        this._asset_trash.set(this._next_asset.id, this._next_asset);
-        this._next_asset = null;
+        this._next_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._next_renderer_asset = null;
     }
 }
 
@@ -1943,7 +1950,7 @@ class WebImageAsset extends AbstractWebAsset {
         if (this.image === null) {
             return;
         }
-        console.log(`unload image ... ${this.src}`);
+        console.log(`unload image ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         collection.release(this.image);
@@ -1962,7 +1969,7 @@ class WebImageAsset extends AbstractWebAsset {
             return;
         const elapsed = (now - this._startTime) / 1000;
         this._currentTime += elapsed;
-        if (this._currentTime > this.duration) {
+        if (this._currentTime > this._duration) {
             this._setEndedState();
         }
         else {
@@ -1973,7 +1980,7 @@ class WebImageAsset extends AbstractWebAsset {
         }
     }
     _setEndedState() {
-        this._currentTime = this.duration;
+        this._currentTime = this._duration;
         this._ended = true;
         this._startTime = NaN;
         this.dispatchEvent(new Event('ended'));
@@ -1999,17 +2006,17 @@ class WebImageAsset extends AbstractWebAsset {
         (async () => {
             const collection = this.collection;
             const img = this.element = collection.acquire();
-            img.crossOrigin = 'anonymous';
-            img.src = this.src;
             this._networkState = HTMLMediaElement.NETWORK_LOADING;
             try {
-                console.log(`load image ... ${this.src}`);
+                console.log(`load image ... "${this.src}"`);
+                img.crossOrigin = 'anonymous';
+                img.setAttribute('src', this.src);
                 await img.decode();
                 this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA;
                 super.dispatchEvent(new Event('canplay'));
             }
             catch (encodingError) {
-                console.warn(`Failed to load image: ${this.src}`, encodingError);
+                console.warn(`Failed to load image: "${this.src}" Error: ${encodingError}`);
                 this._error = encodingError;
                 this._networkState = HTMLMediaElement.NETWORK_IDLE;
                 collection.release(img);
@@ -2060,7 +2067,7 @@ class WebVideoAsset extends AbstractWebAsset {
         if (this.video === null) {
             return;
         }
-        console.log(`unload video ... ${this.src}`);
+        console.log(`unload video ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         const video = this.video;
@@ -2088,7 +2095,7 @@ class WebVideoAsset extends AbstractWebAsset {
     }
     get currentTime() {
         if (this.video === null) {
-            return 0;
+            return super.currentTime;
         }
         return this.video.currentTime;
     }
@@ -2128,7 +2135,7 @@ class WebVideoAsset extends AbstractWebAsset {
         }
         return this.video.readyState;
     }
-    get src() { return this._src; }
+    get src() { return super.src; }
     get srcObject() {
         if (this.video === null) {
             return null;
@@ -2141,11 +2148,12 @@ class WebVideoAsset extends AbstractWebAsset {
         video.oncanplay = this._redispatchEvent;
         video.onended = this._redispatchEvent;
         video.onerror = this._redispatchEvent;
-        video.src = this.src;
         // Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
         video.onloadeddata = this._redispatchEvent;
         try {
-            console.log(`load video ... ${this.src}`);
+            console.log(`load video ... "${this.src}"`);
+            video.crossOrigin = 'anonymous';
+            video.setAttribute('src', this.src);
             video.load();
         }
         catch (encodingError) {
@@ -2195,7 +2203,7 @@ class WebAppAsset extends AbstractWebAsset {
         if (this.element === null) {
             return;
         }
-        console.log(`unload app ... ${this.src}`);
+        console.log(`unload app ... "${this.src}"`);
         this.pause();
         const collection = this.collection;
         if (this._app !== null) {
@@ -2278,11 +2286,11 @@ class WebAppAsset extends AbstractWebAsset {
             const collection = this.collection;
             const renderRoot = this.element = collection.acquire();
             try {
-                console.log(`import module ... ${this.src}`);
+                console.log(`import module ... "${this.src}"`);
                 const manifest = await collection.importModule(this.src);
-                console.log(`create WebApp ... ${this.src}`);
+                console.log(`create WebApp ... "${this.src}"`);
                 const params = {
-                    ...((typeof this.params === "undefined") ? {} : this.params),
+                    ...this.params,
                     src: this.src,
                     duration: super.duration, // WARNING: `super` not `this`.
                 };
@@ -2290,10 +2298,11 @@ class WebAppAsset extends AbstractWebAsset {
                 app.addEventListener('canplay', this._redispatchEvent);
                 app.addEventListener('ended', this._redispatchEvent);
                 app.addEventListener('error', this._redispatchEvent);
-                console.log(`load app ... ${this.src}`);
+                console.log(`init "${manifest.name}" with params:`, params);
                 app.load();
             }
             catch (initError) {
+                console.warn(`Failed to load app: "${this.src}"`, initError);
                 collection.release(renderRoot);
                 super.dispatchEvent(new Event('error'));
             }
@@ -2447,10 +2456,13 @@ class WebAppCollection extends WebCollection {
     async importModule(src) {
         let manifest = this._manifests.get(src);
         if (typeof manifest === 'undefined') {
+            console.log(`import app manifest ... "${src}"`);
             const module = await import(src);
+            console.log(`validate app manifest ... "${src}"`);
             const result = AppManifestSchema.safeParse(module.default);
+            console.log(`app manifest validation result: ${result.success} ... "${src}"`);
             if (!result.success) {
-                throw new Error(`Invalid app manifest: ${src}`);
+                throw new Error(`Invalid app manifest: "${src}"`);
             }
             if (!result.data.WebApp) {
                 throw new Error(`WebApp constructor not found in manifest: ${src}`);
@@ -2523,26 +2535,26 @@ class WebAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class WebRendererAsset {
-    constructor(id, media_asset) {
+    constructor(id, web_asset) {
         this.id = id;
-        this.media_asset = media_asset;
+        this.web_asset = web_asset;
         this.is_loading = false;
         this.has_element = false;
         this.end_time = NaN;
         this._ref_count = 0;
     }
-    get paused() { return this.media_asset.paused; }
-    get ended() { return this.media_asset.ended; }
-    get error() { return this.media_asset.error; }
-    get readyState() { return this.media_asset.readyState; }
-    get networkState() { return this.media_asset.networkState; }
-    get element() { return this.media_asset.element; }
-    get currentSrc() { return this.media_asset.currentSrc; }
-    get currentTime() { return this.media_asset.currentTime; }
-    get className() { return this.media_asset.className; }
-    set className(value) { this.media_asset.className = value; }
-    get classList() { return this.media_asset.classList; }
-    get style() { return this.media_asset.style; }
+    get paused() { return this.web_asset.paused; }
+    get ended() { return this.web_asset.ended; }
+    get error() { return this.web_asset.error; }
+    get readyState() { return this.web_asset.readyState; }
+    get networkState() { return this.web_asset.networkState; }
+    get element() { return this.web_asset.element; }
+    get currentSrc() { return this.web_asset.currentSrc; }
+    get currentTime() { return this.web_asset.currentTime; }
+    get className() { return this.web_asset.className; }
+    set className(value) { this.web_asset.className = value; }
+    get classList() { return this.web_asset.classList; }
+    get style() { return this.web_asset.style; }
     load() {
         if (this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
             return;
@@ -2551,23 +2563,23 @@ class WebRendererAsset {
             return;
         }
         try {
-            this.media_asset.load();
+            this.web_asset.load();
         }
         catch (error) {
             console.error(`WEB-ASSET: ${error}`);
         }
     }
     async play() {
-        await this.media_asset.play();
+        await this.web_asset.play();
     }
     paint(now, remaining) {
-        this.media_asset.paint(now, remaining);
+        this.web_asset.paint(now, remaining);
     }
     pause() {
-        this.media_asset.pause();
+        this.web_asset.pause();
     }
     close() {
-        this.media_asset.close();
+        this.web_asset.close();
     }
     get ref_count() { return this._ref_count; }
     ref() {
@@ -2624,20 +2636,20 @@ function minimize(value) {
     };
     return obj;
 }
-class WebRenderer extends EventTarget {
+class WebRenderer extends EventTarget$1 {
     constructor(prefetchFactory) {
         super();
         this._renderTarget = null;
-        this._mam = new WebAssetManager();
+        this._asset_manager = new WebAssetManager();
         this._transition_percent = 0;
         this._transition_percent_speed = 0;
         this._network_loading_count = 0;
-        this._current_asset = null;
-        this._next_asset = null;
-        this._map1_asset = null;
-        this._map2_asset = null;
-        this._asset_cache = new Map();
-        this._asset_trash = new Map();
+        this._current_renderer_asset = null;
+        this._next_renderer_asset = null;
+        this._map1_renderer_asset = null;
+        this._map2_renderer_asset = null;
+        this._renderer_asset_cache = new Map();
+        this._renderer_asset_trash = new Map();
         // Per HTMLMediaElement.
         this._ended = false;
         this._error = null;
@@ -2666,12 +2678,12 @@ class WebRenderer extends EventTarget {
     }
     close() {
         console.log("WEB-RENDERER: close");
-        for (const asset of this._asset_cache.values()) {
+        for (const asset of this._renderer_asset_cache.values()) {
             // Hide from view.
             asset.style.visibility = "hidden";
             asset.close();
         }
-        this._asset_cache.clear();
+        this._renderer_asset_cache.clear();
     }
     setSetStateHook(cb) {
         this._set_state_hook = cb;
@@ -2723,7 +2735,7 @@ class WebRenderer extends EventTarget {
     }
     setAssetTarget(assetTarget) {
         console.log("WEB-RENDERER: setAssetTarget", assetTarget);
-        this._mam.setAssetTarget(assetTarget);
+        this._asset_manager.setAssetTarget(assetTarget);
     }
     setRenderTarget(renderTarget) {
         console.log("WEB-RENDERER: setRenderTarget", renderTarget);
@@ -2752,39 +2764,39 @@ class WebRenderer extends EventTarget {
         const elapsed = timestamp - this._previousTimestamp;
         this._previousTimestamp = timestamp;
         if (this._canPaintCurrent()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             try {
                 this._paintCurrent(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._current_asset);
+                console.error(this._current_renderer_asset);
             }
         }
         else if (this._hasWaitingDuration()) {
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
-            const remaining = this._current_asset.end_time - timestamp;
+            const remaining = this._current_renderer_asset.end_time - timestamp;
             this._paintWaitingDuration(timestamp, remaining);
         }
         else {
             this._paintWaiting(timestamp);
         }
         if (this._canPaintNext()) {
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
-            const remaining = this._next_asset.end_time - timestamp;
+            const remaining = this._next_renderer_asset.end_time - timestamp;
             try {
                 this._paintNext(timestamp, remaining);
             }
             catch (ex) {
                 console.error(ex);
-                console.error(this._next_asset);
+                console.error(this._next_renderer_asset);
             }
         }
         this._interpolateTransition(elapsed);
@@ -2794,12 +2806,12 @@ class WebRenderer extends EventTarget {
         this._emptyAssetTrash();
     }
     _setTransitionPercent(percent) {
-        if (this._map1_asset !== null) {
+        if (this._map1_renderer_asset !== null) {
             const rounded = Math.round((1 - percent + Number.EPSILON) * 100) / 100;
-            this._map1_asset.style.opacity = rounded.toString();
+            this._map1_renderer_asset.style.opacity = rounded.toString();
         }
-        if (this._map2_asset !== null) {
-            this._map2_asset.style.opacity = '1';
+        if (this._map2_renderer_asset !== null) {
+            this._map2_renderer_asset.style.opacity = '1';
         }
         this._transition_percent = percent;
     }
@@ -2835,40 +2847,43 @@ class WebRenderer extends EventTarget {
     // This media asset.
     async _onSchedulerCurrent(current) {
         if (current !== null) {
-            if (this._current_asset === null) {
-                //console.info(current.decl.href, current.remainingTimeMs);
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
-                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("WEB-RENDERER: current", this._current_asset.currentSrc);
+            if (!this._isMediaReady(current.decl)) {
+                return;
             }
-            else if (current.decl.id !== this._current_asset.id) {
+            if (this._current_renderer_asset === null) {
+                //console.info(current.decl.href, current.remainingTimeMs);
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                    (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._current_renderer_asset.ref();
+                console.log("WEB-RENDERER: current", this._current_renderer_asset.currentSrc);
+            }
+            else if (current.decl.id !== this._current_renderer_asset.id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
-                if (this._next_asset !== null
-                    && current.decl.id === this._next_asset.id) {
+                if (this._next_renderer_asset !== null
+                    && current.decl.id === this._next_renderer_asset.id) {
                     console.log("WEB-RENDERER: current <- next");
-                    this._current_asset = await this._updateCurrentFromNext();
+                    this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
                 else {
-                    this._current_asset = await this._updateCurrent(current.decl);
+                    this._current_renderer_asset = await this._updateCurrent(current.decl);
                 }
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._current_asset.ref();
-                console.log("WEB-RENDERER: current", this._current_asset.currentSrc);
+                this._current_renderer_asset.ref();
+                console.log("WEB-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (this._current_asset !== null) {
-                this._current_asset = await this._updateCurrent(current.decl);
-                this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+            else if (this._current_renderer_asset !== null) {
+                this._current_renderer_asset = await this._updateCurrent(current.decl);
+                this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
                     (current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._current_asset === null) {
+            if (this._current_renderer_asset === null) {
                 throw new Error("current asset is null.");
             }
         }
-        else if (this._current_asset !== null) {
+        else if (this._current_renderer_asset !== null) {
             this._closeCurrent();
             console.log(`WEB-RENDERER: current null`);
         }
@@ -2876,31 +2891,34 @@ class WebRenderer extends EventTarget {
     _onSchedulerNext(next) {
         // Next media asset.
         if (next !== null) {
-            if (this._next_asset === null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
-                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("WEB-RENDERER: next", this._next_asset.currentSrc);
+            if (!this._isMediaReady(next.decl)) {
+                return;
             }
-            else if (next.decl.id !== this._next_asset.id) {
+            if (this._next_renderer_asset === null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                    (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+                this._next_renderer_asset.ref();
+                console.log("WEB-RENDERER: next", this._next_renderer_asset.currentSrc);
+            }
+            else if (next.decl.id !== this._next_renderer_asset.id) {
                 this._closeNext();
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-                this._next_asset.ref();
-                console.log("WEB-RENDERER: next", this._next_asset.currentSrc);
+                this._next_renderer_asset.ref();
+                console.log("WEB-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (this._next_asset !== null) {
-                this._next_asset = this._updateNext(next.decl);
-                this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+            else if (this._next_renderer_asset !== null) {
+                this._next_renderer_asset = this._updateNext(next.decl);
+                this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
                     (next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
             }
-            if (this._next_asset === null) {
+            if (this._next_renderer_asset === null) {
                 throw new Error("next asset is null.");
             }
         }
-        else if (this._next_asset !== null) {
+        else if (this._next_renderer_asset !== null) {
             this._closeNext();
             console.log(`WEB-RENDERER: next null`);
         }
@@ -2909,22 +2927,22 @@ class WebRenderer extends EventTarget {
         // Resources for transitions, explicitly details textures to
         // avoid confusion when crossing boundary between two assets.
         if (transition !== null) {
-            const from_asset = this._asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
             if (typeof from_asset !== "undefined"
                 && from_asset.element !== null
-                && from_asset.id !== this._map1_asset?.id) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+                && from_asset.id !== this._map1_renderer_asset?.id) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 from_asset.ref();
                 this._setMap1Asset(from_asset);
             }
-            const to_asset = this._asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
             if (typeof to_asset !== "undefined"
                 && to_asset.element !== null
-                && to_asset.id !== this._map2_asset?.id) {
-                if (this._map2_asset !== null) {
-                    this._map2_asset.unref();
+                && to_asset.id !== this._map2_renderer_asset?.id) {
+                if (this._map2_renderer_asset !== null) {
+                    this._map2_renderer_asset.unref();
                 }
                 to_asset.ref();
                 this._setMap2Asset(to_asset);
@@ -2937,22 +2955,22 @@ class WebRenderer extends EventTarget {
             }
         }
         else { // Transition finished, follow settings per "current".
-            if (this._current_asset === null) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            if (this._current_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                     this._setMap1Asset(null);
                 }
             }
-            else if (this._current_asset.element !== null
-                && this._current_asset.id !== this._map1_asset?.id) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            else if (this._current_renderer_asset.element !== null
+                && this._current_renderer_asset.id !== this._map1_renderer_asset?.id) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
-                this._current_asset.ref();
-                this._setMap1Asset(this._current_asset);
+                this._current_renderer_asset.ref();
+                this._setMap1Asset(this._current_renderer_asset);
             }
-            if (this._map2_asset !== null) {
-                this._map2_asset.unref();
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
                 this._setMap2Asset(null);
             }
             if (this._transition_percent !== 0) {
@@ -2977,7 +2995,7 @@ class WebRenderer extends EventTarget {
     }
     _emptyAssetTrash() {
         const remove_list = [];
-        for (const [id, asset] of this._asset_trash) {
+        for (const [id, asset] of this._renderer_asset_trash) {
             if (asset.ref_count !== 0) {
                 continue;
             }
@@ -2986,85 +3004,67 @@ class WebRenderer extends EventTarget {
         }
         for (const id of remove_list) {
             console.log("WEB-RENDERER: Destroying", id);
-            this._asset_cache.delete(id);
-            this._asset_trash.delete(id);
+            this._renderer_asset_cache.delete(id);
+            this._renderer_asset_trash.delete(id);
         }
     }
     _setMap1Asset(asset) {
-        this._map1_asset?.classList.remove('map1');
+        this._map1_renderer_asset?.classList.remove('map1');
         if (asset === null) {
-            this._map1_asset = null;
+            this._map1_renderer_asset = null;
             return;
         }
-        this._map1_asset = asset;
-        this._map1_asset.className = 'map1';
+        this._map1_renderer_asset = asset;
+        this._map1_renderer_asset.className = 'map1';
     }
     _setMap2Asset(asset) {
-        this._map2_asset?.classList.remove('map2');
+        this._map2_renderer_asset?.classList.remove('map2');
         if (asset === null) {
-            this._map2_asset = null;
+            this._map2_renderer_asset = null;
             return;
         }
-        this._map2_asset = asset;
-        this._map2_asset.className = 'map2';
+        this._map2_renderer_asset = asset;
+        this._map2_renderer_asset.className = 'map2';
     }
     // Assumes new decl.
     async _updateCurrent(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createWebAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new WebRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset; // drop frame.
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_element
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             asset.has_element = true;
             await asset.play();
-            if (this._map1_asset !== null) {
-                this._map1_asset.unref();
+            if (this._map1_renderer_asset !== null) {
+                this._map1_renderer_asset.unref();
             }
-            if (this._map2_asset !== null) {
-                this._map2_asset.unref();
+            if (this._map2_renderer_asset !== null) {
+                this._map2_renderer_asset.unref();
             }
             asset.ref();
             this._setMap1Asset(asset);
             this._setMap2Asset(null);
             this._setTransitionPercent(0);
-            this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+            }
         }
         return asset;
     }
     // Keep reference next to current.
     async _updateCurrentFromNext() {
-        if (this._current_asset !== null) {
+        if (this._current_renderer_asset !== null) {
             throw new Error("current asset must be closed before calling.");
         }
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("next asset must be defined before calling.");
         }
-        const asset = this._next_asset;
-        this._next_asset = null;
+        const asset = this._next_renderer_asset;
+        this._next_renderer_asset = null;
         if (asset !== null
             && asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
             await asset.play();
-            if (this._map2_asset === null) {
-                if (this._map1_asset !== null) {
-                    this._map1_asset.unref();
+            if (this._map2_renderer_asset === null) {
+                if (this._map1_renderer_asset !== null) {
+                    this._map1_renderer_asset.unref();
                 }
                 this._setMap1Asset(asset);
                 this._setTransitionPercent(0);
@@ -3078,14 +3078,14 @@ class WebRenderer extends EventTarget {
         return asset;
     }
     _canPaintCurrent() {
-        return this._current_asset !== null
-            && this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._current_renderer_asset !== null
+            && this._current_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintCurrent(timestamp, remaining) {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             throw new Error("undefined current asset.");
         }
-        this._current_asset.paint(timestamp, remaining);
+        this._current_renderer_asset.paint(timestamp, remaining);
         // Very slow loading asset, force playback, avoid seeking as already broken.
         //		if(this.#current_asset.paused) {
         //			(async() => {
@@ -3100,13 +3100,13 @@ class WebRenderer extends EventTarget {
         //		}
     }
     _closeCurrent() {
-        if (this._current_asset === null) {
+        if (this._current_renderer_asset === null) {
             return;
         }
-        this._current_asset.pause();
-        this._current_asset.unref();
-        this._asset_trash.set(this._current_asset.id, this._current_asset);
-        this._current_asset = null;
+        this._current_renderer_asset.pause();
+        this._current_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
         return false;
@@ -3114,51 +3114,66 @@ class WebRenderer extends EventTarget {
     _paintWaiting(_timestamp) { }
     _paintWaitingDuration(_timestamp, _remaining) { }
     _updateNext(decl) {
-        const asset = this._asset_cache.get(decl.id);
-        if (typeof asset === "undefined") {
-            const media_asset = this._mam.createWebAsset(decl);
-            if (typeof media_asset === "undefined") {
-                throw new Error("Failed to create media asset.");
-            }
-            const new_asset = new WebRendererAsset(decl.id, media_asset);
-            this._asset_cache.set(new_asset.id, new_asset);
-            this._networkLoadingRef();
-            new_asset.is_loading = true;
-            new_asset.load();
-            return new_asset;
-        }
-        else if (this._asset_trash.has(decl.id)) {
-            this._asset_trash.delete(decl.id);
-        }
-        if (asset.is_loading
-            && asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-            this._networkLoadingUnref();
-            asset.is_loading = false;
-        }
+        const asset = this._resolveMediaAsset(decl);
         if (!asset.has_element
             && asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
             asset.has_element = true;
-            this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            if (this.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+                this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+            }
         }
         return asset;
     }
+    _isMediaReady(decl) {
+        const path = this._asset_prefetch.getCachedPath(decl.href);
+        return path !== null;
+    }
+    _resolveMediaAsset(decl) {
+        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        if (typeof existing_asset !== "undefined") {
+            if (this._renderer_asset_trash.has(decl.id)) {
+                this._renderer_asset_trash.delete(decl.id);
+            }
+            if (existing_asset.is_loading
+                && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
+                this._networkLoadingUnref();
+                existing_asset.is_loading = false;
+            }
+            return existing_asset;
+        }
+        const cached_path = this._asset_prefetch.getCachedPath(decl.href);
+        if (cached_path === null) {
+            throw new Error(`Media asset not cached: ${decl.href}`);
+        }
+        const resolved_decl = {
+            ...decl,
+            href: cached_path,
+        };
+        const web_asset = this._asset_manager.createWebAsset(resolved_decl);
+        const renderer_asset = new WebRendererAsset(decl.id, web_asset);
+        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        this._networkLoadingRef();
+        renderer_asset.is_loading = true;
+        renderer_asset.load();
+        return renderer_asset;
+    }
     _canPaintNext() {
-        return this._next_asset !== null
-            && this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+        return this._next_renderer_asset !== null
+            && this._next_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
     }
     _paintNext(timestamp, remaining) {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.paint(timestamp, remaining);
+        this._next_renderer_asset.paint(timestamp, remaining);
     }
     _closeNext() {
-        if (this._next_asset === null) {
+        if (this._next_renderer_asset === null) {
             throw new Error("undefined next asset.");
         }
-        this._next_asset.unref();
-        this._asset_trash.set(this._next_asset.id, this._next_asset);
-        this._next_asset = null;
+        this._next_renderer_asset.unref();
+        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._next_renderer_asset = null;
     }
 }
 
@@ -6473,7 +6488,7 @@ class LunaPool {
             this._url_to_id_map.set(asset.href, asset.id);
             this._id_to_asset_map.set(asset.id, asset);
             this._id_to_file_map.set(asset.id, filepath);
-            console.info(`PREFETCH: added.`);
+            console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
             this._eviction_queue.push(new EvictionEntry(asset.id, now));
             this._protected_ids.add(asset.id);
             ids.add(asset.id);
@@ -6500,7 +6515,7 @@ class LunaPool {
     getFilePath(url) {
         const id = this._url_to_id_map.get(url);
         if (typeof id === "undefined") {
-            return "";
+            return null;
         }
         const filename = filenameFromIdAndHref(id, url);
         const filepath = `${this._base_path}/${filename}`;
@@ -6622,13 +6637,12 @@ class LunaPrefetch extends EventTarget$1 {
     }
     async _fetchAssets(pool, assets) {
         //		console.log(`PREFETCH: __fetchAssets: ${JSON.stringify(assets.map(asset => asset.name))}`);
-        console.log(`PREFETCH: _fetchAssets: ${JSON.stringify(assets)}`);
+        console.log(`PREFETCH: _fetchAssets ...`);
         let change_count = 0;
         for (const asset of assets) {
             const filepath = pool.getFilePath(asset.href);
-            console.info(`PREFETCH: ${asset.href} -> ${filepath}`);
             if (!filepath) {
-                console.warn(`asset #${asset.id} not in pool`);
+                console.warn(`PREFETCH: ${asset.id}: Asset not in pool.`);
                 continue;
             }
             if (asset.size) {
@@ -6637,24 +6651,23 @@ class LunaPrefetch extends EventTarget$1 {
                         path: filepath,
                     };
                     const fileInfo = await statFile(statOptions);
-                    console.info(`PREFETCH: info: ${JSON.stringify(fileInfo)}`);
                     if (fileInfo.size !== asset.size) {
-                        console.info(`PREFETCH: size mismatch, removing file ...`);
+                        console.info(`PREFETCH: ${asset.id}: File size mismatch, removing file ...`);
                         const removeOptions = {
                             file: filepath,
                             recursive: false,
                         };
                         await removeFile(removeOptions);
                         change_count++;
+                        console.info(`PREFETCH: ${asset.id}: Removed, expected size: ${asset.size}, actual size: ${fileInfo.size}`);
                     }
-                    console.info(`PREFETCH: removed.`);
                 }
                 catch (err) {
                     console.warn(err);
                 }
             }
             if (asset.md5) {
-                console.info(`PREFETCH: calculating md5 ...`);
+                console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
                 const md5Options = {
                     filePath: filepath,
                 };
@@ -6662,8 +6675,8 @@ class LunaPrefetch extends EventTarget$1 {
                 try {
                     md5Result = await getMD5Hash(md5Options);
                     const md5hash = hexToBase64(md5Result.md5hash);
-                    console.info(`PREFETCH: md5: ${md5hash}`);
                     if (md5hash === asset.md5) {
+                        console.log(`PREFETCH: ${asset.id}: MD5 matches, skipping download.`);
                         continue;
                     }
                 }
@@ -6673,26 +6686,26 @@ class LunaPrefetch extends EventTarget$1 {
                         && err !== null
                         && 'errorText' in err
                         && err['errorText'] === 'No such file') {
-                        console.warn(`PREFETCH: file not found: ${filepath}`);
+                        console.warn(`PREFETCH: ${asset.id}: File not found: ${filepath}`);
                         continue;
                     }
                     console.warn(err);
                 }
-                console.info(`PREFETCH: checksum mismatch, removing file ...`);
+                console.info(`PREFETCH: ${asset.id}: MD5 mismatch, removing file ...`);
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
                 change_count++;
-                console.info(`PREFETCH: removed`);
+                console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5Result?.md5hash}`);
             }
             if (!asset.size && !asset.md5) {
-                console.warn("PREFETCH: no size or md5, assuming valid asset.");
+                console.warn(`PREFETCH: ${asset.id}: No size or md5, assuming valid asset.`);
                 continue;
             }
             try {
-                console.info(`PREFETCH: downloading ...`);
+                console.info(`PREFETCH: ${asset.id}: Downloading ...`);
                 const downloadOptions = {
                     action: 'start',
                     source: asset.href,
@@ -6708,28 +6721,28 @@ class LunaPrefetch extends EventTarget$1 {
                 // REF: https://webossignage.developer.lge.com/api/scap-api/scap18/storage/
                 await downloadFile(downloadOptions);
                 change_count++;
-                console.info(`PREFETCH: downloaded.`);
+                console.info(`PREFETCH: ${asset.id}: Downloaded to ${filepath}`);
             }
             catch (e) {
                 console.log(`PREFETCH: Fetcher failed: ${e.message}`);
                 throw (e);
             }
-            console.info(`PREFETCH: calculating md5 ...`);
+            console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
             const md5Options = {
                 filePath: filepath,
             };
             const md5Result = await getMD5Hash(md5Options);
             const md5hash = hexToBase64(md5Result.md5hash);
-            console.info(`PREFETCH: md5: ${md5hash}`);
+            console.info(`PREFETCH: ${asset.id}: MD5: ${md5hash}`);
             if (md5hash !== asset.md5) {
-                console.info(`PREFETCH: checksum mismatch, removing file ...`);
+                console.info(`PREFETCH: ${asset.id}: Checksum mismatch, removing file ...`);
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
                 change_count++;
-                console.info(`PREFETCH: removed`);
+                console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5hash}`);
             }
         }
         if (change_count > 0) {

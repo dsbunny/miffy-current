@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT.
 
 import EventTarget from '@ungap/event-target';
-import { AppManifestSchema, LunaApp } from '@dsbunny/app';
+import { AppBaseParams, AppManifestSchema, LunaApp } from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 import { SystemAsyncImport } from './system-async-import.js';
 import "./htmlimageelement-decode-polyfill.js";
@@ -14,7 +14,7 @@ export abstract class AbstractLunaAsset extends EventTarget {
 
 	protected _src: string;
 	protected _opacity = 1;
-	protected _params: any;
+	protected _params: AppBaseParams;
 	// Per `HTMLMediaElement`.
 	protected _duration: number;
 	protected _ended = false;
@@ -76,7 +76,7 @@ export class LunaImageAsset extends AbstractLunaAsset {
 
 	constructor(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 		collection: LunaImageCollection,
 	) {
@@ -91,10 +91,10 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		if(this.image === null) {
 			return;
 		}
-		console.log(`unload image ... ${this.src}`);
+		console.log(`unload image ... "${this.src}"`);
 		this.pause();
 		const collection = this.collection as LunaImageCollection;
-		collection.release(this.image!);
+		collection.release(this.image);
 		this.element = null;
 		this._readyState = HTMLMediaElement.HAVE_NOTHING;
 		this._networkState = HTMLMediaElement.NETWORK_EMPTY;
@@ -110,7 +110,7 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		if(this.paused || this.ended) return;
 		const elapsed = (now - this._startTime) / 1000;
 		this._currentTime += elapsed;
-		if(this._currentTime > this.duration) {
+		if(this._currentTime > this._duration) {
 			this._setEndedState();
 		} else {
 			if(Math.floor(this._currentTime) > this._lastTimeUpdate) {
@@ -121,7 +121,7 @@ export class LunaImageAsset extends AbstractLunaAsset {
 	}
 
 	protected _setEndedState(): void {
-		this._currentTime = this.duration;
+		this._currentTime = this._duration;
 		this._ended = true;
 		this._startTime = NaN;
 		this.dispatchEvent(new Event('ended'));
@@ -150,16 +150,16 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		(async () => {
 			const collection = this.collection as LunaImageCollection;
 			const img = this.element = collection.acquire();
-			img.crossOrigin = 'anonymous';
-			img.src = this.src;
 			this._networkState = HTMLMediaElement.NETWORK_LOADING;
 			try {
-				console.log(`load image ... ${this.src}`);
+				console.log(`load image ... "${this.src}"`);
+				img.crossOrigin = 'anonymous';
+				img.setAttribute('src', this.src);
 				await img.decode();
 				this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
 				super.dispatchEvent(new Event('canplay'));
 			} catch(encodingError: unknown) {
-				console.warn(`Failed to load image: ${this.src} Error: ${encodingError}`);
+				console.warn(`Failed to load image: "${this.src}" Error: ${encodingError}`);
 				this._error = encodingError;
 				this._networkState = HTMLMediaElement.NETWORK_IDLE;
 				collection.release(img);
@@ -189,13 +189,13 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		if(this.image === null) {
 			return NaN;
 		}
-		return this.image!.height;
+		return this.image.height;
 	}
 	override get width() {
 		if(this.image === null) {
 			return NaN;
 		}
-		return this.image!.width;
+		return this.image.width;
 	}
 }
 
@@ -206,7 +206,7 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 
 	constructor(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 		collection: LunaVideoCollection,
 	) {
@@ -221,7 +221,7 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		if(this.video === null) {
 			return;
 		}
-		console.log(`unload video ... ${this.src}`);
+		console.log(`unload video ... "${this.src}"`);
 		this.pause();
 		const collection = this.collection as LunaVideoCollection;
 		const video = this.video as LunaHTMLVideoElement;
@@ -248,56 +248,56 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		if(this.video === null) {
 			return super.currentSrc;
 		}
-		return this.video!.currentSrc;
+		return this.video.currentSrc;
 	}
 	override get currentTime() {
 		if(this.video === null) {
 			return 0;
 		}
-		return this.video!.currentTime;
+		return this.video.currentTime;
 	}
 	override get duration() {
 		if(this.video === null) {
 			return NaN;
 		}
-		return this.video!.duration;
+		return this.video.duration;
 	}
 	override get ended() {
 		if(this.video === null) {
 			return false;
 		}
-		return this.video!.ended;
+		return this.video.ended;
 	}
 	override get error() {
 		if(this.video === null) {
 			return false;
 		}
-		return this.video!.error;
+		return this.video.error;
 	}
 	override get networkState() {
 		if(this.video === null) {
 			return HTMLMediaElement.NETWORK_EMPTY;
 		}
-		return this.video!.networkState;
+		return this.video.networkState;
 	}
 	override get paused() {
 		if(this.video === null) {
 			return true;
 		}
-		return this.video!.paused;
+		return this.video.paused;
 	}
 	override get readyState() {
 		if(this.video === null) {
 			return HTMLMediaElement.HAVE_NOTHING;
 		}
-		return this.video!.readyState;
+		return this.video.readyState;
 	}
 	override get src() { return this._src; }
 	override get srcObject() {
 		if(this.video === null) {
 			return null;
 		}
-		return this.video!.srcObject;
+		return this.video.srcObject;
 	}
 
 	override load(): void {
@@ -306,11 +306,12 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		video.oncanplay = this._redispatchEvent;
 		video.onended = this._redispatchEvent;
 		video.onerror = this._redispatchEvent;
-		video.src = this.src;
 		// Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
 		video.onloadeddata = this._redispatchEvent;
 		try {
-			console.log(`load video ... ${this.src}`);
+			console.log(`load video ... "${this.src}"`);
+			video.crossOrigin = 'anonymous';
+			video.setAttribute('src', this.src);
 			video.load();
 		} catch(encodingError: unknown) {
 			collection.release(video);
@@ -322,14 +323,14 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		if(this.video === null) {
 			return;
 		}
-		this.video!.pause();
+		this.video.pause();
 	}
 
 	override async play(): Promise<void> {
 		if(this.video === null) {
 			return;
 		}
-		await this.video!.play();
+		await this.video.play();
 	}
 
 	// Per `HTMLVideoElement`.
@@ -337,13 +338,13 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		if(this.video === null) {
 			return NaN;
 		}
-		return this.video!.height;
+		return this.video.height;
 	}
 	override get width() {
 		if(this.video === null) {
 			return NaN;
 		}
-		return this.video!.width;
+		return this.video.width;
 	}
 }
 
@@ -356,7 +357,7 @@ export class LunaAppAsset extends AbstractLunaAsset {
 
 	constructor(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 		collection: LunaAppCollection,
 	) {
@@ -371,7 +372,7 @@ export class LunaAppAsset extends AbstractLunaAsset {
 		if(this.element === null) {
 			return
 		}
-		console.log(`unload app ... ${this.src}`);
+		console.log(`unload app ... "${this.src}"`);
 		this.pause();
 		const collection = this.collection as LunaAppCollection;
 		if(this._app !== null) {
@@ -457,11 +458,11 @@ export class LunaAppAsset extends AbstractLunaAsset {
 			const collection = this.collection as LunaAppCollection;
 			const renderRoot = this.element = collection.acquire();
 			try {
-				console.log(`import module ... ${this.src}`);
+				console.log(`import module ... "${this.src}"`);
 				const manifest = await collection.importModule(this.src);
-				console.log(`create LunaApp ... ${this.src}`);
+				console.log(`create LunaApp ... "${this.src}"`);
 				const params = {
-					...((typeof this.params === "undefined") ? {} : this.params),
+					...this.params,
 					src: this.src,
 					duration: super.duration,  // WARNING: `super` not `this`.
 				}
@@ -472,7 +473,7 @@ export class LunaAppAsset extends AbstractLunaAsset {
 				app.addEventListener('canplay', this._redispatchEvent);
 				app.addEventListener('ended', this._redispatchEvent);
 				app.addEventListener('error', this._redispatchEvent);
-				console.log(`load app ... ${this.src}`);
+				console.log(`init "${manifest.name}" with params:`, params);
 				app.load();
 			} catch(initError: any) {
 				collection.release(renderRoot);
@@ -544,7 +545,7 @@ export class LunaImageCollection extends LunaCollection {
 
 	override createLunaAsset(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 	): LunaImageAsset {
 		return new LunaImageAsset(src, params, duration, this);
@@ -602,7 +603,7 @@ export class LunaVideoCollection extends LunaCollection {
 
 	override createLunaAsset(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		_duration: number,
 	): LunaVideoAsset {
 		return new LunaVideoAsset(src, params, NaN, this);
@@ -661,13 +662,16 @@ export class LunaAppCollection extends LunaCollection {
 	async importModule(src: string): Promise<AppManifestSchema> {
 		let manifest = this._manifests.get(src);
 		if(typeof manifest === 'undefined') {
+			console.log(`import app manifest ... "${src}"`);
 			const module = await SystemAsyncImport(src);
+			console.log(`validate app manifest ... "${src}"`);
 			const result = AppManifestSchema.safeParse(module.default);
+			console.log(`app manifest validation result: ${result.success} ... "${src}"`);
 			if(!result.success) {
-				throw new Error(`Invalid app manifest: ${src}`);
+				throw new Error(`Invalid app manifest: "${src}"`);
 			}
-			if(!result.data.WebApp) {
-				throw new Error(`WebApp constructor not found in manifest: ${src}`);
+			if(!result.data.LunaApp) {
+				throw new Error(`LunaApp constructor not found in manifest: ${src}`);
 			}
 			manifest = result.data;
 			this._manifests.set(src, manifest);
@@ -677,7 +681,7 @@ export class LunaAppCollection extends LunaCollection {
 
 	override createLunaAsset(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 	): LunaAppAsset {
 		return new LunaAppAsset(src, params, duration, this);

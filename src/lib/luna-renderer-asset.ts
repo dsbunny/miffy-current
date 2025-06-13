@@ -10,22 +10,22 @@ export class LunaRendererAsset {
 
 	constructor(
 		readonly id: string,
-		public media_asset: AbstractLunaAsset,
+		public luna_asset: AbstractLunaAsset,
 	) {}
 
-	get paused() { return this.media_asset.paused; }
-	get ended() { return this.media_asset.ended; }
-	get error() { return this.media_asset.error; }
-	get readyState() { return this.media_asset.readyState; }
-	get networkState() { return this.media_asset.networkState; }
-	get element() { return this.media_asset.element; }
-	get currentSrc() { return this.media_asset.currentSrc; }
-	get currentTime() { return this.media_asset.currentTime; }
+	get paused() { return this.luna_asset.paused; }
+	get ended() { return this.luna_asset.ended; }
+	get error() { return this.luna_asset.error; }
+	get readyState() { return this.luna_asset.readyState; }
+	get networkState() { return this.luna_asset.networkState; }
+	get element() { return this.luna_asset.element; }
+	get currentSrc() { return this.luna_asset.currentSrc; }
+	get currentTime() { return this.luna_asset.currentTime; }
 
-	get className() { return this.media_asset.className; }
-	set className(value: string) { this.media_asset.className = value; }
-	get classList() { return this.media_asset.classList; }
-	get style() { return this.media_asset.style; }
+	get className() { return this.luna_asset.className; }
+	set className(value: string) { this.luna_asset.className = value; }
+	get classList() { return this.luna_asset.classList; }
+	get style() { return this.luna_asset.style; }
 
 	load(): void {
 		if(this.readyState !== HTMLMediaElement.HAVE_NOTHING) {
@@ -35,26 +35,26 @@ export class LunaRendererAsset {
 			return;
 		}
 		try {
-			this.media_asset.load();
+			this.luna_asset.load();
 		} catch(error: unknown) {
 			console.error(`LUNA-ASSET: ${error}`);
 		}
 	}
 
 	async play() {
-		await this.media_asset.play();
+		await this.luna_asset.play();
 	}
 
 	paint(now: number, remaining: number) {
-		this.media_asset.paint(now, remaining);
+		this.luna_asset.paint(now, remaining);
 	}
 
 	pause() {
-		this.media_asset.pause();
+		this.luna_asset.pause();
 	}
 
 	close(): void {
-		this.media_asset.close();
+		this.luna_asset.close();
 	}
 
 	get ref_count() { return this._ref_count; }

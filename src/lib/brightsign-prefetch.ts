@@ -51,16 +51,16 @@ export class BrightSignPrefetch extends EventTarget implements Prefetch {
 
 	async #fetchAssets(pool: typeof AssetPool, assets: any[]) {
 //		console.log(`PREFETCH: #fetchAssets: ${JSON.stringify(assets.map(asset => asset.name))}`);
-		console.log(`PREFETCH: #fetchAssets: ${JSON.stringify(assets)}`);
+		console.log(`PREFETCH: #fetchAssets ...`);
                 const fetcher = new AssetFetcher(pool);
                 fetcher.addEventListener("fileevent", (event: any) => {
                         // This is called each time the fetcher has finished trying to
                         // download an asset, whether successful or not. It is not
                         // called for any assets that are already in the pool.
-                        console.log(`PREFETCH: ASSET ${event.fileName} complete: ${event.responseCode.toString()} ${event.error}`);
+                        console.log(`PREFETCH: ${event.fileName}: complete: ${event.responseCode.toString()} ${event.error}`);
                 });
                 function progressString(event: any) {
-                        if (typeof event.currentFileTotal === "undefined") {
+                        if(typeof event.currentFileTotal === "undefined") {
                                 // If the size of the asset was not specified in the asset collection, then the total size may not be reported
                                 // during the fetch.
                                 return `${event.currentFileTransferred.toString()} of unknown`;
@@ -73,7 +73,7 @@ export class BrightSignPrefetch extends EventTarget implements Prefetch {
                         // This is called at approximately the progress interval
                         // specified in the options to indicate how far through the
                         // download
-                        console.log(`PREFETCH: ASSET ${event.fileName} progress: ${progressString(event)}`);
+                        console.log(`PREFETCH: ${event.fileName}: progress: ${progressString(event)}`);
                 });
                 const fetchOptions = {
                         // receive asset progress events about every five seconds.
@@ -90,7 +90,7 @@ export class BrightSignPrefetch extends EventTarget implements Prefetch {
                         console.log(`PREFETCH: Fetcher failed: ${e.message}`);
                         throw(e);
                 }
-		console.log(`PREFETCH: Fetcher complete ${JSON.stringify(assets)}.`);
+		console.log(`PREFETCH: #fetchAssets done.`);
 	}
 
 	// Protect API to limit space reclamation without time priority.
@@ -108,22 +108,20 @@ export class BrightSignPrefetch extends EventTarget implements Prefetch {
 				change_hint: source.integrity,
 			} as BrightSignAsset;
 		});
+		console.log(`PREFETCH: Protecting assets ...`);
 		await this.#pool.protectAssets(scope, assets);
-		console.log(`PREFETCH: Protected assets.`);
+		console.log(`PREFETCH: Protecting assets done.`);
 		await this.#fetchAssets(this.#pool, assets);
-		console.log(`PREFETCH: Fetched assets.`);
 		if(!await this.#pool.areAssetsReady(assets)) {
                         throw new Error("Assets not ready");
                 }
-		console.log(`PREFETCH: Assets are ready.`);
                 this.#files = new AssetPoolFiles(this.#pool, assets);
-		console.log(`PREFETCH: Mapping assets to local storage.`);
 		for(const asset of assets) {
 			const local = await this.#getPath(asset.name);
 			this.#map.set(asset.link, local);
 			console.info(`${local} -> ${asset.link}`);
 		}
-		console.log(`PREFETCH: Mapping complete.`);
+		console.log(`PREFETCH: acquireSources done.`);
 	}
 
 	async releaseSources(scope: string) {

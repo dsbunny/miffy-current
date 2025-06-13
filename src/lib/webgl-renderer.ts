@@ -7,11 +7,15 @@ import * as Comlink from 'comlink';
 import * as THREE from 'three';
 import shader from '../lib/shader.js';
 import { View, Renderer } from '../lib/renderer.js';
-import { SchedulerState, SchedulerAssetDeclWithRemainingTime, SchedulerAssetTransition } from '../lib/scheduler.js';
-import { AssetDecl, MediaDecl } from '../lib/media.js';
-import { ThreeAppAsset, ThreeAssetManager } from '../lib/three-media.js';
-import { Prefetch } from '../lib/prefetch.js';
-import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
+import {
+	SchedulerState,
+	SchedulerAssetDeclWithRemainingTime,
+	SchedulerAssetTransition,
+} from '../lib/scheduler.js';
+import { AssetDecl, MediaDecl } from './media.js';
+import { ThreeAppAsset, ThreeAssetManager } from './three-media.js';
+import { Prefetch } from './prefetch.js';
+import { ServiceWorkerPrefetch } from './service-worker-prefetch.js';
 import { WebGLRendererAsset } from './webgl-renderer-asset.js';
 
 const DEBUG_SHOW_DETAIL = true;
@@ -30,12 +34,35 @@ function replacer(_match: any, pIndent: any, pKey: any, pVal: any, pEnd: any): a
 	}
 	return r + (pEnd || '');
 }
+
 function prettyPrint(obj: any): string {
 	const jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
 	return JSON.stringify(obj, null, 3)
 	   	.replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
 	   	.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 	   	.replace(jsonLine, replacer);
+}
+
+function minimize(value: SchedulerState): any {
+	const obj = {
+		currentTime: value.currentTime,
+		eventSeries: value.eventSeries,
+		mediaList: value.mediaList,
+		mediaCurrent: value.mediaCurrent && {
+			href: value.mediaCurrent.decl.href,
+			duration: value.mediaCurrent.decl.duration,
+			remainingTimeMs: value.mediaCurrent.remainingTimeMs,
+		},
+		mediaNext: value.mediaNext && {
+			href: value.mediaNext.decl.href,
+			duration: value.mediaNext.decl.duration,
+			remainingTimeMs: value.mediaNext.remainingTimeMs,
+		},
+		transition: value.transition && {
+			percent: value.transition.percent,
+		},
+	};
+	return obj;
 }
 
 export class WebGLRenderer extends EventTarget implements Renderer {
@@ -72,7 +99,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		}
 	`;
 
-	protected _mam = new ThreeAssetManager();
+	protected _asset_manager = new ThreeAssetManager();
 	protected _renderer: THREE.WebGLRenderer | undefined;
 	protected _camera: THREE.OrthographicCamera | undefined;
 	protected _scene = new THREE.Scene();
@@ -83,8 +110,8 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 	protected _displacement_texture = new THREE.Texture();
 	protected _empty_texture = new THREE.Texture();
 	protected _network_loading_count = 0;
-	protected _current_asset: WebGLRendererAsset | null = null;
-	protected _next_asset: WebGLRendererAsset | null = null;
+	protected _current_renderer_asset: WebGLRendererAsset | null = null;
+	protected _next_renderer_asset: WebGLRendererAsset | null = null;
 	protected _shader = new THREE.RawShaderMaterial({
 		side: THREE.DoubleSide,
 		transparent: true,
@@ -100,10 +127,10 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		fragmentShader: WebGLRenderer.fragmentShader,
 		glslVersion: THREE.GLSL3,
 	});
-	protected _map1_asset: WebGLRendererAsset | null = null;
-	protected _map2_asset: WebGLRendererAsset | null = null;
-	protected _asset_cache: Map<string, WebGLRendererAsset> = new Map();
-	protected _asset_trash: Map<string, WebGLRendererAsset> = new Map();
+	protected _map1_renderer_asset: WebGLRendererAsset | null = null;
+	protected _map2_renderer_asset: WebGLRendererAsset | null = null;
+	protected _renderer_asset_cache: Map<string, WebGLRendererAsset> = new Map();
+	protected _renderer_asset_trash: Map<string, WebGLRendererAsset> = new Map();
 	protected _set_state_hook: any;
 	protected _asset_prefetch: Prefetch;
 	// Per HTMLMediaElement.
@@ -139,17 +166,17 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		if(typeof this._renderer === "undefined") {
 			throw new Error("undefined renderer.");
 		}
-		this._mam.setRenderer(this._renderer);
+		this._asset_manager.setRenderer(this._renderer);
 		console.groupEnd();
 	}
 
 	close() {
 		console.log("WEBGL-RENDERER: close");
-		for(const asset of this._asset_cache.values()) {
+		for(const asset of this._renderer_asset_cache.values()) {
 			asset.pause();
 			asset.close();
 		}
-		this._asset_cache.clear();
+		this._renderer_asset_cache.clear();
 	}
 
 	setSetStateHook(cb: any): void {
@@ -165,13 +192,14 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		Comlink.expose({
 			setState: (value: SchedulerState) => this.setState(value),
 			setSources: async (scope: string, decls: MediaDecl[]) => {
-				await this.setSources(scope, decls.map(decl => {
+				return await this.setSources(scope, decls.map(decl => {
 					return {
 						'@type': decl['@type'],
 						id: decl.id,
 						href: decl.href,
 						size: decl.size,
 						hash: decl.hash,
+						md5: decl.md5,
 						integrity: decl.integrity,
 					} as AssetDecl;
 				}));
@@ -195,7 +223,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 	protected _lastDebug = "";
 	async setStateUnhooked(value: SchedulerState): Promise<void> {
 		if(DEBUG_SHOW_DETAIL) {
-			const html = prettyPrint(value);
+			const html = prettyPrint(minimize(value));
 			if(html !== this._lastDebug) {
 				this._debug.innerHTML = this._lastDebug = html;
 			}
@@ -207,7 +235,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 
 	setAssetTarget(assetTarget: HTMLElement): void {
 		console.log("WEBGL-RENDERER: setAssetTarget", assetTarget);
-		this._mam.setAssetTarget(assetTarget);
+		this._asset_manager.setAssetTarget(assetTarget);
 	}
 
 	setRenderTarget(renderTarget: HTMLElement): void {
@@ -289,35 +317,35 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 			throw new Error("ThreeJS camera not defined.");
 		}
 		if(this._canPaintCurrent()) {
-			if(this._current_asset === null) {
+			if(this._current_renderer_asset === null) {
 				throw new Error("current asset is null.");
 			}
-			const remaining = this._current_asset.end_time - timestamp;
+			const remaining = this._current_renderer_asset.end_time - timestamp;
 			try {
 				this._paintCurrent(timestamp, remaining);
 			} catch(ex) {
 				console.error(ex);
-				console.error(this._current_asset);
+				console.error(this._current_renderer_asset);
 			}
 		} else if(this._hasWaitingDuration()) {
-			if(this._current_asset === null) {
+			if(this._current_renderer_asset === null) {
 				throw new Error("current asset is null.");
 			}
-			const remaining = this._current_asset.end_time - timestamp;
+			const remaining = this._current_renderer_asset.end_time - timestamp;
 			this._paintWaitingDuration(timestamp, remaining);
 		} else {
 			this._paintWaiting(timestamp);
 		}
 		if(this._canPaintNext()) {
-			if(this._next_asset === null) {
+			if(this._next_renderer_asset === null) {
 				throw new Error("next asset is null.");
 			}
-			const remaining = this._next_asset.end_time - timestamp;
+			const remaining = this._next_renderer_asset.end_time - timestamp;
 			try {
 				this._paintNext(timestamp, remaining);
 			} catch(ex) {
 				console.error(ex);
-				console.error(this._next_asset);
+				console.error(this._next_renderer_asset);
 			}
 		}
 		this._interpolateTransition(elapsed);
@@ -338,6 +366,12 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		this._emptyAssetTrash();
 	}
 
+	protected _setTransitionPercent(
+		percent: number,
+	): void {
+		this._shader.uniforms.pct.value = this._transition_percent = percent;
+	}
+
 	protected _interpolateTransition(elapsed: number): void {
 		let needs_update = false;
 		if(this._transition_percent_speed !== 0) {
@@ -346,7 +380,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 				this._transition_percent = 1;
 				this._transition_percent_speed = 0;
 			}
-			this._shader.uniforms.pct.value = this._transition_percent;
+			this._setTransitionPercent(this._transition_percent);
 			needs_update = true;
 		}
 		if(needs_update) {
@@ -409,42 +443,45 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 	// This media asset.
 	protected async _onSchedulerCurrent(current: SchedulerAssetDeclWithRemainingTime | null): Promise<void> {
 		if(current !== null) {
-			if(this._current_asset === null)
+			if(!this._isMediaReady(current.decl)) {
+				return;
+			}
+			if(this._current_renderer_asset === null)
 			{
 //console.info(current.decl.href, current.remainingTimeMs);
-				this._current_asset = await this._updateCurrent(current.decl);
-				this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+				this._current_renderer_asset = await this._updateCurrent(current.decl);
+				this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
 					(current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-				this._current_asset.ref();
-				console.log("WEBGL-RENDERER: current", this._current_asset.currentSrc);
+				this._current_renderer_asset.ref();
+				console.log("WEBGL-RENDERER: current", this._current_renderer_asset.currentSrc);
 			}
-			else if(current.decl.id !== this._current_asset.id)
+			else if(current.decl.id !== this._current_renderer_asset.id)
 			{
 //console.info(current.decl.href, current.remainingTimeMs);
 				this._closeCurrent();
-				if(this._next_asset !== null
-					&& current.decl.id === this._next_asset.id)
+				if(this._next_renderer_asset !== null
+					&& current.decl.id === this._next_renderer_asset.id)
 				{
 					console.log("WEBGL-RENDERER: current <- next");
-					this._current_asset = await this._updateCurrentFromNext();
+					this._current_renderer_asset = await this._updateCurrentFromNext();
 				} else {
-					this._current_asset = await this._updateCurrent(current.decl);
+					this._current_renderer_asset = await this._updateCurrent(current.decl);
 				}
-				this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+				this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
 					(current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-				this._current_asset.ref();
-				console.log("WEBGL-RENDERER: current", this._current_asset.currentSrc);
+				this._current_renderer_asset.ref();
+				console.log("WEBGL-RENDERER: current", this._current_renderer_asset.currentSrc);
 			}
-			else if(this._current_asset instanceof WebGLRendererAsset)
+			else if(this._current_renderer_asset !== null)
 			{
-				this._current_asset = await this._updateCurrent(current.decl);
-				this._current_asset.end_time = (typeof current.remainingTimeMs === "number") ?
+				this._current_renderer_asset = await this._updateCurrent(current.decl);
+				this._current_renderer_asset.end_time = (typeof current.remainingTimeMs === "number") ?
 					(current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
 			}
-			if(this._current_asset === null) {
+			if(this._current_renderer_asset === null) {
 				throw new Error("current asset is null.");
 			}
-		} else if(this._current_asset !== null) {
+		} else if(this._current_renderer_asset !== null) {
 			this._closeCurrent();
 			console.log(`WEBGL-RENDERER: current null`);
 		}
@@ -453,31 +490,34 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 	protected _onSchedulerNext(next: SchedulerAssetDeclWithRemainingTime | null): void {
 		// Next media asset.
 		if(next !== null) {
-			if(this._next_asset === null) {
-				this._next_asset = this._updateNext(next.decl);
-				this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
-					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-				this._next_asset.ref();
-				console.log("WEBGL-RENDERER: next", this._next_asset.currentSrc);
+			if(!this._isMediaReady(next.decl)) {
+				return;
 			}
-			else if(next.decl.id !== this._next_asset.id) {
+			if(this._next_renderer_asset === null) {
+				this._next_renderer_asset = this._updateNext(next.decl);
+				this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+				this._next_renderer_asset.ref();
+				console.log("WEBGL-RENDERER: next", this._next_renderer_asset.currentSrc);
+			}
+			else if(next.decl.id !== this._next_renderer_asset.id) {
 				this._closeNext();
-				this._next_asset = this._updateNext(next.decl);
-				this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+				this._next_renderer_asset = this._updateNext(next.decl);
+				this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
 					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
-				this._next_asset.ref();
-				console.log("WEBGL-RENDERER: next", this._next_asset.currentSrc);
+				this._next_renderer_asset.ref();
+				console.log("WEBGL-RENDERER: next", this._next_renderer_asset.currentSrc);
 			}
-			else if(this._next_asset instanceof WebGLRendererAsset)
+			else if(this._next_renderer_asset !== null)
 			{
-				this._next_asset = this._updateNext(next.decl);
-				this._next_asset.end_time = (typeof next.remainingTimeMs === "number") ?
+				this._next_renderer_asset = this._updateNext(next.decl);
+				this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
 					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
 			}
-			if(this._next_asset === null) {
+			if(this._next_renderer_asset === null) {
 				throw new Error("next asset is null.");
 			}
-		} else if(this._next_asset !== null) {
+		} else if(this._next_renderer_asset !== null) {
 			this._closeNext();
 			console.log(`WEBGL-RENDERER: next null`);
 		}
@@ -488,32 +528,32 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 		// avoid confusion when crossing boundary between two assets.
 		let needs_update = false;
 		if(transition !== null) {
-			const from_asset = this._asset_cache.get(transition.from.decl.id);
+			const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
 			if(typeof from_asset !== "undefined"
-				&& typeof from_asset.texture !== "undefined"
-				&& from_asset.texture.uuid !== this._shader.uniforms.map1.value.uuid)
+				&& from_asset.texture !== null
+				&& from_asset.texture.uuid !== this._map1_renderer_asset?.texture?.uuid)
 			{
-				if(this._map1_asset instanceof WebGLRendererAsset) {
-					this._map1_asset.unref();
+				if(this._map1_renderer_asset !== null) {
+					this._map1_renderer_asset.unref();
 				}
 				this._shader.uniforms.map1.value = from_asset.texture;
 //				console.log('set map1', transition.from.decl.href);
 				from_asset.ref();
-				this._map1_asset = from_asset;  // Keep reference to later free.
+				this._setMap1Asset(from_asset);
 				needs_update = true;
 			}
-			const to_asset = this._asset_cache.get(transition.to.decl.id);
+			const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
 			if(typeof to_asset !== "undefined"
-				&& typeof to_asset.texture !== "undefined"
-				&& to_asset.texture.uuid !== this._shader.uniforms.map2.value.uuid)
+				&& to_asset.texture !== null
+				&& to_asset.texture.uuid !== this._map2_renderer_asset?.texture?.uuid)
 			{
-				if(this._map2_asset instanceof WebGLRendererAsset) {
-					this._map2_asset.unref();
+				if(this._map2_renderer_asset instanceof WebGLRendererAsset) {
+					this._map2_renderer_asset.unref();
 				}
 				this._shader.uniforms.map2.value = to_asset.texture;
 //				console.log('set map2', transition.to.decl.href);
 				to_asset.ref();
-				this._map2_asset = to_asset;
+				this._setMap2Asset(to_asset);
 				needs_update = true;
 			}
 			if(transition.url !== this._displacement_url) {
@@ -524,7 +564,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 				needs_update = true;
 			}
 			if(transition.percent !== this._transition_percent) {
-				this._shader.uniforms.pct.value = this._transition_percent = transition.percent;
+				this._setTransitionPercent(transition.percent);
 //				console.log('set pct', transition.percent);
 				needs_update = true;
 			}
@@ -532,40 +572,31 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 				this._transition_percent_speed = transition.percentSpeed;
 			}
 		} else {  // Transition finished, follow settings per "current".
-			if(this._current_asset === null) {
-				if(!this._isEmptyTexture(this._shader.uniforms.map1.value)) {
-					if(this._map1_asset instanceof WebGLRendererAsset) {
-						this._map1_asset.unref();
-					}
-					this._map1_asset = null;
-					this._shader.uniforms.map1.value = this._empty_texture;
-//					console.log('set map1', "empty");
+			if(this._current_renderer_asset === null) {
+				if(this._map1_renderer_asset !== null) {
+					this._map1_renderer_asset.unref();
+					this._setMap1Asset(null);
 					needs_update = true;
 				}
-			} else if(typeof this._current_asset.texture !== "undefined"
-				&& this._current_asset.texture.uuid !== this._shader.uniforms.map1.value.uuid)
+			} else if(this._current_renderer_asset.texture !== null
+				&& this._current_renderer_asset.texture.uuid !== this._map1_renderer_asset?.texture?.uuid)
 			{
-				if(this._map1_asset instanceof WebGLRendererAsset) {
-					this._map1_asset.unref();
+				if(this._map1_renderer_asset !== null) {
+					this._map1_renderer_asset.unref();
 				}
-				this._shader.uniforms.map1.value = this._current_asset.texture;
+				this._shader.uniforms.map1.value = this._current_renderer_asset.texture;
 //				console.log('set map1', this.#current_asset.currentSrc);
-				this._current_asset.ref();
-				this._map1_asset = this._current_asset;
+				this._current_renderer_asset.ref();
+				this._setMap1Asset(this._current_renderer_asset);
 				needs_update = true;
 			}
-			if(!this._isEmptyTexture(this._shader.uniforms.map2.value)) {
-				if(this._map2_asset instanceof WebGLRendererAsset) {
-					this._map2_asset.unref();
-				}
-				this._map2_asset = null;
-				this._shader.uniforms.map2.value = this._empty_texture;
-//				console.log('set map2', "empty");
+			if(this._map2_renderer_asset !== null) {
+				this._map2_renderer_asset.unref();
+				this._setMap2Asset(null);
 				needs_update = true;
 			}
 			if(this._transition_percent !== 0) {
-				this._shader.uniforms.pct.value = this._transition_percent = 0;
-//				console.log('set pct', 0);
+				this._setTransitionPercent(0);
 				needs_update = true;
 			}
 			if(this._transition_percent_speed !== 0) {
@@ -593,7 +624,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 
 	protected _emptyAssetTrash(): void {
 		const remove_list: string[] = [];
-		for(const [id, asset] of this._asset_trash) {
+		for(const [id, asset] of this._renderer_asset_trash) {
 			if(asset.ref_count !== 0) {
 				continue;
 			}
@@ -602,57 +633,40 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 		}
 		for(const id of remove_list) {
 			console.log("WEBGL-RENDERER: Destroying", id)
-			this._asset_cache.delete(id);
-			this._asset_trash.delete(id);
+			this._renderer_asset_cache.delete(id);
+			this._renderer_asset_trash.delete(id);
 		}
+	}
+
+	protected _setMap1Asset(asset: WebGLRendererAsset | null): void {
+		this._map1_renderer_asset = asset;
+		this._shader.uniforms.map1.value = !!asset ? asset.texture : this._empty_texture;
+	}
+
+	protected _setMap2Asset(asset: WebGLRendererAsset | null): void {
+		this._map2_renderer_asset = asset;
+		this._shader.uniforms.map2.value = !!asset ? asset.texture : this._empty_texture;
 	}
 
 	// Assumes new decl.
 	protected async _updateCurrent(decl: MediaDecl): Promise<WebGLRendererAsset> {
-		const asset = this._asset_cache.get(decl.id);
-		if(typeof asset === "undefined") {
-			const media_asset = this._mam.createThreeAsset(decl);
-			if(typeof media_asset === "undefined") {
-				throw new Error("Failed to create media asset.");
-			}
-			const new_asset = new WebGLRendererAsset(decl.id, media_asset);
-///			media_asset.texture.userData = new_asset;
-			this._asset_cache.set(new_asset.id, new_asset);
-			this._networkLoadingRef();
-			new_asset.is_loading = true;
-			new_asset.load();
-			return new_asset;  // drop frame.
-		} else if(this._asset_trash.has(decl.id)) {
-			this._asset_trash.delete(decl.id);
-		}
-		if(asset.is_loading
-			&& asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
-		{
-			this._networkLoadingUnref();
-			asset.is_loading = false;
-		}
+		const asset = this._resolveMediaAsset(decl);
 		if(!asset.has_texture
 			&& asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
 		{
-			this._initTexture(asset.texture);
+			this._initTexture(asset.texture!);
 			asset.has_texture = true;
 			await asset.play();
-			if(this._map1_asset !== null) {
-				if(this._map1_asset instanceof WebGLRendererAsset) {
-					this._map1_asset.unref();
-				}
+			if(this._map1_renderer_asset !== null) {
+				this._map1_renderer_asset.unref();
 			}
-			if(this._map2_asset !== null) {
-				if(this._map2_asset instanceof WebGLRendererAsset) {
-					this._map2_asset.unref();
-				}
+			if(this._map2_renderer_asset !== null) {
+				this._map2_renderer_asset.unref();
 			}
 			asset.ref();
-			this._map1_asset = asset;
-			this._map2_asset = null;
-			this._shader.uniforms.map1.value = asset.texture;
-			this._shader.uniforms.map2.value = this._empty_texture;
-			this._shader.uniforms.pct.value = this._transition_percent = 0;
+			this._setMap1Asset(asset);
+			this._setMap2Asset(null);
+			this._setTransitionPercent(0);
 			this._shader.uniformsNeedUpdate = true;
 			this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
 		}
@@ -661,27 +675,24 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 
 	// Keep reference next to current.
 	protected async _updateCurrentFromNext(): Promise<WebGLRendererAsset> {
-		if(this._current_asset !== null) {
+		if(this._current_renderer_asset !== null) {
 			throw new Error("current asset must be closed before calling.");
 		}
-		if(this._next_asset === null) {
+		if(this._next_renderer_asset === null) {
 			throw new Error("next asset must be defined before calling.");
 		}
-		const asset = this._next_asset;
-		this._next_asset = null;
-		if(asset instanceof WebGLRendererAsset
+		const asset = this._next_renderer_asset;
+		this._next_renderer_asset = null;
+		if(asset !== null
 			&& asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
 		{
 			await asset.play();
-			if(this._isEmptyTexture(this._shader.uniforms.map2.value)) {
-				if(this._map1_asset !== null) {
-					if(this._map1_asset instanceof WebGLRendererAsset) {
-						this._map1_asset.unref();
-					}
+			if(this._map2_renderer_asset === null) {
+				if(this._map1_renderer_asset !== null) {
+					this._map1_renderer_asset.unref();
 				}
-				this._map1_asset = asset;
-				this._shader.uniforms.map1.value = asset.texture;
-				this._shader.uniforms.pct.value = this._transition_percent = 0;
+				this._setMap1Asset(asset);
+				this._setTransitionPercent(0);
 				this._shader.uniformsNeedUpdate = true;
 			}
 			this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
@@ -693,15 +704,15 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 	}
 
 	protected _canPaintCurrent(): boolean {
-		return this._current_asset !== null
-			&& this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+		return this._current_renderer_asset !== null
+			&& this._current_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
 	}
 
 	protected _paintCurrent(timestamp: DOMHighResTimeStamp, remaining: number): void {
-		if(this._current_asset === null) {
+		if(this._current_renderer_asset === null) {
 			throw new Error("undefined current asset.");
 		}
-		this._current_asset.paint(timestamp, remaining);
+		this._current_renderer_asset.paint(timestamp, remaining);
 		// Very slow loading asset, force playback, avoid seeking as already broken.
 //		if(this.#current_asset.paused) {
 //			(async() => {
@@ -717,13 +728,13 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 	}
 
 	protected _closeCurrent(): void {
-		if(this._current_asset === null) {
+		if(this._current_renderer_asset === null) {
 			return;
 		}
-		this._current_asset.pause();
-		this._current_asset.unref();
-		this._asset_trash.set(this._current_asset.id, this._current_asset);
-		this._current_asset = null;
+		this._current_renderer_asset.pause();
+		this._current_renderer_asset.unref();
+		this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+		this._current_renderer_asset = null;
 	}
 
 	protected _hasWaitingDuration(): boolean {
@@ -734,56 +745,74 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 	_paintWaitingDuration(_timestamp: DOMHighResTimeStamp, _remaining: number): void {}
 
 	protected _updateNext(decl: MediaDecl): WebGLRendererAsset {
-		const asset = this._asset_cache.get(decl.id);
-		if(typeof asset === "undefined") {
-			const media_asset = this._mam.createThreeAsset(decl);
-			if(typeof media_asset === "undefined") {
-				throw new Error("Failed to create media asset.");
-			}
-			const new_asset = new WebGLRendererAsset(decl.id, media_asset);
-			this._asset_cache.set(new_asset.id, new_asset);
-			this._networkLoadingRef();
-			new_asset.is_loading = true;
-			new_asset.load();
-			return new_asset;
-		} else if(this._asset_trash.has(decl.id)) {
-			this._asset_trash.delete(decl.id);
-		}
-		if(asset.is_loading
-			&& asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
-		{
-			this._networkLoadingUnref();
-			asset.is_loading = false;
-		}
+		const asset = this._resolveMediaAsset(decl);
 		if(!asset.has_texture
 			&& asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA)
 		{
-			this._initTexture(asset.texture);
+			this._initTexture(asset.texture!);
 			asset.has_texture = true;
-			this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+			if(this.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) {
+				this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+			}
 		}
 		return asset;
 	}
 
+	protected _isMediaReady(decl: MediaDecl): boolean {
+		const path = this._asset_prefetch.getCachedPath(decl.href);
+		return path !== null;
+	}
+
+	protected _resolveMediaAsset(decl: MediaDecl): WebGLRendererAsset {
+		const existing_asset = this._renderer_asset_cache.get(decl.id);
+		if(typeof existing_asset !== "undefined") {
+			if(this._renderer_asset_trash.has(decl.id)) {
+				this._renderer_asset_trash.delete(decl.id);
+			}
+			if(existing_asset.is_loading
+				&& existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
+			{
+				this._networkLoadingUnref();
+				existing_asset.is_loading = false;
+			}
+			return existing_asset;
+		}
+		const cached_path = this._asset_prefetch.getCachedPath(decl.href);
+		if(cached_path === null) {
+			throw new Error(`Media asset not cached: ${decl.href}`);
+		}
+		const resolved_decl: MediaDecl = {
+			...decl,
+			href: cached_path,
+		};
+		const three_asset = this._asset_manager.createThreeAsset(resolved_decl);
+		const renderer_asset = new WebGLRendererAsset(decl.id, three_asset);
+		this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+		this._networkLoadingRef();
+		renderer_asset.is_loading = true;
+		renderer_asset.load();
+		return renderer_asset;
+	}
+
 	protected _canPaintNext(): boolean {
-		return this._next_asset !== null
-			&& this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+		return this._next_renderer_asset !== null
+			&& this._next_renderer_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
 	}
 
 	protected _paintNext(timestamp: DOMHighResTimeStamp, remaining: number): void {
-		if(this._next_asset === null) {
+		if(this._next_renderer_asset === null) {
 			throw new Error("undefined next asset.");
 		}
-		this._next_asset.paint(timestamp, remaining);
+		this._next_renderer_asset.paint(timestamp, remaining);
 	}
 
 	protected _closeNext(): void {
-		if(this._next_asset === null) {
+		if(this._next_renderer_asset === null) {
 			throw new Error("undefined next asset.");
 		}
-		this._next_asset.unref();
-		this._asset_trash.set(this._next_asset.id, this._next_asset);
-		this._next_asset = null;
+		this._next_renderer_asset.unref();
+		this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+		this._next_renderer_asset = null;
 	}
 
 	// Assumes new URL.

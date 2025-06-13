@@ -8,16 +8,16 @@ import { AppBaseParams, AppManifestSchema, AppParams, WebGLApp, WebGLAppConstruc
 import { MediaDecl } from './media.js';
 
 export abstract class AbstractThreeAsset extends EventTarget {
-	texture: THREE.Texture | undefined;
+	texture: THREE.Texture | null = null;
 
 	protected _src: string;
 	protected _params: AppBaseParams;
 	// Per `HTMLMediaElement`.
 	protected _duration: number;
 	protected _ended = false;
-	protected _error: any | null = null;
+	protected _error: any = null;
 	protected _networkState: number = HTMLMediaElement.NETWORK_NO_SOURCE;
-	protected _paused= true;
+	protected _paused = true;
 	protected _readyState: number = HTMLMediaElement.HAVE_NOTHING;
 
 	constructor(
@@ -68,23 +68,27 @@ export class ThreeImageAsset extends AbstractThreeAsset {
 
 	constructor(
 		src: string,
-		params: any,
+		params: AppBaseParams,
 		duration: number,
 		collection: ThreeImageCollection,
 	) {
 		super(src, params, duration, collection);
 	}
 
+	get image(): HTMLImageElement | null {
+		return this.texture?.image as HTMLImageElement || null;
+	}
+
 	override close(): void {
-		if(typeof this.texture === "undefined") {
+		if(this.texture === null || this.image === null) {
 			return;
 		}
-		console.log(`unload image ... ${this.src}`);
+		console.log(`unload image ... "${this.src}"`);
 		this.pause();
 		const collection = this.collection as ThreeImageCollection;
-		collection.release(this.texture.image);
+		collection.release(this.image);
 		this.texture.dispose();
-		this.texture = undefined;
+		this.texture = null;
 		this._readyState = HTMLMediaElement.HAVE_NOTHING;
 		this._networkState = HTMLMediaElement.NETWORK_EMPTY;
 		this._currentTime = 0;
@@ -104,7 +108,7 @@ export class ThreeImageAsset extends AbstractThreeAsset {
 		} else {
 			if(Math.floor(this._currentTime) > this._lastTimeUpdate) {
 				this._lastTimeUpdate = this._currentTime;
-				super.dispatchEvent(new Event('timeupdate'));
+				this.dispatchEvent(new Event('timeupdate'));
 			}
 		}
 	}
@@ -113,7 +117,7 @@ export class ThreeImageAsset extends AbstractThreeAsset {
 		this._currentTime = this._duration;
 		this._ended = true;
 		this._startTime = NaN;
-		super.dispatchEvent(new Event('ended'));
+		this.dispatchEvent(new Event('ended'));
 	}
 
 	override get params() { return super.params; }
@@ -133,18 +137,18 @@ export class ThreeImageAsset extends AbstractThreeAsset {
 		(async () => {
 			const collection = this.collection as ThreeImageCollection;
 			const img = collection.acquire();
+			this._networkState = HTMLMediaElement.NETWORK_LOADING;
 			try {
+				console.log(`load image ... "${this.src}"`);
 				img.crossOrigin = 'anonymous';
-				img.src = this.src;
-				this._networkState = HTMLMediaElement.NETWORK_LOADING;
-				console.log(`load image ... ${this.src}`);
+				img.setAttribute('src', this.src);
 				await img.decode();
 				this.texture = new THREE.Texture(img);
 				this.texture.needsUpdate = true;
 				this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
 				super.dispatchEvent(new Event('canplay'));
 			} catch(encodingError: unknown) {
-				console.warn(`Failed to load image: ${this.src}`, encodingError);
+				console.warn(`Failed to load image: "${this.src}" Error: ${encodingError}`);
 				this._error = encodingError;
 				this._networkState = HTMLMediaElement.NETWORK_IDLE;
 				collection.release(img);
@@ -169,18 +173,18 @@ export class ThreeImageAsset extends AbstractThreeAsset {
 		}
 	}
 
-	// Per HTMLVideoElement.
+	// Per `HTMLVideoElement`.
 	override get height() {
-		if(typeof this.texture === "undefined") {
+		if(this.image === null) {
 			return NaN;
 		}
-		return this.texture.image.height;
+		return this.image.height;
 	}
 	override get width() {
-		if(typeof this.texture === "undefined") {
+		if(this.image === null) {
 			return NaN;
 		}
-		return this.texture.image.width;
+		return this.image.width;
 	}
 }
 
@@ -198,14 +202,18 @@ export class ThreeVideoAsset extends AbstractThreeAsset {
 		super(src, params, duration, collection);
 	}
 
+	get video(): HTMLVideoElement | null {
+		return this.texture?.image as HTMLVideoElement || null;
+	}
+
 	override close(): void {
-		if(typeof this.texture === "undefined") {
+		if(this.texture === null || this.video === null) {
 			return;
 		}
-		console.log(`unload video ... ${this.src}`);
+		console.log(`unload video ... "${this.src}"`);
 		this.pause();
 		const collection = this.collection as ThreeVideoCollection;
-		const video = this.texture.image as HTMLVideoElement;
+		const video = this.video!;
 		video.oncanplay = null;
 		video.onended = null;
 		video.onerror = null;
@@ -213,7 +221,7 @@ export class ThreeVideoAsset extends AbstractThreeAsset {
 		video.removeAttribute('src');
 		collection.release(video);
 		this.texture.dispose();
-		this.texture = undefined;
+		this.texture = null;
 	}
 
 	override paint(_now: DOMHighResTimeStamp, _remaining: number): void {}
@@ -221,59 +229,59 @@ export class ThreeVideoAsset extends AbstractThreeAsset {
 	override get params() { return super.params; }
 	// Per `HTMLMediaElement`.
 	override get currentSrc() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return super.currentSrc;
 		}
-		return this.texture.image.currentSrc;
+		return this.video.currentSrc;
 	}
 	override get currentTime() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return super.currentTime;
 		}
-		return this.texture.image.currentTime;
+		return this.video.currentTime;
 	}
 	override get duration() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return NaN;
 		}
-		return this.texture.image.duration;
+		return this.video.duration;
 	}
 	override get ended() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return false;
 		}
-		return this.texture?.image.ended;
+		return this.video.ended;
 	}
 	override get error() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return false;
 		}
-		return this.texture?.image.error;
+		return this.video.error;
 	}
 	override get networkState() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return HTMLMediaElement.NETWORK_EMPTY;
 		}
-		return this.texture?.image.networkState;
+		return this.video.networkState;
 	}
 	override get paused() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return true;
 		}
-		return this.texture?.image.paused;
+		return this.video.paused;
 	}
 	override get readyState() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return HTMLMediaElement.HAVE_NOTHING;
 		}
-		return this.texture?.image.readyState;
+		return this.video.readyState;
 	}
 	override get src() { return super.src; }
 	override get srcObject() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return null;
 		}
-		return this.texture.image.srcObject;
+		return this.video.srcObject;
 	}
 
 	override load(): void {
@@ -282,55 +290,56 @@ export class ThreeVideoAsset extends AbstractThreeAsset {
 		video.oncanplay = this._redispatchEvent;
 		video.onended = this._redispatchEvent;
 		video.onerror = this._redispatchEvent;
-		video.src = this.src;
 		// Avoid "WebGL: INVALID_VALUE: texImage2D: no video".
 		video.onloadeddata = (event: Event) => {
-			console.log(`create video texture ... ${this.src}`);
+			console.log(`create video texture ... "${this.src}"`);
 			this.texture = new THREE.VideoTexture(video);
 			this.texture.needsUpdate = true;
 			this._redispatchEvent(event);
 		};
 		try {
-			console.log(`load video ... ${this.src}`);
+			console.log(`load video ... "${this.src}"`);
+			video.crossOrigin = 'anonymous';
+			video.setAttribute('src', this.src);
 			video.load();
-		} catch(encodingError) {
+		} catch(encodingError: unknown) {
 			collection.release(video);
 			throw encodingError;
 		}
 	}
 
 	override pause(): void {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return;
 		}
-		this.texture.image.pause();
+		this.video.pause();
 	}
 
 	override async play(): Promise<void> {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return;
 		}
-		await this.texture.image.play();
+		await this.video.play();
 	}
 
 	// Per `HTMLVideoElement`.
 	override get height() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return NaN;
 		}
-		return this.texture.image.height;
+		return this.video.height;
 	}
 	override get width() {
-		if(typeof this.texture === "undefined") {
+		if(this.video === null) {
 			return NaN;
 		}
-		return this.texture.image.width;
+		return this.video.width;
 	}
 }
 
 export class ThreeAppAsset extends AbstractThreeAsset {
-	protected _app: WebGLApp | undefined;
-	protected _fbo: THREE.WebGLRenderTarget | undefined;
+	protected _app: WebGLApp | null = null;
+	protected _fbo: THREE.WebGLRenderTarget | null = null;
 	protected _redispatchEvent = (event: string | Event) => {
 		super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
 	};
@@ -345,30 +354,30 @@ export class ThreeAppAsset extends AbstractThreeAsset {
 	}
 
 	override close(): void {
-		if(typeof this.texture === "undefined") {
+		if(this.texture === null) {
 			return;
 		}
-		console.log(`unload app ... ${this.src}`);
+		console.log(`unload app ... "${this.src}"`);
 		this.pause();
 		const collection = this.collection as ThreeAppCollection;
-		if(typeof this._app !== "undefined") {
+		if(this._app !== null) {
 			this._app.close();
 			this._app.removeEventListener('canplay', this._redispatchEvent);
 			this._app.removeEventListener('ended', this._redispatchEvent);
 			this._app.removeEventListener('error', this._redispatchEvent);
-			this._app = undefined;
+			this._app = null;
 		}
-		if(typeof this._fbo !== "undefined") {
+		if(this._fbo !== null) {
 			collection.release(this._fbo);
-			this._fbo = undefined;
+			this._fbo = null;
 		}
 		this.texture.dispose();
-		this.texture = undefined;
+		this.texture = null;
 	}
 
 	override paint(now: DOMHighResTimeStamp, remaining: number): void {
 		if(this.paused || this.ended) return;
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return;
 		}
 		this._app.animate(now, remaining);
@@ -377,49 +386,49 @@ export class ThreeAppAsset extends AbstractThreeAsset {
 	override get params() { return super.params; }
 	// Per `HTMLMediaElement`.
 	override get currentSrc() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return super.currentSrc;
 		}
 		return this._app.currentSrc;
 	}
 	override get currentTime() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return super.currentTime;
 		}
 		return this._app.currentTime;
 	}
 	override get duration() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return NaN;
 		}
 		return this._app.duration;
 	}
 	override get ended() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return false;
 		}
 		return this._app.ended;
 	}
 	override get error() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return false;
 		}
 		return this._app.error;
 	}
 	override get networkState() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return HTMLMediaElement.NETWORK_EMPTY;
 		}
 		return this._app.networkState;
 	}
 	override get paused() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return true;
 		}
 		return this._app.paused;
 	}
 	override get readyState() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return HTMLMediaElement.HAVE_NOTHING;
 		}
 		return this._app.readyState;
@@ -432,9 +441,9 @@ export class ThreeAppAsset extends AbstractThreeAsset {
 			const collection = this.collection as ThreeAppCollection;
 			const fbo = this._fbo = collection.acquire();
 			try {
-				console.log(`import module ... ${this.src}`);
+				console.log(`import module ... "${this.src}"`);
 				const manifest = await collection.importModule(this.src);
-				console.log(`create WebGLApp ... ${this.src}`);
+				console.log(`create WebGLApp ... "${this.src}"`);
 				const params = {
 					...this.params,
 					src: this.src,
@@ -445,14 +454,14 @@ export class ThreeAppAsset extends AbstractThreeAsset {
 					collection.renderer,
 					params,
 				);
-				console.log(`init ${manifest.name} with params:`, params);
 				app.addEventListener('canplay', this._redispatchEvent);
 				app.addEventListener('ended', this._redispatchEvent);
 				app.addEventListener('error', this._redispatchEvent);
 				this.texture = fbo.texture;
+				console.log(`init "${manifest.name}" with params:`, params);
 				app.load();
-			} catch(initError: any) {
-				console.warn(`Failed to load app: ${this.src}`, initError);
+			} catch(initError: unknown) {
+				console.warn(`Failed to load app: "${this.src}"`, initError);
 				collection.release(fbo);
 				super.dispatchEvent(new Event('error'));
 			}
@@ -460,14 +469,14 @@ export class ThreeAppAsset extends AbstractThreeAsset {
 	}
 
 	override pause(): void {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return;
 		}
 		this._app.pause();
 	}
 
 	override async play(): Promise<void> {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return;
 		}
 		await this._app.play();
@@ -475,13 +484,13 @@ export class ThreeAppAsset extends AbstractThreeAsset {
 
 	// Per `HTMLVideoElement`.
 	override get height() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return NaN;
 		}
 		return this._app.height;
 	}
 	override get width() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return NaN;
 		}
 		return this._app.width;
@@ -605,16 +614,16 @@ class ThreeAppCollection extends ThreeCollection {
 	async importModule(src: string): Promise<AppManifestSchema> {
 		let manifest = this._manifests.get(src);
 		if(typeof manifest === 'undefined') {
-			console.log(`import app manifest ... ${src}`);
+			console.log(`import app manifest ... "${src}"`);
 			const module = await import(src);
-			console.log(`validate app manifest ... ${src}`);
+			console.log(`validate app manifest ... "${src}"`);
 			const result = AppManifestSchema.safeParse(module.default);
-			console.log(`app manifest validation result: ${result.success} ... ${src}`);
+			console.log(`app manifest validation result: ${result.success} ... "${src}"`);
 			if(!result.success) {
-				throw new Error(`Invalid app manifest: ${src}`);
+				throw new Error(`Invalid app manifest: "${src}"`);
 			}
 			if(!result.data.WebGLApp) {
-				throw new Error(`WebGLApp constructor not found in manifest: ${src}`);
+				throw new Error(`WebGLApp constructor not found in manifest: "${src}"`);
 			}
 			manifest = result.data;
 			this._manifests.set(src, manifest);
@@ -688,7 +697,7 @@ export class ThreeAssetManager {
 		}
 		return collection.createThreeAsset(
 			decl.href,
-			decl.params ?? {},
+			decl.params,
 			decl.duration,
 		);
 	}
