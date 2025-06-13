@@ -5,7 +5,7 @@
 		"types": []
 	},
 	"include": [
-		"*.ts",
+		"**/*.ts",
 		"../lib/occurency.ts",
 		"../lib/scheduler.ts",
 		"../lib/*-scheduler.ts",

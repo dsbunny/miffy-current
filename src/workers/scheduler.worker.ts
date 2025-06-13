@@ -4,8 +4,14 @@
 // https://opensource.org/licenses/MIT.
 
 import '@ungap/global-this';
-import '@ungap/from-entries';
-import '@ungap/structured-clone';
+import fromEntries from '@ungap/from-entries';
+if(!Object.fromEntries) {
+	Object.fromEntries = fromEntries;
+}
+import structuredClonePolyfill from '@ungap/structured-clone';
+if(!globalThis.structuredClone) {
+	globalThis.structuredClone = structuredClonePolyfill;
+}
 import * as Comlink from 'comlink';
 import { DateTime } from 'luxon';
 import { Scheduler } from '../lib/scheduler.js';
