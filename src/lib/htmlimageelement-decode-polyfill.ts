@@ -26,6 +26,13 @@ window.HTMLImageElement.prototype.decode =
 				}
 				clearTimeout(timeout);
 				timeout = undefined;
+				if(typeof event === "string"
+					&& event !== "timeout")
+				{
+					console.warn(`HTMLImageElement.decode: Image load failed with error: ${event}`);
+				} else if(event instanceof Event) {
+					console.warn(`HTMLImageElement.decode: Image load failed with event: ${event.type}`);
+				}
 				reject(event);
 			};
 		});
@@ -36,6 +43,7 @@ window.HTMLImageElement.prototype.decode =
 				return;
 			}
 			if(this.onerror) {
+				console.warn("HTMLImageElement.decode: Timeout waiting for image load.");
 				this.onerror("timeout");
 			}
 		}, 10000);

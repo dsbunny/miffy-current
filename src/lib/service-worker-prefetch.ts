@@ -91,7 +91,7 @@ console.log(e);
 	}
 
 	// Simple pass-through.
-	getPath(origin: string): string {
+	getCachedPath(origin: string): string {
 		return origin;
 	}
 

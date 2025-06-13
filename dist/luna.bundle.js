@@ -525,6 +525,13 @@ window.HTMLImageElement.prototype.decode =
                     }
                     clearTimeout(timeout);
                     timeout = undefined;
+                    if (typeof event === "string"
+                        && event !== "timeout") {
+                        console.warn(`HTMLImageElement.decode: Image load failed with error: ${event}`);
+                    }
+                    else if (event instanceof Event) {
+                        console.warn(`HTMLImageElement.decode: Image load failed with event: ${event.type}`);
+                    }
                     reject(event);
                 };
             });
@@ -535,6 +542,7 @@ window.HTMLImageElement.prototype.decode =
                     return;
                 }
                 if (this.onerror) {
+                    console.warn("HTMLImageElement.decode: Timeout waiting for image load.");
                     this.onerror("timeout");
                 }
             }, 10000);
@@ -667,7 +675,7 @@ class LunaImageAsset extends AbstractLunaAsset {
                 super.dispatchEvent(new Event('canplay'));
             }
             catch (encodingError) {
-                console.warn(`Failed to load image: ${this.src}`, encodingError);
+                console.warn(`Failed to load image: ${this.src} Error: ${encodingError}`);
                 this._error = encodingError;
                 this._networkState = HTMLMediaElement.NETWORK_IDLE;
                 collection.release(img);
@@ -5944,7 +5952,7 @@ class ServiceWorkerPrefetch extends EventTarget$1 {
         // No-op, browser engine manages expiration LRU or similar.
     }
     // Simple pass-through.
-    getPath(origin) {
+    getCachedPath(origin) {
         return origin;
     }
     _onActivatedWorker() {
@@ -6448,15 +6456,15 @@ class LunaPool {
         for (const asset of assets) {
             // The asset behind any id is idempotent.
             if (this.has(asset.id)) {
-                console.info(`asset #${asset.id} already in pool`);
+                console.info(`PREFETCH: asset #${asset.id} already in pool`);
                 const index = this._eviction_queue.findIndex((x) => x.id === asset.id);
                 if (index !== -1) {
-                    console.info(`removing asset #${asset.id} from eviction queue ...`);
+                    console.info(`PREFETCH: removing asset #${asset.id} from eviction queue ...`);
                     this._eviction_queue.splice(index, 1);
                 }
                 continue;
             }
-            console.info(`asset #${asset.id} adding to pool ...`);
+            console.info(`PREFETCH: asset #${asset.id} adding to pool ...`);
             if (typeof asset.size === "number") {
                 total_size += asset.size;
             }
@@ -6465,7 +6473,7 @@ class LunaPool {
             this._url_to_id_map.set(asset.href, asset.id);
             this._id_to_asset_map.set(asset.id, asset);
             this._id_to_file_map.set(asset.id, filepath);
-            console.info(`added.`);
+            console.info(`PREFETCH: added.`);
             this._eviction_queue.push(new EvictionEntry(asset.id, now));
             this._protected_ids.add(asset.id);
             ids.add(asset.id);
@@ -6618,7 +6626,7 @@ class LunaPrefetch extends EventTarget$1 {
         let change_count = 0;
         for (const asset of assets) {
             const filepath = pool.getFilePath(asset.href);
-            console.info(`${asset.href} -> ${filepath}`);
+            console.info(`PREFETCH: ${asset.href} -> ${filepath}`);
             if (!filepath) {
                 console.warn(`asset #${asset.id} not in pool`);
                 continue;
@@ -6629,25 +6637,24 @@ class LunaPrefetch extends EventTarget$1 {
                         path: filepath,
                     };
                     const fileInfo = await statFile(statOptions);
-                    console.info(`info: ${JSON.stringify(fileInfo)}`);
-                    if (fileInfo.size === asset.size) {
-                        continue;
+                    console.info(`PREFETCH: info: ${JSON.stringify(fileInfo)}`);
+                    if (fileInfo.size !== asset.size) {
+                        console.info(`PREFETCH: size mismatch, removing file ...`);
+                        const removeOptions = {
+                            file: filepath,
+                            recursive: false,
+                        };
+                        await removeFile(removeOptions);
+                        change_count++;
                     }
-                    console.info(`size mismatch, removing file ...`);
-                    const removeOptions = {
-                        file: filepath,
-                        recursive: false,
-                    };
-                    await removeFile(removeOptions);
-                    change_count++;
-                    console.info(`removed.`);
+                    console.info(`PREFETCH: removed.`);
                 }
                 catch (err) {
                     console.warn(err);
                 }
             }
-            else if (asset.md5) {
-                console.info(`calculating md5 ...`);
+            if (asset.md5) {
+                console.info(`PREFETCH: calculating md5 ...`);
                 const md5Options = {
                     filePath: filepath,
                 };
@@ -6655,7 +6662,7 @@ class LunaPrefetch extends EventTarget$1 {
                 try {
                     md5Result = await getMD5Hash(md5Options);
                     const md5hash = hexToBase64(md5Result.md5hash);
-                    console.info(`md5: ${md5hash}`);
+                    console.info(`PREFETCH: md5: ${md5hash}`);
                     if (md5hash === asset.md5) {
                         continue;
                     }
@@ -6666,26 +6673,26 @@ class LunaPrefetch extends EventTarget$1 {
                         && err !== null
                         && 'errorText' in err
                         && err['errorText'] === 'No such file') {
-                        console.warn(`file not found: ${filepath}`);
+                        console.warn(`PREFETCH: file not found: ${filepath}`);
                         continue;
                     }
                     console.warn(err);
                 }
-                console.info(`checksum mismatch, removing file ...`);
+                console.info(`PREFETCH: checksum mismatch, removing file ...`);
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
                 change_count++;
-                console.info(`removed`);
+                console.info(`PREFETCH: removed`);
             }
-            else {
-                console.warn("no size or md5, assuming valid asset.");
+            if (!asset.size && !asset.md5) {
+                console.warn("PREFETCH: no size or md5, assuming valid asset.");
                 continue;
             }
             try {
-                console.info(`downloading ...`);
+                console.info(`PREFETCH: downloading ...`);
                 const downloadOptions = {
                     action: 'start',
                     source: asset.href,
@@ -6701,36 +6708,36 @@ class LunaPrefetch extends EventTarget$1 {
                 // REF: https://webossignage.developer.lge.com/api/scap-api/scap18/storage/
                 await downloadFile(downloadOptions);
                 change_count++;
-                console.info(`downloaded.`);
+                console.info(`PREFETCH: downloaded.`);
             }
             catch (e) {
                 console.log(`PREFETCH: Fetcher failed: ${e.message}`);
                 throw (e);
             }
-            console.info(`calculating md5 ...`);
+            console.info(`PREFETCH: calculating md5 ...`);
             const md5Options = {
                 filePath: filepath,
             };
             const md5Result = await getMD5Hash(md5Options);
             const md5hash = hexToBase64(md5Result.md5hash);
-            console.info(`md5: ${md5hash}`);
+            console.info(`PREFETCH: md5: ${md5hash}`);
             if (md5hash !== asset.md5) {
-                console.info(`checksum mismatch, removing file ...`);
+                console.info(`PREFETCH: checksum mismatch, removing file ...`);
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
                 change_count++;
-                console.info(`removed`);
+                console.info(`PREFETCH: removed`);
             }
         }
         if (change_count > 0) {
-            console.info(`fsync ...`);
+            console.info(`PREFETCH: fsync ...`);
             // Only fsync schedule.
             await fsync();
         }
-        console.log(`PREFETCH: Fetcher complete ${JSON.stringify(assets)}.`);
+        console.log(`PREFETCH: _fetchAssets done, ${change_count} changes made.`);
     }
     // Protect API to limit space reclamation without time priority.
     async acquireSources(scope, sources) {
@@ -6740,15 +6747,15 @@ class LunaPrefetch extends EventTarget$1 {
         }
         console.log(`PREFETCH: Protecting assets ...`);
         await this._pool.protectAssets(scope, sources);
-        console.log(`PREFETCH: Protected assets.`);
+        console.log(`PREFETCH: Protecting assets done.`);
         await this._fetchAssets(this._pool, sources);
-        console.log(`PREFETCH: Fetched assets.`);
+        console.log(`PREFETCH: acquireSources done.`);
     }
     async releaseSources(scope) {
         this._pool.unprotectAssets(scope);
     }
-    getPath(origin) {
-        return this._pool.getHttpPath(origin);
+    getCachedPath(origin) {
+        return this._pool.getFilePath(origin);
     }
 }
 

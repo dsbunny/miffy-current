@@ -159,7 +159,7 @@ export class LunaImageAsset extends AbstractLunaAsset {
 				this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
 				super.dispatchEvent(new Event('canplay'));
 			} catch(encodingError: unknown) {
-				console.warn(`Failed to load image: ${this.src}`, encodingError);
+				console.warn(`Failed to load image: ${this.src} Error: ${encodingError}`);
 				this._error = encodingError;
 				this._networkState = HTMLMediaElement.NETWORK_IDLE;
 				collection.release(img);

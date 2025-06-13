@@ -136,7 +136,7 @@ export class BrightSignPrefetch extends EventTarget implements Prefetch {
 		return file_path.replace(BRIGHTSIGN_STORAGE_PATH, "file:///sd:/");
 	}
 
-	getPath(origin: string): string {
+	getCachedPath(origin: string): string {
 		return this.#map.get(origin) || "";
 	}
 }
