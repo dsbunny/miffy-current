@@ -4,7 +4,8 @@
 // https://opensource.org/licenses/MIT.
 
 import '@ungap/global-this';
-import 'polyfill-object.fromentries';
+import '@ungap/from-entries';
+import '@ungap/structured-clone';
 import * as Comlink from 'comlink';
 import { DateTime } from 'luxon';
 import { Scheduler } from '../lib/scheduler.js';
