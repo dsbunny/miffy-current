@@ -1,12 +1,13 @@
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 
 import EventTarget from '@ungap/event-target';
-import { AppManifestSchema, LunaApp, LunaAppConstructor } from '@dsbunny/app';
+import { AppManifestSchema, LunaApp } from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 import { SystemAsyncImport } from './system-async-import.js';
+import "./htmlimageelement-decode-polyfill.js";
 
 export abstract class AbstractLunaAsset extends EventTarget {
-	element: HTMLElement | undefined;
+	element: HTMLElement | null = document.createElement('div');
 
 	protected _src: string;
 	protected _opacity = 1;
@@ -36,17 +37,14 @@ export abstract class AbstractLunaAsset extends EventTarget {
 	}
 
 	abstract close(): void;
-	abstract visible(): void;
-	abstract hide(): void;
 	abstract paint(now: DOMHighResTimeStamp, remaining: number) : void;
 
 	get params() { return this._params; }
 	// Per `HTMLElement`.
-	get className() { return ''; }
-	set className(_value: string) {}
-	get classList() { return new DOMTokenList(); }
-	get opacity() { return this._opacity; }
-	set opacity(value: number) { this._opacity = value; }
+	get className() { return this.element!.className; }
+	set className(_value: string) { this.element!.className = _value; }
+	get classList() { return this.element!.classList; }
+	get style() { return this.element!.style; }
 	// Per `HTMLMediaElement`.
 	get currentSrc() { return this._src; }
 	get currentTime() { return 0; }
@@ -94,7 +92,7 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		this.pause();
 		const collection = this.collection as LunaImageCollection;
 		collection.release(this.image);
-		this.element = undefined;
+		this.element = null;
 		this._readyState = HTMLMediaElement.HAVE_NOTHING;
 		this._networkState = HTMLMediaElement.NETWORK_EMPTY;
 		this._currentTime = 0;
@@ -126,48 +124,12 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		this.dispatchEvent(new Event('ended'));
 	}
 
-	override visible(): void {
-		if(typeof this.image === "undefined") {
-			return;
-		}
-		this.image.style.visibility = '';
-	}
-	override hide(): void {
-		if(typeof this.image === "undefined") {
-			return;
-		}
-		this.image.style.visibility = 'hidden';
-	}
-
-	override set opacity(value: number) {
-		if(typeof this.image !== "undefined") {
-			const opacity = (value === 1) ? '' : value.toString();
-			if(this.image.style.opacity !== opacity) {
-				this.image.style.opacity = opacity;
-			}
-		}
-		this._opacity = value;
-	}
-
 	override get params() { return super.params; }
 	// Per `HTMLElement`.
-	override get className() {
-		if(typeof this.image === "undefined") {
-			return '';
-		}
-		return this.image.className;
-	}
-	override set className(value: string) {
-		if(typeof this.image !== "undefined") {
-			this.image.className = value;
-		}
-	}
-	override get classList() {
-		if(typeof this.image === "undefined") {
-			return new DOMTokenList();
-		}
-		return this.image.classList;
-	}
+	override get className() { return super.className; }
+	override set className(value: string) { super.className = value; }
+	override get classList() { return super.classList; }
+	override get style() { return super.style; }
 
 	// Per `HTMLMediaElement`.
 	override get currentSrc() { return super.currentSrc; }
@@ -185,10 +147,10 @@ export class LunaImageAsset extends AbstractLunaAsset {
 		(async () => {
 			const collection = this.collection as LunaImageCollection;
 			const img = collection.acquire();
+			img.crossOrigin = 'anonymous';
+			img.src = this.src;
+			this._networkState = HTMLMediaElement.NETWORK_LOADING;
 			try {
-				img.crossOrigin = 'anonymous';
-				img.src = this.src;
-				this._networkState = HTMLMediaElement.NETWORK_LOADING;
 				console.log(`load image ... ${this.src}`);
 				await img.decode();
 				this._readyState = HTMLMediaElement.HAVE_ENOUGH_DATA
@@ -221,16 +183,16 @@ export class LunaImageAsset extends AbstractLunaAsset {
 
 	// Per `HTMLVideoElement`.
 	override get height() {
-		if(typeof this.element === "undefined") {
+		if(this.image === null) {
 			return NaN;
 		}
-		return (this.element as HTMLImageElement).height;
+		return this.image!.height;
 	}
 	override get width() {
-		if(typeof this.element === "undefined") {
+		if(this.image === null) {
 			return NaN;
 		}
-		return (this.element as HTMLImageElement).width;
+		return this.image!.width;
 	}
 }
 
@@ -266,109 +228,73 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 		video.onloadeddata = null;
 		video.removeAttribute('src');
 		collection.release(this.video);
-		this.element = undefined;
+		this.element = null;
 	}
 
 	override paint(_now: DOMHighResTimeStamp, _remaining: number): void {}
 
-	override visible(): void {
-		if(typeof this.video === "undefined") {
-			return;
-		}
-		this.video.style.visibility = '';
-	}
-	override hide(): void {
-		if(typeof this.video === "undefined") {
-			return;
-		}
-		this.video.style.visibility = 'hidden';
-	}
-
-	override set opacity(value: number) {
-		if(typeof this.video !== "undefined") {
-			const opacity = (value === 1) ? '' : value.toString();
-			if(this.video.style.opacity !== opacity) {
-				this.video.style.opacity = opacity;
-			}
-		}
-		this._opacity = value;
-	}
-
 	override get params() { return super.params; }
 	// Per `HTMLElement`.
-	override get className() {
-		if(typeof this.video === "undefined") {
-			return '';
-		}
-		return this.video.className;
-	}
-	override set className(value: string) {
-		if(typeof this.video !== "undefined") {
-			this.video.className = value;
-		}
-	}
-	override get classList() {
-		if(typeof this.video === "undefined") {
-			return new DOMTokenList();
-		}
-		return this.video.classList;
-	}
+	override get className() { return super.className; }
+	override set className(value: string) { super.className = value; }
+	override get classList() { return super.classList; }
+	override get style() { return super.style; }
 
 	// Per `HTMLMediaElement`.
 	override get currentSrc() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return super.currentSrc;
 		}
-		return this.video.currentSrc;
+		return this.video!.currentSrc;
 	}
 	override get currentTime() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return 0;
 		}
-		return this.video.currentTime;
+		return this.video!.currentTime;
 	}
 	override get duration() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return NaN;
 		}
-		return this.video.duration;
+		return this.video!.duration;
 	}
 	override get ended() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return false;
 		}
-		return this.video.ended;
+		return this.video!.ended;
 	}
 	override get error() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return false;
 		}
-		return this.video.error;
+		return this.video!.error;
 	}
 	override get networkState() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return HTMLMediaElement.NETWORK_EMPTY;
 		}
-		return this.video.networkState;
+		return this.video!.networkState;
 	}
 	override get paused() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return true;
 		}
-		return this.video.paused;
+		return this.video!.paused;
 	}
 	override get readyState() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return HTMLMediaElement.HAVE_NOTHING;
 		}
-		return this.video.readyState;
+		return this.video!.readyState;
 	}
 	override get src() { return this._src; }
 	override get srcObject() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return null;
 		}
-		return this.video.srcObject;
+		return this.video!.srcObject;
 	}
 
 	override load(): void {
@@ -390,36 +316,36 @@ export class LunaVideoAsset extends AbstractLunaAsset {
 	}
 
 	override pause(): void {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return;
 		}
-		this.video.pause();
+		this.video!.pause();
 	}
 
 	override async play(): Promise<void> {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return;
 		}
-		await this.video.play();
+		await this.video!.play();
 	}
 
 	// Per `HTMLVideoElement`.
 	override get height() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return NaN;
 		}
-		return this.video.height;
+		return this.video!.height;
 	}
 	override get width() {
-		if(typeof this.video === "undefined") {
+		if(this.video === null) {
 			return NaN;
 		}
-		return this.video.width;
+		return this.video!.width;
 	}
 }
 
 export class LunaAppAsset extends AbstractLunaAsset {
-	protected _app: LunaApp | undefined;
+	protected _app: LunaApp | null = null;
 	protected _redispatchEvent = (event: string | Event) => {
 		//console.log(`redispatch event: ${event instanceof Event ? event.type : event}`);
 		super.dispatchEvent(new Event(event instanceof Event ? event.type : event));
@@ -434,126 +360,94 @@ export class LunaAppAsset extends AbstractLunaAsset {
 		super(src, params, duration, collection);
 	}
 
+	get container(): HTMLElement | null {
+		return this.element;
+	}
+
 	override close(): void {
-		if(typeof this.element === "undefined") {
+		if(this.element === null) {
 			return
 		}
 		console.log(`unload app ... ${this.src}`);
 		this.pause();
 		const collection = this.collection as LunaAppCollection;
-		if(typeof this._app !== "undefined") {
+		if(this._app !== null) {
 			this._app.close();
 			this._app.removeEventListener('canplay', this._redispatchEvent);
 			this._app.removeEventListener('ended', this._redispatchEvent);
 			this._app.removeEventListener('error', this._redispatchEvent);
-			this._app = undefined;
+			this._app = null;
 		}
-		collection.release(this.element);
-		this.element = undefined;
+		collection.release(this.container!);
+		this.element = null;
 	}
 
 	override paint(now: DOMHighResTimeStamp, remaining: number): void {
 		if(this.paused || this.ended) return;
-		if(typeof this._app === "undefined"){
+		if(this._app === null){
 			return;
 		}
 		this._app.animate(now, remaining);
 	}
 
-	override visible(): void {
-		if(typeof this.element !== "undefined") {
-			this.element.style.visibility = '';
-		}
-	}
-	override hide(): void {
-		if(typeof this.element !== "undefined") {
-			this.element.style.visibility = 'hidden';
-		}
-	}
-
-	override set opacity(value: number) {
-		if(typeof this.element !== "undefined") {
-			const opacity = (value === 1) ? '' : value.toString();
-			if(this.element.style.opacity !== opacity) {
-				this.element.style.opacity = opacity;
-			}
-		}
-		this._opacity = value;
-	}
-
 	override get params() { return super.params; }
 	// Per `HTMLElement`.
-	override get className() {
-		if(typeof this.element === "undefined") {
-			return '';
-		}
-		return this.element.className;
-	}
-	override set className(value: string) {
-		if(typeof this.element !== "undefined") {
-			this.element.className = value;
-		}
-	}
-	override get classList() {
-		if(typeof this.element === "undefined") {
-			return new DOMTokenList();
-		}
-		return this.element.classList;
-	}
+	override get className() { return super.className; }
+	override set className(value: string) { super.className = value; }
+	override get classList() { return super.classList; }
+	override get style() { return super.style; }
 
 	// Per HTMLMediaElement.
 	override get currentSrc() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return super.currentSrc;
 		}
 		return this._app.currentSrc;
 	}
 	override get currentTime() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return super.currentTime;
 		}
 		return this._app.currentTime;
 	}
 	override get duration() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return NaN;
 		}
 		return this._app.duration;
 	}
 	override get ended() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return false;
 		}
 		return this._app.ended;
 	}
 	override get error() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return false;
 		}
 		return this._app.error;
 	}
 	override get networkState() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return HTMLMediaElement.NETWORK_EMPTY;
 		}
 		return this._app.networkState;
 	}
 	override get paused() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return true;
 		}
 		return this._app.paused;
 	}
 	override get readyState() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return HTMLMediaElement.HAVE_NOTHING;
 		}
 		return this._app.readyState;
 	}
 	override get src() { return super.src; }
-	override get srcObject() {
-		return null;
-	}
+	override get srcObject() { return super.srcObject; }
 
 	override load(): void {
 		(async () => {
@@ -585,14 +479,14 @@ export class LunaAppAsset extends AbstractLunaAsset {
 	}
 
 	override pause(): void {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return;
 		}
 		this._app.pause();
 	}
 
 	override async play(): Promise<void> {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return;
 		}
 		await this._app.play();
@@ -600,13 +494,13 @@ export class LunaAppAsset extends AbstractLunaAsset {
 
 	// Per `HTMLVideoElement`.
 	override get height() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return NaN;
 		}
 		return this._app.height;
 	}
 	override get width() {
-		if(typeof this._app === "undefined") {
+		if(this._app === null) {
 			return NaN;
 		}
 		return this._app.width;
@@ -689,7 +583,7 @@ export class LunaVideoCollection extends LunaCollection {
 		if(typeof video === "undefined") {
 			video = document.createElement('video') as LunaHTMLVideoElement;
 			this._count++;
-			video.texture = true;
+			video.texture = true;  /* ⚠️ WebOS specific */
 			video.autoplay = false;
 			video.crossOrigin = 'anonymous';
 			video.muted = true;

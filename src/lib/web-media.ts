@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT.
 
 import EventTarget from '@ungap/event-target';
-import { AppManifestSchema, WebApp, WebAppConstructor } from '@dsbunny/app';
+import { AppManifestSchema, WebApp } from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 import "./htmlimageelement-decode-polyfill.js";
 
@@ -367,7 +367,7 @@ export class WebAppAsset extends AbstractWebAsset {
 	}
 
 	override close(): void {
-		if(typeof this.element === "undefined") {
+		if(this.element === null) {
 			return
 		}
 		console.log(`unload app ... ${this.src}`);

@@ -10,6 +10,7 @@ import {
 	SchedulerState,
 	SchedulerAssetDecl,
 	SchedulerAssetDeclWithRemainingTime,
+	SchedulerAssetTransition,
 } from './scheduler.js';
 import { AssetDecl, MediaDecl } from './media.js';
 import { LunaAssetManager } from './luna-media.js';
@@ -65,14 +66,16 @@ function minimize(value: SchedulerState): any {
 
 export class LunaRenderer extends EventTarget implements Renderer {
 	protected _renderTarget: HTMLElement | null = null;
-	protected _lam = new LunaAssetManager();
+	protected _mam = new LunaAssetManager();
 	protected _transition_percent = 0;
 	protected _transition_percent_speed = 0;
 	protected _network_loading_count = 0;
+	protected _current_asset: LunaRendererAsset | null = null;
+	protected _next_asset: LunaRendererAsset | null = null;
 	protected _map1_asset: LunaRendererAsset | null = null;
 	protected _map2_asset: LunaRendererAsset | null = null;
-	protected _next_asset: LunaRendererAsset | null = null;
 	protected _asset_cache: Map<string, LunaRendererAsset> = new Map();
+	protected _asset_trash: Map<string, LunaRendererAsset> = new Map();
 	protected _set_state_hook: any;
 	protected _asset_prefetch: Prefetch;
 	// Per HTMLMediaElement.
@@ -101,14 +104,15 @@ export class LunaRenderer extends EventTarget implements Renderer {
 
 	// Called after placement in DOM.
 	init() {
-		console.groupCollapsed("WEB-RENDERER: init");
+		console.groupCollapsed("LUNA-RENDERER: init");
 		console.groupEnd();
 	}
 
 	close() {
-		console.log("WEB-RENDERER: close");
+		console.log("LUNA-RENDERER: close");
 		for(const asset of this._asset_cache.values()) {
-			asset.hide();
+			// Hide from view.
+			asset.style.visibility = "hidden";
 			asset.close();
 		}
 		this._asset_cache.clear();
@@ -123,7 +127,7 @@ export class LunaRenderer extends EventTarget implements Renderer {
 	}
 
 	setSchedulerMessagePort(scheduler: MessagePort): void {
-		console.log("WEB-RENDERER: setSchedulerMessagePort", scheduler);
+		console.log("LUNA-RENDERER: setSchedulerMessagePort", scheduler);
 		Comlink.expose({
 			setState: (value: SchedulerState) => this.setState(value),
 			setSources: async (scope: string, decls: MediaDecl[]) => {
@@ -163,54 +167,28 @@ export class LunaRenderer extends EventTarget implements Renderer {
 				this._debug.innerHTML = this._lastDebug = html;
 			}
 		}
-
-		if(value.transition) {
-			await this._onSchedulerMap1(value.transition.from);
-			this._onSchedulerMap2(value.transition.to);
-			this._onSchedulerNext(null);
-			this._updateTransitionPercent(value.transition.percent, value.transition.percentSpeed);
-		} else {
-			await this._onSchedulerMap1(value.mediaCurrent, { autoplay: true });
-			this._onSchedulerMap2(null);
-			this._onSchedulerNext(value.mediaNext);
-			if(value.mediaCurrent !== null
-				&& this._map1_asset !== null)
-			{
-				this._map1_asset.user_data.end_time = this._endTime(value.mediaCurrent);
-			}
-			if(value.mediaNext !== null
-				&& this._next_asset !== null)
-			{
-				this._next_asset.user_data.end_time = this._endTime(value.mediaNext);
-			}
-		}
-
-		this._interpolateTransition(this._previousTimestamp);
-	}
-
-	protected _endTime(asset: SchedulerAssetDeclWithRemainingTime): number {
-		return (typeof asset.remainingTimeMs === "number")
-			? (asset.remainingTimeMs + performance.now())
-			: Number.MAX_SAFE_INTEGER;
+		await this._onSchedulerCurrent(value.mediaCurrent);
+		this._onSchedulerNext(value.mediaNext);
+		await this._onSchedulerTransition(value.transition);
 	}
 
 	setAssetTarget(assetTarget: HTMLElement): void {
-		console.log("WEB-RENDERER: setAssetTarget", assetTarget);
-		this._lam.setAssetTarget(assetTarget);
+		console.log("LUNA-RENDERER: setAssetTarget", assetTarget);
+		this._mam.setAssetTarget(assetTarget);
 	}
 
 	setRenderTarget(renderTarget: HTMLElement): void {
-		console.log("WEB-RENDERER: setRenderTarget", renderTarget);
+		console.log("LUNA-RENDERER: setRenderTarget", renderTarget);
 		this._renderTarget = renderTarget;
 	}
 
 	setPixelRatio(value: number): void {
-		console.log("WEB-RENDERER: setPixelRatio", value);
+		console.log("LUNA-RENDERER: setPixelRatio", value);
 		// TBD: translate to CSS.
 	}
 
 	setSize(width: number, height: number): void {
-		console.log("WEB-RENDERER: setSize", width, height);
+		console.log("LUNA-RENDERER: setSize", width, height);
 		if(this._renderTarget !== null) {
 			this._renderTarget.style.width = `${width}px`;
 			this._renderTarget.style.height = `${height}px`;
@@ -218,11 +196,11 @@ export class LunaRenderer extends EventTarget implements Renderer {
 	}
 
 	setViews(views: View[]): void {
-		console.log("WEB-RENDERER: setViews", views);
+		console.log("LUNA-RENDERER: setViews", views);
 	}
 
 	async setSources(scope: string, sources: AssetDecl[]): Promise<void> {
-		console.log("WEB-RENDERER: setSources", scope, sources);
+		console.log("LUNA-RENDERER: setSources", scope, sources);
 		await this._asset_prefetch.acquireSources(scope, sources);
 	}
 
@@ -232,84 +210,72 @@ export class LunaRenderer extends EventTarget implements Renderer {
 //		console.log('update', timestamp);
 		const elapsed = timestamp - this._previousTimestamp;
 		this._previousTimestamp = timestamp;
-
-		let has_map1_painted = false;
-		if(this._map1_asset !== null) {
-			if(this._canPaintAsset(this._map1_asset)) {
-				const remaining = this._map1_asset.user_data.end_time - timestamp;
-				try {
-					this._paintAsset(this._map1_asset, timestamp, remaining);
-					has_map1_painted = true;
-				} catch(ex) {
-					console.error(ex);
-					console.error(this._map1_asset);
-				}
-			} else if(this._hasWaitingDuration()) {
-				const remaining = this._map1_asset.user_data.end_time - timestamp;
-				this._paintWaitingDuration(timestamp, remaining);
-				has_map1_painted = true;
+		if(this._canPaintCurrent()) {
+			if(this._current_asset === null) {
+				throw new Error("current asset is null.");
 			}
-		}
-		if(!has_map1_painted) {
+			const remaining = this._current_asset.end_time - timestamp;
+			try {
+				this._paintCurrent(timestamp, remaining);
+			} catch(ex) {
+				console.error(ex);
+				console.error(this._current_asset);
+			}
+		} else if(this._hasWaitingDuration()) {
+			if(this._current_asset === null) {
+				throw new Error("current asset is null.");
+			}
+			const remaining = this._current_asset.end_time - timestamp;
+			this._paintWaitingDuration(timestamp, remaining);
+		} else {
 			this._paintWaiting(timestamp);
 		}
-
-		if(this._map2_asset !== null) {
-			if(this._canPaintAsset(this._map2_asset)) {
-				const remaining = this._map2_asset.user_data.end_time - timestamp;
-				try {
-					this._paintAsset(this._map2_asset, timestamp, remaining);
-				} catch(ex) {
-					console.error(ex);
-					console.error(this._map2_asset);
-				}
+		if(this._canPaintNext()) {
+			if(this._next_asset === null) {
+				throw new Error("next asset is null.");
+			}
+			const remaining = this._next_asset.end_time - timestamp;
+			try {
+				this._paintNext(timestamp, remaining);
+			} catch(ex) {
+				console.error(ex);
+				console.error(this._next_asset);
 			}
 		}
-
 		this._interpolateTransition(elapsed);
-	}
-
-	protected _canPaintAsset(asset: LunaRendererAsset): boolean {
-		return asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
-	}
-
-	protected _paintAsset(
-		asset: LunaRendererAsset,
-		timestamp: DOMHighResTimeStamp,
-		remaining: number,
-	): void {
-		asset.paint(timestamp, remaining);
 	}
 
 	// on requestIdleCallback() callback.
 	idle(): void {
+		this._emptyAssetTrash();
+	}
+
+	protected _setTransitionPercent(
+		percent: number,
+	): void {
+		if(this._map1_asset !== null) {
+			const rounded = Math.round((1 - percent + Number.EPSILON) * 100) / 100
+			this._map1_asset.style.opacity = rounded.toString();
+		}
+		if(this._map2_asset !== null) {
+			this._map2_asset.style.opacity = '1';
+		}
+		this._transition_percent = percent;
 	}
 
 	protected _interpolateTransition(elapsed: number): void {
-		if(this._transition_percent_speed === 0) {
-			if(this._map1_asset !== null) {
-				this._map1_asset.opacity = 1;
+		if(this._transition_percent_speed !== 0) {
+			this._transition_percent += (this._transition_percent_speed * elapsed) / 1000;
+			if(this._transition_percent > 1) {
+				this._transition_percent = 1;
+				this._transition_percent_speed = 0;
 			}
-			if(this._map2_asset !== null) {
-				this._map2_asset.opacity = 0;
-			}
-			return;
-		}
-		this._transition_percent += (this._transition_percent_speed * elapsed) / 1000;
-		if(this._transition_percent > 1) {
-			this._transition_percent = 1;
-			this._transition_percent_speed = 0;
-		}
-		if(this._map1_asset !== null) {
-			this._map1_asset.opacity = Math.round((1 - this._transition_percent + Number.EPSILON) * 100) / 100;
-		}
-		if(this._map2_asset !== null) {
-			this._map2_asset.opacity = 1;
+			this._setTransitionPercent(this._transition_percent);
 		}
 	}
 
 	protected async _fetchImage(url: string): Promise<HTMLImageElement> {
-		console.log("WEB-RENDERER: _fetchImage", url);
+		console.log("LUNA-RENDERER: _fetchImage", url);
 		const img = await new Promise<HTMLImageElement>((resolve, reject) => {
 			const img = new Image();
 			img.src = url;
@@ -321,7 +287,7 @@ export class LunaRenderer extends EventTarget implements Renderer {
 				reject(encodingError);
 			});
 		});
-console.info("WEB-RENDERER: loaded displacement map", img.src);
+console.info("LUNA-RENDERER: loaded displacement map", img.src);
 		return img;
 	}
 
@@ -329,143 +295,144 @@ console.info("WEB-RENDERER: loaded displacement map", img.src);
 //		console.error(err);
 //	}
 
-	protected async _onSchedulerMap1(
-		asset_decl: SchedulerAssetDecl | null,
-		{ autoplay = false } = {},
-	): Promise<void> {
-		if(asset_decl !== null) {
-			if(!this._isAssetReady(asset_decl.decl)) {
-				return;
-			}
-			if(this._map1_asset !== null) {
-				if(this._map1_asset.id === asset_decl.decl.id) {
-					this._updateAsset(this._map1_asset);
-					if(autoplay
-						&& this._map1_asset.user_data.has_loaded
-						&& !this._map1_asset.user_data.is_playing
-						&& this._map1_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
-					{
-						this._map1_asset.user_data.is_playing = true;
-						await this._map1_asset.play();
-					}
-					return;
-				}
-				this._unbindAsset(this._map1_asset);
-			}
-			this._map1_asset = this._fetchAsset(asset_decl.decl);
-			this._map1_asset.className = "map1";
-		} else if(this._map1_asset !== null) {
-			this._unbindAsset(this._map1_asset);
-			this._map1_asset = null;
-			console.log(`WEB-RENDERER: map1 null`);
-		}
-	}
-
-	// Fetch asset, create asset if needed.
-	protected _fetchAsset(decl: MediaDecl): LunaRendererAsset {
-		const asset = this._asset_cache.get(decl.id);
-		if(typeof asset !== "undefined") {
-			asset.user_data.ref_count++;
-			if(!asset.user_data.has_loaded
-				&& !asset.user_data.is_loading)
+	// This media asset.
+	protected async _onSchedulerCurrent(current: SchedulerAssetDeclWithRemainingTime | null): Promise<void> {
+		if(current !== null) {
+			if(this._current_asset === null)
 			{
-				asset.user_data.is_loading = true;
-				this._networkLoadingRef();
-				asset.load();
+//console.info(current.decl.href, current.remainingTimeMs);
+				this._current_asset = await this._updateCurrent(current.decl);
+				this._current_asset!.end_time = (typeof current.remainingTimeMs === "number") ?
+					(current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+				this._current_asset!.ref();
+				console.log("LUNA-RENDERER: current", this._current_asset!.currentSrc);
 			}
-			return asset;
+			else if(current.decl.id !== this._current_asset.id)
+			{
+//console.info(current.decl.href, current.remainingTimeMs);
+				this._closeCurrent();
+				if(this._next_asset !== null
+					&& current.decl.id === this._next_asset.id)
+				{
+					console.log("LUNA-RENDERER: current <- next");
+					this._current_asset = await this._updateCurrentFromNext();
+				} else {
+					this._current_asset = await this._updateCurrent(current.decl);
+				}
+				this._current_asset!.end_time = (typeof current.remainingTimeMs === "number") ?
+					(current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+				this._current_asset!.ref();
+				console.log("LUNA-RENDERER: current", this._current_asset!.currentSrc);
+			}
+			else if(this._current_asset !== null)
+			{
+				this._current_asset = await this._updateCurrent(current.decl);
+				this._current_asset!.end_time = (typeof current.remainingTimeMs === "number") ?
+					(current.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+			}
+			if(this._current_asset === null) {
+				throw new Error("current asset is null.");
+			}
+		} else if(this._current_asset !== null) {
+			this._closeCurrent();
+			console.log(`LUNA-RENDERER: current null`);
 		}
-		const new_asset = this._createRendererAsset(decl);
-		this._networkLoadingRef();
-		new_asset.user_data.is_loading = true;
-		new_asset.load();
-		return new_asset;
 	}
 
-	// Update asset state, loading resources as needed.
-	protected _updateAsset(asset: LunaRendererAsset): void {
-		// Test for loaded asset.
-		if(!asset.user_data.has_loaded
-			&& asset.user_data.is_loading
-			&& asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
-		{
-			asset.user_data.is_loading = false;
-			asset.user_data.has_loaded = true;
-			this._networkLoadingUnref();
+	protected _onSchedulerNext(next: SchedulerAssetDeclWithRemainingTime | null): void {
+		// Next media asset.
+		if(next !== null) {
+			if(this._next_asset === null) {
+				this._next_asset = this._updateNext(next.decl);
+				this._next_asset!.end_time = (typeof next.remainingTimeMs === "number") ?
+					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+				this._next_asset!.ref();
+				console.log("LUNA-RENDERER: next", this._next_asset!.currentSrc);
+			}
+			else if(next.decl.id !== this._next_asset.id) {
+				this._closeNext();
+				this._next_asset = this._updateNext(next.decl);
+				this._next_asset!.end_time = (typeof next.remainingTimeMs === "number") ?
+					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+				this._next_asset!.ref();
+				console.log("LUNA-RENDERER: next", this._next_asset!.currentSrc);
+			}
+			else if(this._next_asset !== null)
+			{
+				this._next_asset = this._updateNext(next.decl);
+				this._next_asset!.end_time = (typeof next.remainingTimeMs === "number") ?
+					(next.remainingTimeMs + performance.now()) : Number.MAX_SAFE_INTEGER;
+			}
+			if(this._next_asset === null) {
+				throw new Error("next asset is null.");
+			}
+		} else if(this._next_asset !== null) {
+			this._closeNext();
+			console.log(`LUNA-RENDERER: next null`);
 		}
 	}
 
-	// Unbind asset from the renderer, release resources.
-	protected _unbindAsset(asset: LunaRendererAsset): void {
-		asset.user_data.ref_count--;
-		if(asset.user_data.ref_count !== 0) {
-			return;
-		}
-		if(typeof asset.texture !== "undefined") {
-			asset.close();
-		}
-		asset.user_data = {
-			ref_count: 0,
-			is_loading: false,
-			has_loaded: false,
-			is_playing: false,
-			end_time: NaN,
-		};
-	}
-
-	protected _onSchedulerMap2(
-		asset_decl: SchedulerAssetDecl | null,
-	): void {
-		if(asset_decl !== null) {
-			if(!this._isAssetReady(asset_decl.decl)) {
-				return;
+	protected async _onSchedulerTransition(transition: SchedulerAssetTransition | null): Promise<void> {
+		// Resources for transitions, explicitly details textures to
+		// avoid confusion when crossing boundary between two assets.
+		if(transition !== null) {
+			const from_asset = this._asset_cache.get(transition.from.decl.id);
+			if(typeof from_asset !== "undefined"
+				&& from_asset.element !== null
+				&& from_asset.id !== this._map1_asset?.id)
+			{
+				if(this._map1_asset !== null) {
+					this._map1_asset.unref();
+				}
+				from_asset.ref();
+				this._setMap1Asset(from_asset);
+			}
+			const to_asset = this._asset_cache.get(transition.to.decl.id);
+			if(typeof to_asset !== "undefined"
+				&& to_asset.element !== null
+				&& to_asset.id !== this._map2_asset?.id)
+			{
+				if(this._map2_asset !== null) {
+					this._map2_asset.unref();
+				}
+				to_asset.ref();
+				this._setMap2Asset(to_asset);
+			}
+			if(transition.percent !== this._transition_percent) {
+				this._setTransitionPercent(transition.percent);
+			}
+			if(transition.percentSpeed !== this._transition_percent_speed) {
+				this._transition_percent_speed = transition.percentSpeed;
+			}
+		} else {  // Transition finished, follow settings per "current".
+			if(this._current_asset === null) {
+				if(this._map1_asset !== null) {
+					this._map1_asset.unref();
+					this._setMap1Asset(null);
+				}
+			} else if(this._current_asset.element !== null
+				&& this._current_asset.id !== this._map1_asset?.id)
+			{
+				if(this._map1_asset !== null) {
+					this._map1_asset.unref();
+				}
+				this._current_asset.ref();
+				this._setMap1Asset(this._current_asset);
 			}
 			if(this._map2_asset !== null) {
-				if(this._map2_asset.id === asset_decl.decl.id) {
-					this._updateAsset(this._map2_asset);
-					return;
-				}
-				this._unbindAsset(this._map2_asset);
+				this._map2_asset.unref();
+				this._setMap2Asset(null);
 			}
-			this._map2_asset = this._fetchAsset(asset_decl.decl);
-			this._map2_asset.className = "map2";
-		} else if(this._map2_asset !== null) {
-			this._unbindAsset(this._map2_asset);
-			this._map2_asset = null;
+			if(this._transition_percent !== 0) {
+				this._setTransitionPercent(0);
+			}
+			if(this._transition_percent_speed !== 0) {
+				this._transition_percent_speed = 0;
+			}
 		}
 	}
 
-	protected _onSchedulerNext(
-		asset_decl: SchedulerAssetDecl | null,
-	): void {
-		if(asset_decl !== null) {
-			if(!this._isAssetReady(asset_decl.decl)) {
-				return;
-			}
-			if(this._next_asset !== null) {
-				if(this._next_asset.id === asset_decl.decl.id) {
-					this._updateAsset(this._next_asset);
-					return;
-				}
-				this._unbindAsset(this._next_asset);
-			}
-			this._next_asset = this._fetchAsset(asset_decl.decl);
-			this._next_asset.className = "next";
-		} else if(this._next_asset !== null) {
-			this._unbindAsset(this._next_asset);
-			this._next_asset = null;
-		}
-	}
-
-	protected _updateTransitionPercent(
-		percent: number,
-		percentSpeed: number,
-	): void {
-		this._transition_percent = percent;
-		this._transition_percent_speed = percentSpeed;
-	}
-
-	protected _networkLoadingRef(): void {
+protected _networkLoadingRef(): void {
 		if(this._network_loading_count === 0) {
 			this._networkState = HTMLMediaElement.NETWORK_LOADING;
 		}
@@ -479,21 +446,146 @@ console.info("WEB-RENDERER: loaded displacement map", img.src);
 		}
 	}
 
-	protected _isAssetReady(decl: MediaDecl): boolean {
-		const href = this._asset_prefetch.getPath(decl.href);
-		return (typeof href === "string") && href.length !== 0;
+	protected _emptyAssetTrash(): void {
+		const remove_list: string[] = [];
+		for(const [id, asset] of this._asset_trash) {
+			if(asset.ref_count !== 0) {
+				continue;
+			}
+			asset.close();
+			remove_list.push(id);
+		}
+		for(const id of remove_list) {
+			console.log("LUNA-RENDERER: Destroying", id)
+			this._asset_cache.delete(id);
+			this._asset_trash.delete(id);
+		}
 	}
 
-	protected _resolveAsset(decl: MediaDecl): MediaDecl {
-		return {
-			'@type': decl['@type'],
-			id: decl.id,
-			href: this._asset_prefetch.getPath(decl.href),
-			duration: decl.duration,
-			...(Array.isArray(decl.sources) && {
-				sources: decl.sources.map(source => this._asset_prefetch.getPath(source.href)),
-			}),
-		} as MediaDecl;
+	protected _setMap1Asset(asset: LunaRendererAsset | null): void {
+		this._map1_asset?.classList.remove('map1');
+		if(asset === null) {
+			this._map1_asset = null;
+			return;
+		}
+		this._map1_asset = asset;
+		this._map1_asset.className = 'map1';
+	}
+
+	protected _setMap2Asset(asset: LunaRendererAsset | null): void {
+		this._map2_asset?.classList.remove('map2');
+		if(asset === null) {
+			this._map2_asset = null;
+			return;
+		}
+		this._map2_asset = asset;
+		this._map2_asset.className = 'map2';
+	}
+
+	// Assumes new decl.
+	protected async _updateCurrent(decl: MediaDecl): Promise<LunaRendererAsset> {
+		const asset = this._asset_cache.get(decl.id);
+		if(typeof asset === "undefined") {
+			const media_asset = this._mam.createLunaAsset(decl);
+			if(typeof media_asset === "undefined") {
+				throw new Error("Failed to create media asset.");
+			}
+			const new_asset = new LunaRendererAsset(decl.id, media_asset);
+			this._asset_cache.set(new_asset.id, new_asset);
+			this._networkLoadingRef();
+			new_asset.is_loading = true;
+			new_asset.load();
+			return new_asset;  // drop frame.
+		} else if(this._asset_trash.has(decl.id)) {
+			this._asset_trash.delete(decl.id);
+		}
+		if(asset.is_loading
+			&& asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
+		{
+			this._networkLoadingUnref();
+			asset.is_loading = false;
+		}
+		if(!asset.has_element
+			&& asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+		{
+			asset.has_element = true;
+			await asset.play();
+			if(this._map1_asset !== null) {
+				this._map1_asset.unref();
+			}
+			if(this._map2_asset !== null) {
+				this._map2_asset.unref();
+			}
+			asset.ref();
+			this._setMap1Asset(asset);
+			this._setMap2Asset(null);
+			this._setTransitionPercent(0);
+			this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+		}
+		return asset;
+	}
+
+	// Keep reference next to current.
+	protected async _updateCurrentFromNext(): Promise<LunaRendererAsset> {
+		if(this._current_asset !== null) {
+			throw new Error("current asset must be closed before calling.");
+		}
+		if(this._next_asset === null) {
+			throw new Error("next asset must be defined before calling.");
+		}
+		const asset = this._next_asset;
+		this._next_asset = null;
+		if(asset !== null
+			&& asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA)
+		{
+			await asset.play();
+			if(this._map2_asset === null) {
+				if(this._map1_asset !== null) {
+					this._map1_asset.unref();
+				}
+				this._setMap1Asset(asset);
+				this._setTransitionPercent(0);
+			}
+			this._readyState = HTMLMediaElement.HAVE_CURRENT_DATA;
+		} else {
+			console.warn("LUNA-RENDERER: current asset not ready.");
+			this._readyState = HTMLMediaElement.HAVE_METADATA;
+		}
+		return asset;
+	}
+
+	protected _canPaintCurrent(): boolean {
+		return this._current_asset !== null
+			&& this._current_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+	}
+
+	protected _paintCurrent(timestamp: DOMHighResTimeStamp, remaining: number): void {
+		if(this._current_asset === null) {
+			throw new Error("undefined current asset.");
+		}
+		this._current_asset.paint(timestamp, remaining);
+		// Very slow loading asset, force playback, avoid seeking as already broken.
+//		if(this.#current_asset.paused) {
+//			(async() => {
+//				if(this.#current_asset !== null
+//					&& this.#current_asset.paused
+//					&& !this.#current_asset.ended
+//					&& this.#current_asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA)
+//				{
+//					await this.#current_asset.play();
+//				}
+//			})();
+//		}
+	}
+
+	protected _closeCurrent(): void {
+		if(this._current_asset === null) {
+			return;
+		}
+		this._current_asset.pause();
+		this._current_asset.unref();
+		this._asset_trash.set(this._current_asset.id, this._current_asset);
+		this._current_asset = null;
 	}
 
 	protected _hasWaitingDuration(): boolean {
@@ -501,22 +593,57 @@ console.info("WEB-RENDERER: loaded displacement map", img.src);
 	}
 
 	protected _paintWaiting(_timestamp: DOMHighResTimeStamp): void {}
-	protected _paintWaitingDuration(_timestamp: DOMHighResTimeStamp, _remaining: number): void {}
+	_paintWaitingDuration(_timestamp: DOMHighResTimeStamp, _remaining: number): void {}
 
-	protected _createRendererAsset(decl: MediaDecl): LunaRendererAsset {
-		const media_asset = this._lam.createLunaAsset(this._resolveAsset(decl));
-		if(typeof media_asset === "undefined") {
-			throw new Error("Failed to create media asset.");
+	protected _updateNext(decl: MediaDecl): LunaRendererAsset {
+		const asset = this._asset_cache.get(decl.id);
+		if(typeof asset === "undefined") {
+			const media_asset = this._mam.createLunaAsset(decl);
+			if(typeof media_asset === "undefined") {
+				throw new Error("Failed to create media asset.");
+			}
+			const new_asset = new LunaRendererAsset(decl.id, media_asset);
+			this._asset_cache.set(new_asset.id, new_asset);
+			this._networkLoadingRef();
+			new_asset.is_loading = true;
+			new_asset.load();
+			return new_asset;
+		} else if(this._asset_trash.has(decl.id)) {
+			this._asset_trash.delete(decl.id);
 		}
-		const asset = new LunaRendererAsset(decl.id, media_asset);
-		asset.user_data = {
-			ref_count: 1,
-			is_loading: false,
-			has_loaded: false,
-			is_playing: false,
-			end_time: NaN,
-		};
-		this._asset_cache.set(asset.id, asset);
+		if(asset.is_loading
+			&& asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
+		{
+			this._networkLoadingUnref();
+			asset.is_loading = false;
+		}
+		if(!asset.has_element
+			&& asset.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA)
+		{
+			asset.has_element = true;
+			this._readyState = HTMLMediaElement.HAVE_FUTURE_DATA;
+		}
 		return asset;
+	}
+
+	protected _canPaintNext(): boolean {
+		return this._next_asset !== null
+			&& this._next_asset.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA;
+	}
+
+	protected _paintNext(timestamp: DOMHighResTimeStamp, remaining: number): void {
+		if(this._next_asset === null) {
+			throw new Error("undefined next asset.");
+		}
+		this._next_asset.paint(timestamp, remaining);
+	}
+
+	protected _closeNext(): void {
+		if(this._next_asset === null) {
+			throw new Error("undefined next asset.");
+		}
+		this._next_asset.unref();
+		this._asset_trash.set(this._next_asset.id, this._next_asset);
+		this._next_asset = null;
 	}
 }

@@ -37,7 +37,7 @@ export class WebRendererAsset {
 		try {
 			this.media_asset.load();
 		} catch(error: unknown) {
-			console.error(`RENDERER: ${error}`);
+			console.error(`WEB-ASSET: ${error}`);
 		}
 	}
 
