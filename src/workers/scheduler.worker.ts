@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT.
 
 import '@ungap/global-this';
-import 'object.fromentries';
+import 'fromentries';
 import * as Comlink from 'comlink';
 import { DateTime } from 'luxon';
 import { Scheduler } from '../lib/scheduler.js';
