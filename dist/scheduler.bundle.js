@@ -39439,9 +39439,14 @@ class BasicScheduler extends EventTarget$1 {
             console.groupEnd();
         })();
     }
+    // 4xx, expired -> abort
+    // 5xx, timeout -> retry
     async _fetch(url) {
         console.log("BASIC-SCHEDULER: _fetch", url);
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+        }
         const referenced = await response.json();
         const result = await parse$1(referenced, {
             scope: self.location.href,

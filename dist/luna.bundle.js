@@ -6396,10 +6396,10 @@ function getMD5Hash(options) {
         storage.getMD5Hash(resolve, reject, options);
     });
 }
-function fsync() {
+function fsync(options) {
     return new Promise((resolve, reject) => {
         const storage = new Storage();
-        storage.fsync(resolve, reject);
+        storage.fsync(resolve, reject, options);
     });
 }
 
@@ -6586,6 +6586,8 @@ class LunaPool {
         };
         const data = await listFiles(listOptions);
         for (const file of data.files) {
+            if (!file.name)
+                continue;
             const id = file.name.substr(0, file.name.lastIndexOf('.'));
             const placeholder = {
                 '@type': 'unknown',
@@ -6595,7 +6597,7 @@ class LunaPool {
             this._id_to_asset_map.set(id, placeholder);
             const file_url = `${this._base_path}/${file.name}`;
             this._id_to_file_map.set(id, file_url);
-            this._size += file.size;
+            this._size += file.size || 0;
             const statOptions = {
                 path: file_url,
             };

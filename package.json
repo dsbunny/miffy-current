@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "19.3.14",
+	"version": "19.4.15",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
@@ -25,6 +25,7 @@
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.27.1",
 		"@babel/preset-env": "^7.27.2",
+		"@dsbunny/webossignage": "github:dsbunny/webossignage#35bf8e3",
 		"@rollup/plugin-babel": "^6.0.4",
 		"@rollup/plugin-commonjs": "^28.0.3",
 		"@rollup/plugin-node-resolve": "^16.0.1",

@@ -1,4 +1,7 @@
 # Changelog
+## v19.4.15
+- Move to `@dsbunny/webossignage` for LG WebOS typings.
+
 ## v19.3.14
 - Update _apps_ with `AppBaseParams`.
 - Normalize on using `Node.setAttribute()` when modifying `src` for compatibility with WebOS.
