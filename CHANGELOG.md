@@ -1,4 +1,7 @@
 # Changelog
+## v19.4.16
+- Update `@dsbunny/webossignage` and `@dsbunny/publisher-schema`.
+
 ## v19.4.15
 - Move to `@dsbunny/webossignage` for LG WebOS typings.
 

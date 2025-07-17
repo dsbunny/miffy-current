@@ -35430,6 +35430,8 @@ var RecipeSchema;
             .describe("ID of the image"),
         href: url().min(20).max(2048)
             .describe("URL of the image"),
+        expires: datetime().optional()
+            .describe("Optional expiration date of the image"),
         size: number().min(20).max(5368709120) // 5GB
             .describe("Size of the image in bytes"),
         hash: RecipeSchema.HashValue,
@@ -35450,6 +35452,8 @@ var RecipeSchema;
             .describe("ID of the video"),
         href: url().min(20).max(2048)
             .describe("URL of the video"),
+        expires: datetime().optional()
+            .describe("Optional expiration date of the video"),
         size: number().min(20).max(5497558138880) // 5TB
             .describe("Size of the video in bytes"),
         hash: RecipeSchema.HashValue,
@@ -35470,6 +35474,8 @@ var RecipeSchema;
             .describe("ID of the script"),
         href: url().min(20).max(2048)
             .describe("URL of the script"),
+        expires: datetime().optional()
+            .describe("Optional expiration date of the script"),
         size: number().min(20).max(1073741824) // 1GB
             .describe("Size of the script in bytes"),
         hash: RecipeSchema.HashValue,
@@ -35486,6 +35492,8 @@ var RecipeSchema;
             .describe("ID of the custom element"),
         href: url().min(20).max(2048)
             .describe("URL of the custom element"),
+        expires: datetime().optional()
+            .describe("Optional expiration date of the custom element"),
         size: number().min(20).max(1073741824) // 1GB
             .describe("Size of the custom element in bytes"),
         hash: RecipeSchema.HashValue,
@@ -35605,6 +35613,8 @@ var RecipeSchema;
             .describe("ID of the transition"),
         href: url().min(20).max(2048)
             .describe("URL of the transition"),
+        expires: datetime().optional()
+            .describe("Optional expiration date of the transition"),
         size: number().min(20).max(1073741824) // 1GB
             .describe("Size of the transition in bytes"),
         hash: RecipeSchema.HashValue,
@@ -35673,6 +35683,8 @@ var RecipeSchema;
             .describe("ID of the recipe"),
         href: url().min(20).max(2048)
             .describe("URL of the recipe"),
+        expires: datetime().optional()
+            .describe("Optional expiration date of the recipe"),
         size: number().min(20).max(1073741824) // 1GB
             .describe("Size of the recipe in bytes"),
         hash: RecipeSchema.HashValue,

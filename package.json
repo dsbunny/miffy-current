@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "19.4.15",
+	"version": "19.4.16",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
@@ -25,7 +25,6 @@
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.27.1",
 		"@babel/preset-env": "^7.27.2",
-		"@dsbunny/webossignage": "github:dsbunny/webossignage#35bf8e3",
 		"@rollup/plugin-babel": "^6.0.4",
 		"@rollup/plugin-commonjs": "^28.0.3",
 		"@rollup/plugin-node-resolve": "^16.0.1",
@@ -60,9 +59,10 @@
 	"private": false,
 	"dependencies": {
 		"@dsbunny/app": "github:dsbunny/app#ad9be66",
-		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#04eef6b",
+		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#5789954",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",
+		"@dsbunny/webossignage": "github:dsbunny/webossignage#8818d31",
 		"@msgpack/msgpack": "^3.1.1",
 		"@ungap/event-target": "^0.2.4",
 		"@webcomponents/webcomponentsjs": "^2.8.0",
