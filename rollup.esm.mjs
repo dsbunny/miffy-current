@@ -11,6 +11,18 @@ import { dts } from "rollup-plugin-dts";
 import copy from 'rollup-plugin-copy';
 import summary from 'rollup-plugin-summary';
 
+const common_external = [
+	'@dsbunny/publisher-schema',
+	'@lit/reactive-element',
+	'@webcomponents/webcomponentsjs',
+	'lit',
+	'lit-html',
+	'lit-element',
+	'luxon',
+	'three',
+	'zod/v4',
+];
+
 export default [
 {
 	input: [
@@ -39,11 +51,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-		'@dsbunny/publisher-schema',
-                'three',
-		'zod/v4',
-        ],
+	external: common_external,
 	output: {
 		file: 'dist/web.bundle.js',
 		format: 'esm',
@@ -65,11 +73,7 @@ export default [
 		dts(),
 		summary(),
 	],
-	external: [
-                '@dsbunny/publisher-schema',
-                'three',
-		'zod/v4',
-        ],
+	external: common_external,
 	output: {
 		file: 'dist/web.bundle.d.ts',
 		format: 'esm',
@@ -95,11 +99,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-                '@dsbunny/publisher-schema',
-                'three',
-		'zod/v4',
-        ],
+	external: common_external,
 	output: {
 		file: 'dist/brightsign.bundle.js',
 		format: 'esm',
@@ -121,11 +121,7 @@ export default [
 		dts(),
 		summary(),
 	],
-	external: [
-                '@dsbunny/publisher-schema',
-                'three',
-		'zod/v4',
-        ],
+	external: common_external,
 	output: {
 		file: 'dist/brightsign.bundle.d.ts',
 		format: 'esm',
@@ -152,11 +148,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-                '@dsbunny/publisher-schema',
-                'three',
-		'zod/v4',
-        ],
+	external: common_external,
 	output: {
 		file: 'dist/luna.bundle.js',
 		format: 'esm',
@@ -178,11 +170,7 @@ export default [
 		dts(),
 		summary(),
 	],
-	external: [
-                '@dsbunny/publisher-schema',
-                'three',
-		'zod/v4',
-        ],
+	external: common_external,
 	output: {
 		file: 'dist/luna.bundle.d.ts',
 		format: 'esm',

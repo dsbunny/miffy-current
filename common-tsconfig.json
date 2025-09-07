@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"pretty": true,
 		"baseUrl": "./",
 		"target": "esnext",
 		"module": "esnext",
@@ -12,18 +11,18 @@
 		"outDir": "./build",
 		"rootDir": "./",
 		"strict": true,
-		"noUnusedLocals": false    ,
+		"noUnusedLocals": false,
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
+		"noFallthroughCasesInSwitch": false,
 		"noImplicitAny": true,
+		"noImplicitOverride": true,
 		"noImplicitThis": true,
 		"moduleResolution": "bundler",
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 		"useDefineForClassFields": false,
 		"forceConsistentCasingInFileNames": true,
-		"noImplicitOverride": true,
 		"composite": true,
 		"skipLibCheck": true,
 		"plugins": [

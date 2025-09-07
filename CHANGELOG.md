@@ -1,4 +1,7 @@
 # Changelog
+## v19.5.17
+- Move `lit` and `luxon` to _external_ modules.
+
 ## v19.4.16
 - Update `@dsbunny/webossignage` and `@dsbunny/publisher-schema`.
 
