@@ -40,7 +40,7 @@ aCallable=function(argument){if(isCallable(argument))return argument;throw new $
 getMethod=function(V,P){var func=V[P];return isNullOrUndefined(func)?undefined:aCallable(func);};return getMethod;}var ordinaryToPrimitive;var hasRequiredOrdinaryToPrimitive;function requireOrdinaryToPrimitive(){if(hasRequiredOrdinaryToPrimitive)return ordinaryToPrimitive;hasRequiredOrdinaryToPrimitive=1;var call=requireFunctionCall();var isCallable=requireIsCallable();var isObject=requireIsObject();var $TypeError=TypeError;// `OrdinaryToPrimitive` abstract operation
 // https://tc39.es/ecma262/#sec-ordinarytoprimitive
 ordinaryToPrimitive=function(input,pref){var fn,val;if(pref==='string'&&isCallable(fn=input.toString)&&!isObject(val=call(fn,input)))return val;if(isCallable(fn=input.valueOf)&&!isObject(val=call(fn,input)))return val;if(pref!=='string'&&isCallable(fn=input.toString)&&!isObject(val=call(fn,input)))return val;throw new $TypeError("Can't convert object to primitive value");};return ordinaryToPrimitive;}var sharedStore={exports:{}};var isPure;var hasRequiredIsPure;function requireIsPure(){if(hasRequiredIsPure)return isPure;hasRequiredIsPure=1;isPure=false;return isPure;}var defineGlobalProperty;var hasRequiredDefineGlobalProperty;function requireDefineGlobalProperty(){if(hasRequiredDefineGlobalProperty)return defineGlobalProperty;hasRequiredDefineGlobalProperty=1;var globalThis=requireGlobalThis();// eslint-disable-next-line es/no-object-defineproperty -- safe
-var defineProperty=Object.defineProperty;defineGlobalProperty=function(key,value){try{defineProperty(globalThis,key,{value:value,configurable:true,writable:true});}catch(error){globalThis[key]=value;}return value;};return defineGlobalProperty;}var hasRequiredSharedStore;function requireSharedStore(){if(hasRequiredSharedStore)return sharedStore.exports;hasRequiredSharedStore=1;var IS_PURE=requireIsPure();var globalThis=requireGlobalThis();var defineGlobalProperty=requireDefineGlobalProperty();var SHARED='__core-js_shared__';var store=sharedStore.exports=globalThis[SHARED]||defineGlobalProperty(SHARED,{});(store.versions||(store.versions=[])).push({version:'3.43.0',mode:IS_PURE?'pure':'global',copyright:'© 2014-2025 Denis Pushkarev (zloirock.ru)',license:'https://github.com/zloirock/core-js/blob/v3.43.0/LICENSE',source:'https://github.com/zloirock/core-js'});return sharedStore.exports;}var shared;var hasRequiredShared;function requireShared(){if(hasRequiredShared)return shared;hasRequiredShared=1;var store=requireSharedStore();shared=function(key,value){return store[key]||(store[key]=value||{});};return shared;}var toObject;var hasRequiredToObject;function requireToObject(){if(hasRequiredToObject)return toObject;hasRequiredToObject=1;var requireObjectCoercible=requireRequireObjectCoercible();var $Object=Object;// `ToObject` abstract operation
+var defineProperty=Object.defineProperty;defineGlobalProperty=function(key,value){try{defineProperty(globalThis,key,{value:value,configurable:true,writable:true});}catch(error){globalThis[key]=value;}return value;};return defineGlobalProperty;}var hasRequiredSharedStore;function requireSharedStore(){if(hasRequiredSharedStore)return sharedStore.exports;hasRequiredSharedStore=1;var IS_PURE=requireIsPure();var globalThis=requireGlobalThis();var defineGlobalProperty=requireDefineGlobalProperty();var SHARED='__core-js_shared__';var store=sharedStore.exports=globalThis[SHARED]||defineGlobalProperty(SHARED,{});(store.versions||(store.versions=[])).push({version:'3.47.0',mode:IS_PURE?'pure':'global',copyright:'© 2014-2025 Denis Pushkarev (zloirock.ru), 2025 CoreJS Company (core-js.io)',license:'https://github.com/zloirock/core-js/blob/v3.47.0/LICENSE',source:'https://github.com/zloirock/core-js'});return sharedStore.exports;}var shared;var hasRequiredShared;function requireShared(){if(hasRequiredShared)return shared;hasRequiredShared=1;var store=requireSharedStore();shared=function(key,value){return store[key]||(store[key]=value||{});};return shared;}var toObject;var hasRequiredToObject;function requireToObject(){if(hasRequiredToObject)return toObject;hasRequiredToObject=1;var requireObjectCoercible=requireRequireObjectCoercible();var $Object=Object;// `ToObject` abstract operation
 // https://tc39.es/ecma262/#sec-toobject
 toObject=function(argument){return $Object(requireObjectCoercible(argument));};return toObject;}var hasOwnProperty_1;var hasRequiredHasOwnProperty;function requireHasOwnProperty(){if(hasRequiredHasOwnProperty)return hasOwnProperty_1;hasRequiredHasOwnProperty=1;var uncurryThis=requireFunctionUncurryThis();var toObject=requireToObject();var hasOwnProperty=uncurryThis({}.hasOwnProperty);// `HasOwnProperty` abstract operation
 // https://tc39.es/ecma262/#sec-hasownproperty
@@ -116,7 +116,8 @@ ownKeys=getBuiltIn('Reflect','ownKeys')||function ownKeys(it){var keys=getOwnPro
 	  options.name           - the .name of the function if it does not match the key
 	*/_export=function(options,source){var TARGET=options.target;var GLOBAL=options.global;var STATIC=options.stat;var FORCED,target,key,targetProperty,sourceProperty,descriptor;if(GLOBAL){target=globalThis;}else if(STATIC){target=globalThis[TARGET]||defineGlobalProperty(TARGET,{});}else{target=globalThis[TARGET]&&globalThis[TARGET].prototype;}if(target)for(key in source){sourceProperty=source[key];if(options.dontCallGetSet){descriptor=getOwnPropertyDescriptor(target,key);targetProperty=descriptor&&descriptor.value;}else targetProperty=target[key];FORCED=isForced(GLOBAL?key:TARGET+(STATIC?'.':'#')+key,options.forced);// contained in target
 if(!FORCED&&targetProperty!==undefined){if(typeof sourceProperty==typeof targetProperty)continue;copyConstructorProperties(sourceProperty,targetProperty);}// add a flag to not completely full polyfills
-if(options.sham||targetProperty&&targetProperty.sham){createNonEnumerableProperty(sourceProperty,'sham',true);}defineBuiltIn(target,key,sourceProperty,options);}};return _export;}var toStringTagSupport;var hasRequiredToStringTagSupport;function requireToStringTagSupport(){if(hasRequiredToStringTagSupport)return toStringTagSupport;hasRequiredToStringTagSupport=1;var wellKnownSymbol=requireWellKnownSymbol();var TO_STRING_TAG=wellKnownSymbol('toStringTag');var test={};test[TO_STRING_TAG]='z';toStringTagSupport=String(test)==='[object z]';return toStringTagSupport;}var classof;var hasRequiredClassof;function requireClassof(){if(hasRequiredClassof)return classof;hasRequiredClassof=1;var TO_STRING_TAG_SUPPORT=requireToStringTagSupport();var isCallable=requireIsCallable();var classofRaw=requireClassofRaw();var wellKnownSymbol=requireWellKnownSymbol();var TO_STRING_TAG=wellKnownSymbol('toStringTag');var $Object=Object;// ES3 wrong here
+if(options.sham||targetProperty&&targetProperty.sham){createNonEnumerableProperty(sourceProperty,'sham',true);}defineBuiltIn(target,key,sourceProperty,options);}};return _export;}var toStringTagSupport;var hasRequiredToStringTagSupport;function requireToStringTagSupport(){if(hasRequiredToStringTagSupport)return toStringTagSupport;hasRequiredToStringTagSupport=1;var wellKnownSymbol=requireWellKnownSymbol();var TO_STRING_TAG=wellKnownSymbol('toStringTag');var test={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+test[TO_STRING_TAG]='z';toStringTagSupport=String(test)==='[object z]';return toStringTagSupport;}var classof;var hasRequiredClassof;function requireClassof(){if(hasRequiredClassof)return classof;hasRequiredClassof=1;var TO_STRING_TAG_SUPPORT=requireToStringTagSupport();var isCallable=requireIsCallable();var classofRaw=requireClassofRaw();var wellKnownSymbol=requireWellKnownSymbol();var TO_STRING_TAG=wellKnownSymbol('toStringTag');var $Object=Object;// ES3 wrong here
 var CORRECT_ARGUMENTS=classofRaw(function(){return arguments;}())==='Arguments';// fallback for IE11 Script Access Denied error
 var tryGet=function(it,key){try{return it[key];}catch(error){/* empty */}};// getting tag from ES6+ `Object.prototype.toString`
 classof=TO_STRING_TAG_SUPPORT?classofRaw:function(it){var O,tag,result;return it===undefined?'Undefined':it===null?'Null'// @@toStringTag case
@@ -193,7 +194,7 @@ filterReject:createMethod(7)};return arrayIteration;}var hasRequiredEs_symbol_co
 var USE_SETTER=!QObject||!QObject[PROTOTYPE]||!QObject[PROTOTYPE].findChild;// fallback for old Android, https://code.google.com/p/v8/issues/detail?id=687
 var fallbackDefineProperty=function(O,P,Attributes){var ObjectPrototypeDescriptor=nativeGetOwnPropertyDescriptor(ObjectPrototype,P);if(ObjectPrototypeDescriptor)delete ObjectPrototype[P];nativeDefineProperty(O,P,Attributes);if(ObjectPrototypeDescriptor&&O!==ObjectPrototype){nativeDefineProperty(ObjectPrototype,P,ObjectPrototypeDescriptor);}};var setSymbolDescriptor=DESCRIPTORS&&fails(function(){return nativeObjectCreate(nativeDefineProperty({},'a',{get:function(){return nativeDefineProperty(this,'a',{value:7}).a;}})).a!==7;})?fallbackDefineProperty:nativeDefineProperty;var wrap=function(tag,description){var symbol=AllSymbols[tag]=nativeObjectCreate(SymbolPrototype);setInternalState(symbol,{type:SYMBOL,tag:tag,description:description});if(!DESCRIPTORS)symbol.description=description;return symbol;};var $defineProperty=function defineProperty(O,P,Attributes){if(O===ObjectPrototype)$defineProperty(ObjectPrototypeSymbols,P,Attributes);anObject(O);var key=toPropertyKey(P);anObject(Attributes);if(hasOwn(AllSymbols,key)){if(!Attributes.enumerable){if(!hasOwn(O,HIDDEN))nativeDefineProperty(O,HIDDEN,createPropertyDescriptor(1,nativeObjectCreate(null)));O[HIDDEN][key]=true;}else{if(hasOwn(O,HIDDEN)&&O[HIDDEN][key])O[HIDDEN][key]=false;Attributes=nativeObjectCreate(Attributes,{enumerable:createPropertyDescriptor(0,false)});}return setSymbolDescriptor(O,key,Attributes);}return nativeDefineProperty(O,key,Attributes);};var $defineProperties=function defineProperties(O,Properties){anObject(O);var properties=toIndexedObject(Properties);var keys=objectKeys(properties).concat($getOwnPropertySymbols(properties));$forEach(keys,function(key){if(!DESCRIPTORS||call($propertyIsEnumerable,properties,key))$defineProperty(O,key,properties[key]);});return O;};var $create=function create(O,Properties){return Properties===undefined?nativeObjectCreate(O):$defineProperties(nativeObjectCreate(O),Properties);};var $propertyIsEnumerable=function propertyIsEnumerable(V){var P=toPropertyKey(V);var enumerable=call(nativePropertyIsEnumerable,this,P);if(this===ObjectPrototype&&hasOwn(AllSymbols,P)&&!hasOwn(ObjectPrototypeSymbols,P))return false;return enumerable||!hasOwn(this,P)||!hasOwn(AllSymbols,P)||hasOwn(this,HIDDEN)&&this[HIDDEN][P]?enumerable:true;};var $getOwnPropertyDescriptor=function getOwnPropertyDescriptor(O,P){var it=toIndexedObject(O);var key=toPropertyKey(P);if(it===ObjectPrototype&&hasOwn(AllSymbols,key)&&!hasOwn(ObjectPrototypeSymbols,key))return;var descriptor=nativeGetOwnPropertyDescriptor(it,key);if(descriptor&&hasOwn(AllSymbols,key)&&!(hasOwn(it,HIDDEN)&&it[HIDDEN][key])){descriptor.enumerable=true;}return descriptor;};var $getOwnPropertyNames=function getOwnPropertyNames(O){var names=nativeGetOwnPropertyNames(toIndexedObject(O));var result=[];$forEach(names,function(key){if(!hasOwn(AllSymbols,key)&&!hasOwn(hiddenKeys,key))push(result,key);});return result;};var $getOwnPropertySymbols=function(O){var IS_OBJECT_PROTOTYPE=O===ObjectPrototype;var names=nativeGetOwnPropertyNames(IS_OBJECT_PROTOTYPE?ObjectPrototypeSymbols:toIndexedObject(O));var result=[];$forEach(names,function(key){if(hasOwn(AllSymbols,key)&&(!IS_OBJECT_PROTOTYPE||hasOwn(ObjectPrototype,key))){push(result,AllSymbols[key]);}});return result;};// `Symbol` constructor
 // https://tc39.es/ecma262/#sec-symbol-constructor
-if(!NATIVE_SYMBOL){$Symbol=function Symbol(){if(isPrototypeOf(SymbolPrototype,this))throw new TypeError('Symbol is not a constructor');var description=!arguments.length||arguments[0]===undefined?undefined:$toString(arguments[0]);var tag=uid(description);var setter=function(value){var $this=this===undefined?globalThis:this;if($this===ObjectPrototype)call(setter,ObjectPrototypeSymbols,value);if(hasOwn($this,HIDDEN)&&hasOwn($this[HIDDEN],tag))$this[HIDDEN][tag]=false;var descriptor=createPropertyDescriptor(1,value);try{setSymbolDescriptor($this,tag,descriptor);}catch(error){if(!(error instanceof RangeError))throw error;fallbackDefineProperty($this,tag,descriptor);}};if(DESCRIPTORS&&USE_SETTER)setSymbolDescriptor(ObjectPrototype,tag,{configurable:true,set:setter});return wrap(tag,description);};SymbolPrototype=$Symbol[PROTOTYPE];defineBuiltIn(SymbolPrototype,'toString',function toString(){return getInternalState(this).tag;});defineBuiltIn($Symbol,'withoutSetter',function(description){return wrap(uid(description),description);});propertyIsEnumerableModule.f=$propertyIsEnumerable;definePropertyModule.f=$defineProperty;definePropertiesModule.f=$defineProperties;getOwnPropertyDescriptorModule.f=$getOwnPropertyDescriptor;getOwnPropertyNamesModule.f=getOwnPropertyNamesExternal.f=$getOwnPropertyNames;getOwnPropertySymbolsModule.f=$getOwnPropertySymbols;wrappedWellKnownSymbolModule.f=function(name){return wrap(wellKnownSymbol(name),name);};if(DESCRIPTORS){// https://github.com/tc39/proposal-Symbol-description
+if(!NATIVE_SYMBOL){$Symbol=function Symbol(){if(isPrototypeOf(SymbolPrototype,this))throw new TypeError('Symbol is not a constructor');var description=!arguments.length||arguments[0]===undefined?undefined:$toString(arguments[0]);var tag=uid(description);var setter=function(value){var $this=this===undefined?globalThis:this;if($this===ObjectPrototype)call(setter,ObjectPrototypeSymbols,value);if(hasOwn($this,HIDDEN)&&hasOwn($this[HIDDEN],tag))$this[HIDDEN][tag]=false;var descriptor=createPropertyDescriptor(1,value);try{setSymbolDescriptor($this,tag,descriptor);}catch(error){if(!(error instanceof RangeError))throw error;fallbackDefineProperty($this,tag,descriptor);}};if(DESCRIPTORS&&USE_SETTER)setSymbolDescriptor(ObjectPrototype,tag,{configurable:true,set:setter});return wrap(tag,description);};SymbolPrototype=$Symbol[PROTOTYPE];defineBuiltIn(SymbolPrototype,'toString',function toString(){return getInternalState(this).tag;});defineBuiltIn($Symbol,'withoutSetter',function(description){return wrap(uid(description),description);});propertyIsEnumerableModule.f=$propertyIsEnumerable;definePropertyModule.f=$defineProperty;definePropertiesModule.f=$defineProperties;getOwnPropertyDescriptorModule.f=$getOwnPropertyDescriptor;getOwnPropertyNamesModule.f=getOwnPropertyNamesExternal.f=$getOwnPropertyNames;getOwnPropertySymbolsModule.f=$getOwnPropertySymbols;wrappedWellKnownSymbolModule.f=function(name){return wrap(wellKnownSymbol(name),name);};if(DESCRIPTORS){// https://tc39.es/ecma262/#sec-symbol.prototype.description
 defineBuiltInAccessor(SymbolPrototype,'description',{configurable:true,get:function description(){return getInternalState(this).description;}});if(!IS_PURE){defineBuiltIn(ObjectPrototype,'propertyIsEnumerable',$propertyIsEnumerable,{unsafe:true});}}}$({global:true,constructor:true,wrap:true,forced:!NATIVE_SYMBOL,sham:!NATIVE_SYMBOL},{Symbol:$Symbol});$forEach(objectKeys(WellKnownSymbolsStore),function(name){defineWellKnownSymbol(name);});$({target:SYMBOL,stat:true,forced:!NATIVE_SYMBOL},{useSetter:function(){USE_SETTER=true;},useSimple:function(){USE_SETTER=false;}});$({target:'Object',stat:true,forced:!NATIVE_SYMBOL,sham:!DESCRIPTORS},{// `Object.create` method
 // https://tc39.es/ecma262/#sec-object.create
 create:$create,// `Object.defineProperty` method
@@ -213,16 +214,20 @@ setToStringTag($Symbol,SYMBOL);hiddenKeys[HIDDEN]=true;return es_symbol_construc
 $({target:'Symbol',stat:true,forced:!NATIVE_SYMBOL_REGISTRY},{'for':function(key){var string=toString(key);if(hasOwn(StringToSymbolRegistry,string))return StringToSymbolRegistry[string];var symbol=getBuiltIn('Symbol')(string);StringToSymbolRegistry[string]=symbol;SymbolToStringRegistry[symbol]=string;return symbol;}});return es_symbol_for;}var es_symbol_keyFor={};var hasRequiredEs_symbol_keyFor;function requireEs_symbol_keyFor(){if(hasRequiredEs_symbol_keyFor)return es_symbol_keyFor;hasRequiredEs_symbol_keyFor=1;var $=require_export();var hasOwn=requireHasOwnProperty();var isSymbol=requireIsSymbol();var tryToString=requireTryToString();var shared=requireShared();var NATIVE_SYMBOL_REGISTRY=requireSymbolRegistryDetection();var SymbolToStringRegistry=shared('symbol-to-string-registry');// `Symbol.keyFor` method
 // https://tc39.es/ecma262/#sec-symbol.keyfor
 $({target:'Symbol',stat:true,forced:!NATIVE_SYMBOL_REGISTRY},{keyFor:function keyFor(sym){if(!isSymbol(sym))throw new TypeError(tryToString(sym)+' is not a symbol');if(hasOwn(SymbolToStringRegistry,sym))return SymbolToStringRegistry[sym];}});return es_symbol_keyFor;}var es_json_stringify={};var functionApply;var hasRequiredFunctionApply;function requireFunctionApply(){if(hasRequiredFunctionApply)return functionApply;hasRequiredFunctionApply=1;var NATIVE_BIND=requireFunctionBindNative();var FunctionPrototype=Function.prototype;var apply=FunctionPrototype.apply;var call=FunctionPrototype.call;// eslint-disable-next-line es/no-function-prototype-bind, es/no-reflect -- safe
-functionApply=typeof Reflect=='object'&&Reflect.apply||(NATIVE_BIND?call.bind(apply):function(){return call.apply(apply,arguments);});return functionApply;}var getJsonReplacerFunction;var hasRequiredGetJsonReplacerFunction;function requireGetJsonReplacerFunction(){if(hasRequiredGetJsonReplacerFunction)return getJsonReplacerFunction;hasRequiredGetJsonReplacerFunction=1;var uncurryThis=requireFunctionUncurryThis();var isArray=requireIsArray();var isCallable=requireIsCallable();var classof=requireClassofRaw();var toString=requireToString();var push=uncurryThis([].push);getJsonReplacerFunction=function(replacer){if(isCallable(replacer))return replacer;if(!isArray(replacer))return;var rawLength=replacer.length;var keys=[];for(var i=0;i<rawLength;i++){var element=replacer[i];if(typeof element=='string')push(keys,element);else if(typeof element=='number'||classof(element)==='Number'||classof(element)==='String')push(keys,toString(element));}var keysLength=keys.length;var root=true;return function(key,value){if(root){root=false;return value;}if(isArray(this))return value;for(var j=0;j<keysLength;j++)if(keys[j]===key)return value;};};return getJsonReplacerFunction;}var hasRequiredEs_json_stringify;function requireEs_json_stringify(){if(hasRequiredEs_json_stringify)return es_json_stringify;hasRequiredEs_json_stringify=1;var $=require_export();var getBuiltIn=requireGetBuiltIn();var apply=requireFunctionApply();var call=requireFunctionCall();var uncurryThis=requireFunctionUncurryThis();var fails=requireFails();var isCallable=requireIsCallable();var isSymbol=requireIsSymbol();var arraySlice=requireArraySlice();var getReplacerFunction=requireGetJsonReplacerFunction();var NATIVE_SYMBOL=requireSymbolConstructorDetection();var $String=String;var $stringify=getBuiltIn('JSON','stringify');var exec=uncurryThis(/./.exec);var charAt=uncurryThis(''.charAt);var charCodeAt=uncurryThis(''.charCodeAt);var replace=uncurryThis(''.replace);var numberToString=uncurryThis(1.1.toString);var tester=/[\uD800-\uDFFF]/g;var low=/^[\uD800-\uDBFF]$/;var hi=/^[\uDC00-\uDFFF]$/;var WRONG_SYMBOLS_CONVERSION=!NATIVE_SYMBOL||fails(function(){var symbol=getBuiltIn('Symbol')('stringify detection');// MS Edge converts symbol values to JSON as {}
+functionApply=typeof Reflect=='object'&&Reflect.apply||(NATIVE_BIND?call.bind(apply):function(){return call.apply(apply,arguments);});return functionApply;}var isRawJson;var hasRequiredIsRawJson;function requireIsRawJson(){if(hasRequiredIsRawJson)return isRawJson;hasRequiredIsRawJson=1;var isObject=requireIsObject();var getInternalState=requireInternalState().get;isRawJson=function isRawJSON(O){if(!isObject(O))return false;var state=getInternalState(O);return!!state&&state.type==='RawJSON';};return isRawJson;}var parseJsonString;var hasRequiredParseJsonString;function requireParseJsonString(){if(hasRequiredParseJsonString)return parseJsonString;hasRequiredParseJsonString=1;var uncurryThis=requireFunctionUncurryThis();var hasOwn=requireHasOwnProperty();var $SyntaxError=SyntaxError;var $parseInt=parseInt;var fromCharCode=String.fromCharCode;var at=uncurryThis(''.charAt);var slice=uncurryThis(''.slice);var exec=uncurryThis(/./.exec);var codePoints={'\\"':'"','\\\\':'\\','\\/':'/','\\b':'\b','\\f':'\f','\\n':'\n','\\r':'\r','\\t':'\t'};var IS_4_HEX_DIGITS=/^[\da-f]{4}$/i;// eslint-disable-next-line regexp/no-control-character -- safe
+var IS_C0_CONTROL_CODE=/^[\u0000-\u001F]$/;parseJsonString=function(source,i){var unterminated=true;var value='';while(i<source.length){var chr=at(source,i);if(chr==='\\'){var twoChars=slice(source,i,i+2);if(hasOwn(codePoints,twoChars)){value+=codePoints[twoChars];i+=2;}else if(twoChars==='\\u'){i+=2;var fourHexDigits=slice(source,i,i+4);if(!exec(IS_4_HEX_DIGITS,fourHexDigits))throw new $SyntaxError('Bad Unicode escape at: '+i);value+=fromCharCode($parseInt(fourHexDigits,16));i+=4;}else throw new $SyntaxError('Unknown escape sequence: "'+twoChars+'"');}else if(chr==='"'){unterminated=false;i++;break;}else{if(exec(IS_C0_CONTROL_CODE,chr))throw new $SyntaxError('Bad control character in string literal at: '+i);value+=chr;i++;}}if(unterminated)throw new $SyntaxError('Unterminated string at: '+i);return{value:value,end:i};};return parseJsonString;}var nativeRawJson;var hasRequiredNativeRawJson;function requireNativeRawJson(){if(hasRequiredNativeRawJson)return nativeRawJson;hasRequiredNativeRawJson=1;/* eslint-disable es/no-json -- safe */var fails=requireFails();nativeRawJson=!fails(function(){var unsafeInt='9007199254740993';// eslint-disable-next-line es/no-nonstandard-json-properties -- feature detection
+var raw=JSON.rawJSON(unsafeInt);// eslint-disable-next-line es/no-nonstandard-json-properties -- feature detection
+return!JSON.isRawJSON(raw)||JSON.stringify(raw)!==unsafeInt;});return nativeRawJson;}var hasRequiredEs_json_stringify;function requireEs_json_stringify(){if(hasRequiredEs_json_stringify)return es_json_stringify;hasRequiredEs_json_stringify=1;var $=require_export();var getBuiltIn=requireGetBuiltIn();var apply=requireFunctionApply();var call=requireFunctionCall();var uncurryThis=requireFunctionUncurryThis();var fails=requireFails();var isArray=requireIsArray();var isCallable=requireIsCallable();var isRawJSON=requireIsRawJson();var isSymbol=requireIsSymbol();var classof=requireClassofRaw();var toString=requireToString();var arraySlice=requireArraySlice();var parseJSONString=requireParseJsonString();var uid=requireUid();var NATIVE_SYMBOL=requireSymbolConstructorDetection();var NATIVE_RAW_JSON=requireNativeRawJson();var $String=String;var $stringify=getBuiltIn('JSON','stringify');var exec=uncurryThis(/./.exec);var charAt=uncurryThis(''.charAt);var charCodeAt=uncurryThis(''.charCodeAt);var replace=uncurryThis(''.replace);var slice=uncurryThis(''.slice);var push=uncurryThis([].push);var numberToString=uncurryThis(1.1.toString);var surrogates=/[\uD800-\uDFFF]/g;var lowSurrogates=/^[\uD800-\uDBFF]$/;var hiSurrogates=/^[\uDC00-\uDFFF]$/;var MARK=uid();var MARK_LENGTH=MARK.length;var WRONG_SYMBOLS_CONVERSION=!NATIVE_SYMBOL||fails(function(){var symbol=getBuiltIn('Symbol')('stringify detection');// MS Edge converts symbol values to JSON as {}
 return $stringify([symbol])!=='[null]'// WebKit converts symbol values to JSON as null
 ||$stringify({a:symbol})!=='{}'// V8 throws on boxed symbols
 ||$stringify(Object(symbol))!=='{}';});// https://github.com/tc39/proposal-well-formed-stringify
-var ILL_FORMED_UNICODE=fails(function(){return $stringify('\uDF06\uD834')!=='"\\udf06\\ud834"'||$stringify('\uDEAD')!=='"\\udead"';});var stringifyWithSymbolsFix=function(it,replacer){var args=arraySlice(arguments);var $replacer=getReplacerFunction(replacer);if(!isCallable($replacer)&&(it===undefined||isSymbol(it)))return;// IE8 returns string on undefined
+var ILL_FORMED_UNICODE=fails(function(){return $stringify('\uDF06\uD834')!=='"\\udf06\\ud834"'||$stringify('\uDEAD')!=='"\\udead"';});var stringifyWithProperSymbolsConversion=WRONG_SYMBOLS_CONVERSION?function(it,replacer){var args=arraySlice(arguments);var $replacer=getReplacerFunction(replacer);if(!isCallable($replacer)&&(it===undefined||isSymbol(it)))return;// IE8 returns string on undefined
 args[1]=function(key,value){// some old implementations (like WebKit) could pass numbers as keys
-if(isCallable($replacer))value=call($replacer,this,$String(key),value);if(!isSymbol(value))return value;};return apply($stringify,null,args);};var fixIllFormed=function(match,offset,string){var prev=charAt(string,offset-1);var next=charAt(string,offset+1);if(exec(low,match)&&!exec(hi,next)||exec(hi,match)&&!exec(low,prev)){return'\\u'+numberToString(charCodeAt(match,0),16);}return match;};if($stringify){// `JSON.stringify` method
+if(isCallable($replacer))value=call($replacer,this,$String(key),value);if(!isSymbol(value))return value;};return apply($stringify,null,args);}:$stringify;var fixIllFormedJSON=function(match,offset,string){var prev=charAt(string,offset-1);var next=charAt(string,offset+1);if(exec(lowSurrogates,match)&&!exec(hiSurrogates,next)||exec(hiSurrogates,match)&&!exec(lowSurrogates,prev)){return'\\u'+numberToString(charCodeAt(match,0),16);}return match;};var getReplacerFunction=function(replacer){if(isCallable(replacer))return replacer;if(!isArray(replacer))return;var rawLength=replacer.length;var keys=[];for(var i=0;i<rawLength;i++){var element=replacer[i];if(typeof element=='string')push(keys,element);else if(typeof element=='number'||classof(element)==='Number'||classof(element)==='String')push(keys,toString(element));}var keysLength=keys.length;var root=true;return function(key,value){if(root){root=false;return value;}if(isArray(this))return value;for(var j=0;j<keysLength;j++)if(keys[j]===key)return value;};};// `JSON.stringify` method
 // https://tc39.es/ecma262/#sec-json.stringify
-$({target:'JSON',stat:true,arity:3,forced:WRONG_SYMBOLS_CONVERSION||ILL_FORMED_UNICODE},{// eslint-disable-next-line no-unused-vars -- required for `.length`
-stringify:function stringify(it,replacer,space){var args=arraySlice(arguments);var result=apply(WRONG_SYMBOLS_CONVERSION?stringifyWithSymbolsFix:$stringify,null,args);return ILL_FORMED_UNICODE&&typeof result=='string'?replace(result,tester,fixIllFormed):result;}});}return es_json_stringify;}var es_object_getOwnPropertySymbols={};var hasRequiredEs_object_getOwnPropertySymbols;function requireEs_object_getOwnPropertySymbols(){if(hasRequiredEs_object_getOwnPropertySymbols)return es_object_getOwnPropertySymbols;hasRequiredEs_object_getOwnPropertySymbols=1;var $=require_export();var NATIVE_SYMBOL=requireSymbolConstructorDetection();var fails=requireFails();var getOwnPropertySymbolsModule=requireObjectGetOwnPropertySymbols();var toObject=requireToObject();// V8 ~ Chrome 38 and 39 `Object.getOwnPropertySymbols` fails on primitives
+// https://github.com/tc39/proposal-json-parse-with-source
+if($stringify)$({target:'JSON',stat:true,arity:3,forced:WRONG_SYMBOLS_CONVERSION||ILL_FORMED_UNICODE||!NATIVE_RAW_JSON},{stringify:function stringify(text,replacer,space){var replacerFunction=getReplacerFunction(replacer);var rawStrings=[];var json=stringifyWithProperSymbolsConversion(text,function(key,value){// some old implementations (like WebKit) could pass numbers as keys
+var v=isCallable(replacerFunction)?call(replacerFunction,this,$String(key),value):value;return!NATIVE_RAW_JSON&&isRawJSON(v)?MARK+(push(rawStrings,v.rawJSON)-1):v;},space);if(typeof json!='string')return json;if(ILL_FORMED_UNICODE)json=replace(json,surrogates,fixIllFormedJSON);if(NATIVE_RAW_JSON)return json;var result='';var length=json.length;for(var i=0;i<length;i++){var chr=charAt(json,i);if(chr==='"'){var end=parseJSONString(json,++i).end-1;var string=slice(json,i,end);result+=slice(string,0,MARK_LENGTH)===MARK?rawStrings[slice(string,MARK_LENGTH)]:'"'+string+'"';i=end;}else result+=chr;}return result;}});return es_json_stringify;}var es_object_getOwnPropertySymbols={};var hasRequiredEs_object_getOwnPropertySymbols;function requireEs_object_getOwnPropertySymbols(){if(hasRequiredEs_object_getOwnPropertySymbols)return es_object_getOwnPropertySymbols;hasRequiredEs_object_getOwnPropertySymbols=1;var $=require_export();var NATIVE_SYMBOL=requireSymbolConstructorDetection();var fails=requireFails();var getOwnPropertySymbolsModule=requireObjectGetOwnPropertySymbols();var toObject=requireToObject();// V8 ~ Chrome 38 and 39 `Object.getOwnPropertySymbols` fails on primitives
 // https://bugs.chromium.org/p/v8/issues/detail?id=3443
 var FORCED=!NATIVE_SYMBOL||fails(function(){getOwnPropertySymbolsModule.f(1);});// `Object.getOwnPropertySymbols` method
 // https://tc39.es/ecma262/#sec-object.getownpropertysymbols
@@ -280,7 +285,7 @@ objectSetPrototypeOf=Object.setPrototypeOf||('__proto__'in{}?function(){var CORR
 inheritIfRequired=function($this,dummy,Wrapper){var NewTarget,NewTargetPrototype;if(// it can work only with native `setPrototypeOf`
 setPrototypeOf&&// we haven't completely correct pre-ES6 way for getting `new.target`, so use this
 isCallable(NewTarget=dummy.constructor)&&NewTarget!==Wrapper&&isObject(NewTargetPrototype=NewTarget.prototype)&&NewTargetPrototype!==Wrapper.prototype)setPrototypeOf($this,NewTargetPrototype);return $this;};return inheritIfRequired;}var normalizeStringArgument;var hasRequiredNormalizeStringArgument;function requireNormalizeStringArgument(){if(hasRequiredNormalizeStringArgument)return normalizeStringArgument;hasRequiredNormalizeStringArgument=1;var toString=requireToString();normalizeStringArgument=function(argument,$default){return argument===undefined?arguments.length<2?'':$default:toString(argument);};return normalizeStringArgument;}var installErrorCause;var hasRequiredInstallErrorCause;function requireInstallErrorCause(){if(hasRequiredInstallErrorCause)return installErrorCause;hasRequiredInstallErrorCause=1;var isObject=requireIsObject();var createNonEnumerableProperty=requireCreateNonEnumerableProperty();// `InstallErrorCause` abstract operation
-// https://tc39.es/proposal-error-cause/#sec-errorobjects-install-error-cause
+// https://tc39.es/ecma262/#sec-installerrorcause
 installErrorCause=function(O,options){if(isObject(options)&&'cause'in options){createNonEnumerableProperty(O,'cause',options.cause);}};return installErrorCause;}var errorStackClear;var hasRequiredErrorStackClear;function requireErrorStackClear(){if(hasRequiredErrorStackClear)return errorStackClear;hasRequiredErrorStackClear=1;var uncurryThis=requireFunctionUncurryThis();var $Error=Error;var replace=uncurryThis(''.replace);var TEST=function(arg){return String(new $Error(arg).stack);}('zxcasd');// eslint-disable-next-line redos/no-vulnerable, sonarjs/slow-regex -- safe
 var V8_OR_CHAKRA_STACK_ENTRY=/\n\s*at [^:]*:[^\n]*/;var IS_V8_OR_CHAKRA_STACK=V8_OR_CHAKRA_STACK_ENTRY.test(TEST);errorStackClear=function(stack,dropEntries){if(IS_V8_OR_CHAKRA_STACK&&typeof stack=='string'&&!$Error.prepareStackTrace){while(dropEntries--)stack=replace(stack,V8_OR_CHAKRA_STACK_ENTRY,'');}return stack;};return errorStackClear;}var errorStackInstallable;var hasRequiredErrorStackInstallable;function requireErrorStackInstallable(){if(hasRequiredErrorStackInstallable)return errorStackInstallable;hasRequiredErrorStackInstallable=1;var fails=requireFails();var createPropertyDescriptor=requireCreatePropertyDescriptor();errorStackInstallable=!fails(function(){var error=new Error('a');if(!('stack'in error))return true;// eslint-disable-next-line es/no-object-defineproperty -- safe
 Object.defineProperty(error,'stack',createPropertyDescriptor(1,7));return error.stack!==7;});return errorStackInstallable;}var errorStackInstall;var hasRequiredErrorStackInstall;function requireErrorStackInstall(){if(hasRequiredErrorStackInstall)return errorStackInstall;hasRequiredErrorStackInstall=1;var createNonEnumerableProperty=requireCreateNonEnumerableProperty();var clearErrorStack=requireErrorStackClear();var ERROR_STACK_INSTALLABLE=requireErrorStackInstallable();// non-standard V8
@@ -288,7 +293,9 @@ Object.defineProperty(error,'stack',createPropertyDescriptor(1,7));return error.
 var captureStackTrace=Error.captureStackTrace;errorStackInstall=function(error,C,stack,dropEntries){if(ERROR_STACK_INSTALLABLE){if(captureStackTrace)captureStackTrace(error,C);else createNonEnumerableProperty(error,'stack',clearErrorStack(stack,dropEntries));}};return errorStackInstall;}var wrapErrorConstructorWithCause;var hasRequiredWrapErrorConstructorWithCause;function requireWrapErrorConstructorWithCause(){if(hasRequiredWrapErrorConstructorWithCause)return wrapErrorConstructorWithCause;hasRequiredWrapErrorConstructorWithCause=1;var getBuiltIn=requireGetBuiltIn();var hasOwn=requireHasOwnProperty();var createNonEnumerableProperty=requireCreateNonEnumerableProperty();var isPrototypeOf=requireObjectIsPrototypeOf();var setPrototypeOf=requireObjectSetPrototypeOf();var copyConstructorProperties=requireCopyConstructorProperties();var proxyAccessor=requireProxyAccessor();var inheritIfRequired=requireInheritIfRequired();var normalizeStringArgument=requireNormalizeStringArgument();var installErrorCause=requireInstallErrorCause();var installErrorStack=requireErrorStackInstall();var DESCRIPTORS=requireDescriptors();var IS_PURE=requireIsPure();wrapErrorConstructorWithCause=function(FULL_NAME,wrapper,FORCED,IS_AGGREGATE_ERROR){var STACK_TRACE_LIMIT='stackTraceLimit';var OPTIONS_POSITION=IS_AGGREGATE_ERROR?2:1;var path=FULL_NAME.split('.');var ERROR_NAME=path[path.length-1];var OriginalError=getBuiltIn.apply(null,path);if(!OriginalError)return;var OriginalErrorPrototype=OriginalError.prototype;// V8 9.3- bug https://bugs.chromium.org/p/v8/issues/detail?id=12006
 if(!IS_PURE&&hasOwn(OriginalErrorPrototype,'cause'))delete OriginalErrorPrototype.cause;if(!FORCED)return OriginalError;var BaseError=getBuiltIn('Error');var WrappedError=wrapper(function(a,b){var message=normalizeStringArgument(IS_AGGREGATE_ERROR?b:a,undefined);var result=IS_AGGREGATE_ERROR?new OriginalError(a):new OriginalError();if(message!==undefined)createNonEnumerableProperty(result,'message',message);installErrorStack(result,WrappedError,result.stack,2);if(this&&isPrototypeOf(OriginalErrorPrototype,this))inheritIfRequired(result,this,WrappedError);if(arguments.length>OPTIONS_POSITION)installErrorCause(result,arguments[OPTIONS_POSITION]);return result;});WrappedError.prototype=OriginalErrorPrototype;if(ERROR_NAME!=='Error'){if(setPrototypeOf)setPrototypeOf(WrappedError,BaseError);else copyConstructorProperties(WrappedError,BaseError,{name:true});}else if(DESCRIPTORS&&STACK_TRACE_LIMIT in OriginalError){proxyAccessor(WrappedError,OriginalError,STACK_TRACE_LIMIT);proxyAccessor(WrappedError,OriginalError,'prepareStackTrace');}copyConstructorProperties(WrappedError,OriginalError);if(!IS_PURE)try{// Safari 13- bug: WebAssembly errors does not have a proper `.name`
 if(OriginalErrorPrototype.name!==ERROR_NAME){createNonEnumerableProperty(OriginalErrorPrototype,'name',ERROR_NAME);}OriginalErrorPrototype.constructor=WrappedError;}catch(error){/* empty */}return WrappedError;};return wrapErrorConstructorWithCause;}var hasRequiredEs_error_cause;function requireEs_error_cause(){if(hasRequiredEs_error_cause)return es_error_cause;hasRequiredEs_error_cause=1;/* eslint-disable no-unused-vars -- required for functions `.length` */var $=require_export();var globalThis=requireGlobalThis();var apply=requireFunctionApply();var wrapErrorConstructorWithCause=requireWrapErrorConstructorWithCause();var WEB_ASSEMBLY='WebAssembly';var WebAssembly=globalThis[WEB_ASSEMBLY];// eslint-disable-next-line es/no-error-cause -- feature detection
-var FORCED=new Error('e',{cause:7}).cause!==7;var exportGlobalErrorCauseWrapper=function(ERROR_NAME,wrapper){var O={};O[ERROR_NAME]=wrapErrorConstructorWithCause(ERROR_NAME,wrapper,FORCED);$({global:true,constructor:true,arity:1,forced:FORCED},O);};var exportWebAssemblyErrorCauseWrapper=function(ERROR_NAME,wrapper){if(WebAssembly&&WebAssembly[ERROR_NAME]){var O={};O[ERROR_NAME]=wrapErrorConstructorWithCause(WEB_ASSEMBLY+'.'+ERROR_NAME,wrapper,FORCED);$({target:WEB_ASSEMBLY,stat:true,constructor:true,arity:1,forced:FORCED},O);}};// https://tc39.es/ecma262/#sec-nativeerror
+var FORCED=new Error('e',{cause:7}).cause!==7;var exportGlobalErrorCauseWrapper=function(ERROR_NAME,wrapper){var O={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+O[ERROR_NAME]=wrapErrorConstructorWithCause(ERROR_NAME,wrapper,FORCED);$({global:true,constructor:true,arity:1,forced:FORCED},O);};var exportWebAssemblyErrorCauseWrapper=function(ERROR_NAME,wrapper){if(WebAssembly&&WebAssembly[ERROR_NAME]){var O={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+O[ERROR_NAME]=wrapErrorConstructorWithCause(WEB_ASSEMBLY+'.'+ERROR_NAME,wrapper,FORCED);$({target:WEB_ASSEMBLY,stat:true,constructor:true,arity:1,forced:FORCED},O);}};// https://tc39.es/ecma262/#sec-nativeerror
 exportGlobalErrorCauseWrapper('Error',function(init){return function Error(message){return apply(init,this,arguments);};});exportGlobalErrorCauseWrapper('EvalError',function(init){return function EvalError(message){return apply(init,this,arguments);};});exportGlobalErrorCauseWrapper('RangeError',function(init){return function RangeError(message){return apply(init,this,arguments);};});exportGlobalErrorCauseWrapper('ReferenceError',function(init){return function ReferenceError(message){return apply(init,this,arguments);};});exportGlobalErrorCauseWrapper('SyntaxError',function(init){return function SyntaxError(message){return apply(init,this,arguments);};});exportGlobalErrorCauseWrapper('TypeError',function(init){return function TypeError(message){return apply(init,this,arguments);};});exportGlobalErrorCauseWrapper('URIError',function(init){return function URIError(message){return apply(init,this,arguments);};});exportWebAssemblyErrorCauseWrapper('CompileError',function(init){return function CompileError(message){return apply(init,this,arguments);};});exportWebAssemblyErrorCauseWrapper('LinkError',function(init){return function LinkError(message){return apply(init,this,arguments);};});exportWebAssemblyErrorCauseWrapper('RuntimeError',function(init){return function RuntimeError(message){return apply(init,this,arguments);};});return es_error_cause;}var es_error_isError={};var hasRequiredEs_error_isError;function requireEs_error_isError(){if(hasRequiredEs_error_isError)return es_error_isError;hasRequiredEs_error_isError=1;var $=require_export();var getBuiltIn=requireGetBuiltIn();var isObject=requireIsObject();var classof=requireClassof();var fails=requireFails();var ERROR='Error';var DOM_EXCEPTION='DOMException';// eslint-disable-next-line es/no-object-setprototypeof, no-proto -- safe
 var PROTOTYPE_SETTING_AVAILABLE=Object.setPrototypeOf||{}.__proto__;var DOMException=getBuiltIn(DOM_EXCEPTION);var $Error=Error;// eslint-disable-next-line es/no-error-iserror -- safe
 var $isError=$Error.isError;var FORCED=!$isError||!PROTOTYPE_SETTING_AVAILABLE||fails(function(){// Bun, isNativeError-based implementations, some buggy structuredClone-based implementations, etc.
@@ -297,7 +304,7 @@ return DOMException&&!$isError(new DOMException(DOM_EXCEPTION))||// structuredCl
 // eslint-disable-next-line es/no-error-cause -- detection
 !$isError(new $Error(ERROR,{cause:function(){/* empty */}}))||// instanceof-based and FF Error#stack-based implementations
 $isError(getBuiltIn('Object','create')($Error.prototype));});// `Error.isError` method
-// https://github.com/tc39/proposal-is-error
+// https://tc39.es/ecma262/#sec-error.iserror
 $({target:'Error',stat:true,sham:true,forced:FORCED},{isError:function isError(arg){if(!isObject(arg))return false;var tag=classof(arg);return tag===ERROR||tag===DOM_EXCEPTION;}});return es_error_isError;}var es_error_toString={};var errorToString;var hasRequiredErrorToString;function requireErrorToString(){if(hasRequiredErrorToString)return errorToString;hasRequiredErrorToString=1;var DESCRIPTORS=requireDescriptors();var fails=requireFails();var anObject=requireAnObject();var normalizeStringArgument=requireNormalizeStringArgument();var nativeErrorToString=Error.prototype.toString;var INCORRECT_TO_STRING=fails(function(){if(DESCRIPTORS){// Chrome 32- incorrectly call accessor
 // eslint-disable-next-line es/no-object-create, es/no-object-defineproperty -- safe
 var object=Object.create(Object.defineProperty({},'name',{get:function(){return this===object;}}));if(nativeErrorToString.call(object)!=='true')return true;}// FF10- does not properly handle non-strings
@@ -374,7 +381,7 @@ findLastIndex:createMethod(1)};return arrayIterationFromLast;}var hasRequiredEs_
 $({target:'Array',proto:true},{findLast:function findLast(callbackfn/* , that = undefined */){return $findLast(this,callbackfn,arguments.length>1?arguments[1]:undefined);}});addToUnscopables('findLast');return es_array_findLast;}var es_array_findLastIndex={};var hasRequiredEs_array_findLastIndex;function requireEs_array_findLastIndex(){if(hasRequiredEs_array_findLastIndex)return es_array_findLastIndex;hasRequiredEs_array_findLastIndex=1;var $=require_export();var $findLastIndex=requireArrayIterationFromLast().findLastIndex;var addToUnscopables=requireAddToUnscopables();// `Array.prototype.findLastIndex` method
 // https://tc39.es/ecma262/#sec-array.prototype.findlastindex
 $({target:'Array',proto:true},{findLastIndex:function findLastIndex(callbackfn/* , that = undefined */){return $findLastIndex(this,callbackfn,arguments.length>1?arguments[1]:undefined);}});addToUnscopables('findLastIndex');return es_array_findLastIndex;}var es_array_flat={};var flattenIntoArray_1;var hasRequiredFlattenIntoArray;function requireFlattenIntoArray(){if(hasRequiredFlattenIntoArray)return flattenIntoArray_1;hasRequiredFlattenIntoArray=1;var isArray=requireIsArray();var lengthOfArrayLike=requireLengthOfArrayLike();var doesNotExceedSafeInteger=requireDoesNotExceedSafeInteger();var bind=requireFunctionBindContext();// `FlattenIntoArray` abstract operation
-// https://tc39.github.io/proposal-flatMap/#sec-FlattenIntoArray
+// https://tc39.es/ecma262/#sec-flattenintoarray
 var flattenIntoArray=function(target,original,source,sourceLen,start,depth,mapper,thisArg){var targetIndex=start;var sourceIndex=0;var mapFn=mapper?bind(mapper,thisArg):false;var element,elementLen;while(sourceIndex<sourceLen){if(sourceIndex in source){element=mapFn?mapFn(source[sourceIndex],sourceIndex,original):source[sourceIndex];if(depth>0&&isArray(element)){elementLen=lengthOfArrayLike(element);targetIndex=flattenIntoArray(target,original,element,elementLen,targetIndex,depth-1)-1;}else{doesNotExceedSafeInteger(targetIndex+1);target[targetIndex]=element;}targetIndex++;}sourceIndex++;}return targetIndex;};flattenIntoArray_1=flattenIntoArray;return flattenIntoArray_1;}var hasRequiredEs_array_flat;function requireEs_array_flat(){if(hasRequiredEs_array_flat)return es_array_flat;hasRequiredEs_array_flat=1;var $=require_export();var flattenIntoArray=requireFlattenIntoArray();var toObject=requireToObject();var lengthOfArrayLike=requireLengthOfArrayLike();var toIntegerOrInfinity=requireToIntegerOrInfinity();var arraySpeciesCreate=requireArraySpeciesCreate();// `Array.prototype.flat` method
 // https://tc39.es/ecma262/#sec-array.prototype.flat
 $({target:'Array',proto:true},{flat:function flat(/* depthArg = 1 */){var depthArg=arguments.length?arguments[0]:undefined;var O=toObject(this);var sourceLen=lengthOfArrayLike(O);var A=arraySpeciesCreate(O,0);A.length=flattenIntoArray(A,O,O,sourceLen,0,depthArg===undefined?1:toIntegerOrInfinity(depthArg));return A;}});return es_array_flat;}var es_array_flatMap={};var hasRequiredEs_array_flatMap;function requireEs_array_flatMap(){if(hasRequiredEs_array_flatMap)return es_array_flatMap;hasRequiredEs_array_flatMap=1;var $=require_export();var flattenIntoArray=requireFlattenIntoArray();var aCallable=requireACallable();var toObject=requireToObject();var lengthOfArrayLike=requireLengthOfArrayLike();var arraySpeciesCreate=requireArraySpeciesCreate();// `Array.prototype.flatMap` method
@@ -389,9 +396,11 @@ $({target:'Array',proto:true,forced:[].forEach!==forEach},{forEach:forEach});ret
 callWithSafeIterationClosing=function(iterator,fn,value,ENTRIES){try{return ENTRIES?fn(anObject(value)[0],value[1]):fn(value);}catch(error){iteratorClose(iterator,'throw',error);}};return callWithSafeIterationClosing;}var arrayFrom;var hasRequiredArrayFrom;function requireArrayFrom(){if(hasRequiredArrayFrom)return arrayFrom;hasRequiredArrayFrom=1;var bind=requireFunctionBindContext();var call=requireFunctionCall();var toObject=requireToObject();var callWithSafeIterationClosing=requireCallWithSafeIterationClosing();var isArrayIteratorMethod=requireIsArrayIteratorMethod();var isConstructor=requireIsConstructor();var lengthOfArrayLike=requireLengthOfArrayLike();var createProperty=requireCreateProperty();var getIterator=requireGetIterator();var getIteratorMethod=requireGetIteratorMethod();var $Array=Array;// `Array.from` method implementation
 // https://tc39.es/ecma262/#sec-array.from
 arrayFrom=function from(arrayLike/* , mapfn = undefined, thisArg = undefined */){var O=toObject(arrayLike);var IS_CONSTRUCTOR=isConstructor(this);var argumentsLength=arguments.length;var mapfn=argumentsLength>1?arguments[1]:undefined;var mapping=mapfn!==undefined;if(mapping)mapfn=bind(mapfn,argumentsLength>2?arguments[2]:undefined);var iteratorMethod=getIteratorMethod(O);var index=0;var length,result,step,iterator,next,value;// if the target is not iterable or it's an array with the default iterator - use a simple case
-if(iteratorMethod&&!(this===$Array&&isArrayIteratorMethod(iteratorMethod))){result=IS_CONSTRUCTOR?new this():[];iterator=getIterator(O,iteratorMethod);next=iterator.next;for(;!(step=call(next,iterator)).done;index++){value=mapping?callWithSafeIterationClosing(iterator,mapfn,[step.value,index],true):step.value;createProperty(result,index,value);}}else{length=lengthOfArrayLike(O);result=IS_CONSTRUCTOR?new this(length):$Array(length);for(;length>index;index++){value=mapping?mapfn(O[index],index):O[index];createProperty(result,index,value);}}result.length=index;return result;};return arrayFrom;}var checkCorrectnessOfIteration;var hasRequiredCheckCorrectnessOfIteration;function requireCheckCorrectnessOfIteration(){if(hasRequiredCheckCorrectnessOfIteration)return checkCorrectnessOfIteration;hasRequiredCheckCorrectnessOfIteration=1;var wellKnownSymbol=requireWellKnownSymbol();var ITERATOR=wellKnownSymbol('iterator');var SAFE_CLOSING=false;try{var called=0;var iteratorWithReturn={next:function(){return{done:!!called++};},'return':function(){SAFE_CLOSING=true;}};iteratorWithReturn[ITERATOR]=function(){return this;};// eslint-disable-next-line es/no-array-from, no-throw-literal -- required for testing
+if(iteratorMethod&&!(this===$Array&&isArrayIteratorMethod(iteratorMethod))){result=IS_CONSTRUCTOR?new this():[];iterator=getIterator(O,iteratorMethod);next=iterator.next;for(;!(step=call(next,iterator)).done;index++){value=mapping?callWithSafeIterationClosing(iterator,mapfn,[step.value,index],true):step.value;createProperty(result,index,value);}}else{length=lengthOfArrayLike(O);result=IS_CONSTRUCTOR?new this(length):$Array(length);for(;length>index;index++){value=mapping?mapfn(O[index],index):O[index];createProperty(result,index,value);}}result.length=index;return result;};return arrayFrom;}var checkCorrectnessOfIteration;var hasRequiredCheckCorrectnessOfIteration;function requireCheckCorrectnessOfIteration(){if(hasRequiredCheckCorrectnessOfIteration)return checkCorrectnessOfIteration;hasRequiredCheckCorrectnessOfIteration=1;var wellKnownSymbol=requireWellKnownSymbol();var ITERATOR=wellKnownSymbol('iterator');var SAFE_CLOSING=false;try{var called=0;var iteratorWithReturn={next:function(){return{done:!!called++};},'return':function(){SAFE_CLOSING=true;}};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+iteratorWithReturn[ITERATOR]=function(){return this;};// eslint-disable-next-line es/no-array-from, no-throw-literal -- required for testing
 Array.from(iteratorWithReturn,function(){throw 2;});}catch(error){/* empty */}checkCorrectnessOfIteration=function(exec,SKIP_CLOSING){try{if(!SKIP_CLOSING&&!SAFE_CLOSING)return false;}catch(error){return false;}// workaround of old WebKit + `eval` bug
-var ITERATION_SUPPORT=false;try{var object={};object[ITERATOR]=function(){return{next:function(){return{done:ITERATION_SUPPORT=true};}};};exec(object);}catch(error){/* empty */}return ITERATION_SUPPORT;};return checkCorrectnessOfIteration;}var hasRequiredEs_array_from;function requireEs_array_from(){if(hasRequiredEs_array_from)return es_array_from;hasRequiredEs_array_from=1;var $=require_export();var from=requireArrayFrom();var checkCorrectnessOfIteration=requireCheckCorrectnessOfIteration();var INCORRECT_ITERATION=!checkCorrectnessOfIteration(function(iterable){// eslint-disable-next-line es/no-array-from -- required for testing
+var ITERATION_SUPPORT=false;try{var object={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+object[ITERATOR]=function(){return{next:function(){return{done:ITERATION_SUPPORT=true};}};};exec(object);}catch(error){/* empty */}return ITERATION_SUPPORT;};return checkCorrectnessOfIteration;}var hasRequiredEs_array_from;function requireEs_array_from(){if(hasRequiredEs_array_from)return es_array_from;hasRequiredEs_array_from=1;var $=require_export();var from=requireArrayFrom();var checkCorrectnessOfIteration=requireCheckCorrectnessOfIteration();var INCORRECT_ITERATION=!checkCorrectnessOfIteration(function(iterable){// eslint-disable-next-line es/no-array-from -- required for testing
 Array.from(iterable);});// `Array.from` method
 // https://tc39.es/ecma262/#sec-array.from
 $({target:'Array',stat:true,forced:INCORRECT_ITERATION},{from:from});return es_array_from;}var es_array_includes={};var hasRequiredEs_array_includes;function requireEs_array_includes(){if(hasRequiredEs_array_includes)return es_array_includes;hasRequiredEs_array_includes=1;var $=require_export();var $includes=requireArrayIncludes().includes;var fails=requireFails();var addToUnscopables=requireAddToUnscopables();// FF99+ bug
@@ -501,8 +510,8 @@ $({target:'Array',proto:true,forced:FORCED},{sort:function sort(comparefn){if(co
 setSpecies('Array');return es_array_species;}var es_array_splice={};var hasRequiredEs_array_splice;function requireEs_array_splice(){if(hasRequiredEs_array_splice)return es_array_splice;hasRequiredEs_array_splice=1;var $=require_export();var toObject=requireToObject();var toAbsoluteIndex=requireToAbsoluteIndex();var toIntegerOrInfinity=requireToIntegerOrInfinity();var lengthOfArrayLike=requireLengthOfArrayLike();var setArrayLength=requireArraySetLength();var doesNotExceedSafeInteger=requireDoesNotExceedSafeInteger();var arraySpeciesCreate=requireArraySpeciesCreate();var createProperty=requireCreateProperty();var deletePropertyOrThrow=requireDeletePropertyOrThrow();var arrayMethodHasSpeciesSupport=requireArrayMethodHasSpeciesSupport();var HAS_SPECIES_SUPPORT=arrayMethodHasSpeciesSupport('splice');var max=Math.max;var min=Math.min;// `Array.prototype.splice` method
 // https://tc39.es/ecma262/#sec-array.prototype.splice
 // with adding support of @@species
-$({target:'Array',proto:true,forced:!HAS_SPECIES_SUPPORT},{splice:function splice(start,deleteCount/* , ...items */){var O=toObject(this);var len=lengthOfArrayLike(O);var actualStart=toAbsoluteIndex(start,len);var argumentsLength=arguments.length;var insertCount,actualDeleteCount,A,k,from,to;if(argumentsLength===0){insertCount=actualDeleteCount=0;}else if(argumentsLength===1){insertCount=0;actualDeleteCount=len-actualStart;}else{insertCount=argumentsLength-2;actualDeleteCount=min(max(toIntegerOrInfinity(deleteCount),0),len-actualStart);}doesNotExceedSafeInteger(len+insertCount-actualDeleteCount);A=arraySpeciesCreate(O,actualDeleteCount);for(k=0;k<actualDeleteCount;k++){from=actualStart+k;if(from in O)createProperty(A,k,O[from]);}A.length=actualDeleteCount;if(insertCount<actualDeleteCount){for(k=actualStart;k<len-actualDeleteCount;k++){from=k+actualDeleteCount;to=k+insertCount;if(from in O)O[to]=O[from];else deletePropertyOrThrow(O,to);}for(k=len;k>len-actualDeleteCount+insertCount;k--)deletePropertyOrThrow(O,k-1);}else if(insertCount>actualDeleteCount){for(k=len-actualDeleteCount;k>actualStart;k--){from=k+actualDeleteCount-1;to=k+insertCount-1;if(from in O)O[to]=O[from];else deletePropertyOrThrow(O,to);}}for(k=0;k<insertCount;k++){O[k+actualStart]=arguments[k+2];}setArrayLength(O,len-actualDeleteCount+insertCount);return A;}});return es_array_splice;}var es_array_toReversed={};var arrayToReversed;var hasRequiredArrayToReversed;function requireArrayToReversed(){if(hasRequiredArrayToReversed)return arrayToReversed;hasRequiredArrayToReversed=1;var lengthOfArrayLike=requireLengthOfArrayLike();// https://tc39.es/proposal-change-array-by-copy/#sec-array.prototype.toReversed
-// https://tc39.es/proposal-change-array-by-copy/#sec-%typedarray%.prototype.toReversed
+$({target:'Array',proto:true,forced:!HAS_SPECIES_SUPPORT},{splice:function splice(start,deleteCount/* , ...items */){var O=toObject(this);var len=lengthOfArrayLike(O);var actualStart=toAbsoluteIndex(start,len);var argumentsLength=arguments.length;var insertCount,actualDeleteCount,A,k,from,to;if(argumentsLength===0){insertCount=actualDeleteCount=0;}else if(argumentsLength===1){insertCount=0;actualDeleteCount=len-actualStart;}else{insertCount=argumentsLength-2;actualDeleteCount=min(max(toIntegerOrInfinity(deleteCount),0),len-actualStart);}doesNotExceedSafeInteger(len+insertCount-actualDeleteCount);A=arraySpeciesCreate(O,actualDeleteCount);for(k=0;k<actualDeleteCount;k++){from=actualStart+k;if(from in O)createProperty(A,k,O[from]);}A.length=actualDeleteCount;if(insertCount<actualDeleteCount){for(k=actualStart;k<len-actualDeleteCount;k++){from=k+actualDeleteCount;to=k+insertCount;if(from in O)O[to]=O[from];else deletePropertyOrThrow(O,to);}for(k=len;k>len-actualDeleteCount+insertCount;k--)deletePropertyOrThrow(O,k-1);}else if(insertCount>actualDeleteCount){for(k=len-actualDeleteCount;k>actualStart;k--){from=k+actualDeleteCount-1;to=k+insertCount-1;if(from in O)O[to]=O[from];else deletePropertyOrThrow(O,to);}}for(k=0;k<insertCount;k++){O[k+actualStart]=arguments[k+2];}setArrayLength(O,len-actualDeleteCount+insertCount);return A;}});return es_array_splice;}var es_array_toReversed={};var arrayToReversed;var hasRequiredArrayToReversed;function requireArrayToReversed(){if(hasRequiredArrayToReversed)return arrayToReversed;hasRequiredArrayToReversed=1;var lengthOfArrayLike=requireLengthOfArrayLike();// https://tc39.es/ecma262/#sec-array.prototype.toreversed
+// https://tc39.es/ecma262/#sec-%typedarray%.prototype.toreversed
 arrayToReversed=function(O,C){var len=lengthOfArrayLike(O);var A=new C(len);var k=0;for(;k<len;k++)A[k]=O[len-k-1];return A;};return arrayToReversed;}var hasRequiredEs_array_toReversed;function requireEs_array_toReversed(){if(hasRequiredEs_array_toReversed)return es_array_toReversed;hasRequiredEs_array_toReversed=1;var $=require_export();var arrayToReversed=requireArrayToReversed();var toIndexedObject=requireToIndexedObject();var addToUnscopables=requireAddToUnscopables();var $Array=Array;// `Array.prototype.toReversed` method
 // https://tc39.es/ecma262/#sec-array.prototype.toreversed
 $({target:'Array',proto:true},{toReversed:function toReversed(){return arrayToReversed(toIndexedObject(this),$Array);}});addToUnscopables('toReversed');return es_array_toReversed;}var es_array_toSorted={};var arrayFromConstructorAndList;var hasRequiredArrayFromConstructorAndList;function requireArrayFromConstructorAndList(){if(hasRequiredArrayFromConstructorAndList)return arrayFromConstructorAndList;hasRequiredArrayFromConstructorAndList=1;var lengthOfArrayLike=requireLengthOfArrayLike();arrayFromConstructorAndList=function(Constructor,list,$length){var index=0;var length=arguments.length>2?$length:lengthOfArrayLike(list);var result=new Constructor(length);while(length>index)result[index]=list[index++];return result;};return arrayFromConstructorAndList;}var getBuiltInPrototypeMethod;var hasRequiredGetBuiltInPrototypeMethod;function requireGetBuiltInPrototypeMethod(){if(hasRequiredGetBuiltInPrototypeMethod)return getBuiltInPrototypeMethod;hasRequiredGetBuiltInPrototypeMethod=1;var globalThis=requireGlobalThis();getBuiltInPrototypeMethod=function(CONSTRUCTOR,METHOD){var Constructor=globalThis[CONSTRUCTOR];var Prototype=Constructor&&Constructor.prototype;return Prototype&&Prototype[METHOD];};return getBuiltInPrototypeMethod;}var hasRequiredEs_array_toSorted;function requireEs_array_toSorted(){if(hasRequiredEs_array_toSorted)return es_array_toSorted;hasRequiredEs_array_toSorted=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var aCallable=requireACallable();var toIndexedObject=requireToIndexedObject();var arrayFromConstructorAndList=requireArrayFromConstructorAndList();var getBuiltInPrototypeMethod=requireGetBuiltInPrototypeMethod();var addToUnscopables=requireAddToUnscopables();var $Array=Array;var sort=uncurryThis(getBuiltInPrototypeMethod('Array','sort'));// `Array.prototype.toSorted` method
@@ -521,8 +530,8 @@ var properErrorOnNonWritableLength=function(){try{// eslint-disable-next-line es
 Object.defineProperty([],'length',{writable:false}).unshift();}catch(error){return error instanceof TypeError;}};var FORCED=INCORRECT_RESULT||!properErrorOnNonWritableLength();// `Array.prototype.unshift` method
 // https://tc39.es/ecma262/#sec-array.prototype.unshift
 $({target:'Array',proto:true,arity:1,forced:FORCED},{// eslint-disable-next-line no-unused-vars -- required for `.length`
-unshift:function unshift(item){var O=toObject(this);var len=lengthOfArrayLike(O);var argCount=arguments.length;if(argCount){doesNotExceedSafeInteger(len+argCount);var k=len;while(k--){var to=k+argCount;if(k in O)O[to]=O[k];else deletePropertyOrThrow(O,to);}for(var j=0;j<argCount;j++){O[j]=arguments[j];}}return setArrayLength(O,len+argCount);}});return es_array_unshift;}var es_array_with={};var arrayWith;var hasRequiredArrayWith;function requireArrayWith(){if(hasRequiredArrayWith)return arrayWith;hasRequiredArrayWith=1;var lengthOfArrayLike=requireLengthOfArrayLike();var toIntegerOrInfinity=requireToIntegerOrInfinity();var $RangeError=RangeError;// https://tc39.es/proposal-change-array-by-copy/#sec-array.prototype.with
-// https://tc39.es/proposal-change-array-by-copy/#sec-%typedarray%.prototype.with
+unshift:function unshift(item){var O=toObject(this);var len=lengthOfArrayLike(O);var argCount=arguments.length;if(argCount){doesNotExceedSafeInteger(len+argCount);var k=len;while(k--){var to=k+argCount;if(k in O)O[to]=O[k];else deletePropertyOrThrow(O,to);}for(var j=0;j<argCount;j++){O[j]=arguments[j];}}return setArrayLength(O,len+argCount);}});return es_array_unshift;}var es_array_with={};var arrayWith;var hasRequiredArrayWith;function requireArrayWith(){if(hasRequiredArrayWith)return arrayWith;hasRequiredArrayWith=1;var lengthOfArrayLike=requireLengthOfArrayLike();var toIntegerOrInfinity=requireToIntegerOrInfinity();var $RangeError=RangeError;// https://tc39.es/ecma262/#sec-array.prototype.with
+// https://tc39.es/ecma262/#sec-%typedarray%.prototype.with
 arrayWith=function(O,C,index,value){var len=lengthOfArrayLike(O);var relativeIndex=toIntegerOrInfinity(index);var actualIndex=relativeIndex<0?len+relativeIndex:relativeIndex;if(actualIndex>=len||actualIndex<0)throw new $RangeError('Incorrect index');var A=new C(len);var k=0;for(;k<len;k++)A[k]=k===actualIndex?value:O[k];return A;};return arrayWith;}var hasRequiredEs_array_with;function requireEs_array_with(){if(hasRequiredEs_array_with)return es_array_with;hasRequiredEs_array_with=1;var $=require_export();var arrayWith=requireArrayWith();var toIndexedObject=requireToIndexedObject();var $Array=Array;// Firefox bug
 var INCORRECT_EXCEPTION_ON_COERCION_FAIL=function(){try{// eslint-disable-next-line es/no-array-prototype-with, no-throw-literal -- needed for testing
 []['with']({valueOf:function(){throw 4;}},null);}catch(error){return error!==4;}}();// `Array.prototype.with` method
@@ -601,9 +610,9 @@ if(DESCRIPTORS&&!('detached'in ArrayBufferPrototype)){defineBuiltInAccessor(Arra
 return Function('return require("'+name+'")')();}catch(error){/* empty */}}};return getBuiltInNodeModule;}var structuredCloneProperTransfer;var hasRequiredStructuredCloneProperTransfer;function requireStructuredCloneProperTransfer(){if(hasRequiredStructuredCloneProperTransfer)return structuredCloneProperTransfer;hasRequiredStructuredCloneProperTransfer=1;var globalThis=requireGlobalThis();var fails=requireFails();var V8=requireEnvironmentV8Version();var ENVIRONMENT=requireEnvironment();var structuredClone=globalThis.structuredClone;structuredCloneProperTransfer=!!structuredClone&&!fails(function(){// prevent V8 ArrayBufferDetaching protector cell invalidation and performance degradation
 // https://github.com/zloirock/core-js/issues/679
 if(ENVIRONMENT==='DENO'&&V8>92||ENVIRONMENT==='NODE'&&V8>94||ENVIRONMENT==='BROWSER'&&V8>97)return false;var buffer=new ArrayBuffer(8);var clone=structuredClone(buffer,{transfer:[buffer]});return buffer.byteLength!==0||clone.byteLength!==8;});return structuredCloneProperTransfer;}var detachTransferable;var hasRequiredDetachTransferable;function requireDetachTransferable(){if(hasRequiredDetachTransferable)return detachTransferable;hasRequiredDetachTransferable=1;var globalThis=requireGlobalThis();var getBuiltInNodeModule=requireGetBuiltInNodeModule();var PROPER_STRUCTURED_CLONE_TRANSFER=requireStructuredCloneProperTransfer();var structuredClone=globalThis.structuredClone;var $ArrayBuffer=globalThis.ArrayBuffer;var $MessageChannel=globalThis.MessageChannel;var detach=false;var WorkerThreads,channel,buffer,$detach;if(PROPER_STRUCTURED_CLONE_TRANSFER){detach=function(transferable){structuredClone(transferable,{transfer:[transferable]});};}else if($ArrayBuffer)try{if(!$MessageChannel){WorkerThreads=getBuiltInNodeModule('worker_threads');if(WorkerThreads)$MessageChannel=WorkerThreads.MessageChannel;}if($MessageChannel){channel=new $MessageChannel();buffer=new $ArrayBuffer(2);$detach=function(transferable){channel.port1.postMessage(null,[transferable]);};if(buffer.byteLength===2){$detach(buffer);if(buffer.byteLength===0)detach=$detach;}}}catch(error){/* empty */}detachTransferable=detach;return detachTransferable;}var arrayBufferTransfer;var hasRequiredArrayBufferTransfer;function requireArrayBufferTransfer(){if(hasRequiredArrayBufferTransfer)return arrayBufferTransfer;hasRequiredArrayBufferTransfer=1;var globalThis=requireGlobalThis();var uncurryThis=requireFunctionUncurryThis();var uncurryThisAccessor=requireFunctionUncurryThisAccessor();var toIndex=requireToIndex();var notDetached=requireArrayBufferNotDetached();var arrayBufferByteLength=requireArrayBufferByteLength();var detachTransferable=requireDetachTransferable();var PROPER_STRUCTURED_CLONE_TRANSFER=requireStructuredCloneProperTransfer();var structuredClone=globalThis.structuredClone;var ArrayBuffer=globalThis.ArrayBuffer;var DataView=globalThis.DataView;var min=Math.min;var ArrayBufferPrototype=ArrayBuffer.prototype;var DataViewPrototype=DataView.prototype;var slice=uncurryThis(ArrayBufferPrototype.slice);var isResizable=uncurryThisAccessor(ArrayBufferPrototype,'resizable','get');var maxByteLength=uncurryThisAccessor(ArrayBufferPrototype,'maxByteLength','get');var getInt8=uncurryThis(DataViewPrototype.getInt8);var setInt8=uncurryThis(DataViewPrototype.setInt8);arrayBufferTransfer=(PROPER_STRUCTURED_CLONE_TRANSFER||detachTransferable)&&function(arrayBuffer,newLength,preserveResizability){var byteLength=arrayBufferByteLength(arrayBuffer);var newByteLength=newLength===undefined?byteLength:toIndex(newLength);var fixedLength=!isResizable||!isResizable(arrayBuffer);var newBuffer;notDetached(arrayBuffer);if(PROPER_STRUCTURED_CLONE_TRANSFER){arrayBuffer=structuredClone(arrayBuffer,{transfer:[arrayBuffer]});if(byteLength===newByteLength&&(preserveResizability||fixedLength))return arrayBuffer;}if(byteLength>=newByteLength&&(!preserveResizability||fixedLength)){newBuffer=slice(arrayBuffer,0,newByteLength);}else{var options=preserveResizability&&!fixedLength&&maxByteLength?{maxByteLength:maxByteLength(arrayBuffer)}:undefined;newBuffer=new ArrayBuffer(newByteLength,options);var a=new DataView(arrayBuffer);var b=new DataView(newBuffer);var copyLength=min(newByteLength,byteLength);for(var i=0;i<copyLength;i++)setInt8(b,i,getInt8(a,i));}if(!PROPER_STRUCTURED_CLONE_TRANSFER)detachTransferable(arrayBuffer);return newBuffer;};return arrayBufferTransfer;}var hasRequiredEs_arrayBuffer_transfer;function requireEs_arrayBuffer_transfer(){if(hasRequiredEs_arrayBuffer_transfer)return es_arrayBuffer_transfer;hasRequiredEs_arrayBuffer_transfer=1;var $=require_export();var $transfer=requireArrayBufferTransfer();// `ArrayBuffer.prototype.transfer` method
-// https://tc39.es/proposal-arraybuffer-transfer/#sec-arraybuffer.prototype.transfer
+// https://tc39.es/ecma262/#sec-arraybuffer.prototype.transfer
 if($transfer)$({target:'ArrayBuffer',proto:true},{transfer:function transfer(){return $transfer(this,arguments.length?arguments[0]:undefined,true);}});return es_arrayBuffer_transfer;}var es_arrayBuffer_transferToFixedLength={};var hasRequiredEs_arrayBuffer_transferToFixedLength;function requireEs_arrayBuffer_transferToFixedLength(){if(hasRequiredEs_arrayBuffer_transferToFixedLength)return es_arrayBuffer_transferToFixedLength;hasRequiredEs_arrayBuffer_transferToFixedLength=1;var $=require_export();var $transfer=requireArrayBufferTransfer();// `ArrayBuffer.prototype.transferToFixedLength` method
-// https://tc39.es/proposal-arraybuffer-transfer/#sec-arraybuffer.prototype.transfertofixedlength
+// https://tc39.es/ecma262/#sec-arraybuffer.prototype.transfertofixedlength
 if($transfer)$({target:'ArrayBuffer',proto:true},{transferToFixedLength:function transferToFixedLength(){return $transfer(this,arguments.length?arguments[0]:undefined,false);}});return es_arrayBuffer_transferToFixedLength;}var es_date_getYear={};var hasRequiredEs_date_getYear;function requireEs_date_getYear(){if(hasRequiredEs_date_getYear)return es_date_getYear;hasRequiredEs_date_getYear=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var fails=requireFails();// IE8- non-standard case
 var FORCED=fails(function(){// eslint-disable-next-line es/no-date-prototype-getyear-setyear -- detection
 return new Date(16e11).getYear()!==120;});var getFullYear=uncurryThis(Date.prototype.getFullYear);// `Date.prototype.getYear` method
@@ -618,8 +627,7 @@ thisTimeValue(this);var yi=toIntegerOrInfinity(year);var yyyy=yi>=0&&yi<=99?yi+1
 // https://tc39.es/ecma262/#sec-date.prototype.togmtstring
 $({target:'Date',proto:true},{toGMTString:Date.prototype.toUTCString});return es_date_toGmtString;}var es_date_toIsoString={};var stringRepeat;var hasRequiredStringRepeat;function requireStringRepeat(){if(hasRequiredStringRepeat)return stringRepeat;hasRequiredStringRepeat=1;var toIntegerOrInfinity=requireToIntegerOrInfinity();var toString=requireToString();var requireObjectCoercible=requireRequireObjectCoercible();var $RangeError=RangeError;// `String.prototype.repeat` method implementation
 // https://tc39.es/ecma262/#sec-string.prototype.repeat
-stringRepeat=function repeat(count){var str=toString(requireObjectCoercible(this));var result='';var n=toIntegerOrInfinity(count);if(n<0||n===Infinity)throw new $RangeError('Wrong number of repetitions');for(;n>0;(n>>>=1)&&(str+=str))if(n&1)result+=str;return result;};return stringRepeat;}var stringPad;var hasRequiredStringPad;function requireStringPad(){if(hasRequiredStringPad)return stringPad;hasRequiredStringPad=1;// https://github.com/tc39/proposal-string-pad-start-end
-var uncurryThis=requireFunctionUncurryThis();var toLength=requireToLength();var toString=requireToString();var $repeat=requireStringRepeat();var requireObjectCoercible=requireRequireObjectCoercible();var repeat=uncurryThis($repeat);var stringSlice=uncurryThis(''.slice);var ceil=Math.ceil;// `String.prototype.{ padStart, padEnd }` methods implementation
+stringRepeat=function repeat(count){var str=toString(requireObjectCoercible(this));var result='';var n=toIntegerOrInfinity(count);if(n<0||n===Infinity)throw new $RangeError('Wrong number of repetitions');for(;n>0;(n>>>=1)&&(str+=str))if(n&1)result+=str;return result;};return stringRepeat;}var stringPad;var hasRequiredStringPad;function requireStringPad(){if(hasRequiredStringPad)return stringPad;hasRequiredStringPad=1;var uncurryThis=requireFunctionUncurryThis();var toLength=requireToLength();var toString=requireToString();var $repeat=requireStringRepeat();var requireObjectCoercible=requireRequireObjectCoercible();var repeat=uncurryThis($repeat);var stringSlice=uncurryThis(''.slice);var ceil=Math.ceil;// `String.prototype.{ padStart, padEnd }` methods implementation
 var createMethod=function(IS_END){return function($this,maxLength,fillString){var S=toString(requireObjectCoercible($this));var intMaxLength=toLength(maxLength);var stringLength=S.length;var fillStr=fillString===undefined?' ':toString(fillString);var fillLen,stringFiller;if(intMaxLength<=stringLength||fillStr==='')return S;fillLen=intMaxLength-stringLength;stringFiller=repeat(fillStr,ceil(fillLen/fillStr.length));if(stringFiller.length>fillLen)stringFiller=stringSlice(stringFiller,0,fillLen);return IS_END?S+stringFiller:stringFiller+S;};};stringPad={// `String.prototype.padStart` method
 // https://tc39.es/ecma262/#sec-string.prototype.padstart
 start:createMethod(false),// `String.prototype.padEnd` method
@@ -669,14 +677,16 @@ $({global:true,forced:globalThis.globalThis!==globalThis},{globalThis:globalThis
 var FORCED=IS_PURE||!isCallable(NativeIterator)||NativeIterator.prototype!==IteratorPrototype// FF44- non-standard `Iterator` passes previous tests
 ||!fails(function(){NativeIterator({});});var IteratorConstructor=function Iterator(){anInstance(this,IteratorPrototype);if(getPrototypeOf(this)===IteratorPrototype)throw new $TypeError('Abstract class Iterator not directly constructable');};var defineIteratorPrototypeAccessor=function(key,value){if(DESCRIPTORS){defineBuiltInAccessor(IteratorPrototype,key,{configurable:true,get:function(){return value;},set:function(replacement){anObject(this);if(this===IteratorPrototype)throw new $TypeError("You can't redefine this property");if(hasOwn(this,key))this[key]=replacement;else createProperty(this,key,replacement);}});}else IteratorPrototype[key]=value;};if(!hasOwn(IteratorPrototype,TO_STRING_TAG))defineIteratorPrototypeAccessor(TO_STRING_TAG,ITERATOR);if(FORCED||!hasOwn(IteratorPrototype,CONSTRUCTOR)||IteratorPrototype[CONSTRUCTOR]===Object){defineIteratorPrototypeAccessor(CONSTRUCTOR,IteratorConstructor);}IteratorConstructor.prototype=IteratorPrototype;// `Iterator` constructor
 // https://tc39.es/ecma262/#sec-iterator
-$({global:true,constructor:true,forced:FORCED},{Iterator:IteratorConstructor});return es_iterator_constructor;}var es_iterator_dispose={};var hasRequiredEs_iterator_dispose;function requireEs_iterator_dispose(){if(hasRequiredEs_iterator_dispose)return es_iterator_dispose;hasRequiredEs_iterator_dispose=1;// https://github.com/tc39/proposal-explicit-resource-management
-var call=requireFunctionCall();var defineBuiltIn=requireDefineBuiltIn();var getMethod=requireGetMethod();var hasOwn=requireHasOwnProperty();var wellKnownSymbol=requireWellKnownSymbol();var IteratorPrototype=requireIteratorsCore().IteratorPrototype;var DISPOSE=wellKnownSymbol('dispose');if(!hasOwn(IteratorPrototype,DISPOSE)){defineBuiltIn(IteratorPrototype,DISPOSE,function(){var $return=getMethod(this,'return');if($return)call($return,this);});}return es_iterator_dispose;}var es_iterator_drop={};var getIteratorDirect;var hasRequiredGetIteratorDirect;function requireGetIteratorDirect(){if(hasRequiredGetIteratorDirect)return getIteratorDirect;hasRequiredGetIteratorDirect=1;// `GetIteratorDirect(obj)` abstract operation
-// https://tc39.es/proposal-iterator-helpers/#sec-getiteratordirect
-getIteratorDirect=function(obj){return{iterator:obj,next:obj.next,done:false};};return getIteratorDirect;}var notANan;var hasRequiredNotANan;function requireNotANan(){if(hasRequiredNotANan)return notANan;hasRequiredNotANan=1;var $RangeError=RangeError;notANan=function(it){// eslint-disable-next-line no-self-compare -- NaN check
-if(it===it)return it;throw new $RangeError('NaN is not allowed');};return notANan;}var toPositiveInteger;var hasRequiredToPositiveInteger;function requireToPositiveInteger(){if(hasRequiredToPositiveInteger)return toPositiveInteger;hasRequiredToPositiveInteger=1;var toIntegerOrInfinity=requireToIntegerOrInfinity();var $RangeError=RangeError;toPositiveInteger=function(it){var result=toIntegerOrInfinity(it);if(result<0)throw new $RangeError("The argument can't be less than 0");return result;};return toPositiveInteger;}var iteratorCloseAll;var hasRequiredIteratorCloseAll;function requireIteratorCloseAll(){if(hasRequiredIteratorCloseAll)return iteratorCloseAll;hasRequiredIteratorCloseAll=1;var iteratorClose=requireIteratorClose();iteratorCloseAll=function(iters,kind,value){for(var i=iters.length-1;i>=0;i--){if(iters[i]===undefined)continue;try{value=iteratorClose(iters[i].iterator,kind,value);}catch(error){kind='throw';value=error;}}if(kind==='throw')throw value;return value;};return iteratorCloseAll;}var iteratorCreateProxy;var hasRequiredIteratorCreateProxy;function requireIteratorCreateProxy(){if(hasRequiredIteratorCreateProxy)return iteratorCreateProxy;hasRequiredIteratorCreateProxy=1;var call=requireFunctionCall();var create=requireObjectCreate();var createNonEnumerableProperty=requireCreateNonEnumerableProperty();var defineBuiltIns=requireDefineBuiltIns();var wellKnownSymbol=requireWellKnownSymbol();var InternalStateModule=requireInternalState();var getMethod=requireGetMethod();var IteratorPrototype=requireIteratorsCore().IteratorPrototype;var createIterResultObject=requireCreateIterResultObject();var iteratorClose=requireIteratorClose();var iteratorCloseAll=requireIteratorCloseAll();var TO_STRING_TAG=wellKnownSymbol('toStringTag');var ITERATOR_HELPER='IteratorHelper';var WRAP_FOR_VALID_ITERATOR='WrapForValidIterator';var NORMAL='normal';var THROW='throw';var setInternalState=InternalStateModule.set;var createIteratorProxyPrototype=function(IS_ITERATOR){var getInternalState=InternalStateModule.getterFor(IS_ITERATOR?WRAP_FOR_VALID_ITERATOR:ITERATOR_HELPER);return defineBuiltIns(create(IteratorPrototype),{next:function next(){var state=getInternalState(this);// for simplification:
+$({global:true,constructor:true,forced:FORCED},{Iterator:IteratorConstructor});return es_iterator_constructor;}var es_iterator_concat={};var iteratorCloseAll;var hasRequiredIteratorCloseAll;function requireIteratorCloseAll(){if(hasRequiredIteratorCloseAll)return iteratorCloseAll;hasRequiredIteratorCloseAll=1;var iteratorClose=requireIteratorClose();iteratorCloseAll=function(iters,kind,value){for(var i=iters.length-1;i>=0;i--){if(iters[i]===undefined)continue;try{value=iteratorClose(iters[i].iterator,kind,value);}catch(error){kind='throw';value=error;}}if(kind==='throw')throw value;return value;};return iteratorCloseAll;}var iteratorCreateProxy;var hasRequiredIteratorCreateProxy;function requireIteratorCreateProxy(){if(hasRequiredIteratorCreateProxy)return iteratorCreateProxy;hasRequiredIteratorCreateProxy=1;var call=requireFunctionCall();var create=requireObjectCreate();var createNonEnumerableProperty=requireCreateNonEnumerableProperty();var defineBuiltIns=requireDefineBuiltIns();var wellKnownSymbol=requireWellKnownSymbol();var InternalStateModule=requireInternalState();var getMethod=requireGetMethod();var IteratorPrototype=requireIteratorsCore().IteratorPrototype;var createIterResultObject=requireCreateIterResultObject();var iteratorClose=requireIteratorClose();var iteratorCloseAll=requireIteratorCloseAll();var TO_STRING_TAG=wellKnownSymbol('toStringTag');var ITERATOR_HELPER='IteratorHelper';var WRAP_FOR_VALID_ITERATOR='WrapForValidIterator';var NORMAL='normal';var THROW='throw';var setInternalState=InternalStateModule.set;var createIteratorProxyPrototype=function(IS_ITERATOR){var getInternalState=InternalStateModule.getterFor(IS_ITERATOR?WRAP_FOR_VALID_ITERATOR:ITERATOR_HELPER);return defineBuiltIns(create(IteratorPrototype),{next:function next(){var state=getInternalState(this);// for simplification:
 //   for `%WrapForValidIteratorPrototype%.next` or with `state.returnHandlerResult` our `nextHandler` returns `IterResultObject`
 //   for `%IteratorHelperPrototype%.next` - just a value
-if(IS_ITERATOR)return state.nextHandler();if(state.done)return createIterResultObject(undefined,true);try{var result=state.nextHandler();return state.returnHandlerResult?result:createIterResultObject(result,state.done);}catch(error){state.done=true;throw error;}},'return':function(){var state=getInternalState(this);var iterator=state.iterator;state.done=true;if(IS_ITERATOR){var returnMethod=getMethod(iterator,'return');return returnMethod?call(returnMethod,iterator):createIterResultObject(undefined,true);}if(state.inner)try{iteratorClose(state.inner.iterator,NORMAL);}catch(error){return iteratorClose(iterator,THROW,error);}if(state.openIters)try{iteratorCloseAll(state.openIters,NORMAL);}catch(error){return iteratorClose(iterator,THROW,error);}if(iterator)iteratorClose(iterator,NORMAL);return createIterResultObject(undefined,true);}});};var WrapForValidIteratorPrototype=createIteratorProxyPrototype(true);var IteratorHelperPrototype=createIteratorProxyPrototype(false);createNonEnumerableProperty(IteratorHelperPrototype,TO_STRING_TAG,'Iterator Helper');iteratorCreateProxy=function(nextHandler,IS_ITERATOR,RETURN_HANDLER_RESULT){var IteratorProxy=function Iterator(record,state){if(state){state.iterator=record.iterator;state.next=record.next;}else state=record;state.type=IS_ITERATOR?WRAP_FOR_VALID_ITERATOR:ITERATOR_HELPER;state.returnHandlerResult=!!RETURN_HANDLER_RESULT;state.nextHandler=nextHandler;state.counter=0;state.done=false;setInternalState(this,state);};IteratorProxy.prototype=IS_ITERATOR?WrapForValidIteratorPrototype:IteratorHelperPrototype;return IteratorProxy;};return iteratorCreateProxy;}var iteratorHelperThrowsOnInvalidIterator;var hasRequiredIteratorHelperThrowsOnInvalidIterator;function requireIteratorHelperThrowsOnInvalidIterator(){if(hasRequiredIteratorHelperThrowsOnInvalidIterator)return iteratorHelperThrowsOnInvalidIterator;hasRequiredIteratorHelperThrowsOnInvalidIterator=1;// Should throw an error on invalid iterator
+if(IS_ITERATOR)return state.nextHandler();if(state.done)return createIterResultObject(undefined,true);try{var result=state.nextHandler();return state.returnHandlerResult?result:createIterResultObject(result,state.done);}catch(error){state.done=true;throw error;}},'return':function(){var state=getInternalState(this);var iterator=state.iterator;state.done=true;if(IS_ITERATOR){var returnMethod=getMethod(iterator,'return');return returnMethod?call(returnMethod,iterator):createIterResultObject(undefined,true);}if(state.inner)try{iteratorClose(state.inner.iterator,NORMAL);}catch(error){return iteratorClose(iterator,THROW,error);}if(state.openIters)try{iteratorCloseAll(state.openIters,NORMAL);}catch(error){return iteratorClose(iterator,THROW,error);}if(iterator)iteratorClose(iterator,NORMAL);return createIterResultObject(undefined,true);}});};var WrapForValidIteratorPrototype=createIteratorProxyPrototype(true);var IteratorHelperPrototype=createIteratorProxyPrototype(false);createNonEnumerableProperty(IteratorHelperPrototype,TO_STRING_TAG,'Iterator Helper');iteratorCreateProxy=function(nextHandler,IS_ITERATOR,RETURN_HANDLER_RESULT){var IteratorProxy=function Iterator(record,state){if(state){state.iterator=record.iterator;state.next=record.next;}else state=record;state.type=IS_ITERATOR?WRAP_FOR_VALID_ITERATOR:ITERATOR_HELPER;state.returnHandlerResult=!!RETURN_HANDLER_RESULT;state.nextHandler=nextHandler;state.counter=0;state.done=false;setInternalState(this,state);};IteratorProxy.prototype=IS_ITERATOR?WrapForValidIteratorPrototype:IteratorHelperPrototype;return IteratorProxy;};return iteratorCreateProxy;}var hasRequiredEs_iterator_concat;function requireEs_iterator_concat(){if(hasRequiredEs_iterator_concat)return es_iterator_concat;hasRequiredEs_iterator_concat=1;var $=require_export();var call=requireFunctionCall();var aCallable=requireACallable();var anObject=requireAnObject();var getIteratorMethod=requireGetIteratorMethod();var createIteratorProxy=requireIteratorCreateProxy();var $Array=Array;var IteratorProxy=createIteratorProxy(function(){while(true){var iterator=this.iterator;if(!iterator){var iterableIndex=this.nextIterableIndex++;var iterables=this.iterables;if(iterableIndex>=iterables.length){this.done=true;return;}var entry=iterables[iterableIndex];this.iterables[iterableIndex]=null;iterator=this.iterator=call(entry.method,entry.iterable);this.next=iterator.next;}var result=anObject(call(this.next,iterator));if(result.done){this.iterator=null;this.next=null;continue;}return result.value;}});// `Iterator.concat` method
+// https://github.com/tc39/proposal-iterator-sequencing
+$({target:'Iterator',stat:true},{concat:function concat(){var length=arguments.length;var iterables=$Array(length);for(var index=0;index<length;index++){var item=anObject(arguments[index]);iterables[index]={iterable:item,method:aCallable(getIteratorMethod(item))};}return new IteratorProxy({iterables:iterables,nextIterableIndex:0,iterator:null,next:null});}});return es_iterator_concat;}var es_iterator_dispose={};var hasRequiredEs_iterator_dispose;function requireEs_iterator_dispose(){if(hasRequiredEs_iterator_dispose)return es_iterator_dispose;hasRequiredEs_iterator_dispose=1;// https://github.com/tc39/proposal-explicit-resource-management
+var call=requireFunctionCall();var defineBuiltIn=requireDefineBuiltIn();var getMethod=requireGetMethod();var hasOwn=requireHasOwnProperty();var wellKnownSymbol=requireWellKnownSymbol();var IteratorPrototype=requireIteratorsCore().IteratorPrototype;var DISPOSE=wellKnownSymbol('dispose');if(!hasOwn(IteratorPrototype,DISPOSE)){defineBuiltIn(IteratorPrototype,DISPOSE,function(){var $return=getMethod(this,'return');if($return)call($return,this);});}return es_iterator_dispose;}var es_iterator_drop={};var getIteratorDirect;var hasRequiredGetIteratorDirect;function requireGetIteratorDirect(){if(hasRequiredGetIteratorDirect)return getIteratorDirect;hasRequiredGetIteratorDirect=1;// `GetIteratorDirect(obj)` abstract operation
+// https://tc39.es/ecma262/#sec-getiteratordirect
+getIteratorDirect=function(obj){return{iterator:obj,next:obj.next,done:false};};return getIteratorDirect;}var notANan;var hasRequiredNotANan;function requireNotANan(){if(hasRequiredNotANan)return notANan;hasRequiredNotANan=1;var $RangeError=RangeError;notANan=function(it){// eslint-disable-next-line no-self-compare -- NaN check
+if(it===it)return it;throw new $RangeError('NaN is not allowed');};return notANan;}var toPositiveInteger;var hasRequiredToPositiveInteger;function requireToPositiveInteger(){if(hasRequiredToPositiveInteger)return toPositiveInteger;hasRequiredToPositiveInteger=1;var toIntegerOrInfinity=requireToIntegerOrInfinity();var $RangeError=RangeError;toPositiveInteger=function(it){var result=toIntegerOrInfinity(it);if(result<0)throw new $RangeError("The argument can't be less than 0");return result;};return toPositiveInteger;}var iteratorHelperThrowsOnInvalidIterator;var hasRequiredIteratorHelperThrowsOnInvalidIterator;function requireIteratorHelperThrowsOnInvalidIterator(){if(hasRequiredIteratorHelperThrowsOnInvalidIterator)return iteratorHelperThrowsOnInvalidIterator;hasRequiredIteratorHelperThrowsOnInvalidIterator=1;// Should throw an error on invalid iterator
 // https://issues.chromium.org/issues/336839115
 iteratorHelperThrowsOnInvalidIterator=function(methodName,argument){// eslint-disable-next-line es/no-iterator -- required for testing
 var method=typeof Iterator=='function'&&Iterator.prototype[methodName];if(method)try{method.call({next:null},argument).next();}catch(error){return true;}};return iteratorHelperThrowsOnInvalidIterator;}var iteratorHelperWithoutClosingOnEarlyError;var hasRequiredIteratorHelperWithoutClosingOnEarlyError;function requireIteratorHelperWithoutClosingOnEarlyError(){if(hasRequiredIteratorHelperWithoutClosingOnEarlyError)return iteratorHelperWithoutClosingOnEarlyError;hasRequiredIteratorHelperWithoutClosingOnEarlyError=1;var globalThis=requireGlobalThis();// https://github.com/tc39/ecma262/pull/3467
@@ -710,15 +720,29 @@ $({target:'Iterator',proto:true,real:true,forced:someWithoutClosingOnEarlyError}
 // https://tc39.es/ecma262/#sec-iterator.prototype.take
 $({target:'Iterator',proto:true,real:true,forced:IS_PURE||takeWithoutClosingOnEarlyError},{take:function take(limit){anObject(this);var remaining;try{remaining=toPositiveInteger(notANaN(+limit));}catch(error){iteratorClose(this,'throw',error);}if(takeWithoutClosingOnEarlyError)return call(takeWithoutClosingOnEarlyError,this,remaining);return new IteratorProxy(getIteratorDirect(this),{remaining:remaining});}});return es_iterator_take;}var es_iterator_toArray={};var hasRequiredEs_iterator_toArray;function requireEs_iterator_toArray(){if(hasRequiredEs_iterator_toArray)return es_iterator_toArray;hasRequiredEs_iterator_toArray=1;var $=require_export();var anObject=requireAnObject();var iterate=requireIterate();var getIteratorDirect=requireGetIteratorDirect();var push=[].push;// `Iterator.prototype.toArray` method
 // https://tc39.es/ecma262/#sec-iterator.prototype.toarray
-$({target:'Iterator',proto:true,real:true},{toArray:function toArray(){var result=[];iterate(getIteratorDirect(anObject(this)),push,{that:result,IS_RECORD:true});return result;}});return es_iterator_toArray;}var es_json_toStringTag={};var hasRequiredEs_json_toStringTag;function requireEs_json_toStringTag(){if(hasRequiredEs_json_toStringTag)return es_json_toStringTag;hasRequiredEs_json_toStringTag=1;var globalThis=requireGlobalThis();var setToStringTag=requireSetToStringTag();// JSON[@@toStringTag] property
+$({target:'Iterator',proto:true,real:true},{toArray:function toArray(){var result=[];iterate(getIteratorDirect(anObject(this)),push,{that:result,IS_RECORD:true});return result;}});return es_iterator_toArray;}var es_json_isRawJson={};var hasRequiredEs_json_isRawJson;function requireEs_json_isRawJson(){if(hasRequiredEs_json_isRawJson)return es_json_isRawJson;hasRequiredEs_json_isRawJson=1;var $=require_export();var NATIVE_RAW_JSON=requireNativeRawJson();var isRawJSON=requireIsRawJson();// `JSON.isRawJSON` method
+// https://tc39.es/proposal-json-parse-with-source/#sec-json.israwjson
+// https://github.com/tc39/proposal-json-parse-with-source
+$({target:'JSON',stat:true,forced:!NATIVE_RAW_JSON},{isRawJSON:isRawJSON});return es_json_isRawJson;}var es_json_parse={};var hasRequiredEs_json_parse;function requireEs_json_parse(){if(hasRequiredEs_json_parse)return es_json_parse;hasRequiredEs_json_parse=1;var $=require_export();var DESCRIPTORS=requireDescriptors();var globalThis=requireGlobalThis();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var call=requireFunctionCall();var isCallable=requireIsCallable();var isObject=requireIsObject();var isArray=requireIsArray();var hasOwn=requireHasOwnProperty();var toString=requireToString();var lengthOfArrayLike=requireLengthOfArrayLike();var createProperty=requireCreateProperty();var fails=requireFails();var parseJSONString=requireParseJsonString();var NATIVE_SYMBOL=requireSymbolConstructorDetection();var JSON=globalThis.JSON;var Number=globalThis.Number;var SyntaxError=globalThis.SyntaxError;var nativeParse=JSON&&JSON.parse;var enumerableOwnProperties=getBuiltIn('Object','keys');// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
+var getOwnPropertyDescriptor=Object.getOwnPropertyDescriptor;var at=uncurryThis(''.charAt);var slice=uncurryThis(''.slice);var exec=uncurryThis(/./.exec);var push=uncurryThis([].push);var IS_DIGIT=/^\d$/;var IS_NON_ZERO_DIGIT=/^[1-9]$/;var IS_NUMBER_START=/^[\d-]$/;var IS_WHITESPACE=/^[\t\n\r ]$/;var PRIMITIVE=0;var OBJECT=1;var $parse=function(source,reviver){source=toString(source);var context=new Context(source,0);var root=context.parse();var value=root.value;var endIndex=context.skip(IS_WHITESPACE,root.end);if(endIndex<source.length){throw new SyntaxError('Unexpected extra character: "'+at(source,endIndex)+'" after the parsed data at: '+endIndex);}return isCallable(reviver)?internalize({'':value},'',reviver,root):value;};var internalize=function(holder,name,reviver,node){var val=holder[name];var unmodified=node&&val===node.value;var context=unmodified&&typeof node.source=='string'?{source:node.source}:{};var elementRecordsLen,keys,len,i,P;if(isObject(val)){var nodeIsArray=isArray(val);var nodes=unmodified?node.nodes:nodeIsArray?[]:{};if(nodeIsArray){elementRecordsLen=nodes.length;len=lengthOfArrayLike(val);for(i=0;i<len;i++){internalizeProperty(val,i,internalize(val,''+i,reviver,i<elementRecordsLen?nodes[i]:undefined));}}else{keys=enumerableOwnProperties(val);len=lengthOfArrayLike(keys);for(i=0;i<len;i++){P=keys[i];internalizeProperty(val,P,internalize(val,P,reviver,hasOwn(nodes,P)?nodes[P]:undefined));}}}return call(reviver,holder,name,val,context);};var internalizeProperty=function(object,key,value){if(DESCRIPTORS){var descriptor=getOwnPropertyDescriptor(object,key);if(descriptor&&!descriptor.configurable)return;}if(value===undefined)delete object[key];else createProperty(object,key,value);};var Node=function(value,end,source,nodes){this.value=value;this.end=end;this.source=source;this.nodes=nodes;};var Context=function(source,index){this.source=source;this.index=index;};// https://www.json.org/json-en.html
+Context.prototype={fork:function(nextIndex){return new Context(this.source,nextIndex);},parse:function(){var source=this.source;var i=this.skip(IS_WHITESPACE,this.index);var fork=this.fork(i);var chr=at(source,i);if(exec(IS_NUMBER_START,chr))return fork.number();switch(chr){case'{':return fork.object();case'[':return fork.array();case'"':return fork.string();case't':return fork.keyword(true);case'f':return fork.keyword(false);case'n':return fork.keyword(null);}throw new SyntaxError('Unexpected character: "'+chr+'" at: '+i);},node:function(type,value,start,end,nodes){return new Node(value,end,type?null:slice(this.source,start,end),nodes);},object:function(){var source=this.source;var i=this.index+1;var expectKeypair=false;var object={};var nodes={};while(i<source.length){i=this.until(['"','}'],i);if(at(source,i)==='}'&&!expectKeypair){i++;break;}// Parsing the key
+var result=this.fork(i).string();var key=result.value;i=result.end;i=this.until([':'],i)+1;// Parsing value
+i=this.skip(IS_WHITESPACE,i);result=this.fork(i).parse();createProperty(nodes,key,result);createProperty(object,key,result.value);i=this.until([',','}'],result.end);var chr=at(source,i);if(chr===','){expectKeypair=true;i++;}else if(chr==='}'){i++;break;}}return this.node(OBJECT,object,this.index,i,nodes);},array:function(){var source=this.source;var i=this.index+1;var expectElement=false;var array=[];var nodes=[];while(i<source.length){i=this.skip(IS_WHITESPACE,i);if(at(source,i)===']'&&!expectElement){i++;break;}var result=this.fork(i).parse();push(nodes,result);push(array,result.value);i=this.until([',',']'],result.end);if(at(source,i)===','){expectElement=true;i++;}else if(at(source,i)===']'){i++;break;}}return this.node(OBJECT,array,this.index,i,nodes);},string:function(){var index=this.index;var parsed=parseJSONString(this.source,this.index+1);return this.node(PRIMITIVE,parsed.value,index,parsed.end);},number:function(){var source=this.source;var startIndex=this.index;var i=startIndex;if(at(source,i)==='-')i++;if(at(source,i)==='0')i++;else if(exec(IS_NON_ZERO_DIGIT,at(source,i)))i=this.skip(IS_DIGIT,i+1);else throw new SyntaxError('Failed to parse number at: '+i);if(at(source,i)==='.')i=this.skip(IS_DIGIT,i+1);if(at(source,i)==='e'||at(source,i)==='E'){i++;if(at(source,i)==='+'||at(source,i)==='-')i++;var exponentStartIndex=i;i=this.skip(IS_DIGIT,i);if(exponentStartIndex===i)throw new SyntaxError("Failed to parse number's exponent value at: "+i);}return this.node(PRIMITIVE,Number(slice(source,startIndex,i)),startIndex,i);},keyword:function(value){var keyword=''+value;var index=this.index;var endIndex=index+keyword.length;if(slice(this.source,index,endIndex)!==keyword)throw new SyntaxError('Failed to parse value at: '+index);return this.node(PRIMITIVE,value,index,endIndex);},skip:function(regex,i){var source=this.source;for(;i<source.length;i++)if(!exec(regex,at(source,i)))break;return i;},until:function(array,i){i=this.skip(IS_WHITESPACE,i);var chr=at(this.source,i);for(var j=0;j<array.length;j++)if(array[j]===chr)return i;throw new SyntaxError('Unexpected character: "'+chr+'" at: '+i);}};var NO_SOURCE_SUPPORT=fails(function(){var unsafeInt='9007199254740993';var source;nativeParse(unsafeInt,function(key,value,context){source=context.source;});return source!==unsafeInt;});var PROPER_BASE_PARSE=NATIVE_SYMBOL&&!fails(function(){// Safari 9 bug
+return 1/nativeParse('-0 \t')!==-Infinity;});// `JSON.parse` method
+// https://tc39.es/ecma262/#sec-json.parse
+// https://github.com/tc39/proposal-json-parse-with-source
+$({target:'JSON',stat:true,forced:NO_SOURCE_SUPPORT},{parse:function parse(text,reviver){return PROPER_BASE_PARSE&&!isCallable(reviver)?nativeParse(text):$parse(text,reviver);}});return es_json_parse;}var es_json_rawJson={};var freezing;var hasRequiredFreezing;function requireFreezing(){if(hasRequiredFreezing)return freezing;hasRequiredFreezing=1;var fails=requireFails();freezing=!fails(function(){// eslint-disable-next-line es/no-object-isextensible, es/no-object-preventextensions -- required for testing
+return Object.isExtensible(Object.preventExtensions({}));});return freezing;}var hasRequiredEs_json_rawJson;function requireEs_json_rawJson(){if(hasRequiredEs_json_rawJson)return es_json_rawJson;hasRequiredEs_json_rawJson=1;var $=require_export();var FREEZING=requireFreezing();var NATIVE_RAW_JSON=requireNativeRawJson();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var toString=requireToString();var createProperty=requireCreateProperty();var setInternalState=requireInternalState().set;var $SyntaxError=SyntaxError;var parse=getBuiltIn('JSON','parse');var create=getBuiltIn('Object','create');var freeze=getBuiltIn('Object','freeze');var at=uncurryThis(''.charAt);var ERROR_MESSAGE='Unacceptable as raw JSON';var isWhitespace=function(it){return it===' '||it==='\t'||it==='\n'||it==='\r';};// `JSON.rawJSON` method
+// https://tc39.es/proposal-json-parse-with-source/#sec-json.rawjson
+// https://github.com/tc39/proposal-json-parse-with-source
+$({target:'JSON',stat:true,forced:!NATIVE_RAW_JSON},{rawJSON:function rawJSON(text){var jsonString=toString(text);if(jsonString===''||isWhitespace(at(jsonString,0))||isWhitespace(at(jsonString,jsonString.length-1))){throw new $SyntaxError(ERROR_MESSAGE);}var parsed=parse(jsonString);if(typeof parsed=='object'&&parsed!==null)throw new $SyntaxError(ERROR_MESSAGE);var obj=create(null);setInternalState(obj,{type:'RawJSON'});createProperty(obj,'rawJSON',jsonString);return FREEZING?freeze(obj):obj;}});return es_json_rawJson;}var es_json_toStringTag={};var hasRequiredEs_json_toStringTag;function requireEs_json_toStringTag(){if(hasRequiredEs_json_toStringTag)return es_json_toStringTag;hasRequiredEs_json_toStringTag=1;var globalThis=requireGlobalThis();var setToStringTag=requireSetToStringTag();// JSON[@@toStringTag] property
 // https://tc39.es/ecma262/#sec-json-@@tostringtag
 setToStringTag(globalThis.JSON,'JSON',true);return es_json_toStringTag;}var es_map={};var es_map_constructor={};var internalMetadata={exports:{}};var arrayBufferNonExtensible;var hasRequiredArrayBufferNonExtensible;function requireArrayBufferNonExtensible(){if(hasRequiredArrayBufferNonExtensible)return arrayBufferNonExtensible;hasRequiredArrayBufferNonExtensible=1;// FF26- bug: ArrayBuffers are non-extensible, but Object.isExtensible does not report it
 var fails=requireFails();arrayBufferNonExtensible=fails(function(){if(typeof ArrayBuffer=='function'){var buffer=new ArrayBuffer(8);// eslint-disable-next-line es/no-object-isextensible, es/no-object-defineproperty -- safe
 if(Object.isExtensible(buffer))Object.defineProperty(buffer,'a',{value:8});}});return arrayBufferNonExtensible;}var objectIsExtensible;var hasRequiredObjectIsExtensible;function requireObjectIsExtensible(){if(hasRequiredObjectIsExtensible)return objectIsExtensible;hasRequiredObjectIsExtensible=1;var fails=requireFails();var isObject=requireIsObject();var classof=requireClassofRaw();var ARRAY_BUFFER_NON_EXTENSIBLE=requireArrayBufferNonExtensible();// eslint-disable-next-line es/no-object-isextensible -- safe
 var $isExtensible=Object.isExtensible;var FAILS_ON_PRIMITIVES=fails(function(){});// `Object.isExtensible` method
 // https://tc39.es/ecma262/#sec-object.isextensible
-objectIsExtensible=FAILS_ON_PRIMITIVES||ARRAY_BUFFER_NON_EXTENSIBLE?function isExtensible(it){if(!isObject(it))return false;if(ARRAY_BUFFER_NON_EXTENSIBLE&&classof(it)==='ArrayBuffer')return false;return $isExtensible?$isExtensible(it):true;}:$isExtensible;return objectIsExtensible;}var freezing;var hasRequiredFreezing;function requireFreezing(){if(hasRequiredFreezing)return freezing;hasRequiredFreezing=1;var fails=requireFails();freezing=!fails(function(){// eslint-disable-next-line es/no-object-isextensible, es/no-object-preventextensions -- required for testing
-return Object.isExtensible(Object.preventExtensions({}));});return freezing;}var hasRequiredInternalMetadata;function requireInternalMetadata(){if(hasRequiredInternalMetadata)return internalMetadata.exports;hasRequiredInternalMetadata=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var hiddenKeys=requireHiddenKeys();var isObject=requireIsObject();var hasOwn=requireHasOwnProperty();var defineProperty=requireObjectDefineProperty().f;var getOwnPropertyNamesModule=requireObjectGetOwnPropertyNames();var getOwnPropertyNamesExternalModule=requireObjectGetOwnPropertyNamesExternal();var isExtensible=requireObjectIsExtensible();var uid=requireUid();var FREEZING=requireFreezing();var REQUIRED=false;var METADATA=uid('meta');var id=0;var setMetadata=function(it){defineProperty(it,METADATA,{value:{objectID:'O'+id++,// object ID
+objectIsExtensible=FAILS_ON_PRIMITIVES||ARRAY_BUFFER_NON_EXTENSIBLE?function isExtensible(it){if(!isObject(it))return false;if(ARRAY_BUFFER_NON_EXTENSIBLE&&classof(it)==='ArrayBuffer')return false;return $isExtensible?$isExtensible(it):true;}:$isExtensible;return objectIsExtensible;}var hasRequiredInternalMetadata;function requireInternalMetadata(){if(hasRequiredInternalMetadata)return internalMetadata.exports;hasRequiredInternalMetadata=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var hiddenKeys=requireHiddenKeys();var isObject=requireIsObject();var hasOwn=requireHasOwnProperty();var defineProperty=requireObjectDefineProperty().f;var getOwnPropertyNamesModule=requireObjectGetOwnPropertyNames();var getOwnPropertyNamesExternalModule=requireObjectGetOwnPropertyNamesExternal();var isExtensible=requireObjectIsExtensible();var uid=requireUid();var FREEZING=requireFreezing();var REQUIRED=false;var METADATA=uid('meta');var id=0;var setMetadata=function(it){defineProperty(it,METADATA,{value:{objectID:'O'+id++,// object ID
 weakData:{}// weak collections IDs
 }});};var fastKey=function(it,create){// return a primitive with prefix
 if(!isObject(it))return typeof it=='symbol'?it:(typeof it=='string'?'S':'P')+it;if(!hasOwn(it,METADATA)){// can't set metadata to uncaught frozen object
@@ -730,7 +754,8 @@ if(!isExtensible(it))return true;// not necessary to add metadata
 if(!create)return false;// add missing metadata
 setMetadata(it);// return the store of weak collections IDs
 }return it[METADATA].weakData;};// add metadata on freeze-family methods calling
-var onFreeze=function(it){if(FREEZING&&REQUIRED&&isExtensible(it)&&!hasOwn(it,METADATA))setMetadata(it);return it;};var enable=function(){meta.enable=function(){/* empty */};REQUIRED=true;var getOwnPropertyNames=getOwnPropertyNamesModule.f;var splice=uncurryThis([].splice);var test={};test[METADATA]=1;// prevent exposing of metadata key
+var onFreeze=function(it){if(FREEZING&&REQUIRED&&isExtensible(it)&&!hasOwn(it,METADATA))setMetadata(it);return it;};var enable=function(){meta.enable=function(){/* empty */};REQUIRED=true;var getOwnPropertyNames=getOwnPropertyNamesModule.f;var splice=uncurryThis([].splice);var test={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+test[METADATA]=1;// prevent exposing of metadata key
 if(getOwnPropertyNames(test).length){getOwnPropertyNamesModule.f=function(it){var result=getOwnPropertyNames(it);for(var i=0,length=result.length;i<length;i++){if(result[i]===METADATA){splice(result,i,1);break;}}return result;};$({target:'Object',stat:true,forced:true},{getOwnPropertyNames:getOwnPropertyNamesExternalModule.f});}};var meta=internalMetadata.exports={enable:enable,fastKey:fastKey,getWeakData:getWeakData,onFreeze:onFreeze};hiddenKeys[METADATA]=true;return internalMetadata.exports;}var collection;var hasRequiredCollection;function requireCollection(){if(hasRequiredCollection)return collection;hasRequiredCollection=1;var $=require_export();var globalThis=requireGlobalThis();var uncurryThis=requireFunctionUncurryThis();var isForced=requireIsForced();var defineBuiltIn=requireDefineBuiltIn();var InternalMetadataModule=requireInternalMetadata();var iterate=requireIterate();var anInstance=requireAnInstance();var isCallable=requireIsCallable();var isNullOrUndefined=requireIsNullOrUndefined();var isObject=requireIsObject();var fails=requireFails();var checkCorrectnessOfIteration=requireCheckCorrectnessOfIteration();var setToStringTag=requireSetToStringTag();var inheritIfRequired=requireInheritIfRequired();collection=function(CONSTRUCTOR_NAME,wrapper,common){var IS_MAP=CONSTRUCTOR_NAME.indexOf('Map')!==-1;var IS_WEAK=CONSTRUCTOR_NAME.indexOf('Weak')!==-1;var ADDER=IS_MAP?'set':'add';var NativeConstructor=globalThis[CONSTRUCTOR_NAME];var NativePrototype=NativeConstructor&&NativeConstructor.prototype;var Constructor=NativeConstructor;var exported={};var fixMethod=function(KEY){var uncurriedNativeMethod=uncurryThis(NativePrototype[KEY]);defineBuiltIn(NativePrototype,KEY,KEY==='add'?function add(value){uncurriedNativeMethod(this,value===0?0:value);return this;}:KEY==='delete'?function(key){return IS_WEAK&&!isObject(key)?false:uncurriedNativeMethod(this,key===0?0:key);}:KEY==='get'?function get(key){return IS_WEAK&&!isObject(key)?undefined:uncurriedNativeMethod(this,key===0?0:key);}:KEY==='has'?function has(key){return IS_WEAK&&!isObject(key)?false:uncurriedNativeMethod(this,key===0?0:key);}:function set(key,value){uncurriedNativeMethod(this,key===0?0:key,value);return this;});};var REPLACE=isForced(CONSTRUCTOR_NAME,!isCallable(NativeConstructor)||!(IS_WEAK||NativePrototype.forEach&&!fails(function(){new NativeConstructor().entries().next();})));if(REPLACE){// create collection constructor
 Constructor=common.getConstructor(wrapper,CONSTRUCTOR_NAME,IS_MAP,ADDER);InternalMetadataModule.enable();}else if(isForced(CONSTRUCTOR_NAME,true)){var instance=new Constructor();// early implementations not supports chaining
 var HASNT_CHAINING=instance[ADDER](IS_WEAK?{}:-0,1)!==instance;// V8 ~ Chromium 40- weak-collections throws on primitives, but should return false
@@ -846,7 +871,23 @@ $({target:'Math',stat:true},{sign:sign});return es_math_sign;}var es_math_sinh={
 return Math.sinh(-2e-17)!==-2e-17;});// `Math.sinh` method
 // https://tc39.es/ecma262/#sec-math.sinh
 // V8 near Chromium 38 has a problem with very small numbers
-$({target:'Math',stat:true,forced:FORCED},{sinh:function sinh(x){var n=+x;return abs(n)<1?(expm1(n)-expm1(-n))/2:(exp(n-1)-exp(-n-1))*(E/2);}});return es_math_sinh;}var es_math_tanh={};var hasRequiredEs_math_tanh;function requireEs_math_tanh(){if(hasRequiredEs_math_tanh)return es_math_tanh;hasRequiredEs_math_tanh=1;var $=require_export();var expm1=requireMathExpm1();var exp=Math.exp;// `Math.tanh` method
+$({target:'Math',stat:true,forced:FORCED},{sinh:function sinh(x){var n=+x;return abs(n)<1?(expm1(n)-expm1(-n))/2:(exp(n-1)-exp(-n-1))*(E/2);}});return es_math_sinh;}var es_math_sumPrecise={};var hasRequiredEs_math_sumPrecise;function requireEs_math_sumPrecise(){if(hasRequiredEs_math_sumPrecise)return es_math_sumPrecise;hasRequiredEs_math_sumPrecise=1;// based on Shewchuk's algorithm for exactly floating point addition
+// adapted from https://github.com/tc39/proposal-math-sum/blob/3513d58323a1ae25560e8700aa5294500c6c9287/polyfill/polyfill.mjs
+var $=require_export();var uncurryThis=requireFunctionUncurryThis();var iterate=requireIterate();var $RangeError=RangeError;var $TypeError=TypeError;var $Infinity=Infinity;var $NaN=NaN;var abs=Math.abs;var pow=Math.pow;var push=uncurryThis([].push);var POW_2_1023=pow(2,1023);var MAX_SAFE_INTEGER=pow(2,53)-1;// 2 ** 53 - 1 === 9007199254740992
+var MAX_DOUBLE=Number.MAX_VALUE;// 2 ** 1024 - 2 ** (1023 - 52) === 1.79769313486231570815e+308
+var MAX_ULP=pow(2,971);// 2 ** (1023 - 52) === 1.99584030953471981166e+292
+var NOT_A_NUMBER={};var MINUS_INFINITY={};var PLUS_INFINITY={};var MINUS_ZERO={};var FINITE={};// prerequisite: abs(x) >= abs(y)
+var twosum=function(x,y){var hi=x+y;var lo=y-(hi-x);return{hi:hi,lo:lo};};// `Math.sumPrecise` method
+// https://github.com/tc39/proposal-math-sum
+$({target:'Math',stat:true},{// eslint-disable-next-line max-statements -- ok
+sumPrecise:function sumPrecise(items){var numbers=[];var count=0;var state=MINUS_ZERO;iterate(items,function(n){if(++count>=MAX_SAFE_INTEGER)throw new $RangeError('Maximum allowed index exceeded');if(typeof n!='number')throw new $TypeError('Value is not a number');if(state!==NOT_A_NUMBER){// eslint-disable-next-line no-self-compare -- NaN check
+if(n!==n)state=NOT_A_NUMBER;else if(n===$Infinity)state=state===MINUS_INFINITY?NOT_A_NUMBER:PLUS_INFINITY;else if(n===-$Infinity)state=state===PLUS_INFINITY?NOT_A_NUMBER:MINUS_INFINITY;else if((n!==0||1/n===$Infinity)&&(state===MINUS_ZERO||state===FINITE)){state=FINITE;push(numbers,n);}}});switch(state){case NOT_A_NUMBER:return $NaN;case MINUS_INFINITY:return-$Infinity;case PLUS_INFINITY:return $Infinity;case MINUS_ZERO:return-0;}var partials=[];var overflow=0;// conceptually 2 ** 1024 times this value; the final partial is biased by this amount
+var x,y,sum,hi,lo,tmp;for(var i=0;i<numbers.length;i++){x=numbers[i];var actuallyUsedPartials=0;for(var j=0;j<partials.length;j++){y=partials[j];if(abs(x)<abs(y)){tmp=x;x=y;y=tmp;}sum=twosum(x,y);hi=sum.hi;lo=sum.lo;if(abs(hi)===$Infinity){var sign=hi===$Infinity?1:-1;overflow+=sign;x=x-sign*POW_2_1023-sign*POW_2_1023;if(abs(x)<abs(y)){tmp=x;x=y;y=tmp;}sum=twosum(x,y);hi=sum.hi;lo=sum.lo;}if(lo!==0)partials[actuallyUsedPartials++]=lo;x=hi;}partials.length=actuallyUsedPartials;if(x!==0)push(partials,x);}// compute the exact sum of partials, stopping once we lose precision
+var n=partials.length-1;hi=0;lo=0;if(overflow!==0){var next=n>=0?partials[n]:0;n--;if(abs(overflow)>1||overflow>0&&next>0||overflow<0&&next<0){return overflow>0?$Infinity:-$Infinity;}// here we actually have to do the arithmetic
+// drop a factor of 2 so we can do it without overflow
+// assert(abs(overflow) === 1)
+sum=twosum(overflow*POW_2_1023,next/2);hi=sum.hi;lo=sum.lo;lo*=2;if(abs(2*hi)===$Infinity){// rounding to the maximum value
+if(hi>0){return hi===POW_2_1023&&lo===-(MAX_ULP/2)&&n>=0&&partials[n]<0?MAX_DOUBLE:$Infinity;}return hi===-POW_2_1023&&lo===MAX_ULP/2&&n>=0&&partials[n]>0?-MAX_DOUBLE:-$Infinity;}if(lo!==0){partials[++n]=lo;lo=0;}hi*=2;}while(n>=0){sum=twosum(hi,partials[n--]);hi=sum.hi;lo=sum.lo;if(lo!==0)break;}if(n>=0&&(lo<0&&partials[n]<0||lo>0&&partials[n]>0)){y=lo*2;x=hi+y;if(y===x-hi)hi=x;}return hi;}});return es_math_sumPrecise;}var es_math_tanh={};var hasRequiredEs_math_tanh;function requireEs_math_tanh(){if(hasRequiredEs_math_tanh)return es_math_tanh;hasRequiredEs_math_tanh=1;var $=require_export();var expm1=requireMathExpm1();var exp=Math.exp;// `Math.tanh` method
 // https://tc39.es/ecma262/#sec-math.tanh
 $({target:'Math',stat:true},{tanh:function tanh(x){var n=+x;var a=expm1(n);var b=expm1(-n);return a===Infinity?1:b===Infinity?-1:(a-b)/(exp(n)+exp(-n));}});return es_math_tanh;}var es_math_toStringTag={};var hasRequiredEs_math_toStringTag;function requireEs_math_toStringTag(){if(hasRequiredEs_math_toStringTag)return es_math_toStringTag;hasRequiredEs_math_toStringTag=1;var setToStringTag=requireSetToStringTag();// Math[@@toStringTag] property
 // https://tc39.es/ecma262/#sec-math-@@tostringtag
@@ -984,13 +1025,13 @@ var FAILS_ON_PRIMITIVES=fails(function(){return!Object.getOwnPropertyNames(1);})
 // https://tc39.es/ecma262/#sec-object.getownpropertynames
 $({target:'Object',stat:true,forced:FAILS_ON_PRIMITIVES},{getOwnPropertyNames:getOwnPropertyNames});return es_object_getOwnPropertyNames;}var es_object_getPrototypeOf={};var hasRequiredEs_object_getPrototypeOf;function requireEs_object_getPrototypeOf(){if(hasRequiredEs_object_getPrototypeOf)return es_object_getPrototypeOf;hasRequiredEs_object_getPrototypeOf=1;var $=require_export();var fails=requireFails();var toObject=requireToObject();var nativeGetPrototypeOf=requireObjectGetPrototypeOf();var CORRECT_PROTOTYPE_GETTER=requireCorrectPrototypeGetter();var FAILS_ON_PRIMITIVES=fails(function(){nativeGetPrototypeOf(1);});// `Object.getPrototypeOf` method
 // https://tc39.es/ecma262/#sec-object.getprototypeof
-$({target:'Object',stat:true,forced:FAILS_ON_PRIMITIVES,sham:!CORRECT_PROTOTYPE_GETTER},{getPrototypeOf:function getPrototypeOf(it){return nativeGetPrototypeOf(toObject(it));}});return es_object_getPrototypeOf;}var es_object_groupBy={};var hasRequiredEs_object_groupBy;function requireEs_object_groupBy(){if(hasRequiredEs_object_groupBy)return es_object_groupBy;hasRequiredEs_object_groupBy=1;var $=require_export();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var aCallable=requireACallable();var requireObjectCoercible=requireRequireObjectCoercible();var toPropertyKey=requireToPropertyKey();var iterate=requireIterate();var fails=requireFails();// eslint-disable-next-line es/no-object-groupby -- testing
+$({target:'Object',stat:true,forced:FAILS_ON_PRIMITIVES,sham:!CORRECT_PROTOTYPE_GETTER},{getPrototypeOf:function getPrototypeOf(it){return nativeGetPrototypeOf(toObject(it));}});return es_object_getPrototypeOf;}var es_object_groupBy={};var hasRequiredEs_object_groupBy;function requireEs_object_groupBy(){if(hasRequiredEs_object_groupBy)return es_object_groupBy;hasRequiredEs_object_groupBy=1;var $=require_export();var createProperty=requireCreateProperty();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var aCallable=requireACallable();var requireObjectCoercible=requireRequireObjectCoercible();var toPropertyKey=requireToPropertyKey();var iterate=requireIterate();var fails=requireFails();// eslint-disable-next-line es/no-object-groupby -- testing
 var nativeGroupBy=Object.groupBy;var create=getBuiltIn('Object','create');var push=uncurryThis([].push);// https://bugs.webkit.org/show_bug.cgi?id=271524
 var DOES_NOT_WORK_WITH_PRIMITIVES=!nativeGroupBy||fails(function(){return nativeGroupBy('ab',function(it){return it;}).a.length!==1;});// `Object.groupBy` method
 // https://tc39.es/ecma262/#sec-object.groupby
 $({target:'Object',stat:true,forced:DOES_NOT_WORK_WITH_PRIMITIVES},{groupBy:function groupBy(items,callbackfn){requireObjectCoercible(items);aCallable(callbackfn);var obj=create(null);var k=0;iterate(items,function(value){var key=toPropertyKey(callbackfn(value,k++));// in some IE versions, `hasOwnProperty` returns incorrect result on integer keys
 // but since it's a `null` prototype object, we can safely use `in`
-if(key in obj)push(obj[key],value);else obj[key]=[value];});return obj;}});return es_object_groupBy;}var es_object_hasOwn={};var hasRequiredEs_object_hasOwn;function requireEs_object_hasOwn(){if(hasRequiredEs_object_hasOwn)return es_object_hasOwn;hasRequiredEs_object_hasOwn=1;var $=require_export();var hasOwn=requireHasOwnProperty();// `Object.hasOwn` method
+if(key in obj)push(obj[key],value);else createProperty(obj,key,[value]);});return obj;}});return es_object_groupBy;}var es_object_hasOwn={};var hasRequiredEs_object_hasOwn;function requireEs_object_hasOwn(){if(hasRequiredEs_object_hasOwn)return es_object_hasOwn;hasRequiredEs_object_hasOwn=1;var $=require_export();var hasOwn=requireHasOwnProperty();// `Object.hasOwn` method
 // https://tc39.es/ecma262/#sec-object.hasown
 $({target:'Object',stat:true},{hasOwn:hasOwn});return es_object_hasOwn;}var es_object_is={};var sameValue;var hasRequiredSameValue;function requireSameValue(){if(hasRequiredSameValue)return sameValue;hasRequiredSameValue=1;// `SameValue` abstract operation
 // https://tc39.es/ecma262/#sec-samevalue
@@ -1120,9 +1161,14 @@ var FORCED=!Promise||!Promise['try']||perform(function(){Promise['try'](function
 $({target:'Promise',stat:true,forced:FORCED},{'try':function(callbackfn/* , ...args */){var args=arguments.length>1?slice(arguments,1):[];var promiseCapability=newPromiseCapabilityModule.f(this);var result=perform(function(){return apply(aCallable(callbackfn),undefined,args);});(result.error?promiseCapability.reject:promiseCapability.resolve)(result.value);return promiseCapability.promise;}});return es_promise_try;}var es_promise_withResolvers={};var hasRequiredEs_promise_withResolvers;function requireEs_promise_withResolvers(){if(hasRequiredEs_promise_withResolvers)return es_promise_withResolvers;hasRequiredEs_promise_withResolvers=1;var $=require_export();var newPromiseCapabilityModule=requireNewPromiseCapability();// `Promise.withResolvers` method
 // https://tc39.es/ecma262/#sec-promise.withResolvers
 $({target:'Promise',stat:true},{withResolvers:function withResolvers(){var promiseCapability=newPromiseCapabilityModule.f(this);return{promise:promiseCapability.promise,resolve:promiseCapability.resolve,reject:promiseCapability.reject};}});return es_promise_withResolvers;}var es_array_fromAsync={};var asyncIteratorPrototype;var hasRequiredAsyncIteratorPrototype;function requireAsyncIteratorPrototype(){if(hasRequiredAsyncIteratorPrototype)return asyncIteratorPrototype;hasRequiredAsyncIteratorPrototype=1;var globalThis=requireGlobalThis();var shared=requireSharedStore();var isCallable=requireIsCallable();var create=requireObjectCreate();var getPrototypeOf=requireObjectGetPrototypeOf();var defineBuiltIn=requireDefineBuiltIn();var wellKnownSymbol=requireWellKnownSymbol();var IS_PURE=requireIsPure();var USE_FUNCTION_CONSTRUCTOR='USE_FUNCTION_CONSTRUCTOR';var ASYNC_ITERATOR=wellKnownSymbol('asyncIterator');var AsyncIterator=globalThis.AsyncIterator;var PassedAsyncIteratorPrototype=shared.AsyncIteratorPrototype;var AsyncIteratorPrototype,prototype;if(PassedAsyncIteratorPrototype){AsyncIteratorPrototype=PassedAsyncIteratorPrototype;}else if(isCallable(AsyncIterator)){AsyncIteratorPrototype=AsyncIterator.prototype;}else if(shared[USE_FUNCTION_CONSTRUCTOR]||globalThis[USE_FUNCTION_CONSTRUCTOR]){try{// eslint-disable-next-line no-new-func -- we have no alternatives without usage of modern syntax
-prototype=getPrototypeOf(getPrototypeOf(getPrototypeOf(Function('return async function*(){}()')())));if(getPrototypeOf(prototype)===Object.prototype)AsyncIteratorPrototype=prototype;}catch(error){/* empty */}}if(!AsyncIteratorPrototype)AsyncIteratorPrototype={};else if(IS_PURE)AsyncIteratorPrototype=create(AsyncIteratorPrototype);if(!isCallable(AsyncIteratorPrototype[ASYNC_ITERATOR])){defineBuiltIn(AsyncIteratorPrototype,ASYNC_ITERATOR,function(){return this;});}asyncIteratorPrototype=AsyncIteratorPrototype;return asyncIteratorPrototype;}var asyncFromSyncIterator;var hasRequiredAsyncFromSyncIterator;function requireAsyncFromSyncIterator(){if(hasRequiredAsyncFromSyncIterator)return asyncFromSyncIterator;hasRequiredAsyncFromSyncIterator=1;var call=requireFunctionCall();var anObject=requireAnObject();var create=requireObjectCreate();var getMethod=requireGetMethod();var defineBuiltIns=requireDefineBuiltIns();var InternalStateModule=requireInternalState();var iteratorClose=requireIteratorClose();var getBuiltIn=requireGetBuiltIn();var AsyncIteratorPrototype=requireAsyncIteratorPrototype();var createIterResultObject=requireCreateIterResultObject();var Promise=getBuiltIn('Promise');var ASYNC_FROM_SYNC_ITERATOR='AsyncFromSyncIterator';var setInternalState=InternalStateModule.set;var getInternalState=InternalStateModule.getterFor(ASYNC_FROM_SYNC_ITERATOR);var asyncFromSyncIteratorContinuation=function(result,resolve,reject,syncIterator,closeOnRejection){var done=result.done;Promise.resolve(result.value).then(function(value){resolve(createIterResultObject(value,done));},function(error){if(!done&&closeOnRejection){try{iteratorClose(syncIterator,'throw',error);}catch(error2){error=error2;}}reject(error);});};var AsyncFromSyncIterator=function AsyncIterator(iteratorRecord){iteratorRecord.type=ASYNC_FROM_SYNC_ITERATOR;setInternalState(this,iteratorRecord);};AsyncFromSyncIterator.prototype=defineBuiltIns(create(AsyncIteratorPrototype),{next:function next(){var state=getInternalState(this);return new Promise(function(resolve,reject){var result=anObject(call(state.next,state.iterator));asyncFromSyncIteratorContinuation(result,resolve,reject,state.iterator,true);});},'return':function(){var iterator=getInternalState(this).iterator;return new Promise(function(resolve,reject){var $return=getMethod(iterator,'return');if($return===undefined)return resolve(createIterResultObject(undefined,true));var result=anObject(call($return,iterator));asyncFromSyncIteratorContinuation(result,resolve,reject,iterator);});}});asyncFromSyncIterator=AsyncFromSyncIterator;return asyncFromSyncIterator;}var getAsyncIterator;var hasRequiredGetAsyncIterator;function requireGetAsyncIterator(){if(hasRequiredGetAsyncIterator)return getAsyncIterator;hasRequiredGetAsyncIterator=1;var call=requireFunctionCall();var AsyncFromSyncIterator=requireAsyncFromSyncIterator();var anObject=requireAnObject();var getIterator=requireGetIterator();var getIteratorDirect=requireGetIteratorDirect();var getMethod=requireGetMethod();var wellKnownSymbol=requireWellKnownSymbol();var ASYNC_ITERATOR=wellKnownSymbol('asyncIterator');getAsyncIterator=function(it,usingIterator){var method=arguments.length<2?getMethod(it,ASYNC_ITERATOR):usingIterator;return method?anObject(call(method,it)):new AsyncFromSyncIterator(getIteratorDirect(getIterator(it)));};return getAsyncIterator;}var asyncIteratorClose;var hasRequiredAsyncIteratorClose;function requireAsyncIteratorClose(){if(hasRequiredAsyncIteratorClose)return asyncIteratorClose;hasRequiredAsyncIteratorClose=1;var call=requireFunctionCall();var getBuiltIn=requireGetBuiltIn();var getMethod=requireGetMethod();asyncIteratorClose=function(iterator,method,argument,reject){try{var returnMethod=getMethod(iterator,'return');if(returnMethod){return getBuiltIn('Promise').resolve(call(returnMethod,iterator)).then(function(){method(argument);},function(error){reject(error);});}}catch(error2){return reject(error2);}method(argument);};return asyncIteratorClose;}var asyncIteratorIteration;var hasRequiredAsyncIteratorIteration;function requireAsyncIteratorIteration(){if(hasRequiredAsyncIteratorIteration)return asyncIteratorIteration;hasRequiredAsyncIteratorIteration=1;// https://github.com/tc39/proposal-iterator-helpers
+prototype=getPrototypeOf(getPrototypeOf(getPrototypeOf(Function('return async function*(){}()')())));if(getPrototypeOf(prototype)===Object.prototype)AsyncIteratorPrototype=prototype;}catch(error){/* empty */}}if(!AsyncIteratorPrototype)AsyncIteratorPrototype={};else if(IS_PURE)AsyncIteratorPrototype=create(AsyncIteratorPrototype);if(!isCallable(AsyncIteratorPrototype[ASYNC_ITERATOR])){defineBuiltIn(AsyncIteratorPrototype,ASYNC_ITERATOR,function(){return this;});}asyncIteratorPrototype=AsyncIteratorPrototype;return asyncIteratorPrototype;}var asyncFromSyncIterator;var hasRequiredAsyncFromSyncIterator;function requireAsyncFromSyncIterator(){if(hasRequiredAsyncFromSyncIterator)return asyncFromSyncIterator;hasRequiredAsyncFromSyncIterator=1;var call=requireFunctionCall();var anObject=requireAnObject();var create=requireObjectCreate();var getMethod=requireGetMethod();var defineBuiltIns=requireDefineBuiltIns();var InternalStateModule=requireInternalState();var iteratorClose=requireIteratorClose();var getBuiltIn=requireGetBuiltIn();var AsyncIteratorPrototype=requireAsyncIteratorPrototype();var createIterResultObject=requireCreateIterResultObject();var Promise=getBuiltIn('Promise');var ASYNC_FROM_SYNC_ITERATOR='AsyncFromSyncIterator';var setInternalState=InternalStateModule.set;var getInternalState=InternalStateModule.getterFor(ASYNC_FROM_SYNC_ITERATOR);var asyncFromSyncIteratorContinuation=function(result,resolve,reject,syncIterator,closeOnRejection){var done=result.done;Promise.resolve(result.value).then(function(value){resolve(createIterResultObject(value,done));},function(error){if(!done&&closeOnRejection){try{iteratorClose(syncIterator,'throw',error);}catch(error2){error=error2;}}reject(error);});};var AsyncFromSyncIterator=function AsyncIterator(iteratorRecord){iteratorRecord.type=ASYNC_FROM_SYNC_ITERATOR;setInternalState(this,iteratorRecord);};AsyncFromSyncIterator.prototype=defineBuiltIns(create(AsyncIteratorPrototype),{next:function next(){var state=getInternalState(this);return new Promise(function(resolve,reject){var result=anObject(call(state.next,state.iterator));asyncFromSyncIteratorContinuation(result,resolve,reject,state.iterator,true);});},'return':function(){var iterator=getInternalState(this).iterator;return new Promise(function(resolve,reject){var $return=getMethod(iterator,'return');if($return===undefined)return resolve(createIterResultObject(undefined,true));var result=anObject(call($return,iterator));asyncFromSyncIteratorContinuation(result,resolve,reject,iterator);});}});asyncFromSyncIterator=AsyncFromSyncIterator;return asyncFromSyncIterator;}var getAsyncIterator;var hasRequiredGetAsyncIterator;function requireGetAsyncIterator(){if(hasRequiredGetAsyncIterator)return getAsyncIterator;hasRequiredGetAsyncIterator=1;var call=requireFunctionCall();var AsyncFromSyncIterator=requireAsyncFromSyncIterator();var anObject=requireAnObject();var getIterator=requireGetIterator();var getIteratorDirect=requireGetIteratorDirect();var getMethod=requireGetMethod();var wellKnownSymbol=requireWellKnownSymbol();var ASYNC_ITERATOR=wellKnownSymbol('asyncIterator');getAsyncIterator=function(it,usingIterator){var method=arguments.length<2?getMethod(it,ASYNC_ITERATOR):usingIterator;return method?anObject(call(method,it)):new AsyncFromSyncIterator(getIteratorDirect(getIterator(it)));};return getAsyncIterator;}var asyncIteratorClose;var hasRequiredAsyncIteratorClose;function requireAsyncIteratorClose(){if(hasRequiredAsyncIteratorClose)return asyncIteratorClose;hasRequiredAsyncIteratorClose=1;var call=requireFunctionCall();var getBuiltIn=requireGetBuiltIn();var getMethod=requireGetMethod();asyncIteratorClose=function(iterator,method,argument,reject){try{var returnMethod=getMethod(iterator,'return');if(returnMethod){return getBuiltIn('Promise').resolve(call(returnMethod,iterator)).then(function(){method(argument);},function(error){reject(error);});}}catch(error2){return reject(error2);}method(argument);};return asyncIteratorClose;}var asyncIteratorIteration;var hasRequiredAsyncIteratorIteration;function requireAsyncIteratorIteration(){if(hasRequiredAsyncIteratorIteration)return asyncIteratorIteration;hasRequiredAsyncIteratorIteration=1;// https://github.com/tc39/proposal-async-iterator-helpers
 // https://github.com/tc39/proposal-array-from-async
-var call=requireFunctionCall();var aCallable=requireACallable();var anObject=requireAnObject();var isObject=requireIsObject();var doesNotExceedSafeInteger=requireDoesNotExceedSafeInteger();var getBuiltIn=requireGetBuiltIn();var getIteratorDirect=requireGetIteratorDirect();var closeAsyncIteration=requireAsyncIteratorClose();var createMethod=function(TYPE){var IS_TO_ARRAY=TYPE===0;var IS_FOR_EACH=TYPE===1;var IS_EVERY=TYPE===2;var IS_SOME=TYPE===3;return function(object,fn,target){anObject(object);var MAPPING=fn!==undefined;if(MAPPING||!IS_TO_ARRAY)aCallable(fn);var record=getIteratorDirect(object);var Promise=getBuiltIn('Promise');var iterator=record.iterator;var next=record.next;var counter=0;return new Promise(function(resolve,reject){var ifAbruptCloseAsyncIterator=function(error){closeAsyncIteration(iterator,reject,error,reject);};var loop=function(){try{if(MAPPING)try{doesNotExceedSafeInteger(counter);}catch(error5){ifAbruptCloseAsyncIterator(error5);}Promise.resolve(anObject(call(next,iterator))).then(function(step){try{if(anObject(step).done){if(IS_TO_ARRAY){target.length=counter;resolve(target);}else resolve(IS_SOME?false:IS_EVERY||undefined);}else{var value=step.value;try{if(MAPPING){var result=fn(value,counter);var handler=function($result){if(IS_FOR_EACH){loop();}else if(IS_EVERY){$result?loop():closeAsyncIteration(iterator,resolve,false,reject);}else if(IS_TO_ARRAY){try{target[counter++]=$result;loop();}catch(error4){ifAbruptCloseAsyncIterator(error4);}}else{$result?closeAsyncIteration(iterator,resolve,IS_SOME||value,reject):loop();}};if(isObject(result))Promise.resolve(result).then(handler,ifAbruptCloseAsyncIterator);else handler(result);}else{target[counter++]=value;loop();}}catch(error3){ifAbruptCloseAsyncIterator(error3);}}}catch(error2){reject(error2);}},reject);}catch(error){reject(error);}};loop();});};};asyncIteratorIteration={toArray:createMethod(0),forEach:createMethod(1),every:createMethod(2),some:createMethod(3),find:createMethod(4)};return asyncIteratorIteration;}var arrayFromAsync;var hasRequiredArrayFromAsync;function requireArrayFromAsync(){if(hasRequiredArrayFromAsync)return arrayFromAsync;hasRequiredArrayFromAsync=1;var bind=requireFunctionBindContext();var uncurryThis=requireFunctionUncurryThis();var toObject=requireToObject();var isConstructor=requireIsConstructor();var getAsyncIterator=requireGetAsyncIterator();var getIterator=requireGetIterator();var getIteratorDirect=requireGetIteratorDirect();var getIteratorMethod=requireGetIteratorMethod();var getMethod=requireGetMethod();var getBuiltIn=requireGetBuiltIn();var getBuiltInPrototypeMethod=requireGetBuiltInPrototypeMethod();var wellKnownSymbol=requireWellKnownSymbol();var AsyncFromSyncIterator=requireAsyncFromSyncIterator();var toArray=requireAsyncIteratorIteration().toArray;var ASYNC_ITERATOR=wellKnownSymbol('asyncIterator');var arrayIterator=uncurryThis(getBuiltInPrototypeMethod('Array','values'));var arrayIteratorNext=uncurryThis(arrayIterator([]).next);var safeArrayIterator=function(){return new SafeArrayIterator(this);};var SafeArrayIterator=function(O){this.iterator=arrayIterator(O);};SafeArrayIterator.prototype.next=function(){return arrayIteratorNext(this.iterator);};// `Array.fromAsync` method implementation
+var call=requireFunctionCall();var aCallable=requireACallable();var anObject=requireAnObject();var isObject=requireIsObject();var doesNotExceedSafeInteger=requireDoesNotExceedSafeInteger();var getBuiltIn=requireGetBuiltIn();var getIteratorDirect=requireGetIteratorDirect();var closeAsyncIteration=requireAsyncIteratorClose();var createMethod=function(TYPE){var IS_TO_ARRAY=TYPE===0;var IS_FOR_EACH=TYPE===1;var IS_EVERY=TYPE===2;var IS_SOME=TYPE===3;return function(object,fn,target){anObject(object);var MAPPING=fn!==undefined;if(MAPPING||!IS_TO_ARRAY)aCallable(fn);var record=getIteratorDirect(object);var Promise=getBuiltIn('Promise');var iterator=record.iterator;var next=record.next;var counter=0;return new Promise(function(resolve,reject){var ifAbruptCloseAsyncIterator=function(error){closeAsyncIteration(iterator,reject,error,reject);};var loop=function(){try{if(MAPPING)try{doesNotExceedSafeInteger(counter);}catch(error5){ifAbruptCloseAsyncIterator(error5);}Promise.resolve(anObject(call(next,iterator))).then(function(step){try{if(anObject(step).done){if(IS_TO_ARRAY){target.length=counter;resolve(target);}else resolve(IS_SOME?false:IS_EVERY||undefined);}else{var value=step.value;try{if(MAPPING){var result=fn(value,counter);var handler=function($result){if(IS_FOR_EACH){loop();}else if(IS_EVERY){$result?loop():closeAsyncIteration(iterator,resolve,false,reject);}else if(IS_TO_ARRAY){try{target[counter++]=$result;loop();}catch(error4){ifAbruptCloseAsyncIterator(error4);}}else{$result?closeAsyncIteration(iterator,resolve,IS_SOME||value,reject):loop();}};if(isObject(result))Promise.resolve(result).then(handler,ifAbruptCloseAsyncIterator);else handler(result);}else{target[counter++]=value;loop();}}catch(error3){ifAbruptCloseAsyncIterator(error3);}}}catch(error2){reject(error2);}},reject);}catch(error){reject(error);}};loop();});};};asyncIteratorIteration={// `AsyncIterator.prototype.toArray` / `Array.fromAsync` methods
+toArray:createMethod(0),// `AsyncIterator.prototype.forEach` method
+forEach:createMethod(1),// `AsyncIterator.prototype.every` method
+every:createMethod(2),// `AsyncIterator.prototype.some` method
+some:createMethod(3),// `AsyncIterator.prototype.find` method
+find:createMethod(4)};return asyncIteratorIteration;}var arrayFromAsync;var hasRequiredArrayFromAsync;function requireArrayFromAsync(){if(hasRequiredArrayFromAsync)return arrayFromAsync;hasRequiredArrayFromAsync=1;var bind=requireFunctionBindContext();var uncurryThis=requireFunctionUncurryThis();var toObject=requireToObject();var isConstructor=requireIsConstructor();var getAsyncIterator=requireGetAsyncIterator();var getIterator=requireGetIterator();var getIteratorDirect=requireGetIteratorDirect();var getIteratorMethod=requireGetIteratorMethod();var getMethod=requireGetMethod();var getBuiltIn=requireGetBuiltIn();var getBuiltInPrototypeMethod=requireGetBuiltInPrototypeMethod();var wellKnownSymbol=requireWellKnownSymbol();var AsyncFromSyncIterator=requireAsyncFromSyncIterator();var toArray=requireAsyncIteratorIteration().toArray;var ASYNC_ITERATOR=wellKnownSymbol('asyncIterator');var arrayIterator=uncurryThis(getBuiltInPrototypeMethod('Array','values'));var arrayIteratorNext=uncurryThis(arrayIterator([]).next);var safeArrayIterator=function(){return new SafeArrayIterator(this);};var SafeArrayIterator=function(O){this.iterator=arrayIterator(O);};SafeArrayIterator.prototype.next=function(){return arrayIteratorNext(this.iterator);};// `Array.fromAsync` method implementation
 // https://github.com/tc39/proposal-array-from-async
 arrayFromAsync=function fromAsync(asyncItems/* , mapfn = undefined, thisArg = undefined */){var C=this;var argumentsLength=arguments.length;var mapfn=argumentsLength>1?arguments[1]:undefined;var thisArg=argumentsLength>2?arguments[2]:undefined;return new(getBuiltIn('Promise'))(function(resolve){var O=toObject(asyncItems);if(mapfn!==undefined)mapfn=bind(mapfn,thisArg);var usingAsyncIterator=getMethod(O,ASYNC_ITERATOR);var usingSyncIterator=usingAsyncIterator?undefined:getIteratorMethod(O)||safeArrayIterator;var A=isConstructor(C)?new C():[];var iterator=usingAsyncIterator?getAsyncIterator(O,usingAsyncIterator):new AsyncFromSyncIterator(getIteratorDirect(getIterator(O,usingSyncIterator)));resolve(toArray(iterator,mapfn,A));});};return arrayFromAsync;}var hasRequiredEs_array_fromAsync;function requireEs_array_fromAsync(){if(hasRequiredEs_array_fromAsync)return es_array_fromAsync;hasRequiredEs_array_fromAsync=1;var $=require_export();var fromAsync=requireArrayFromAsync();var fails=requireFails();// eslint-disable-next-line es/no-array-fromasync -- safe
 var nativeFromAsync=Array.fromAsync;// https://bugs.webkit.org/show_bug.cgi?id=271703
@@ -1236,45 +1282,45 @@ aSet=function(it){has(it);return it;};return aSet;}var iterateSimple;var hasRequ
 getSetRecord=function(obj){anObject(obj);var numSize=+obj.size;// NOTE: If size is undefined, then numSize will be NaN
 // eslint-disable-next-line no-self-compare -- NaN check
 if(numSize!==numSize)throw new $TypeError(INVALID_SIZE);var intSize=toIntegerOrInfinity(numSize);if(intSize<0)throw new $RangeError(INVALID_SIZE);return new SetRecord(obj,intSize);};return getSetRecord;}var setDifference;var hasRequiredSetDifference;function requireSetDifference(){if(hasRequiredSetDifference)return setDifference;hasRequiredSetDifference=1;var aSet=requireASet();var SetHelpers=requireSetHelpers();var clone=requireSetClone();var size=requireSetSize();var getSetRecord=requireGetSetRecord();var iterateSet=requireSetIterate();var iterateSimple=requireIterateSimple();var has=SetHelpers.has;var remove=SetHelpers.remove;// `Set.prototype.difference` method
-// https://github.com/tc39/proposal-set-methods
+// https://tc39.es/ecma262/#sec-set.prototype.difference
 setDifference=function difference(other){var O=aSet(this);var otherRec=getSetRecord(other);var result=clone(O);if(size(O)<=otherRec.size)iterateSet(O,function(e){if(otherRec.includes(e))remove(result,e);});else iterateSimple(otherRec.getIterator(),function(e){if(has(result,e))remove(result,e);});return result;};return setDifference;}var setMethodAcceptSetLike;var hasRequiredSetMethodAcceptSetLike;function requireSetMethodAcceptSetLike(){if(hasRequiredSetMethodAcceptSetLike)return setMethodAcceptSetLike;hasRequiredSetMethodAcceptSetLike=1;var getBuiltIn=requireGetBuiltIn();var createSetLike=function(size){return{size:size,has:function(){return false;},keys:function(){return{next:function(){return{done:true};}};}};};var createSetLikeWithInfinitySize=function(size){return{size:size,has:function(){return true;},keys:function(){throw new Error('e');}};};setMethodAcceptSetLike=function(name,callback){var Set=getBuiltIn('Set');try{new Set()[name](createSetLike(0));try{// late spec change, early WebKit ~ Safari 17 implementation does not pass it
 // https://github.com/tc39/proposal-set-methods/pull/88
 // also covered engines with
 // https://bugs.webkit.org/show_bug.cgi?id=272679
 new Set()[name](createSetLike(-1));return false;}catch(error2){if(!callback)return true;// early V8 implementation bug
 // https://issues.chromium.org/issues/351332634
-try{new Set()[name](createSetLikeWithInfinitySize(-Infinity));return false;}catch(error){var set=new Set();set.add(1);set.add(2);return callback(set[name](createSetLikeWithInfinitySize(Infinity)));}}}catch(error){return false;}};return setMethodAcceptSetLike;}var hasRequiredEs_set_difference_v2;function requireEs_set_difference_v2(){if(hasRequiredEs_set_difference_v2)return es_set_difference_v2;hasRequiredEs_set_difference_v2=1;var $=require_export();var difference=requireSetDifference();var fails=requireFails();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var SET_LIKE_INCORRECT_BEHAVIOR=!setMethodAcceptSetLike('difference',function(result){return result.size===0;});var FORCED=SET_LIKE_INCORRECT_BEHAVIOR||fails(function(){// https://bugs.webkit.org/show_bug.cgi?id=288595
+try{new Set()[name](createSetLikeWithInfinitySize(-Infinity));return false;}catch(error){var set=new Set([1,2]);return callback(set[name](createSetLikeWithInfinitySize(Infinity)));}}}catch(error){return false;}};return setMethodAcceptSetLike;}var hasRequiredEs_set_difference_v2;function requireEs_set_difference_v2(){if(hasRequiredEs_set_difference_v2)return es_set_difference_v2;hasRequiredEs_set_difference_v2=1;var $=require_export();var difference=requireSetDifference();var fails=requireFails();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var SET_LIKE_INCORRECT_BEHAVIOR=!setMethodAcceptSetLike('difference',function(result){return result.size===0;});var FORCED=SET_LIKE_INCORRECT_BEHAVIOR||fails(function(){// https://bugs.webkit.org/show_bug.cgi?id=288595
 var setLike={size:1,has:function(){return true;},keys:function(){var index=0;return{next:function(){var done=index++>1;if(baseSet.has(1))baseSet.clear();return{done:done,value:2};}};}};// eslint-disable-next-line es/no-set -- testing
 var baseSet=new Set([1,2,3,4]);// eslint-disable-next-line es/no-set-prototype-difference -- testing
 return baseSet.difference(setLike).size!==3;});// `Set.prototype.difference` method
 // https://tc39.es/ecma262/#sec-set.prototype.difference
 $({target:'Set',proto:true,real:true,forced:FORCED},{difference:difference});return es_set_difference_v2;}var es_set_intersection_v2={};var setIntersection;var hasRequiredSetIntersection;function requireSetIntersection(){if(hasRequiredSetIntersection)return setIntersection;hasRequiredSetIntersection=1;var aSet=requireASet();var SetHelpers=requireSetHelpers();var size=requireSetSize();var getSetRecord=requireGetSetRecord();var iterateSet=requireSetIterate();var iterateSimple=requireIterateSimple();var Set=SetHelpers.Set;var add=SetHelpers.add;var has=SetHelpers.has;// `Set.prototype.intersection` method
-// https://github.com/tc39/proposal-set-methods
+// https://tc39.es/ecma262/#sec-set.prototype.intersection
 setIntersection=function intersection(other){var O=aSet(this);var otherRec=getSetRecord(other);var result=new Set();if(size(O)>otherRec.size){iterateSimple(otherRec.getIterator(),function(e){if(has(O,e))add(result,e);});}else{iterateSet(O,function(e){if(otherRec.includes(e))add(result,e);});}return result;};return setIntersection;}var hasRequiredEs_set_intersection_v2;function requireEs_set_intersection_v2(){if(hasRequiredEs_set_intersection_v2)return es_set_intersection_v2;hasRequiredEs_set_intersection_v2=1;var $=require_export();var fails=requireFails();var intersection=requireSetIntersection();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var INCORRECT=!setMethodAcceptSetLike('intersection',function(result){return result.size===2&&result.has(1)&&result.has(2);})||fails(function(){// eslint-disable-next-line es/no-array-from, es/no-set, es/no-set-prototype-intersection -- testing
 return String(Array.from(new Set([1,2,3]).intersection(new Set([3,2]))))!=='3,2';});// `Set.prototype.intersection` method
 // https://tc39.es/ecma262/#sec-set.prototype.intersection
 $({target:'Set',proto:true,real:true,forced:INCORRECT},{intersection:intersection});return es_set_intersection_v2;}var es_set_isDisjointFrom_v2={};var setIsDisjointFrom;var hasRequiredSetIsDisjointFrom;function requireSetIsDisjointFrom(){if(hasRequiredSetIsDisjointFrom)return setIsDisjointFrom;hasRequiredSetIsDisjointFrom=1;var aSet=requireASet();var has=requireSetHelpers().has;var size=requireSetSize();var getSetRecord=requireGetSetRecord();var iterateSet=requireSetIterate();var iterateSimple=requireIterateSimple();var iteratorClose=requireIteratorClose();// `Set.prototype.isDisjointFrom` method
-// https://tc39.github.io/proposal-set-methods/#Set.prototype.isDisjointFrom
+// https://tc39.es/ecma262/#sec-set.prototype.isdisjointfrom
 setIsDisjointFrom=function isDisjointFrom(other){var O=aSet(this);var otherRec=getSetRecord(other);if(size(O)<=otherRec.size)return iterateSet(O,function(e){if(otherRec.includes(e))return false;},true)!==false;var iterator=otherRec.getIterator();return iterateSimple(iterator,function(e){if(has(O,e))return iteratorClose(iterator,'normal',false);})!==false;};return setIsDisjointFrom;}var hasRequiredEs_set_isDisjointFrom_v2;function requireEs_set_isDisjointFrom_v2(){if(hasRequiredEs_set_isDisjointFrom_v2)return es_set_isDisjointFrom_v2;hasRequiredEs_set_isDisjointFrom_v2=1;var $=require_export();var isDisjointFrom=requireSetIsDisjointFrom();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var INCORRECT=!setMethodAcceptSetLike('isDisjointFrom',function(result){return!result;});// `Set.prototype.isDisjointFrom` method
 // https://tc39.es/ecma262/#sec-set.prototype.isdisjointfrom
 $({target:'Set',proto:true,real:true,forced:INCORRECT},{isDisjointFrom:isDisjointFrom});return es_set_isDisjointFrom_v2;}var es_set_isSubsetOf_v2={};var setIsSubsetOf;var hasRequiredSetIsSubsetOf;function requireSetIsSubsetOf(){if(hasRequiredSetIsSubsetOf)return setIsSubsetOf;hasRequiredSetIsSubsetOf=1;var aSet=requireASet();var size=requireSetSize();var iterate=requireSetIterate();var getSetRecord=requireGetSetRecord();// `Set.prototype.isSubsetOf` method
-// https://tc39.github.io/proposal-set-methods/#Set.prototype.isSubsetOf
+// https://tc39.es/ecma262/#sec-set.prototype.issubsetof
 setIsSubsetOf=function isSubsetOf(other){var O=aSet(this);var otherRec=getSetRecord(other);if(size(O)>otherRec.size)return false;return iterate(O,function(e){if(!otherRec.includes(e))return false;},true)!==false;};return setIsSubsetOf;}var hasRequiredEs_set_isSubsetOf_v2;function requireEs_set_isSubsetOf_v2(){if(hasRequiredEs_set_isSubsetOf_v2)return es_set_isSubsetOf_v2;hasRequiredEs_set_isSubsetOf_v2=1;var $=require_export();var isSubsetOf=requireSetIsSubsetOf();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var INCORRECT=!setMethodAcceptSetLike('isSubsetOf',function(result){return result;});// `Set.prototype.isSubsetOf` method
 // https://tc39.es/ecma262/#sec-set.prototype.issubsetof
 $({target:'Set',proto:true,real:true,forced:INCORRECT},{isSubsetOf:isSubsetOf});return es_set_isSubsetOf_v2;}var es_set_isSupersetOf_v2={};var setIsSupersetOf;var hasRequiredSetIsSupersetOf;function requireSetIsSupersetOf(){if(hasRequiredSetIsSupersetOf)return setIsSupersetOf;hasRequiredSetIsSupersetOf=1;var aSet=requireASet();var has=requireSetHelpers().has;var size=requireSetSize();var getSetRecord=requireGetSetRecord();var iterateSimple=requireIterateSimple();var iteratorClose=requireIteratorClose();// `Set.prototype.isSupersetOf` method
-// https://tc39.github.io/proposal-set-methods/#Set.prototype.isSupersetOf
+// https://tc39.es/ecma262/#sec-set.prototype.issupersetof
 setIsSupersetOf=function isSupersetOf(other){var O=aSet(this);var otherRec=getSetRecord(other);if(size(O)<otherRec.size)return false;var iterator=otherRec.getIterator();return iterateSimple(iterator,function(e){if(!has(O,e))return iteratorClose(iterator,'normal',false);})!==false;};return setIsSupersetOf;}var hasRequiredEs_set_isSupersetOf_v2;function requireEs_set_isSupersetOf_v2(){if(hasRequiredEs_set_isSupersetOf_v2)return es_set_isSupersetOf_v2;hasRequiredEs_set_isSupersetOf_v2=1;var $=require_export();var isSupersetOf=requireSetIsSupersetOf();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var INCORRECT=!setMethodAcceptSetLike('isSupersetOf',function(result){return!result;});// `Set.prototype.isSupersetOf` method
 // https://tc39.es/ecma262/#sec-set.prototype.issupersetof
 $({target:'Set',proto:true,real:true,forced:INCORRECT},{isSupersetOf:isSupersetOf});return es_set_isSupersetOf_v2;}var es_set_symmetricDifference_v2={};var setSymmetricDifference;var hasRequiredSetSymmetricDifference;function requireSetSymmetricDifference(){if(hasRequiredSetSymmetricDifference)return setSymmetricDifference;hasRequiredSetSymmetricDifference=1;var aSet=requireASet();var SetHelpers=requireSetHelpers();var clone=requireSetClone();var getSetRecord=requireGetSetRecord();var iterateSimple=requireIterateSimple();var add=SetHelpers.add;var has=SetHelpers.has;var remove=SetHelpers.remove;// `Set.prototype.symmetricDifference` method
-// https://github.com/tc39/proposal-set-methods
+// https://tc39.es/ecma262/#sec-set.prototype.symmetricdifference
 setSymmetricDifference=function symmetricDifference(other){var O=aSet(this);var keysIter=getSetRecord(other).getIterator();var result=clone(O);iterateSimple(keysIter,function(e){if(has(O,e))remove(result,e);else add(result,e);});return result;};return setSymmetricDifference;}var setMethodGetKeysBeforeCloningDetection;var hasRequiredSetMethodGetKeysBeforeCloningDetection;function requireSetMethodGetKeysBeforeCloningDetection(){if(hasRequiredSetMethodGetKeysBeforeCloningDetection)return setMethodGetKeysBeforeCloningDetection;hasRequiredSetMethodGetKeysBeforeCloningDetection=1;// Should get iterator record of a set-like object before cloning this
 // https://bugs.webkit.org/show_bug.cgi?id=289430
 setMethodGetKeysBeforeCloningDetection=function(METHOD_NAME){try{// eslint-disable-next-line es/no-set -- needed for test
 var baseSet=new Set();var setLike={size:0,has:function(){return true;},keys:function(){// eslint-disable-next-line es/no-object-defineproperty -- needed for test
-return Object.defineProperty({},'next',{get:function(){baseSet.clear();baseSet.add(4);return function(){return{done:true};};}});}};var result=baseSet[METHOD_NAME](setLike);return result.size!==1||result.values().next().value!==4;}catch(error){return false;}};return setMethodGetKeysBeforeCloningDetection;}var hasRequiredEs_set_symmetricDifference_v2;function requireEs_set_symmetricDifference_v2(){if(hasRequiredEs_set_symmetricDifference_v2)return es_set_symmetricDifference_v2;hasRequiredEs_set_symmetricDifference_v2=1;var $=require_export();var symmetricDifference=requireSetSymmetricDifference();var setMethodGetKeysBeforeCloning=requireSetMethodGetKeysBeforeCloningDetection();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var FORCED=!setMethodAcceptSetLike('symmetricDifference')||!setMethodGetKeysBeforeCloning('symmetricDifference');// `Set.prototype.symmetricDifference` method
+return Object.defineProperty({},'next',{get:function(){baseSet.clear();baseSet.add(4);return function(){return{done:true};};}});}};var result=baseSet[METHOD_NAME](setLike);return result.size===1&&result.values().next().value===4;}catch(error){return false;}};return setMethodGetKeysBeforeCloningDetection;}var hasRequiredEs_set_symmetricDifference_v2;function requireEs_set_symmetricDifference_v2(){if(hasRequiredEs_set_symmetricDifference_v2)return es_set_symmetricDifference_v2;hasRequiredEs_set_symmetricDifference_v2=1;var $=require_export();var symmetricDifference=requireSetSymmetricDifference();var setMethodGetKeysBeforeCloning=requireSetMethodGetKeysBeforeCloningDetection();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var FORCED=!setMethodAcceptSetLike('symmetricDifference')||!setMethodGetKeysBeforeCloning('symmetricDifference');// `Set.prototype.symmetricDifference` method
 // https://tc39.es/ecma262/#sec-set.prototype.symmetricdifference
 $({target:'Set',proto:true,real:true,forced:FORCED},{symmetricDifference:symmetricDifference});return es_set_symmetricDifference_v2;}var es_set_union_v2={};var setUnion;var hasRequiredSetUnion;function requireSetUnion(){if(hasRequiredSetUnion)return setUnion;hasRequiredSetUnion=1;var aSet=requireASet();var add=requireSetHelpers().add;var clone=requireSetClone();var getSetRecord=requireGetSetRecord();var iterateSimple=requireIterateSimple();// `Set.prototype.union` method
-// https://github.com/tc39/proposal-set-methods
+// https://tc39.es/ecma262/#sec-set.prototype.union
 setUnion=function union(other){var O=aSet(this);var keysIter=getSetRecord(other).getIterator();var result=clone(O);iterateSimple(keysIter,function(it){add(result,it);});return result;};return setUnion;}var hasRequiredEs_set_union_v2;function requireEs_set_union_v2(){if(hasRequiredEs_set_union_v2)return es_set_union_v2;hasRequiredEs_set_union_v2=1;var $=require_export();var union=requireSetUnion();var setMethodGetKeysBeforeCloning=requireSetMethodGetKeysBeforeCloningDetection();var setMethodAcceptSetLike=requireSetMethodAcceptSetLike();var FORCED=!setMethodAcceptSetLike('union')||!setMethodGetKeysBeforeCloning('union');// `Set.prototype.union` method
 // https://tc39.es/ecma262/#sec-set.prototype.union
 $({target:'Set',proto:true,real:true,forced:FORCED},{union:union});return es_set_union_v2;}var es_string_atAlternative={};var hasRequiredEs_string_atAlternative;function requireEs_string_atAlternative(){if(hasRequiredEs_string_atAlternative)return es_string_atAlternative;hasRequiredEs_string_atAlternative=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var requireObjectCoercible=requireRequireObjectCoercible();var toIntegerOrInfinity=requireToIntegerOrInfinity();var toString=requireToString();var fails=requireFails();var charAt=uncurryThis(''.charAt);var FORCED=fails(function(){// eslint-disable-next-line es/no-string-prototype-at -- safe
@@ -1306,13 +1352,16 @@ defineIterator(String,'String',function(iterated){setInternalState(this,{type:ST
 // https://tc39.es/ecma262/#sec-%stringiteratorprototype%.next
 },function next(){var state=getInternalState(this);var string=state.string;var index=state.index;var point;if(index>=string.length)return createIterResultObject(undefined,true);point=charAt(string,index);state.index+=point.length;return createIterResultObject(point,false);});return es_string_iterator;}var es_string_match={};var fixRegexpWellKnownSymbolLogic;var hasRequiredFixRegexpWellKnownSymbolLogic;function requireFixRegexpWellKnownSymbolLogic(){if(hasRequiredFixRegexpWellKnownSymbolLogic)return fixRegexpWellKnownSymbolLogic;hasRequiredFixRegexpWellKnownSymbolLogic=1;// TODO: Remove from `core-js@4` since it's moved to entry points
 requireEs_regexp_exec();var call=requireFunctionCall();var defineBuiltIn=requireDefineBuiltIn();var regexpExec=requireRegexpExec();var fails=requireFails();var wellKnownSymbol=requireWellKnownSymbol();var createNonEnumerableProperty=requireCreateNonEnumerableProperty();var SPECIES=wellKnownSymbol('species');var RegExpPrototype=RegExp.prototype;fixRegexpWellKnownSymbolLogic=function(KEY,exec,FORCED,SHAM){var SYMBOL=wellKnownSymbol(KEY);var DELEGATES_TO_SYMBOL=!fails(function(){// String methods call symbol-named RegExp methods
-var O={};O[SYMBOL]=function(){return 7;};return''[KEY](O)!==7;});var DELEGATES_TO_EXEC=DELEGATES_TO_SYMBOL&&!fails(function(){// Symbol-named RegExp methods call .exec
+var O={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+O[SYMBOL]=function(){return 7;};return''[KEY](O)!==7;});var DELEGATES_TO_EXEC=DELEGATES_TO_SYMBOL&&!fails(function(){// Symbol-named RegExp methods call .exec
 var execCalled=false;var re=/a/;if(KEY==='split'){// We can't use real regex here since it causes deoptimization
 // and serious performance degradation in V8
 // https://github.com/zloirock/core-js/issues/306
-re={};// RegExp[@@split] doesn't call the regex's exec method, but first creates
+// RegExp[@@split] doesn't call the regex's exec method, but first creates
 // a new one. We need to return the patched regex when creating the new one.
-re.constructor={};re.constructor[SPECIES]=function(){return re;};re.flags='';re[SYMBOL]=/./[SYMBOL];}re.exec=function(){execCalled=true;return null;};re[SYMBOL]('');return!execCalled;});if(!DELEGATES_TO_SYMBOL||!DELEGATES_TO_EXEC||FORCED){var nativeRegExpMethod=/./[SYMBOL];var methods=exec(SYMBOL,''[KEY],function(nativeMethod,regexp,str,arg2,forceStringMethod){var $exec=regexp.exec;if($exec===regexpExec||$exec===RegExpPrototype.exec){if(DELEGATES_TO_SYMBOL&&!forceStringMethod){// The native String method already delegates to @@method (this
+var constructor={};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+constructor[SPECIES]=function(){return re;};re={constructor:constructor,flags:''};// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+re[SYMBOL]=/./[SYMBOL];}re.exec=function(){execCalled=true;return null;};re[SYMBOL]('');return!execCalled;});if(!DELEGATES_TO_SYMBOL||!DELEGATES_TO_EXEC||FORCED){var nativeRegExpMethod=/./[SYMBOL];var methods=exec(SYMBOL,''[KEY],function(nativeMethod,regexp,str,arg2,forceStringMethod){var $exec=regexp.exec;if($exec===regexpExec||$exec===RegExpPrototype.exec){if(DELEGATES_TO_SYMBOL&&!forceStringMethod){// The native String method already delegates to @@method (this
 // polyfilled function), leasing to infinite recursion.
 // We avoid it by directly calling the native @@method method.
 return{done:true,value:call(nativeRegExpMethod,regexp,str,arg2)};}return{done:true,value:call(nativeMethod,str,regexp,arg2)};}return{done:false};});defineBuiltIn(String.prototype,KEY,methods[0]);defineBuiltIn(RegExpPrototype,SYMBOL,methods[1]);}if(SHAM)createNonEnumerableProperty(RegExpPrototype[SYMBOL],'sham',true);};return fixRegexpWellKnownSymbolLogic;}var advanceStringIndex;var hasRequiredAdvanceStringIndex;function requireAdvanceStringIndex(){if(hasRequiredAdvanceStringIndex)return advanceStringIndex;hasRequiredAdvanceStringIndex=1;var charAt=requireStringMultibyte().charAt;// `AdvanceStringIndex` abstract operation
@@ -1552,7 +1601,25 @@ return error===8;}}();// Bug in WebKit. It should truncate a negative fractional
 var THROW_ON_NEGATIVE_FRACTIONAL_INDEX=PROPER_ORDER&&function(){try{// eslint-disable-next-line es/no-typed-arrays, es/no-array-prototype-with -- required for testing
 new Int8Array(1)['with'](-0.5,1);}catch(error){return true;}}();// `%TypedArray%.prototype.with` method
 // https://tc39.es/ecma262/#sec-%typedarray%.prototype.with
-exportTypedArrayMethod('with',{'with':function(index,value){var O=aTypedArray(this);var relativeIndex=toIntegerOrInfinity(index);var actualValue=isBigIntArray(O)?toBigInt(value):+value;return arrayWith(O,getTypedArrayConstructor(O),relativeIndex,actualValue);}}['with'],!PROPER_ORDER||THROW_ON_NEGATIVE_FRACTIONAL_INDEX);return es_typedArray_with;}var es_unescape={};var hasRequiredEs_unescape;function requireEs_unescape(){if(hasRequiredEs_unescape)return es_unescape;hasRequiredEs_unescape=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var toString=requireToString();var fromCharCode=String.fromCharCode;var charAt=uncurryThis(''.charAt);var exec=uncurryThis(/./.exec);var stringSlice=uncurryThis(''.slice);var hex2=/^[\da-f]{2}$/i;var hex4=/^[\da-f]{4}$/i;// `unescape` method
+exportTypedArrayMethod('with',{'with':function(index,value){var O=aTypedArray(this);var relativeIndex=toIntegerOrInfinity(index);var actualValue=isBigIntArray(O)?toBigInt(value):+value;return arrayWith(O,getTypedArrayConstructor(O),relativeIndex,actualValue);}}['with'],!PROPER_ORDER||THROW_ON_NEGATIVE_FRACTIONAL_INDEX);return es_typedArray_with;}var es_uint8Array_fromBase64={};var anObjectOrUndefined;var hasRequiredAnObjectOrUndefined;function requireAnObjectOrUndefined(){if(hasRequiredAnObjectOrUndefined)return anObjectOrUndefined;hasRequiredAnObjectOrUndefined=1;var isObject=requireIsObject();var $String=String;var $TypeError=TypeError;anObjectOrUndefined=function(argument){if(argument===undefined||isObject(argument))return argument;throw new $TypeError($String(argument)+' is not an object or undefined');};return anObjectOrUndefined;}var base64Map;var hasRequiredBase64Map;function requireBase64Map(){if(hasRequiredBase64Map)return base64Map;hasRequiredBase64Map=1;var commonAlphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';var base64Alphabet=commonAlphabet+'+/';var base64UrlAlphabet=commonAlphabet+'-_';var inverse=function(characters){// TODO: use `Object.create(null)` in `core-js@4`
+var result={};var index=0;for(;index<64;index++)result[characters.charAt(index)]=index;return result;};base64Map={i2c:base64Alphabet,c2i:inverse(base64Alphabet),i2cUrl:base64UrlAlphabet,c2iUrl:inverse(base64UrlAlphabet)};return base64Map;}var getAlphabetOption;var hasRequiredGetAlphabetOption;function requireGetAlphabetOption(){if(hasRequiredGetAlphabetOption)return getAlphabetOption;hasRequiredGetAlphabetOption=1;var $TypeError=TypeError;getAlphabetOption=function(options){var alphabet=options&&options.alphabet;if(alphabet===undefined||alphabet==='base64'||alphabet==='base64url')return alphabet||'base64';throw new $TypeError('Incorrect `alphabet` option');};return getAlphabetOption;}var uint8FromBase64;var hasRequiredUint8FromBase64;function requireUint8FromBase64(){if(hasRequiredUint8FromBase64)return uint8FromBase64;hasRequiredUint8FromBase64=1;var globalThis=requireGlobalThis();var uncurryThis=requireFunctionUncurryThis();var anObjectOrUndefined=requireAnObjectOrUndefined();var aString=requireAString();var hasOwn=requireHasOwnProperty();var base64Map=requireBase64Map();var getAlphabetOption=requireGetAlphabetOption();var notDetached=requireArrayBufferNotDetached();var base64Alphabet=base64Map.c2i;var base64UrlAlphabet=base64Map.c2iUrl;var SyntaxError=globalThis.SyntaxError;var TypeError=globalThis.TypeError;var at=uncurryThis(''.charAt);var skipAsciiWhitespace=function(string,index){var length=string.length;for(;index<length;index++){var chr=at(string,index);if(chr!==' '&&chr!=='\t'&&chr!=='\n'&&chr!=='\f'&&chr!=='\r')break;}return index;};var decodeBase64Chunk=function(chunk,alphabet,throwOnExtraBits){var chunkLength=chunk.length;if(chunkLength<4){chunk+=chunkLength===2?'AA':'A';}var triplet=(alphabet[at(chunk,0)]<<18)+(alphabet[at(chunk,1)]<<12)+(alphabet[at(chunk,2)]<<6)+alphabet[at(chunk,3)];var chunkBytes=[triplet>>16&255,triplet>>8&255,triplet&255];if(chunkLength===2){if(throwOnExtraBits&&chunkBytes[1]!==0){throw new SyntaxError('Extra bits');}return[chunkBytes[0]];}if(chunkLength===3){if(throwOnExtraBits&&chunkBytes[2]!==0){throw new SyntaxError('Extra bits');}return[chunkBytes[0],chunkBytes[1]];}return chunkBytes;};var writeBytes=function(bytes,elements,written){var elementsLength=elements.length;for(var index=0;index<elementsLength;index++){bytes[written+index]=elements[index];}return written+elementsLength;};/* eslint-disable max-statements, max-depth -- TODO */uint8FromBase64=function(string,options,into,maxLength){aString(string);anObjectOrUndefined(options);var alphabet=getAlphabetOption(options)==='base64'?base64Alphabet:base64UrlAlphabet;var lastChunkHandling=options?options.lastChunkHandling:undefined;if(lastChunkHandling===undefined)lastChunkHandling='loose';if(lastChunkHandling!=='loose'&&lastChunkHandling!=='strict'&&lastChunkHandling!=='stop-before-partial'){throw new TypeError('Incorrect `lastChunkHandling` option');}if(into)notDetached(into.buffer);var stringLength=string.length;var bytes=into||[];var written=0;var read=0;var chunk='';var index=0;if(maxLength)while(true){index=skipAsciiWhitespace(string,index);if(index===stringLength){if(chunk.length>0){if(lastChunkHandling==='stop-before-partial'){break;}if(lastChunkHandling==='loose'){if(chunk.length===1){throw new SyntaxError('Malformed padding: exactly one additional character');}written=writeBytes(bytes,decodeBase64Chunk(chunk,alphabet,false),written);}else{throw new SyntaxError('Missing padding');}}read=stringLength;break;}var chr=at(string,index);++index;if(chr==='='){if(chunk.length<2){throw new SyntaxError('Padding is too early');}index=skipAsciiWhitespace(string,index);if(chunk.length===2){if(index===stringLength){if(lastChunkHandling==='stop-before-partial'){break;}throw new SyntaxError('Malformed padding: only one =');}if(at(string,index)==='='){++index;index=skipAsciiWhitespace(string,index);}}if(index<stringLength){throw new SyntaxError('Unexpected character after padding');}written=writeBytes(bytes,decodeBase64Chunk(chunk,alphabet,lastChunkHandling==='strict'),written);read=stringLength;break;}if(!hasOwn(alphabet,chr)){throw new SyntaxError('Unexpected character');}var remainingBytes=maxLength-written;if(remainingBytes===1&&chunk.length===2||remainingBytes===2&&chunk.length===3){// special case: we can fit exactly the number of bytes currently represented by chunk, so we were just checking for `=`
+break;}chunk+=chr;if(chunk.length===4){written=writeBytes(bytes,decodeBase64Chunk(chunk,alphabet,false),written);chunk='';read=index;if(written===maxLength){break;}}}return{bytes:bytes,read:read,written:written};};return uint8FromBase64;}var hasRequiredEs_uint8Array_fromBase64;function requireEs_uint8Array_fromBase64(){if(hasRequiredEs_uint8Array_fromBase64)return es_uint8Array_fromBase64;hasRequiredEs_uint8Array_fromBase64=1;var $=require_export();var globalThis=requireGlobalThis();var arrayFromConstructorAndList=requireArrayFromConstructorAndList();var $fromBase64=requireUint8FromBase64();var Uint8Array=globalThis.Uint8Array;var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS=!Uint8Array||!Uint8Array.fromBase64||!function(){// Webkit not throw an error on odd length string
+try{Uint8Array.fromBase64('a');return;}catch(error){/* empty */}try{Uint8Array.fromBase64('',null);}catch(error){return true;}}();// `Uint8Array.fromBase64` method
+// https://github.com/tc39/proposal-arraybuffer-base64
+if(Uint8Array)$({target:'Uint8Array',stat:true,forced:INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS},{fromBase64:function fromBase64(string/* , options */){var result=$fromBase64(string,arguments.length>1?arguments[1]:undefined,null,0x1FFFFFFFFFFFFF);return arrayFromConstructorAndList(Uint8Array,result.bytes);}});return es_uint8Array_fromBase64;}var es_uint8Array_fromHex={};var uint8FromHex;var hasRequiredUint8FromHex;function requireUint8FromHex(){if(hasRequiredUint8FromHex)return uint8FromHex;hasRequiredUint8FromHex=1;var globalThis=requireGlobalThis();var uncurryThis=requireFunctionUncurryThis();var Uint8Array=globalThis.Uint8Array;var SyntaxError=globalThis.SyntaxError;var parseInt=globalThis.parseInt;var min=Math.min;var NOT_HEX=/[^\da-f]/i;var exec=uncurryThis(NOT_HEX.exec);var stringSlice=uncurryThis(''.slice);uint8FromHex=function(string,into){var stringLength=string.length;if(stringLength%2!==0)throw new SyntaxError('String should be an even number of characters');var maxLength=into?min(into.length,stringLength/2):stringLength/2;var bytes=into||new Uint8Array(maxLength);var read=0;var written=0;while(written<maxLength){var hexits=stringSlice(string,read,read+=2);if(exec(NOT_HEX,hexits))throw new SyntaxError('String should only contain hex characters');bytes[written++]=parseInt(hexits,16);}return{bytes:bytes,read:read};};return uint8FromHex;}var hasRequiredEs_uint8Array_fromHex;function requireEs_uint8Array_fromHex(){if(hasRequiredEs_uint8Array_fromHex)return es_uint8Array_fromHex;hasRequiredEs_uint8Array_fromHex=1;var $=require_export();var globalThis=requireGlobalThis();var aString=requireAString();var $fromHex=requireUint8FromHex();// `Uint8Array.fromHex` method
+// https://github.com/tc39/proposal-arraybuffer-base64
+if(globalThis.Uint8Array)$({target:'Uint8Array',stat:true},{fromHex:function fromHex(string){return $fromHex(aString(string)).bytes;}});return es_uint8Array_fromHex;}var es_uint8Array_setFromBase64={};var anUint8Array;var hasRequiredAnUint8Array;function requireAnUint8Array(){if(hasRequiredAnUint8Array)return anUint8Array;hasRequiredAnUint8Array=1;var classof=requireClassof();var $TypeError=TypeError;// Perform ? RequireInternalSlot(argument, [[TypedArrayName]])
+// If argument.[[TypedArrayName]] is not "Uint8Array", throw a TypeError exception
+anUint8Array=function(argument){if(classof(argument)==='Uint8Array')return argument;throw new $TypeError('Argument is not an Uint8Array');};return anUint8Array;}var hasRequiredEs_uint8Array_setFromBase64;function requireEs_uint8Array_setFromBase64(){if(hasRequiredEs_uint8Array_setFromBase64)return es_uint8Array_setFromBase64;hasRequiredEs_uint8Array_setFromBase64=1;var $=require_export();var globalThis=requireGlobalThis();var $fromBase64=requireUint8FromBase64();var anUint8Array=requireAnUint8Array();var Uint8Array=globalThis.Uint8Array;var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS=!Uint8Array||!Uint8Array.prototype.setFromBase64||!function(){var target=new Uint8Array([255,255,255,255,255]);try{target.setFromBase64('',null);return;}catch(error){/* empty */}// Webkit not throw an error on odd length string
+try{target.setFromBase64('a');return;}catch(error){/* empty */}try{target.setFromBase64('MjYyZg===');}catch(error){return target[0]===50&&target[1]===54&&target[2]===50&&target[3]===255&&target[4]===255;}}();// `Uint8Array.prototype.setFromBase64` method
+// https://github.com/tc39/proposal-arraybuffer-base64
+if(Uint8Array)$({target:'Uint8Array',proto:true,forced:INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS},{setFromBase64:function setFromBase64(string/* , options */){anUint8Array(this);var result=$fromBase64(string,arguments.length>1?arguments[1]:undefined,this,this.length);return{read:result.read,written:result.written};}});return es_uint8Array_setFromBase64;}var es_uint8Array_setFromHex={};var hasRequiredEs_uint8Array_setFromHex;function requireEs_uint8Array_setFromHex(){if(hasRequiredEs_uint8Array_setFromHex)return es_uint8Array_setFromHex;hasRequiredEs_uint8Array_setFromHex=1;var $=require_export();var globalThis=requireGlobalThis();var aString=requireAString();var anUint8Array=requireAnUint8Array();var notDetached=requireArrayBufferNotDetached();var $fromHex=requireUint8FromHex();// `Uint8Array.prototype.setFromHex` method
+// https://github.com/tc39/proposal-arraybuffer-base64
+if(globalThis.Uint8Array)$({target:'Uint8Array',proto:true},{setFromHex:function setFromHex(string){anUint8Array(this);aString(string);notDetached(this.buffer);var read=$fromHex(string,this).read;return{read:read,written:read/2};}});return es_uint8Array_setFromHex;}var es_uint8Array_toBase64={};var hasRequiredEs_uint8Array_toBase64;function requireEs_uint8Array_toBase64(){if(hasRequiredEs_uint8Array_toBase64)return es_uint8Array_toBase64;hasRequiredEs_uint8Array_toBase64=1;var $=require_export();var globalThis=requireGlobalThis();var uncurryThis=requireFunctionUncurryThis();var anObjectOrUndefined=requireAnObjectOrUndefined();var anUint8Array=requireAnUint8Array();var notDetached=requireArrayBufferNotDetached();var base64Map=requireBase64Map();var getAlphabetOption=requireGetAlphabetOption();var base64Alphabet=base64Map.i2c;var base64UrlAlphabet=base64Map.i2cUrl;var charAt=uncurryThis(''.charAt);var Uint8Array=globalThis.Uint8Array;var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS=!Uint8Array||!Uint8Array.prototype.toBase64||!function(){try{var target=new Uint8Array();target.toBase64(null);}catch(error){return true;}}();// `Uint8Array.prototype.toBase64` method
+// https://github.com/tc39/proposal-arraybuffer-base64
+if(Uint8Array)$({target:'Uint8Array',proto:true,forced:INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS},{toBase64:function toBase64(/* options */){var array=anUint8Array(this);var options=arguments.length?anObjectOrUndefined(arguments[0]):undefined;var alphabet=getAlphabetOption(options)==='base64'?base64Alphabet:base64UrlAlphabet;var omitPadding=!!options&&!!options.omitPadding;notDetached(this.buffer);var result='';var i=0;var length=array.length;var triplet;var at=function(shift){return charAt(alphabet,triplet>>6*shift&63);};for(;i+2<length;i+=3){triplet=(array[i]<<16)+(array[i+1]<<8)+array[i+2];result+=at(3)+at(2)+at(1)+at(0);}if(i+2===length){triplet=(array[i]<<16)+(array[i+1]<<8);result+=at(3)+at(2)+at(1)+(omitPadding?'':'=');}else if(i+1===length){triplet=array[i]<<16;result+=at(3)+at(2)+(omitPadding?'':'==');}return result;}});return es_uint8Array_toBase64;}var es_uint8Array_toHex={};var hasRequiredEs_uint8Array_toHex;function requireEs_uint8Array_toHex(){if(hasRequiredEs_uint8Array_toHex)return es_uint8Array_toHex;hasRequiredEs_uint8Array_toHex=1;var $=require_export();var globalThis=requireGlobalThis();var uncurryThis=requireFunctionUncurryThis();var anUint8Array=requireAnUint8Array();var notDetached=requireArrayBufferNotDetached();var numberToString=uncurryThis(1.1.toString);var Uint8Array=globalThis.Uint8Array;var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS=!Uint8Array||!Uint8Array.prototype.toHex||!function(){try{var target=new Uint8Array([255,255,255,255,255,255,255,255]);return target.toHex()==='ffffffffffffffff';}catch(error){return false;}}();// `Uint8Array.prototype.toHex` method
+// https://github.com/tc39/proposal-arraybuffer-base64
+if(Uint8Array)$({target:'Uint8Array',proto:true,forced:INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS},{toHex:function toHex(){anUint8Array(this);notDetached(this.buffer);var result='';for(var i=0,length=this.length;i<length;i++){var hex=numberToString(this[i],16);result+=hex.length===1?'0'+hex:hex;}return result;}});return es_uint8Array_toHex;}var es_unescape={};var hasRequiredEs_unescape;function requireEs_unescape(){if(hasRequiredEs_unescape)return es_unescape;hasRequiredEs_unescape=1;var $=require_export();var uncurryThis=requireFunctionUncurryThis();var toString=requireToString();var fromCharCode=String.fromCharCode;var charAt=uncurryThis(''.charAt);var exec=uncurryThis(/./.exec);var stringSlice=uncurryThis(''.slice);var hex2=/^[\da-f]{2}$/i;var hex4=/^[\da-f]{4}$/i;// `unescape` method
 // https://tc39.es/ecma262/#sec-unescape-string
 $({global:true},{unescape:function unescape(string){var str=toString(string);var result='';var length=str.length;var index=0;var chr,part;while(index<length){chr=charAt(str,index++);if(chr==='%'){if(charAt(str,index)==='u'){part=stringSlice(str,index+1,index+5);if(exec(hex4,part)){result+=fromCharCode(parseInt(part,16));index+=5;continue;}}else{part=stringSlice(str,index,index+2);if(exec(hex2,part)){result+=fromCharCode(parseInt(part,16));index+=2;continue;}}}result+=chr;}return result;}});return es_unescape;}var es_weakMap={};var es_weakMap_constructor={};var collectionWeak;var hasRequiredCollectionWeak;function requireCollectionWeak(){if(hasRequiredCollectionWeak)return collectionWeak;hasRequiredCollectionWeak=1;var uncurryThis=requireFunctionUncurryThis();var defineBuiltIns=requireDefineBuiltIns();var getWeakData=requireInternalMetadata().getWeakData;var anInstance=requireAnInstance();var anObject=requireAnObject();var isNullOrUndefined=requireIsNullOrUndefined();var isObject=requireIsObject();var iterate=requireIterate();var ArrayIterationModule=requireArrayIteration();var hasOwn=requireHasOwnProperty();var InternalStateModule=requireInternalState();var setInternalState=InternalStateModule.set;var internalStateGetterFor=InternalStateModule.getterFor;var find=ArrayIterationModule.find;var findIndex=ArrayIterationModule.findIndex;var splice=uncurryThis([].splice);var id=0;// fallback for uncaught frozen keys
 var uncaughtFrozenStore=function(state){return state.frozen||(state.frozen=new UncaughtFrozenStore());};var UncaughtFrozenStore=function(){this.entries=[];};var findUncaughtFrozen=function(store,key){return find(store.entries,function(it){return it[0]===key;});};UncaughtFrozenStore.prototype={get:function(key){var entry=findUncaughtFrozen(this,key);if(entry)return entry[1];},has:function(key){return!!findUncaughtFrozen(this,key);},set:function(key,value){var entry=findUncaughtFrozen(this,key);if(entry)entry[1]=value;else this.entries.push([key,value]);},'delete':function(key){var index=findIndex(this.entries,function(it){return it[0]===key;});if(~index)splice(this.entries,index,1);return!!~index;}};collectionWeak={getConstructor:function(wrapper,CONSTRUCTOR_NAME,IS_MAP,ADDER){var Constructor=wrapper(function(that,iterable){anInstance(that,Prototype);setInternalState(that,{type:CONSTRUCTOR_NAME,id:id++,frozen:null});if(!isNullOrUndefined(iterable))iterate(iterable,that[ADDER],{that:that,AS_ENTRIES:IS_MAP});});var Prototype=Constructor.prototype;var getInternalState=internalStateGetterFor(CONSTRUCTOR_NAME);var define=function(that,key,value){var state=getInternalState(that);var data=getWeakData(anObject(key),true);if(data===true)uncaughtFrozenStore(state).set(key,value);else data[state.id]=value;return that;};defineBuiltIns(Prototype,{// `{ WeakMap, WeakSet }.prototype.delete(key)` methods
@@ -1584,8 +1651,7 @@ if(NATIVE_WEAK_MAP)if(IS_IE11){InternalWeakMap=collectionWeak.getConstructor(wra
 requireEs_weakMap_constructor();return es_weakMap;}var es_weakSet={};var es_weakSet_constructor={};var hasRequiredEs_weakSet_constructor;function requireEs_weakSet_constructor(){if(hasRequiredEs_weakSet_constructor)return es_weakSet_constructor;hasRequiredEs_weakSet_constructor=1;var collection=requireCollection();var collectionWeak=requireCollectionWeak();// `WeakSet` constructor
 // https://tc39.es/ecma262/#sec-weakset-constructor
 collection('WeakSet',function(init){return function WeakSet(){return init(this,arguments.length?arguments[0]:undefined);};},collectionWeak);return es_weakSet_constructor;}var hasRequiredEs_weakSet;function requireEs_weakSet(){if(hasRequiredEs_weakSet)return es_weakSet;hasRequiredEs_weakSet=1;// TODO: Remove this module from `core-js@4` since it's replaced to module below
-requireEs_weakSet_constructor();return es_weakSet;}var web_atob={};var base64Map;var hasRequiredBase64Map;function requireBase64Map(){if(hasRequiredBase64Map)return base64Map;hasRequiredBase64Map=1;var commonAlphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';var base64Alphabet=commonAlphabet+'+/';var base64UrlAlphabet=commonAlphabet+'-_';var inverse=function(characters){// TODO: use `Object.create(null)` in `core-js@4`
-var result={};var index=0;for(;index<64;index++)result[characters.charAt(index)]=index;return result;};base64Map={i2c:base64Alphabet,c2i:inverse(base64Alphabet),i2cUrl:base64UrlAlphabet,c2iUrl:inverse(base64UrlAlphabet)};return base64Map;}var hasRequiredWeb_atob;function requireWeb_atob(){if(hasRequiredWeb_atob)return web_atob;hasRequiredWeb_atob=1;var $=require_export();var globalThis=requireGlobalThis();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var call=requireFunctionCall();var fails=requireFails();var toString=requireToString();var validateArgumentsLength=requireValidateArgumentsLength();var c2i=requireBase64Map().c2i;var disallowed=/[^\d+/a-z]/i;var whitespaces=/[\t\n\f\r ]+/g;var finalEq=/[=]{1,2}$/;var $atob=getBuiltIn('atob');var fromCharCode=String.fromCharCode;var charAt=uncurryThis(''.charAt);var replace=uncurryThis(''.replace);var exec=uncurryThis(disallowed.exec);var BASIC=!!$atob&&!fails(function(){return $atob('aGk=')!=='hi';});var NO_SPACES_IGNORE=BASIC&&fails(function(){return $atob(' ')!=='';});var NO_ENCODING_CHECK=BASIC&&!fails(function(){$atob('a');});var NO_ARG_RECEIVING_CHECK=BASIC&&!fails(function(){$atob();});var WRONG_ARITY=BASIC&&$atob.length!==1;var FORCED=!BASIC||NO_SPACES_IGNORE||NO_ENCODING_CHECK||NO_ARG_RECEIVING_CHECK||WRONG_ARITY;// `atob` method
+requireEs_weakSet_constructor();return es_weakSet;}var web_atob={};var hasRequiredWeb_atob;function requireWeb_atob(){if(hasRequiredWeb_atob)return web_atob;hasRequiredWeb_atob=1;var $=require_export();var globalThis=requireGlobalThis();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var call=requireFunctionCall();var fails=requireFails();var toString=requireToString();var validateArgumentsLength=requireValidateArgumentsLength();var c2i=requireBase64Map().c2i;var disallowed=/[^\d+/a-z]/i;var whitespaces=/[\t\n\f\r ]+/g;var finalEq=/[=]{1,2}$/;var $atob=getBuiltIn('atob');var fromCharCode=String.fromCharCode;var charAt=uncurryThis(''.charAt);var replace=uncurryThis(''.replace);var exec=uncurryThis(disallowed.exec);var BASIC=!!$atob&&!fails(function(){return $atob('aGk=')!=='hi';});var NO_SPACES_IGNORE=BASIC&&fails(function(){return $atob(' ')!=='';});var NO_ENCODING_CHECK=BASIC&&!fails(function(){$atob('a');});var NO_ARG_RECEIVING_CHECK=BASIC&&!fails(function(){$atob();});var WRONG_ARITY=BASIC&&$atob.length!==1;var FORCED=!BASIC||NO_SPACES_IGNORE||NO_ENCODING_CHECK||NO_ARG_RECEIVING_CHECK||WRONG_ARITY;// `atob` method
 // https://html.spec.whatwg.org/multipage/webappapis.html#dom-atob
 $({global:true,bind:true,enumerable:true,forced:FORCED},{atob:function atob(data){validateArgumentsLength(arguments.length,1);// `webpack` dev server bug on IE global methods - use call(fn, global, ...)
 if(BASIC&&!NO_SPACES_IGNORE&&!NO_ENCODING_CHECK)return call($atob,globalThis,data);var string=replace(toString(data),whitespaces,'');var output='';var position=0;var bc=0;var length,chr,bs;if(string.length%4===0){string=replace(string,finalEq,'');}length=string.length;if(length%4===1||exec(disallowed,string)){throw new(getBuiltIn('DOMException'))('The string is not correctly encoded','InvalidCharacterError');}while(position<length){chr=charAt(string,position++);bs=bc%4?bs*64+c2i[chr]:c2i[chr];if(bc++%4)output+=fromCharCode(255&bs>>(-2*bc&6));}return output;}});return web_atob;}var web_btoa={};var hasRequiredWeb_btoa;function requireWeb_btoa(){if(hasRequiredWeb_btoa)return web_btoa;hasRequiredWeb_btoa=1;var $=require_export();var globalThis=requireGlobalThis();var getBuiltIn=requireGetBuiltIn();var uncurryThis=requireFunctionUncurryThis();var call=requireFunctionCall();var fails=requireFails();var toString=requireToString();var validateArgumentsLength=requireValidateArgumentsLength();var i2c=requireBase64Map().i2c;var $btoa=getBuiltIn('btoa');var charAt=uncurryThis(''.charAt);var charCodeAt=uncurryThis(''.charCodeAt);var BASIC=!!$btoa&&!fails(function(){return $btoa('hi')!=='aGk=';});var NO_ARG_RECEIVING_CHECK=BASIC&&!fails(function(){$btoa();});var WRONG_ARG_CONVERSION=BASIC&&fails(function(){return $btoa(null)!=='bnVsbA==';});var WRONG_ARITY=BASIC&&$btoa.length!==1;// `btoa` method
@@ -1739,7 +1805,7 @@ if(nextByte!==nextByte){i+=3;break;}if(nextByte>191||nextByte<128)break;push(oct
 // https://url.spec.whatwg.org/#interface-urlsearchparams
 var URLSearchParamsConstructor=function URLSearchParams(/* init */){anInstance(this,URLSearchParamsPrototype);var init=arguments.length>0?arguments[0]:undefined;var state=setInternalState(this,new URLSearchParamsState(init));if(!DESCRIPTORS)this.size=state.entries.length;};var URLSearchParamsPrototype=URLSearchParamsConstructor.prototype;defineBuiltIns(URLSearchParamsPrototype,{// `URLSearchParams.prototype.append` method
 // https://url.spec.whatwg.org/#dom-urlsearchparams-append
-append:function append(name,value){var state=getInternalParamsState(this);validateArgumentsLength(arguments.length,2);push(state.entries,{key:$toString(name),value:$toString(value)});if(!DESCRIPTORS)this.length++;state.updateURL();},// `URLSearchParams.prototype.delete` method
+append:function append(name,value){var state=getInternalParamsState(this);validateArgumentsLength(arguments.length,2);push(state.entries,{key:$toString(name),value:$toString(value)});if(!DESCRIPTORS)this.size++;state.updateURL();},// `URLSearchParams.prototype.delete` method
 // https://url.spec.whatwg.org/#dom-urlsearchparams-delete
 'delete':function(name/* , value */){var state=getInternalParamsState(this);var length=validateArgumentsLength(arguments.length,1);var entries=state.entries;var key=$toString(name);var $value=length<2?undefined:arguments[1];var value=$value===undefined?$value:$toString($value);var index=0;while(index<entries.length){var entry=entries[index];if(entry.key===key&&(value===undefined||entry.value===value)){splice(entries,index,1);if(value!==undefined)break;}else index++;}if(!DESCRIPTORS)this.size=entries.length;state.updateURL();},// `URLSearchParams.prototype.get` method
 // https://url.spec.whatwg.org/#dom-urlsearchparams-get
@@ -1852,7 +1918,7 @@ push(entries,{key:k,value:v});});validateArgumentsLength(length,1);var key=toStr
 if(params.has('a',2)||!params.has('a',undefined)){defineBuiltIn(URLSearchParamsPrototype,'has',function has(name/* , value */){var length=arguments.length;var $value=length<2?undefined:arguments[1];if(length&&$value===undefined)return $has(this,name);var values=getAll(this,name);// also validates `this`
 validateArgumentsLength(length,1);var value=toString($value);var index=0;while(index<values.length){if(values[index++]===value)return true;}return false;},{enumerable:true,unsafe:true});}return web_urlSearchParams_has;}var web_urlSearchParams_size={};var hasRequiredWeb_urlSearchParams_size;function requireWeb_urlSearchParams_size(){if(hasRequiredWeb_urlSearchParams_size)return web_urlSearchParams_size;hasRequiredWeb_urlSearchParams_size=1;var DESCRIPTORS=requireDescriptors();var uncurryThis=requireFunctionUncurryThis();var defineBuiltInAccessor=requireDefineBuiltInAccessor();var URLSearchParamsPrototype=URLSearchParams.prototype;var forEach=uncurryThis(URLSearchParamsPrototype.forEach);// `URLSearchParams.prototype.size` getter
 // https://github.com/whatwg/url/pull/734
-if(DESCRIPTORS&&!('size'in URLSearchParamsPrototype)){defineBuiltInAccessor(URLSearchParamsPrototype,'size',{get:function size(){var count=0;forEach(this,function(){count++;});return count;},configurable:true,enumerable:true});}return web_urlSearchParams_size;}var stable;var hasRequiredStable;function requireStable(){if(hasRequiredStable)return stable;hasRequiredStable=1;requireEs_symbol();requireEs_symbol_description();requireEs_symbol_asyncDispose();requireEs_symbol_asyncIterator();requireEs_symbol_dispose();requireEs_symbol_hasInstance();requireEs_symbol_isConcatSpreadable();requireEs_symbol_iterator();requireEs_symbol_match();requireEs_symbol_matchAll();requireEs_symbol_replace();requireEs_symbol_search();requireEs_symbol_species();requireEs_symbol_split();requireEs_symbol_toPrimitive();requireEs_symbol_toStringTag();requireEs_symbol_unscopables();requireEs_error_cause();requireEs_error_isError();requireEs_error_toString();requireEs_aggregateError();requireEs_aggregateError_cause();requireEs_suppressedError_constructor();requireEs_array_at();requireEs_array_concat();requireEs_array_copyWithin();requireEs_array_every();requireEs_array_fill();requireEs_array_filter();requireEs_array_find();requireEs_array_findIndex();requireEs_array_findLast();requireEs_array_findLastIndex();requireEs_array_flat();requireEs_array_flatMap();requireEs_array_forEach();requireEs_array_from();requireEs_array_includes();requireEs_array_indexOf();requireEs_array_isArray();requireEs_array_iterator();requireEs_array_join();requireEs_array_lastIndexOf();requireEs_array_map();requireEs_array_of();requireEs_array_push();requireEs_array_reduce();requireEs_array_reduceRight();requireEs_array_reverse();requireEs_array_slice();requireEs_array_some();requireEs_array_sort();requireEs_array_species();requireEs_array_splice();requireEs_array_toReversed();requireEs_array_toSorted();requireEs_array_toSpliced();requireEs_array_unscopables_flat();requireEs_array_unscopables_flatMap();requireEs_array_unshift();requireEs_array_with();requireEs_arrayBuffer_constructor();requireEs_arrayBuffer_isView();requireEs_arrayBuffer_slice();requireEs_dataView();requireEs_dataView_getFloat16();requireEs_dataView_setFloat16();requireEs_arrayBuffer_detached();requireEs_arrayBuffer_transfer();requireEs_arrayBuffer_transferToFixedLength();requireEs_date_getYear();requireEs_date_now();requireEs_date_setYear();requireEs_date_toGmtString();requireEs_date_toIsoString();requireEs_date_toJson();requireEs_date_toPrimitive();requireEs_date_toString();requireEs_disposableStack_constructor();requireEs_escape();requireEs_function_bind();requireEs_function_hasInstance();requireEs_function_name();requireEs_globalThis();requireEs_iterator_constructor();requireEs_iterator_dispose();requireEs_iterator_drop();requireEs_iterator_every();requireEs_iterator_filter();requireEs_iterator_find();requireEs_iterator_flatMap();requireEs_iterator_forEach();requireEs_iterator_from();requireEs_iterator_map();requireEs_iterator_reduce();requireEs_iterator_some();requireEs_iterator_take();requireEs_iterator_toArray();requireEs_json_stringify();requireEs_json_toStringTag();requireEs_map();requireEs_map_groupBy();requireEs_math_acosh();requireEs_math_asinh();requireEs_math_atanh();requireEs_math_cbrt();requireEs_math_clz32();requireEs_math_cosh();requireEs_math_expm1();requireEs_math_fround();requireEs_math_f16round();requireEs_math_hypot();requireEs_math_imul();requireEs_math_log10();requireEs_math_log1p();requireEs_math_log2();requireEs_math_sign();requireEs_math_sinh();requireEs_math_tanh();requireEs_math_toStringTag();requireEs_math_trunc();requireEs_number_constructor();requireEs_number_epsilon();requireEs_number_isFinite();requireEs_number_isInteger();requireEs_number_isNan();requireEs_number_isSafeInteger();requireEs_number_maxSafeInteger();requireEs_number_minSafeInteger();requireEs_number_parseFloat();requireEs_number_parseInt();requireEs_number_toExponential();requireEs_number_toFixed();requireEs_number_toPrecision();requireEs_object_assign();requireEs_object_create();requireEs_object_defineGetter();requireEs_object_defineProperties();requireEs_object_defineProperty();requireEs_object_defineSetter();requireEs_object_entries();requireEs_object_freeze();requireEs_object_fromEntries();requireEs_object_getOwnPropertyDescriptor();requireEs_object_getOwnPropertyDescriptors();requireEs_object_getOwnPropertyNames();requireEs_object_getPrototypeOf();requireEs_object_groupBy();requireEs_object_hasOwn();requireEs_object_is();requireEs_object_isExtensible();requireEs_object_isFrozen();requireEs_object_isSealed();requireEs_object_keys();requireEs_object_lookupGetter();requireEs_object_lookupSetter();requireEs_object_preventExtensions();requireEs_object_proto();requireEs_object_seal();requireEs_object_setPrototypeOf();requireEs_object_toString();requireEs_object_values();requireEs_parseFloat();requireEs_parseInt();requireEs_promise();requireEs_promise_allSettled();requireEs_promise_any();requireEs_promise_finally();requireEs_promise_try();requireEs_promise_withResolvers();requireEs_array_fromAsync();requireEs_asyncDisposableStack_constructor();requireEs_asyncIterator_asyncDispose();requireEs_reflect_apply();requireEs_reflect_construct();requireEs_reflect_defineProperty();requireEs_reflect_deleteProperty();requireEs_reflect_get();requireEs_reflect_getOwnPropertyDescriptor();requireEs_reflect_getPrototypeOf();requireEs_reflect_has();requireEs_reflect_isExtensible();requireEs_reflect_ownKeys();requireEs_reflect_preventExtensions();requireEs_reflect_set();requireEs_reflect_setPrototypeOf();requireEs_reflect_toStringTag();requireEs_regexp_constructor();requireEs_regexp_escape();requireEs_regexp_dotAll();requireEs_regexp_exec();requireEs_regexp_flags();requireEs_regexp_sticky();requireEs_regexp_test();requireEs_regexp_toString();requireEs_set();requireEs_set_difference_v2();requireEs_set_intersection_v2();requireEs_set_isDisjointFrom_v2();requireEs_set_isSubsetOf_v2();requireEs_set_isSupersetOf_v2();requireEs_set_symmetricDifference_v2();requireEs_set_union_v2();requireEs_string_atAlternative();requireEs_string_codePointAt();requireEs_string_endsWith();requireEs_string_fromCodePoint();requireEs_string_includes();requireEs_string_isWellFormed();requireEs_string_iterator();requireEs_string_match();requireEs_string_matchAll();requireEs_string_padEnd();requireEs_string_padStart();requireEs_string_raw();requireEs_string_repeat();requireEs_string_replace();requireEs_string_replaceAll();requireEs_string_search();requireEs_string_split();requireEs_string_startsWith();requireEs_string_substr();requireEs_string_toWellFormed();requireEs_string_trim();requireEs_string_trimEnd();requireEs_string_trimStart();requireEs_string_anchor();requireEs_string_big();requireEs_string_blink();requireEs_string_bold();requireEs_string_fixed();requireEs_string_fontcolor();requireEs_string_fontsize();requireEs_string_italics();requireEs_string_link();requireEs_string_small();requireEs_string_strike();requireEs_string_sub();requireEs_string_sup();requireEs_typedArray_float32Array();requireEs_typedArray_float64Array();requireEs_typedArray_int8Array();requireEs_typedArray_int16Array();requireEs_typedArray_int32Array();requireEs_typedArray_uint8Array();requireEs_typedArray_uint8ClampedArray();requireEs_typedArray_uint16Array();requireEs_typedArray_uint32Array();requireEs_typedArray_at();requireEs_typedArray_copyWithin();requireEs_typedArray_every();requireEs_typedArray_fill();requireEs_typedArray_filter();requireEs_typedArray_find();requireEs_typedArray_findIndex();requireEs_typedArray_findLast();requireEs_typedArray_findLastIndex();requireEs_typedArray_forEach();requireEs_typedArray_from();requireEs_typedArray_includes();requireEs_typedArray_indexOf();requireEs_typedArray_iterator();requireEs_typedArray_join();requireEs_typedArray_lastIndexOf();requireEs_typedArray_map();requireEs_typedArray_of();requireEs_typedArray_reduce();requireEs_typedArray_reduceRight();requireEs_typedArray_reverse();requireEs_typedArray_set();requireEs_typedArray_slice();requireEs_typedArray_some();requireEs_typedArray_sort();requireEs_typedArray_subarray();requireEs_typedArray_toLocaleString();requireEs_typedArray_toReversed();requireEs_typedArray_toSorted();requireEs_typedArray_toString();requireEs_typedArray_with();requireEs_unescape();requireEs_weakMap();requireEs_weakSet();requireWeb_atob();requireWeb_btoa();requireWeb_domCollections_forEach();requireWeb_domCollections_iterator();requireWeb_domException_constructor();requireWeb_domException_stack();requireWeb_domException_toStringTag();requireWeb_immediate();requireWeb_queueMicrotask();requireWeb_self();requireWeb_structuredClone();requireWeb_timers();requireWeb_url();requireWeb_url_canParse();requireWeb_url_parse();requireWeb_url_toJson();requireWeb_urlSearchParams();requireWeb_urlSearchParams_delete();requireWeb_urlSearchParams_has();requireWeb_urlSearchParams_size();stable=requirePath();return stable;}requireStable();/**
+if(DESCRIPTORS&&!('size'in URLSearchParamsPrototype)){defineBuiltInAccessor(URLSearchParamsPrototype,'size',{get:function size(){var count=0;forEach(this,function(){count++;});return count;},configurable:true,enumerable:true});}return web_urlSearchParams_size;}var stable;var hasRequiredStable;function requireStable(){if(hasRequiredStable)return stable;hasRequiredStable=1;requireEs_symbol();requireEs_symbol_description();requireEs_symbol_asyncDispose();requireEs_symbol_asyncIterator();requireEs_symbol_dispose();requireEs_symbol_hasInstance();requireEs_symbol_isConcatSpreadable();requireEs_symbol_iterator();requireEs_symbol_match();requireEs_symbol_matchAll();requireEs_symbol_replace();requireEs_symbol_search();requireEs_symbol_species();requireEs_symbol_split();requireEs_symbol_toPrimitive();requireEs_symbol_toStringTag();requireEs_symbol_unscopables();requireEs_error_cause();requireEs_error_isError();requireEs_error_toString();requireEs_aggregateError();requireEs_aggregateError_cause();requireEs_suppressedError_constructor();requireEs_array_at();requireEs_array_concat();requireEs_array_copyWithin();requireEs_array_every();requireEs_array_fill();requireEs_array_filter();requireEs_array_find();requireEs_array_findIndex();requireEs_array_findLast();requireEs_array_findLastIndex();requireEs_array_flat();requireEs_array_flatMap();requireEs_array_forEach();requireEs_array_from();requireEs_array_includes();requireEs_array_indexOf();requireEs_array_isArray();requireEs_array_iterator();requireEs_array_join();requireEs_array_lastIndexOf();requireEs_array_map();requireEs_array_of();requireEs_array_push();requireEs_array_reduce();requireEs_array_reduceRight();requireEs_array_reverse();requireEs_array_slice();requireEs_array_some();requireEs_array_sort();requireEs_array_species();requireEs_array_splice();requireEs_array_toReversed();requireEs_array_toSorted();requireEs_array_toSpliced();requireEs_array_unscopables_flat();requireEs_array_unscopables_flatMap();requireEs_array_unshift();requireEs_array_with();requireEs_arrayBuffer_constructor();requireEs_arrayBuffer_isView();requireEs_arrayBuffer_slice();requireEs_dataView();requireEs_dataView_getFloat16();requireEs_dataView_setFloat16();requireEs_arrayBuffer_detached();requireEs_arrayBuffer_transfer();requireEs_arrayBuffer_transferToFixedLength();requireEs_date_getYear();requireEs_date_now();requireEs_date_setYear();requireEs_date_toGmtString();requireEs_date_toIsoString();requireEs_date_toJson();requireEs_date_toPrimitive();requireEs_date_toString();requireEs_disposableStack_constructor();requireEs_escape();requireEs_function_bind();requireEs_function_hasInstance();requireEs_function_name();requireEs_globalThis();requireEs_iterator_constructor();requireEs_iterator_concat();requireEs_iterator_dispose();requireEs_iterator_drop();requireEs_iterator_every();requireEs_iterator_filter();requireEs_iterator_find();requireEs_iterator_flatMap();requireEs_iterator_forEach();requireEs_iterator_from();requireEs_iterator_map();requireEs_iterator_reduce();requireEs_iterator_some();requireEs_iterator_take();requireEs_iterator_toArray();requireEs_json_isRawJson();requireEs_json_parse();requireEs_json_rawJson();requireEs_json_stringify();requireEs_json_toStringTag();requireEs_map();requireEs_map_groupBy();requireEs_math_acosh();requireEs_math_asinh();requireEs_math_atanh();requireEs_math_cbrt();requireEs_math_clz32();requireEs_math_cosh();requireEs_math_expm1();requireEs_math_fround();requireEs_math_f16round();requireEs_math_hypot();requireEs_math_imul();requireEs_math_log10();requireEs_math_log1p();requireEs_math_log2();requireEs_math_sign();requireEs_math_sinh();requireEs_math_sumPrecise();requireEs_math_tanh();requireEs_math_toStringTag();requireEs_math_trunc();requireEs_number_constructor();requireEs_number_epsilon();requireEs_number_isFinite();requireEs_number_isInteger();requireEs_number_isNan();requireEs_number_isSafeInteger();requireEs_number_maxSafeInteger();requireEs_number_minSafeInteger();requireEs_number_parseFloat();requireEs_number_parseInt();requireEs_number_toExponential();requireEs_number_toFixed();requireEs_number_toPrecision();requireEs_object_assign();requireEs_object_create();requireEs_object_defineGetter();requireEs_object_defineProperties();requireEs_object_defineProperty();requireEs_object_defineSetter();requireEs_object_entries();requireEs_object_freeze();requireEs_object_fromEntries();requireEs_object_getOwnPropertyDescriptor();requireEs_object_getOwnPropertyDescriptors();requireEs_object_getOwnPropertyNames();requireEs_object_getPrototypeOf();requireEs_object_groupBy();requireEs_object_hasOwn();requireEs_object_is();requireEs_object_isExtensible();requireEs_object_isFrozen();requireEs_object_isSealed();requireEs_object_keys();requireEs_object_lookupGetter();requireEs_object_lookupSetter();requireEs_object_preventExtensions();requireEs_object_proto();requireEs_object_seal();requireEs_object_setPrototypeOf();requireEs_object_toString();requireEs_object_values();requireEs_parseFloat();requireEs_parseInt();requireEs_promise();requireEs_promise_allSettled();requireEs_promise_any();requireEs_promise_finally();requireEs_promise_try();requireEs_promise_withResolvers();requireEs_array_fromAsync();requireEs_asyncDisposableStack_constructor();requireEs_asyncIterator_asyncDispose();requireEs_reflect_apply();requireEs_reflect_construct();requireEs_reflect_defineProperty();requireEs_reflect_deleteProperty();requireEs_reflect_get();requireEs_reflect_getOwnPropertyDescriptor();requireEs_reflect_getPrototypeOf();requireEs_reflect_has();requireEs_reflect_isExtensible();requireEs_reflect_ownKeys();requireEs_reflect_preventExtensions();requireEs_reflect_set();requireEs_reflect_setPrototypeOf();requireEs_reflect_toStringTag();requireEs_regexp_constructor();requireEs_regexp_escape();requireEs_regexp_dotAll();requireEs_regexp_exec();requireEs_regexp_flags();requireEs_regexp_sticky();requireEs_regexp_test();requireEs_regexp_toString();requireEs_set();requireEs_set_difference_v2();requireEs_set_intersection_v2();requireEs_set_isDisjointFrom_v2();requireEs_set_isSubsetOf_v2();requireEs_set_isSupersetOf_v2();requireEs_set_symmetricDifference_v2();requireEs_set_union_v2();requireEs_string_atAlternative();requireEs_string_codePointAt();requireEs_string_endsWith();requireEs_string_fromCodePoint();requireEs_string_includes();requireEs_string_isWellFormed();requireEs_string_iterator();requireEs_string_match();requireEs_string_matchAll();requireEs_string_padEnd();requireEs_string_padStart();requireEs_string_raw();requireEs_string_repeat();requireEs_string_replace();requireEs_string_replaceAll();requireEs_string_search();requireEs_string_split();requireEs_string_startsWith();requireEs_string_substr();requireEs_string_toWellFormed();requireEs_string_trim();requireEs_string_trimEnd();requireEs_string_trimStart();requireEs_string_anchor();requireEs_string_big();requireEs_string_blink();requireEs_string_bold();requireEs_string_fixed();requireEs_string_fontcolor();requireEs_string_fontsize();requireEs_string_italics();requireEs_string_link();requireEs_string_small();requireEs_string_strike();requireEs_string_sub();requireEs_string_sup();requireEs_typedArray_float32Array();requireEs_typedArray_float64Array();requireEs_typedArray_int8Array();requireEs_typedArray_int16Array();requireEs_typedArray_int32Array();requireEs_typedArray_uint8Array();requireEs_typedArray_uint8ClampedArray();requireEs_typedArray_uint16Array();requireEs_typedArray_uint32Array();requireEs_typedArray_at();requireEs_typedArray_copyWithin();requireEs_typedArray_every();requireEs_typedArray_fill();requireEs_typedArray_filter();requireEs_typedArray_find();requireEs_typedArray_findIndex();requireEs_typedArray_findLast();requireEs_typedArray_findLastIndex();requireEs_typedArray_forEach();requireEs_typedArray_from();requireEs_typedArray_includes();requireEs_typedArray_indexOf();requireEs_typedArray_iterator();requireEs_typedArray_join();requireEs_typedArray_lastIndexOf();requireEs_typedArray_map();requireEs_typedArray_of();requireEs_typedArray_reduce();requireEs_typedArray_reduceRight();requireEs_typedArray_reverse();requireEs_typedArray_set();requireEs_typedArray_slice();requireEs_typedArray_some();requireEs_typedArray_sort();requireEs_typedArray_subarray();requireEs_typedArray_toLocaleString();requireEs_typedArray_toReversed();requireEs_typedArray_toSorted();requireEs_typedArray_toString();requireEs_typedArray_with();requireEs_uint8Array_fromBase64();requireEs_uint8Array_fromHex();requireEs_uint8Array_setFromBase64();requireEs_uint8Array_setFromHex();requireEs_uint8Array_toBase64();requireEs_uint8Array_toHex();requireEs_unescape();requireEs_weakMap();requireEs_weakSet();requireWeb_atob();requireWeb_btoa();requireWeb_domCollections_forEach();requireWeb_domCollections_iterator();requireWeb_domException_constructor();requireWeb_domException_stack();requireWeb_domException_toStringTag();requireWeb_immediate();requireWeb_queueMicrotask();requireWeb_self();requireWeb_structuredClone();requireWeb_timers();requireWeb_url();requireWeb_url_canParse();requireWeb_url_parse();requireWeb_url_toJson();requireWeb_urlSearchParams();requireWeb_urlSearchParams_delete();requireWeb_urlSearchParams_has();requireWeb_urlSearchParams_size();stable=requirePath();return stable;}requireStable();/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: Apache-2.0
@@ -1867,146 +1933,146 @@ ep.removeEventListener("message",callback);closeEndPoint(ep);if(finalizer in obj
 const[wireValue,transferables]=toWireValue({value:new TypeError("Unserializable return value"),[throwMarker]:0});ep.postMessage(Object.assign(Object.assign({},wireValue),{id}),transferables);});});if(ep.start){ep.start();}}function isMessagePort(endpoint){return endpoint.constructor.name==="MessagePort";}function closeEndPoint(endpoint){if(isMessagePort(endpoint))endpoint.close();}function wrap(ep,target){const pendingListeners=new Map();ep.addEventListener("message",function handleMessage(ev){const{data}=ev;if(!data||!data.id){return;}const resolver=pendingListeners.get(data.id);if(!resolver){return;}try{resolver(data);}finally{pendingListeners.delete(data.id);}});return createProxy(ep,pendingListeners,[],target);}function throwIfProxyReleased(isReleased){if(isReleased){throw new Error("Proxy has been released and is not useable");}}function releaseEndpoint(ep){return requestResponseMessage(ep,new Map(),{type:"RELEASE"/* MessageType.RELEASE */}).then(()=>{closeEndPoint(ep);});}const proxyCounter=new WeakMap();const proxyFinalizers="FinalizationRegistry"in globalThis&&new FinalizationRegistry(ep=>{const newCount=(proxyCounter.get(ep)||0)-1;proxyCounter.set(ep,newCount);if(newCount===0){releaseEndpoint(ep);}});function registerProxy(proxy,ep){const newCount=(proxyCounter.get(ep)||0)+1;proxyCounter.set(ep,newCount);if(proxyFinalizers){proxyFinalizers.register(proxy,ep,proxy);}}function unregisterProxy(proxy){if(proxyFinalizers){proxyFinalizers.unregister(proxy);}}function createProxy(ep,pendingListeners,path=[],target=function(){}){let isProxyReleased=false;const proxy=new Proxy(target,{get(_target,prop){throwIfProxyReleased(isProxyReleased);if(prop===releaseProxy){return()=>{unregisterProxy(proxy);releaseEndpoint(ep);pendingListeners.clear();isProxyReleased=true;};}if(prop==="then"){if(path.length===0){return{then:()=>proxy};}const r=requestResponseMessage(ep,pendingListeners,{type:"GET"/* MessageType.GET */,path:path.map(p=>p.toString())}).then(fromWireValue);return r.then.bind(r);}return createProxy(ep,pendingListeners,[...path,prop]);},set(_target,prop,rawValue){throwIfProxyReleased(isProxyReleased);// FIXME: ES6 Proxy Handler `set` methods are supposed to return a
 // boolean. To show good will, we return true asynchronously ¯\_(ツ)_/¯
 const[value,transferables]=toWireValue(rawValue);return requestResponseMessage(ep,pendingListeners,{type:"SET"/* MessageType.SET */,path:[...path,prop].map(p=>p.toString()),value},transferables).then(fromWireValue);},apply(_target,_thisArg,rawArgumentList){throwIfProxyReleased(isProxyReleased);const last=path[path.length-1];if(last===createEndpoint){return requestResponseMessage(ep,pendingListeners,{type:"ENDPOINT"/* MessageType.ENDPOINT */}).then(fromWireValue);}// We just pretend that `bind()` didn’t happen.
-if(last==="bind"){return createProxy(ep,pendingListeners,path.slice(0,-1));}const[argumentList,transferables]=processArguments(rawArgumentList);return requestResponseMessage(ep,pendingListeners,{type:"APPLY"/* MessageType.APPLY */,path:path.map(p=>p.toString()),argumentList},transferables).then(fromWireValue);},construct(_target,rawArgumentList){throwIfProxyReleased(isProxyReleased);const[argumentList,transferables]=processArguments(rawArgumentList);return requestResponseMessage(ep,pendingListeners,{type:"CONSTRUCT"/* MessageType.CONSTRUCT */,path:path.map(p=>p.toString()),argumentList},transferables).then(fromWireValue);}});registerProxy(proxy,ep);return proxy;}function myFlat(arr){return Array.prototype.concat.apply([],arr);}function processArguments(argumentList){const processed=argumentList.map(toWireValue);return[processed.map(v=>v[0]),myFlat(processed.map(v=>v[1]))];}const transferCache=new WeakMap();function transfer(obj,transfers){transferCache.set(obj,transfers);return obj;}function proxy(obj){return Object.assign(obj,{[proxyMarker]:true});}function toWireValue(value){for(const[name,handler]of transferHandlers){if(handler.canHandle(value)){const[serializedValue,transferables]=handler.serialize(value);return[{type:"HANDLER"/* WireValueType.HANDLER */,name,value:serializedValue},transferables];}}return[{type:"RAW"/* WireValueType.RAW */,value},transferCache.get(value)||[]];}function fromWireValue(value){switch(value.type){case"HANDLER"/* WireValueType.HANDLER */:return transferHandlers.get(value.name).deserialize(value.value);case"RAW"/* WireValueType.RAW */:return value.value;}}function requestResponseMessage(ep,pendingListeners,msg,transfers){return new Promise(resolve=>{const id=generateUUID();pendingListeners.set(id,resolve);if(ep.start){ep.start();}ep.postMessage(Object.assign({id},msg),transfers);});}function generateUUID(){return new Array(4).fill(0).map(()=>Math.floor(Math.random()*Number.MAX_SAFE_INTEGER).toString(16)).join("-");}// these aren't really private, but nor are they really useful to document
+if(last==="bind"){return createProxy(ep,pendingListeners,path.slice(0,-1));}const[argumentList,transferables]=processArguments(rawArgumentList);return requestResponseMessage(ep,pendingListeners,{type:"APPLY"/* MessageType.APPLY */,path:path.map(p=>p.toString()),argumentList},transferables).then(fromWireValue);},construct(_target,rawArgumentList){throwIfProxyReleased(isProxyReleased);const[argumentList,transferables]=processArguments(rawArgumentList);return requestResponseMessage(ep,pendingListeners,{type:"CONSTRUCT"/* MessageType.CONSTRUCT */,path:path.map(p=>p.toString()),argumentList},transferables).then(fromWireValue);}});registerProxy(proxy,ep);return proxy;}function myFlat(arr){return Array.prototype.concat.apply([],arr);}function processArguments(argumentList){const processed=argumentList.map(toWireValue);return[processed.map(v=>v[0]),myFlat(processed.map(v=>v[1]))];}const transferCache=new WeakMap();function transfer(obj,transfers){transferCache.set(obj,transfers);return obj;}function proxy(obj){return Object.assign(obj,{[proxyMarker]:true});}function toWireValue(value){for(const[name,handler]of transferHandlers){if(handler.canHandle(value)){const[serializedValue,transferables]=handler.serialize(value);return[{type:"HANDLER"/* WireValueType.HANDLER */,name,value:serializedValue},transferables];}}return[{type:"RAW"/* WireValueType.RAW */,value},transferCache.get(value)||[]];}function fromWireValue(value){switch(value.type){case"HANDLER"/* WireValueType.HANDLER */:return transferHandlers.get(value.name).deserialize(value.value);case"RAW"/* WireValueType.RAW */:return value.value;}}function requestResponseMessage(ep,pendingListeners,msg,transfers){return new Promise(resolve=>{const id=generateUUID();pendingListeners.set(id,resolve);if(ep.start){ep.start();}ep.postMessage(Object.assign({id},msg),transfers);});}function generateUUID(){return new Array(4).fill(0).map(()=>Math.floor(Math.random()*Number.MAX_SAFE_INTEGER).toString(16)).join("-");}var luxon={};var hasRequiredLuxon;function requireLuxon(){if(hasRequiredLuxon)return luxon;hasRequiredLuxon=1;Object.defineProperty(luxon,'__esModule',{value:true});// these aren't really private, but nor are they really useful to document
 /**
- * @private
- */class LuxonError extends Error{}/**
- * @private
- */class InvalidDateTimeError extends LuxonError{constructor(reason){super(`Invalid DateTime: ${reason.toMessage()}`);}}/**
- * @private
- */class InvalidIntervalError extends LuxonError{constructor(reason){super(`Invalid Interval: ${reason.toMessage()}`);}}/**
- * @private
- */class InvalidDurationError extends LuxonError{constructor(reason){super(`Invalid Duration: ${reason.toMessage()}`);}}/**
- * @private
- */class ConflictingSpecificationError extends LuxonError{}/**
- * @private
- */class InvalidUnitError extends LuxonError{constructor(unit){super(`Invalid unit ${unit}`);}}/**
- * @private
- */class InvalidArgumentError extends LuxonError{}/**
- * @private
- */class ZoneIsAbstractError extends LuxonError{constructor(){super("Zone is an abstract class");}}/**
- * @private
- */const n="numeric",s="short",l="long";const DATE_SHORT={year:n,month:n,day:n};const DATE_MED={year:n,month:s,day:n};const DATE_MED_WITH_WEEKDAY={year:n,month:s,day:n,weekday:s};const DATE_FULL={year:n,month:l,day:n};const DATE_HUGE={year:n,month:l,day:n,weekday:l};const TIME_SIMPLE={hour:n,minute:n};const TIME_WITH_SECONDS={hour:n,minute:n,second:n};const TIME_WITH_SHORT_OFFSET={hour:n,minute:n,second:n,timeZoneName:s};const TIME_WITH_LONG_OFFSET={hour:n,minute:n,second:n,timeZoneName:l};const TIME_24_SIMPLE={hour:n,minute:n,hourCycle:"h23"};const TIME_24_WITH_SECONDS={hour:n,minute:n,second:n,hourCycle:"h23"};const TIME_24_WITH_SHORT_OFFSET={hour:n,minute:n,second:n,hourCycle:"h23",timeZoneName:s};const TIME_24_WITH_LONG_OFFSET={hour:n,minute:n,second:n,hourCycle:"h23",timeZoneName:l};const DATETIME_SHORT={year:n,month:n,day:n,hour:n,minute:n};const DATETIME_SHORT_WITH_SECONDS={year:n,month:n,day:n,hour:n,minute:n,second:n};const DATETIME_MED={year:n,month:s,day:n,hour:n,minute:n};const DATETIME_MED_WITH_SECONDS={year:n,month:s,day:n,hour:n,minute:n,second:n};const DATETIME_MED_WITH_WEEKDAY={year:n,month:s,day:n,weekday:s,hour:n,minute:n};const DATETIME_FULL={year:n,month:l,day:n,hour:n,minute:n,timeZoneName:s};const DATETIME_FULL_WITH_SECONDS={year:n,month:l,day:n,hour:n,minute:n,second:n,timeZoneName:s};const DATETIME_HUGE={year:n,month:l,day:n,weekday:l,hour:n,minute:n,timeZoneName:l};const DATETIME_HUGE_WITH_SECONDS={year:n,month:l,day:n,weekday:l,hour:n,minute:n,second:n,timeZoneName:l};/**
- * @interface
- */class Zone{/**
-   * The type of zone
-   * @abstract
-   * @type {string}
-   */get type(){throw new ZoneIsAbstractError();}/**
-   * The name of this zone.
-   * @abstract
-   * @type {string}
-   */get name(){throw new ZoneIsAbstractError();}/**
-   * The IANA name of this zone.
-   * Defaults to `name` if not overwritten by a subclass.
-   * @abstract
-   * @type {string}
-   */get ianaName(){return this.name;}/**
-   * Returns whether the offset is known to be fixed for the whole year.
-   * @abstract
-   * @type {boolean}
-   */get isUniversal(){throw new ZoneIsAbstractError();}/**
-   * Returns the offset's common name (such as EST) at the specified timestamp
-   * @abstract
-   * @param {number} ts - Epoch milliseconds for which to get the name
-   * @param {Object} opts - Options to affect the format
-   * @param {string} opts.format - What style of offset to return. Accepts 'long' or 'short'.
-   * @param {string} opts.locale - What locale to return the offset name in.
-   * @return {string}
-   */offsetName(ts,opts){throw new ZoneIsAbstractError();}/**
-   * Returns the offset's value as a string
-   * @abstract
-   * @param {number} ts - Epoch milliseconds for which to get the offset
-   * @param {string} format - What style of offset to return.
-   *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
-   * @return {string}
-   */formatOffset(ts,format){throw new ZoneIsAbstractError();}/**
-   * Return the offset in minutes for this zone at the specified timestamp.
-   * @abstract
-   * @param {number} ts - Epoch milliseconds for which to compute the offset
-   * @return {number}
-   */offset(ts){throw new ZoneIsAbstractError();}/**
-   * Return whether this Zone is equal to another zone
-   * @abstract
-   * @param {Zone} otherZone - the zone to compare
-   * @return {boolean}
-   */equals(otherZone){throw new ZoneIsAbstractError();}/**
-   * Return whether this Zone is valid.
-   * @abstract
-   * @type {boolean}
-   */get isValid(){throw new ZoneIsAbstractError();}}let singleton$1=null;/**
- * Represents the local zone for this JavaScript environment.
- * @implements {Zone}
- */class SystemZone extends Zone{/**
-   * Get a singleton instance of the local zone
-   * @return {SystemZone}
-   */static get instance(){if(singleton$1===null){singleton$1=new SystemZone();}return singleton$1;}/** @override **/get type(){return"system";}/** @override **/get name(){return new Intl.DateTimeFormat().resolvedOptions().timeZone;}/** @override **/get isUniversal(){return false;}/** @override **/offsetName(ts,{format,locale}){return parseZoneInfo(ts,format,locale);}/** @override **/formatOffset(ts,format){return formatOffset(this.offset(ts),format);}/** @override **/offset(ts){return-new Date(ts).getTimezoneOffset();}/** @override **/equals(otherZone){return otherZone.type==="system";}/** @override **/get isValid(){return true;}}const dtfCache=new Map();function makeDTF(zoneName){let dtf=dtfCache.get(zoneName);if(dtf===undefined){dtf=new Intl.DateTimeFormat("en-US",{hour12:false,timeZone:zoneName,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",era:"short"});dtfCache.set(zoneName,dtf);}return dtf;}const typeToPos={year:0,month:1,day:2,era:3,hour:4,minute:5,second:6};function hackyOffset(dtf,date){const formatted=dtf.format(date).replace(/\u200E/g,""),parsed=/(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(formatted),[,fMonth,fDay,fYear,fadOrBc,fHour,fMinute,fSecond]=parsed;return[fYear,fMonth,fDay,fadOrBc,fHour,fMinute,fSecond];}function partsOffset(dtf,date){const formatted=dtf.formatToParts(date);const filled=[];for(let i=0;i<formatted.length;i++){const{type,value}=formatted[i];const pos=typeToPos[type];if(type==="era"){filled[pos]=value;}else if(!isUndefined(pos)){filled[pos]=parseInt(value,10);}}return filled;}const ianaZoneCache=new Map();/**
- * A zone identified by an IANA identifier, like America/New_York
- * @implements {Zone}
- */class IANAZone extends Zone{/**
-   * @param {string} name - Zone name
-   * @return {IANAZone}
-   */static create(name){let zone=ianaZoneCache.get(name);if(zone===undefined){ianaZoneCache.set(name,zone=new IANAZone(name));}return zone;}/**
-   * Reset local caches. Should only be necessary in testing scenarios.
-   * @return {void}
-   */static resetCache(){ianaZoneCache.clear();dtfCache.clear();}/**
-   * Returns whether the provided string is a valid specifier. This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
-   * @param {string} s - The string to check validity on
-   * @example IANAZone.isValidSpecifier("America/New_York") //=> true
-   * @example IANAZone.isValidSpecifier("Sport~~blorp") //=> false
-   * @deprecated For backward compatibility, this forwards to isValidZone, better use `isValidZone()` directly instead.
-   * @return {boolean}
-   */static isValidSpecifier(s){return this.isValidZone(s);}/**
-   * Returns whether the provided string identifies a real zone
-   * @param {string} zone - The string to check
-   * @example IANAZone.isValidZone("America/New_York") //=> true
-   * @example IANAZone.isValidZone("Fantasia/Castle") //=> false
-   * @example IANAZone.isValidZone("Sport~~blorp") //=> false
-   * @return {boolean}
-   */static isValidZone(zone){if(!zone){return false;}try{new Intl.DateTimeFormat("en-US",{timeZone:zone}).format();return true;}catch(e){return false;}}constructor(name){super();/** @private **/this.zoneName=name;/** @private **/this.valid=IANAZone.isValidZone(name);}/**
-   * The type of zone. `iana` for all instances of `IANAZone`.
-   * @override
-   * @type {string}
-   */get type(){return"iana";}/**
-   * The name of this zone (i.e. the IANA zone name).
-   * @override
-   * @type {string}
-   */get name(){return this.zoneName;}/**
-   * Returns whether the offset is known to be fixed for the whole year:
-   * Always returns false for all IANA zones.
-   * @override
-   * @type {boolean}
-   */get isUniversal(){return false;}/**
-   * Returns the offset's common name (such as EST) at the specified timestamp
-   * @override
-   * @param {number} ts - Epoch milliseconds for which to get the name
-   * @param {Object} opts - Options to affect the format
-   * @param {string} opts.format - What style of offset to return. Accepts 'long' or 'short'.
-   * @param {string} opts.locale - What locale to return the offset name in.
-   * @return {string}
-   */offsetName(ts,{format,locale}){return parseZoneInfo(ts,format,locale,this.name);}/**
-   * Returns the offset's value as a string
-   * @override
-   * @param {number} ts - Epoch milliseconds for which to get the offset
-   * @param {string} format - What style of offset to return.
-   *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
-   * @return {string}
-   */formatOffset(ts,format){return formatOffset(this.offset(ts),format);}/**
-   * Return the offset in minutes for this zone at the specified timestamp.
-   * @override
-   * @param {number} ts - Epoch milliseconds for which to compute the offset
-   * @return {number}
-   */offset(ts){if(!this.valid)return NaN;const date=new Date(ts);if(isNaN(date))return NaN;const dtf=makeDTF(this.name);let[year,month,day,adOrBc,hour,minute,second]=dtf.formatToParts?partsOffset(dtf,date):hackyOffset(dtf,date);if(adOrBc==="BC"){year=-Math.abs(year)+1;}// because we're using hour12 and https://bugs.chromium.org/p/chromium/issues/detail?id=1025564&can=2&q=%2224%3A00%22%20datetimeformat
+	 * @private
+	 */class LuxonError extends Error{}/**
+	 * @private
+	 */class InvalidDateTimeError extends LuxonError{constructor(reason){super(`Invalid DateTime: ${reason.toMessage()}`);}}/**
+	 * @private
+	 */class InvalidIntervalError extends LuxonError{constructor(reason){super(`Invalid Interval: ${reason.toMessage()}`);}}/**
+	 * @private
+	 */class InvalidDurationError extends LuxonError{constructor(reason){super(`Invalid Duration: ${reason.toMessage()}`);}}/**
+	 * @private
+	 */class ConflictingSpecificationError extends LuxonError{}/**
+	 * @private
+	 */class InvalidUnitError extends LuxonError{constructor(unit){super(`Invalid unit ${unit}`);}}/**
+	 * @private
+	 */class InvalidArgumentError extends LuxonError{}/**
+	 * @private
+	 */class ZoneIsAbstractError extends LuxonError{constructor(){super("Zone is an abstract class");}}/**
+	 * @private
+	 */const n="numeric",s="short",l="long";const DATE_SHORT={year:n,month:n,day:n};const DATE_MED={year:n,month:s,day:n};const DATE_MED_WITH_WEEKDAY={year:n,month:s,day:n,weekday:s};const DATE_FULL={year:n,month:l,day:n};const DATE_HUGE={year:n,month:l,day:n,weekday:l};const TIME_SIMPLE={hour:n,minute:n};const TIME_WITH_SECONDS={hour:n,minute:n,second:n};const TIME_WITH_SHORT_OFFSET={hour:n,minute:n,second:n,timeZoneName:s};const TIME_WITH_LONG_OFFSET={hour:n,minute:n,second:n,timeZoneName:l};const TIME_24_SIMPLE={hour:n,minute:n,hourCycle:"h23"};const TIME_24_WITH_SECONDS={hour:n,minute:n,second:n,hourCycle:"h23"};const TIME_24_WITH_SHORT_OFFSET={hour:n,minute:n,second:n,hourCycle:"h23",timeZoneName:s};const TIME_24_WITH_LONG_OFFSET={hour:n,minute:n,second:n,hourCycle:"h23",timeZoneName:l};const DATETIME_SHORT={year:n,month:n,day:n,hour:n,minute:n};const DATETIME_SHORT_WITH_SECONDS={year:n,month:n,day:n,hour:n,minute:n,second:n};const DATETIME_MED={year:n,month:s,day:n,hour:n,minute:n};const DATETIME_MED_WITH_SECONDS={year:n,month:s,day:n,hour:n,minute:n,second:n};const DATETIME_MED_WITH_WEEKDAY={year:n,month:s,day:n,weekday:s,hour:n,minute:n};const DATETIME_FULL={year:n,month:l,day:n,hour:n,minute:n,timeZoneName:s};const DATETIME_FULL_WITH_SECONDS={year:n,month:l,day:n,hour:n,minute:n,second:n,timeZoneName:s};const DATETIME_HUGE={year:n,month:l,day:n,weekday:l,hour:n,minute:n,timeZoneName:l};const DATETIME_HUGE_WITH_SECONDS={year:n,month:l,day:n,weekday:l,hour:n,minute:n,second:n,timeZoneName:l};/**
+	 * @interface
+	 */class Zone{/**
+	   * The type of zone
+	   * @abstract
+	   * @type {string}
+	   */get type(){throw new ZoneIsAbstractError();}/**
+	   * The name of this zone.
+	   * @abstract
+	   * @type {string}
+	   */get name(){throw new ZoneIsAbstractError();}/**
+	   * The IANA name of this zone.
+	   * Defaults to `name` if not overwritten by a subclass.
+	   * @abstract
+	   * @type {string}
+	   */get ianaName(){return this.name;}/**
+	   * Returns whether the offset is known to be fixed for the whole year.
+	   * @abstract
+	   * @type {boolean}
+	   */get isUniversal(){throw new ZoneIsAbstractError();}/**
+	   * Returns the offset's common name (such as EST) at the specified timestamp
+	   * @abstract
+	   * @param {number} ts - Epoch milliseconds for which to get the name
+	   * @param {Object} opts - Options to affect the format
+	   * @param {string} opts.format - What style of offset to return. Accepts 'long' or 'short'.
+	   * @param {string} opts.locale - What locale to return the offset name in.
+	   * @return {string}
+	   */offsetName(ts,opts){throw new ZoneIsAbstractError();}/**
+	   * Returns the offset's value as a string
+	   * @abstract
+	   * @param {number} ts - Epoch milliseconds for which to get the offset
+	   * @param {string} format - What style of offset to return.
+	   *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
+	   * @return {string}
+	   */formatOffset(ts,format){throw new ZoneIsAbstractError();}/**
+	   * Return the offset in minutes for this zone at the specified timestamp.
+	   * @abstract
+	   * @param {number} ts - Epoch milliseconds for which to compute the offset
+	   * @return {number}
+	   */offset(ts){throw new ZoneIsAbstractError();}/**
+	   * Return whether this Zone is equal to another zone
+	   * @abstract
+	   * @param {Zone} otherZone - the zone to compare
+	   * @return {boolean}
+	   */equals(otherZone){throw new ZoneIsAbstractError();}/**
+	   * Return whether this Zone is valid.
+	   * @abstract
+	   * @type {boolean}
+	   */get isValid(){throw new ZoneIsAbstractError();}}let singleton$1=null;/**
+	 * Represents the local zone for this JavaScript environment.
+	 * @implements {Zone}
+	 */class SystemZone extends Zone{/**
+	   * Get a singleton instance of the local zone
+	   * @return {SystemZone}
+	   */static get instance(){if(singleton$1===null){singleton$1=new SystemZone();}return singleton$1;}/** @override **/get type(){return"system";}/** @override **/get name(){return new Intl.DateTimeFormat().resolvedOptions().timeZone;}/** @override **/get isUniversal(){return false;}/** @override **/offsetName(ts,{format,locale}){return parseZoneInfo(ts,format,locale);}/** @override **/formatOffset(ts,format){return formatOffset(this.offset(ts),format);}/** @override **/offset(ts){return-new Date(ts).getTimezoneOffset();}/** @override **/equals(otherZone){return otherZone.type==="system";}/** @override **/get isValid(){return true;}}const dtfCache=new Map();function makeDTF(zoneName){let dtf=dtfCache.get(zoneName);if(dtf===undefined){dtf=new Intl.DateTimeFormat("en-US",{hour12:false,timeZone:zoneName,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",era:"short"});dtfCache.set(zoneName,dtf);}return dtf;}const typeToPos={year:0,month:1,day:2,era:3,hour:4,minute:5,second:6};function hackyOffset(dtf,date){const formatted=dtf.format(date).replace(/\u200E/g,""),parsed=/(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(formatted),[,fMonth,fDay,fYear,fadOrBc,fHour,fMinute,fSecond]=parsed;return[fYear,fMonth,fDay,fadOrBc,fHour,fMinute,fSecond];}function partsOffset(dtf,date){const formatted=dtf.formatToParts(date);const filled=[];for(let i=0;i<formatted.length;i++){const{type,value}=formatted[i];const pos=typeToPos[type];if(type==="era"){filled[pos]=value;}else if(!isUndefined(pos)){filled[pos]=parseInt(value,10);}}return filled;}const ianaZoneCache=new Map();/**
+	 * A zone identified by an IANA identifier, like America/New_York
+	 * @implements {Zone}
+	 */class IANAZone extends Zone{/**
+	   * @param {string} name - Zone name
+	   * @return {IANAZone}
+	   */static create(name){let zone=ianaZoneCache.get(name);if(zone===undefined){ianaZoneCache.set(name,zone=new IANAZone(name));}return zone;}/**
+	   * Reset local caches. Should only be necessary in testing scenarios.
+	   * @return {void}
+	   */static resetCache(){ianaZoneCache.clear();dtfCache.clear();}/**
+	   * Returns whether the provided string is a valid specifier. This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
+	   * @param {string} s - The string to check validity on
+	   * @example IANAZone.isValidSpecifier("America/New_York") //=> true
+	   * @example IANAZone.isValidSpecifier("Sport~~blorp") //=> false
+	   * @deprecated For backward compatibility, this forwards to isValidZone, better use `isValidZone()` directly instead.
+	   * @return {boolean}
+	   */static isValidSpecifier(s){return this.isValidZone(s);}/**
+	   * Returns whether the provided string identifies a real zone
+	   * @param {string} zone - The string to check
+	   * @example IANAZone.isValidZone("America/New_York") //=> true
+	   * @example IANAZone.isValidZone("Fantasia/Castle") //=> false
+	   * @example IANAZone.isValidZone("Sport~~blorp") //=> false
+	   * @return {boolean}
+	   */static isValidZone(zone){if(!zone){return false;}try{new Intl.DateTimeFormat("en-US",{timeZone:zone}).format();return true;}catch(e){return false;}}constructor(name){super();/** @private **/this.zoneName=name;/** @private **/this.valid=IANAZone.isValidZone(name);}/**
+	   * The type of zone. `iana` for all instances of `IANAZone`.
+	   * @override
+	   * @type {string}
+	   */get type(){return"iana";}/**
+	   * The name of this zone (i.e. the IANA zone name).
+	   * @override
+	   * @type {string}
+	   */get name(){return this.zoneName;}/**
+	   * Returns whether the offset is known to be fixed for the whole year:
+	   * Always returns false for all IANA zones.
+	   * @override
+	   * @type {boolean}
+	   */get isUniversal(){return false;}/**
+	   * Returns the offset's common name (such as EST) at the specified timestamp
+	   * @override
+	   * @param {number} ts - Epoch milliseconds for which to get the name
+	   * @param {Object} opts - Options to affect the format
+	   * @param {string} opts.format - What style of offset to return. Accepts 'long' or 'short'.
+	   * @param {string} opts.locale - What locale to return the offset name in.
+	   * @return {string}
+	   */offsetName(ts,{format,locale}){return parseZoneInfo(ts,format,locale,this.name);}/**
+	   * Returns the offset's value as a string
+	   * @override
+	   * @param {number} ts - Epoch milliseconds for which to get the offset
+	   * @param {string} format - What style of offset to return.
+	   *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
+	   * @return {string}
+	   */formatOffset(ts,format){return formatOffset(this.offset(ts),format);}/**
+	   * Return the offset in minutes for this zone at the specified timestamp.
+	   * @override
+	   * @param {number} ts - Epoch milliseconds for which to compute the offset
+	   * @return {number}
+	   */offset(ts){if(!this.valid)return NaN;const date=new Date(ts);if(isNaN(date))return NaN;const dtf=makeDTF(this.name);let[year,month,day,adOrBc,hour,minute,second]=dtf.formatToParts?partsOffset(dtf,date):hackyOffset(dtf,date);if(adOrBc==="BC"){year=-Math.abs(year)+1;}// because we're using hour12 and https://bugs.chromium.org/p/chromium/issues/detail?id=1025564&can=2&q=%2224%3A00%22%20datetimeformat
 const adjustedHour=hour===24?0:hour;const asUTC=objToLocalTS({year,month,day,hour:adjustedHour,minute,second,millisecond:0});let asTS=+date;const over=asTS%1000;asTS-=over>=0?over:1000+over;return(asUTC-asTS)/(60*1000);}/**
-   * Return whether this Zone is equal to another zone
-   * @override
-   * @param {Zone} otherZone - the zone to compare
-   * @return {boolean}
-   */equals(otherZone){return otherZone.type==="iana"&&otherZone.name===this.name;}/**
-   * Return whether this Zone is valid.
-   * @override
-   * @type {boolean}
-   */get isValid(){return this.valid;}}// todo - remap caching
+	   * Return whether this Zone is equal to another zone
+	   * @override
+	   * @param {Zone} otherZone - the zone to compare
+	   * @return {boolean}
+	   */equals(otherZone){return otherZone.type==="iana"&&otherZone.name===this.name;}/**
+	   * Return whether this Zone is valid.
+	   * @override
+	   * @type {boolean}
+	   */get isValid(){return this.valid;}}// todo - remap caching
 let intlLFCache={};function getCachedLF(locString,opts={}){const key=JSON.stringify([locString,opts]);let dtf=intlLFCache[key];if(!dtf){dtf=new Intl.ListFormat(locString,opts);intlLFCache[key]=dtf;}return dtf;}const intlDTCache=new Map();function getCachedDTF(locString,opts={}){const key=JSON.stringify([locString,opts]);let dtf=intlDTCache.get(key);if(dtf===undefined){dtf=new Intl.DateTimeFormat(locString,opts);intlDTCache.set(key,dtf);}return dtf;}const intlNumCache=new Map();function getCachedINF(locString,opts={}){const key=JSON.stringify([locString,opts]);let inf=intlNumCache.get(key);if(inf===undefined){inf=new Intl.NumberFormat(locString,opts);intlNumCache.set(key,inf);}return inf;}const intlRelCache=new Map();function getCachedRTF(locString,opts={}){const{base}=opts,cacheKeyOpts=_objectWithoutProperties(opts,_excluded);// exclude `base` from the options
 const key=JSON.stringify([locString,cacheKeyOpts]);let inf=intlRelCache.get(key);if(inf===undefined){inf=new Intl.RelativeTimeFormat(locString,opts);intlRelCache.set(key,inf);}return inf;}let sysLocaleCache=null;function systemLocale(){if(sysLocaleCache){return sysLocaleCache;}else{sysLocaleCache=new Intl.DateTimeFormat().resolvedOptions().locale;return sysLocaleCache;}}const intlResolvedOptionsCache=new Map();function getCachedIntResolvedOptions(locString){let opts=intlResolvedOptionsCache.get(locString);if(opts===undefined){opts=new Intl.DateTimeFormat(locString).resolvedOptions();intlResolvedOptionsCache.set(locString,opts);}return opts;}const weekInfoCache=new Map();function getCachedWeekInfo(locString){let data=weekInfoCache.get(locString);if(!data){const locale=new Intl.Locale(locString);// browsers currently implement this as a property, but spec says it should be a getter function
 data="getWeekInfo"in locale?locale.getWeekInfo():locale.weekInfo;// minimalDays was removed from WeekInfo: https://github.com/tc39/proposal-intl-locale-info/issues/86
@@ -2019,12 +2085,12 @@ if(!("minimalDays"in data)){data=_objectSpread(_objectSpread({},fallbackWeekSett
 // private subtags and unicode subtags have ordering requirements,
 // and we're not properly parsing this, so just strip out the
 // private ones if they exist.
-const xIndex=localeStr.indexOf("-x-");if(xIndex!==-1){localeStr=localeStr.substring(0,xIndex);}const uIndex=localeStr.indexOf("-u-");if(uIndex===-1){return[localeStr];}else{let options;let selectedStr;try{options=getCachedDTF(localeStr).resolvedOptions();selectedStr=localeStr;}catch(e){const smaller=localeStr.substring(0,uIndex);options=getCachedDTF(smaller).resolvedOptions();selectedStr=smaller;}const{numberingSystem,calendar}=options;return[selectedStr,numberingSystem,calendar];}}function intlConfigString(localeStr,numberingSystem,outputCalendar){if(outputCalendar||numberingSystem){if(!localeStr.includes("-u-")){localeStr+="-u";}if(outputCalendar){localeStr+=`-ca-${outputCalendar}`;}if(numberingSystem){localeStr+=`-nu-${numberingSystem}`;}return localeStr;}else{return localeStr;}}function mapMonths(f){const ms=[];for(let i=1;i<=12;i++){const dt=DateTime$1.utc(2009,i,1);ms.push(f(dt));}return ms;}function mapWeekdays(f){const ms=[];for(let i=1;i<=7;i++){const dt=DateTime$1.utc(2016,11,13+i);ms.push(f(dt));}return ms;}function listStuff(loc,length,englishFn,intlFn){const mode=loc.listingMode();if(mode==="error"){return null;}else if(mode==="en"){return englishFn(length);}else{return intlFn(length);}}function supportsFastNumbers(loc){if(loc.numberingSystem&&loc.numberingSystem!=="latn"){return false;}else{return loc.numberingSystem==="latn"||!loc.locale||loc.locale.startsWith("en")||getCachedIntResolvedOptions(loc.locale).numberingSystem==="latn";}}/**
- * @private
- */class PolyNumberFormatter{constructor(intl,forceSimple,opts){this.padTo=opts.padTo||0;this.floor=opts.floor||false;const{padTo,floor}=opts,otherOpts=_objectWithoutProperties(opts,_excluded2);if(!forceSimple||Object.keys(otherOpts).length>0){const intlOpts=_objectSpread({useGrouping:false},opts);if(opts.padTo>0)intlOpts.minimumIntegerDigits=opts.padTo;this.inf=getCachedINF(intl,intlOpts);}}format(i){if(this.inf){const fixed=this.floor?Math.floor(i):i;return this.inf.format(fixed);}else{// to match the browser's numberformatter defaults
-const fixed=this.floor?Math.floor(i):roundTo(i,3);return padStart$1(fixed,this.padTo);}}}/**
- * @private
- */class PolyDateFormatter{constructor(dt,intl,opts){this.opts=opts;this.originalZone=undefined;let z=undefined;if(this.opts.timeZone){// Don't apply any workarounds if a timeZone is explicitly provided in opts
+const xIndex=localeStr.indexOf("-x-");if(xIndex!==-1){localeStr=localeStr.substring(0,xIndex);}const uIndex=localeStr.indexOf("-u-");if(uIndex===-1){return[localeStr];}else{let options;let selectedStr;try{options=getCachedDTF(localeStr).resolvedOptions();selectedStr=localeStr;}catch(e){const smaller=localeStr.substring(0,uIndex);options=getCachedDTF(smaller).resolvedOptions();selectedStr=smaller;}const{numberingSystem,calendar}=options;return[selectedStr,numberingSystem,calendar];}}function intlConfigString(localeStr,numberingSystem,outputCalendar){if(outputCalendar||numberingSystem){if(!localeStr.includes("-u-")){localeStr+="-u";}if(outputCalendar){localeStr+=`-ca-${outputCalendar}`;}if(numberingSystem){localeStr+=`-nu-${numberingSystem}`;}return localeStr;}else{return localeStr;}}function mapMonths(f){const ms=[];for(let i=1;i<=12;i++){const dt=DateTime.utc(2009,i,1);ms.push(f(dt));}return ms;}function mapWeekdays(f){const ms=[];for(let i=1;i<=7;i++){const dt=DateTime.utc(2016,11,13+i);ms.push(f(dt));}return ms;}function listStuff(loc,length,englishFn,intlFn){const mode=loc.listingMode();if(mode==="error"){return null;}else if(mode==="en"){return englishFn(length);}else{return intlFn(length);}}function supportsFastNumbers(loc){if(loc.numberingSystem&&loc.numberingSystem!=="latn"){return false;}else{return loc.numberingSystem==="latn"||!loc.locale||loc.locale.startsWith("en")||getCachedIntResolvedOptions(loc.locale).numberingSystem==="latn";}}/**
+	 * @private
+	 */class PolyNumberFormatter{constructor(intl,forceSimple,opts){this.padTo=opts.padTo||0;this.floor=opts.floor||false;const{padTo,floor}=opts,otherOpts=_objectWithoutProperties(opts,_excluded2);if(!forceSimple||Object.keys(otherOpts).length>0){const intlOpts=_objectSpread({useGrouping:false},opts);if(opts.padTo>0)intlOpts.minimumIntegerDigits=opts.padTo;this.inf=getCachedINF(intl,intlOpts);}}format(i){if(this.inf){const fixed=this.floor?Math.floor(i):i;return this.inf.format(fixed);}else{// to match the browser's numberformatter defaults
+const fixed=this.floor?Math.floor(i):roundTo(i,3);return padStart(fixed,this.padTo);}}}/**
+	 * @private
+	 */class PolyDateFormatter{constructor(dt,intl,opts){this.opts=opts;this.originalZone=undefined;let z=undefined;if(this.opts.timeZone){// Don't apply any workarounds if a timeZone is explicitly provided in opts
 this.dt=dt;}else if(dt.zone.type==="fixed"){// UTC-8 or Etc/UTC-8 are not part of tzdata, only Etc/GMT+8 and the like.
 // That is why fixed-offset TZ is set to that unless it is:
 // 1. Representing offset 0 when UTC is used to maintain previous behavior and does not become GMT.
@@ -2038,178 +2104,181 @@ z="UTC";this.dt=dt.offset===0?dt:dt.setZone("UTC").plus({minutes:dt.offset});thi
 z="UTC";this.dt=dt.setZone("UTC").plus({minutes:dt.offset});this.originalZone=dt.zone;}const intlOpts=_objectSpread({},this.opts);intlOpts.timeZone=intlOpts.timeZone||z;this.dtf=getCachedDTF(intl,intlOpts);}format(){if(this.originalZone){// If we have to substitute in the actual zone name, we have to use
 // formatToParts so that the timezone can be replaced.
 return this.formatToParts().map(({value})=>value).join("");}return this.dtf.format(this.dt.toJSDate());}formatToParts(){const parts=this.dtf.formatToParts(this.dt.toJSDate());if(this.originalZone){return parts.map(part=>{if(part.type==="timeZoneName"){const offsetName=this.originalZone.offsetName(this.dt.ts,{locale:this.dt.locale,format:this.opts.timeZoneName});return _objectSpread(_objectSpread({},part),{},{value:offsetName});}else{return part;}});}return parts;}resolvedOptions(){return this.dtf.resolvedOptions();}}/**
- * @private
- */class PolyRelFormatter{constructor(intl,isEnglish,opts){this.opts=_objectSpread({style:"long"},opts);if(!isEnglish&&hasRelative()){this.rtf=getCachedRTF(intl,opts);}}format(count,unit){if(this.rtf){return this.rtf.format(count,unit);}else{return formatRelativeTime(unit,count,this.opts.numeric,this.opts.style!=="long");}}formatToParts(count,unit){if(this.rtf){return this.rtf.formatToParts(count,unit);}else{return[];}}}const fallbackWeekSettings={firstDay:1,minimalDays:4,weekend:[6,7]};/**
- * @private
- */class Locale{static fromOpts(opts){return Locale.create(opts.locale,opts.numberingSystem,opts.outputCalendar,opts.weekSettings,opts.defaultToEN);}static create(locale,numberingSystem,outputCalendar,weekSettings,defaultToEN=false){const specifiedLocale=locale||Settings.defaultLocale;// the system locale is useful for human-readable strings but annoying for parsing/formatting known formats
-const localeR=specifiedLocale||(defaultToEN?"en-US":systemLocale());const numberingSystemR=numberingSystem||Settings.defaultNumberingSystem;const outputCalendarR=outputCalendar||Settings.defaultOutputCalendar;const weekSettingsR=validateWeekSettings(weekSettings)||Settings.defaultWeekSettings;return new Locale(localeR,numberingSystemR,outputCalendarR,weekSettingsR,specifiedLocale);}static resetCache(){sysLocaleCache=null;intlDTCache.clear();intlNumCache.clear();intlRelCache.clear();intlResolvedOptionsCache.clear();weekInfoCache.clear();}static fromObject({locale,numberingSystem,outputCalendar,weekSettings}={}){return Locale.create(locale,numberingSystem,outputCalendar,weekSettings);}constructor(locale,numbering,outputCalendar,weekSettings,specifiedLocale){const[parsedLocale,parsedNumberingSystem,parsedOutputCalendar]=parseLocaleString(locale);this.locale=parsedLocale;this.numberingSystem=numbering||parsedNumberingSystem||null;this.outputCalendar=outputCalendar||parsedOutputCalendar||null;this.weekSettings=weekSettings;this.intl=intlConfigString(this.locale,this.numberingSystem,this.outputCalendar);this.weekdaysCache={format:{},standalone:{}};this.monthsCache={format:{},standalone:{}};this.meridiemCache=null;this.eraCache={};this.specifiedLocale=specifiedLocale;this.fastNumbersCached=null;}get fastNumbers(){if(this.fastNumbersCached==null){this.fastNumbersCached=supportsFastNumbers(this);}return this.fastNumbersCached;}listingMode(){const isActuallyEn=this.isEnglish();const hasNoWeirdness=(this.numberingSystem===null||this.numberingSystem==="latn")&&(this.outputCalendar===null||this.outputCalendar==="gregory");return isActuallyEn&&hasNoWeirdness?"en":"intl";}clone(alts){if(!alts||Object.getOwnPropertyNames(alts).length===0){return this;}else{return Locale.create(alts.locale||this.specifiedLocale,alts.numberingSystem||this.numberingSystem,alts.outputCalendar||this.outputCalendar,validateWeekSettings(alts.weekSettings)||this.weekSettings,alts.defaultToEN||false);}}redefaultToEN(alts={}){return this.clone(_objectSpread(_objectSpread({},alts),{},{defaultToEN:true}));}redefaultToSystem(alts={}){return this.clone(_objectSpread(_objectSpread({},alts),{},{defaultToEN:false}));}months(length,format=false){return listStuff(this,length,months,()=>{const intl=format?{month:length,day:"numeric"}:{month:length},formatStr=format?"format":"standalone";if(!this.monthsCache[formatStr][length]){this.monthsCache[formatStr][length]=mapMonths(dt=>this.extract(dt,intl,"month"));}return this.monthsCache[formatStr][length];});}weekdays(length,format=false){return listStuff(this,length,weekdays,()=>{const intl=format?{weekday:length,year:"numeric",month:"long",day:"numeric"}:{weekday:length},formatStr=format?"format":"standalone";if(!this.weekdaysCache[formatStr][length]){this.weekdaysCache[formatStr][length]=mapWeekdays(dt=>this.extract(dt,intl,"weekday"));}return this.weekdaysCache[formatStr][length];});}meridiems(){return listStuff(this,undefined,()=>meridiems,()=>{// In theory there could be aribitrary day periods. We're gonna assume there are exactly two
+	 * @private
+	 */class PolyRelFormatter{constructor(intl,isEnglish,opts){this.opts=_objectSpread({style:"long"},opts);if(!isEnglish&&hasRelative()){this.rtf=getCachedRTF(intl,opts);}}format(count,unit){if(this.rtf){return this.rtf.format(count,unit);}else{return formatRelativeTime(unit,count,this.opts.numeric,this.opts.style!=="long");}}formatToParts(count,unit){if(this.rtf){return this.rtf.formatToParts(count,unit);}else{return[];}}}const fallbackWeekSettings={firstDay:1,minimalDays:4,weekend:[6,7]};/**
+	 * @private
+	 */class Locale{static fromOpts(opts){return Locale.create(opts.locale,opts.numberingSystem,opts.outputCalendar,opts.weekSettings,opts.defaultToEN);}static create(locale,numberingSystem,outputCalendar,weekSettings,defaultToEN=false){const specifiedLocale=locale||Settings.defaultLocale;// the system locale is useful for human-readable strings but annoying for parsing/formatting known formats
+const localeR=specifiedLocale||(defaultToEN?"en-US":systemLocale());const numberingSystemR=numberingSystem||Settings.defaultNumberingSystem;const outputCalendarR=outputCalendar||Settings.defaultOutputCalendar;const weekSettingsR=validateWeekSettings(weekSettings)||Settings.defaultWeekSettings;return new Locale(localeR,numberingSystemR,outputCalendarR,weekSettingsR,specifiedLocale);}static resetCache(){sysLocaleCache=null;intlDTCache.clear();intlNumCache.clear();intlRelCache.clear();intlResolvedOptionsCache.clear();weekInfoCache.clear();}static fromObject({locale,numberingSystem,outputCalendar,weekSettings}={}){return Locale.create(locale,numberingSystem,outputCalendar,weekSettings);}constructor(locale,numbering,outputCalendar,weekSettings,specifiedLocale){const[parsedLocale,parsedNumberingSystem,parsedOutputCalendar]=parseLocaleString(locale);this.locale=parsedLocale;this.numberingSystem=numbering||parsedNumberingSystem||null;this.outputCalendar=outputCalendar||parsedOutputCalendar||null;this.weekSettings=weekSettings;this.intl=intlConfigString(this.locale,this.numberingSystem,this.outputCalendar);this.weekdaysCache={format:{},standalone:{}};this.monthsCache={format:{},standalone:{}};this.meridiemCache=null;this.eraCache={};this.specifiedLocale=specifiedLocale;this.fastNumbersCached=null;}get fastNumbers(){if(this.fastNumbersCached==null){this.fastNumbersCached=supportsFastNumbers(this);}return this.fastNumbersCached;}listingMode(){const isActuallyEn=this.isEnglish();const hasNoWeirdness=(this.numberingSystem===null||this.numberingSystem==="latn")&&(this.outputCalendar===null||this.outputCalendar==="gregory");return isActuallyEn&&hasNoWeirdness?"en":"intl";}clone(alts){if(!alts||Object.getOwnPropertyNames(alts).length===0){return this;}else{return Locale.create(alts.locale||this.specifiedLocale,alts.numberingSystem||this.numberingSystem,alts.outputCalendar||this.outputCalendar,validateWeekSettings(alts.weekSettings)||this.weekSettings,alts.defaultToEN||false);}}redefaultToEN(alts={}){return this.clone(_objectSpread(_objectSpread({},alts),{},{defaultToEN:true}));}redefaultToSystem(alts={}){return this.clone(_objectSpread(_objectSpread({},alts),{},{defaultToEN:false}));}months(length,format=false){return listStuff(this,length,months,()=>{// Workaround for "ja" locale: formatToParts does not label all parts of the month
+// as "month" and for this locale there is no difference between "format" and "non-format".
+// As such, just use format() instead of formatToParts() and take the whole string
+const monthSpecialCase=this.intl==="ja"||this.intl.startsWith("ja-");format&=!monthSpecialCase;const intl=format?{month:length,day:"numeric"}:{month:length},formatStr=format?"format":"standalone";if(!this.monthsCache[formatStr][length]){const mapper=!monthSpecialCase?dt=>this.extract(dt,intl,"month"):dt=>this.dtFormatter(dt,intl).format();this.monthsCache[formatStr][length]=mapMonths(mapper);}return this.monthsCache[formatStr][length];});}weekdays(length,format=false){return listStuff(this,length,weekdays,()=>{const intl=format?{weekday:length,year:"numeric",month:"long",day:"numeric"}:{weekday:length},formatStr=format?"format":"standalone";if(!this.weekdaysCache[formatStr][length]){this.weekdaysCache[formatStr][length]=mapWeekdays(dt=>this.extract(dt,intl,"weekday"));}return this.weekdaysCache[formatStr][length];});}meridiems(){return listStuff(this,undefined,()=>meridiems,()=>{// In theory there could be aribitrary day periods. We're gonna assume there are exactly two
 // for AM and PM. This is probably wrong, but it's makes parsing way easier.
-if(!this.meridiemCache){const intl={hour:"numeric",hourCycle:"h12"};this.meridiemCache=[DateTime$1.utc(2016,11,13,9),DateTime$1.utc(2016,11,13,19)].map(dt=>this.extract(dt,intl,"dayperiod"));}return this.meridiemCache;});}eras(length){return listStuff(this,length,eras,()=>{const intl={era:length};// This is problematic. Different calendars are going to define eras totally differently. What I need is the minimum set of dates
+if(!this.meridiemCache){const intl={hour:"numeric",hourCycle:"h12"};this.meridiemCache=[DateTime.utc(2016,11,13,9),DateTime.utc(2016,11,13,19)].map(dt=>this.extract(dt,intl,"dayperiod"));}return this.meridiemCache;});}eras(length){return listStuff(this,length,eras,()=>{const intl={era:length};// This is problematic. Different calendars are going to define eras totally differently. What I need is the minimum set of dates
 // to definitely enumerate them.
-if(!this.eraCache[length]){this.eraCache[length]=[DateTime$1.utc(-40,1,1),DateTime$1.utc(2017,1,1)].map(dt=>this.extract(dt,intl,"era"));}return this.eraCache[length];});}extract(dt,intlOpts,field){const df=this.dtFormatter(dt,intlOpts),results=df.formatToParts(),matching=results.find(m=>m.type.toLowerCase()===field);return matching?matching.value:null;}numberFormatter(opts={}){// this forcesimple option is never used (the only caller short-circuits on it, but it seems safer to leave)
+if(!this.eraCache[length]){this.eraCache[length]=[DateTime.utc(-40,1,1),DateTime.utc(2017,1,1)].map(dt=>this.extract(dt,intl,"era"));}return this.eraCache[length];});}extract(dt,intlOpts,field){const df=this.dtFormatter(dt,intlOpts),results=df.formatToParts(),matching=results.find(m=>m.type.toLowerCase()===field);return matching?matching.value:null;}numberFormatter(opts={}){// this forcesimple option is never used (the only caller short-circuits on it, but it seems safer to leave)
 // (in contrast, the rest of the condition is used heavily)
 return new PolyNumberFormatter(this.intl,opts.forceSimple||this.fastNumbers,opts);}dtFormatter(dt,intlOpts={}){return new PolyDateFormatter(dt,this.intl,intlOpts);}relFormatter(opts={}){return new PolyRelFormatter(this.intl,this.isEnglish(),opts);}listFormatter(opts={}){return getCachedLF(this.intl,opts);}isEnglish(){return this.locale==="en"||this.locale.toLowerCase()==="en-us"||getCachedIntResolvedOptions(this.intl).locale.startsWith("en-us");}getWeekSettings(){if(this.weekSettings){return this.weekSettings;}else if(!hasLocaleWeekInfo()){return fallbackWeekSettings;}else{return getCachedWeekInfo(this.locale);}}getStartOfWeek(){return this.getWeekSettings().firstDay;}getMinDaysInFirstWeek(){return this.getWeekSettings().minimalDays;}getWeekendDays(){return this.getWeekSettings().weekend;}equals(other){return this.locale===other.locale&&this.numberingSystem===other.numberingSystem&&this.outputCalendar===other.outputCalendar;}toString(){return`Locale(${this.locale}, ${this.numberingSystem}, ${this.outputCalendar})`;}}let singleton=null;/**
- * A zone with a fixed offset (meaning no DST)
- * @implements {Zone}
- */class FixedOffsetZone extends Zone{/**
-   * Get a singleton instance of UTC
-   * @return {FixedOffsetZone}
-   */static get utcInstance(){if(singleton===null){singleton=new FixedOffsetZone(0);}return singleton;}/**
-   * Get an instance with a specified offset
-   * @param {number} offset - The offset in minutes
-   * @return {FixedOffsetZone}
-   */static instance(offset){return offset===0?FixedOffsetZone.utcInstance:new FixedOffsetZone(offset);}/**
-   * Get an instance of FixedOffsetZone from a UTC offset string, like "UTC+6"
-   * @param {string} s - The offset string to parse
-   * @example FixedOffsetZone.parseSpecifier("UTC+6")
-   * @example FixedOffsetZone.parseSpecifier("UTC+06")
-   * @example FixedOffsetZone.parseSpecifier("UTC-6:00")
-   * @return {FixedOffsetZone}
-   */static parseSpecifier(s){if(s){const r=s.match(/^utc(?:([+-]\d{1,2})(?::(\d{2}))?)?$/i);if(r){return new FixedOffsetZone(signedOffset(r[1],r[2]));}}return null;}constructor(offset){super();/** @private **/this.fixed=offset;}/**
-   * The type of zone. `fixed` for all instances of `FixedOffsetZone`.
-   * @override
-   * @type {string}
-   */get type(){return"fixed";}/**
-   * The name of this zone.
-   * All fixed zones' names always start with "UTC" (plus optional offset)
-   * @override
-   * @type {string}
-   */get name(){return this.fixed===0?"UTC":`UTC${formatOffset(this.fixed,"narrow")}`;}/**
-   * The IANA name of this zone, i.e. `Etc/UTC` or `Etc/GMT+/-nn`
-   *
-   * @override
-   * @type {string}
-   */get ianaName(){if(this.fixed===0){return"Etc/UTC";}else{return`Etc/GMT${formatOffset(-this.fixed,"narrow")}`;}}/**
-   * Returns the offset's common name at the specified timestamp.
-   *
-   * For fixed offset zones this equals to the zone name.
-   * @override
-   */offsetName(){return this.name;}/**
-   * Returns the offset's value as a string
-   * @override
-   * @param {number} ts - Epoch milliseconds for which to get the offset
-   * @param {string} format - What style of offset to return.
-   *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
-   * @return {string}
-   */formatOffset(ts,format){return formatOffset(this.fixed,format);}/**
-   * Returns whether the offset is known to be fixed for the whole year:
-   * Always returns true for all fixed offset zones.
-   * @override
-   * @type {boolean}
-   */get isUniversal(){return true;}/**
-   * Return the offset in minutes for this zone at the specified timestamp.
-   *
-   * For fixed offset zones, this is constant and does not depend on a timestamp.
-   * @override
-   * @return {number}
-   */offset(){return this.fixed;}/**
-   * Return whether this Zone is equal to another zone (i.e. also fixed and same offset)
-   * @override
-   * @param {Zone} otherZone - the zone to compare
-   * @return {boolean}
-   */equals(otherZone){return otherZone.type==="fixed"&&otherZone.fixed===this.fixed;}/**
-   * Return whether this Zone is valid:
-   * All fixed offset zones are valid.
-   * @override
-   * @type {boolean}
-   */get isValid(){return true;}}/**
- * A zone that failed to parse. You should never need to instantiate this.
- * @implements {Zone}
- */class InvalidZone extends Zone{constructor(zoneName){super();/**  @private */this.zoneName=zoneName;}/** @override **/get type(){return"invalid";}/** @override **/get name(){return this.zoneName;}/** @override **/get isUniversal(){return false;}/** @override **/offsetName(){return null;}/** @override **/formatOffset(){return"";}/** @override **/offset(){return NaN;}/** @override **/equals(){return false;}/** @override **/get isValid(){return false;}}/**
- * @private
- */function normalizeZone(input,defaultZone){if(isUndefined(input)||input===null){return defaultZone;}else if(input instanceof Zone){return input;}else if(isString(input)){const lowered=input.toLowerCase();if(lowered==="default")return defaultZone;else if(lowered==="local"||lowered==="system")return SystemZone.instance;else if(lowered==="utc"||lowered==="gmt")return FixedOffsetZone.utcInstance;else return FixedOffsetZone.parseSpecifier(lowered)||IANAZone.create(input);}else if(isNumber$1(input)){return FixedOffsetZone.instance(input);}else if(typeof input==="object"&&"offset"in input&&typeof input.offset==="function"){// This is dumb, but the instanceof check above doesn't seem to really work
+	 * A zone with a fixed offset (meaning no DST)
+	 * @implements {Zone}
+	 */class FixedOffsetZone extends Zone{/**
+	   * Get a singleton instance of UTC
+	   * @return {FixedOffsetZone}
+	   */static get utcInstance(){if(singleton===null){singleton=new FixedOffsetZone(0);}return singleton;}/**
+	   * Get an instance with a specified offset
+	   * @param {number} offset - The offset in minutes
+	   * @return {FixedOffsetZone}
+	   */static instance(offset){return offset===0?FixedOffsetZone.utcInstance:new FixedOffsetZone(offset);}/**
+	   * Get an instance of FixedOffsetZone from a UTC offset string, like "UTC+6"
+	   * @param {string} s - The offset string to parse
+	   * @example FixedOffsetZone.parseSpecifier("UTC+6")
+	   * @example FixedOffsetZone.parseSpecifier("UTC+06")
+	   * @example FixedOffsetZone.parseSpecifier("UTC-6:00")
+	   * @return {FixedOffsetZone}
+	   */static parseSpecifier(s){if(s){const r=s.match(/^utc(?:([+-]\d{1,2})(?::(\d{2}))?)?$/i);if(r){return new FixedOffsetZone(signedOffset(r[1],r[2]));}}return null;}constructor(offset){super();/** @private **/this.fixed=offset;}/**
+	   * The type of zone. `fixed` for all instances of `FixedOffsetZone`.
+	   * @override
+	   * @type {string}
+	   */get type(){return"fixed";}/**
+	   * The name of this zone.
+	   * All fixed zones' names always start with "UTC" (plus optional offset)
+	   * @override
+	   * @type {string}
+	   */get name(){return this.fixed===0?"UTC":`UTC${formatOffset(this.fixed,"narrow")}`;}/**
+	   * The IANA name of this zone, i.e. `Etc/UTC` or `Etc/GMT+/-nn`
+	   *
+	   * @override
+	   * @type {string}
+	   */get ianaName(){if(this.fixed===0){return"Etc/UTC";}else{return`Etc/GMT${formatOffset(-this.fixed,"narrow")}`;}}/**
+	   * Returns the offset's common name at the specified timestamp.
+	   *
+	   * For fixed offset zones this equals to the zone name.
+	   * @override
+	   */offsetName(){return this.name;}/**
+	   * Returns the offset's value as a string
+	   * @override
+	   * @param {number} ts - Epoch milliseconds for which to get the offset
+	   * @param {string} format - What style of offset to return.
+	   *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
+	   * @return {string}
+	   */formatOffset(ts,format){return formatOffset(this.fixed,format);}/**
+	   * Returns whether the offset is known to be fixed for the whole year:
+	   * Always returns true for all fixed offset zones.
+	   * @override
+	   * @type {boolean}
+	   */get isUniversal(){return true;}/**
+	   * Return the offset in minutes for this zone at the specified timestamp.
+	   *
+	   * For fixed offset zones, this is constant and does not depend on a timestamp.
+	   * @override
+	   * @return {number}
+	   */offset(){return this.fixed;}/**
+	   * Return whether this Zone is equal to another zone (i.e. also fixed and same offset)
+	   * @override
+	   * @param {Zone} otherZone - the zone to compare
+	   * @return {boolean}
+	   */equals(otherZone){return otherZone.type==="fixed"&&otherZone.fixed===this.fixed;}/**
+	   * Return whether this Zone is valid:
+	   * All fixed offset zones are valid.
+	   * @override
+	   * @type {boolean}
+	   */get isValid(){return true;}}/**
+	 * A zone that failed to parse. You should never need to instantiate this.
+	 * @implements {Zone}
+	 */class InvalidZone extends Zone{constructor(zoneName){super();/**  @private */this.zoneName=zoneName;}/** @override **/get type(){return"invalid";}/** @override **/get name(){return this.zoneName;}/** @override **/get isUniversal(){return false;}/** @override **/offsetName(){return null;}/** @override **/formatOffset(){return"";}/** @override **/offset(){return NaN;}/** @override **/equals(){return false;}/** @override **/get isValid(){return false;}}/**
+	 * @private
+	 */function normalizeZone(input,defaultZone){if(isUndefined(input)||input===null){return defaultZone;}else if(input instanceof Zone){return input;}else if(isString(input)){const lowered=input.toLowerCase();if(lowered==="default")return defaultZone;else if(lowered==="local"||lowered==="system")return SystemZone.instance;else if(lowered==="utc"||lowered==="gmt")return FixedOffsetZone.utcInstance;else return FixedOffsetZone.parseSpecifier(lowered)||IANAZone.create(input);}else if(isNumber(input)){return FixedOffsetZone.instance(input);}else if(typeof input==="object"&&"offset"in input&&typeof input.offset==="function"){// This is dumb, but the instanceof check above doesn't seem to really work
 // so we're duck checking it
 return input;}else{return new InvalidZone(input);}}const numberingSystems={arab:"[\u0660-\u0669]",arabext:"[\u06F0-\u06F9]",bali:"[\u1B50-\u1B59]",beng:"[\u09E6-\u09EF]",deva:"[\u0966-\u096F]",fullwide:"[\uFF10-\uFF19]",gujr:"[\u0AE6-\u0AEF]",hanidec:"[〇|一|二|三|四|五|六|七|八|九]",khmr:"[\u17E0-\u17E9]",knda:"[\u0CE6-\u0CEF]",laoo:"[\u0ED0-\u0ED9]",limb:"[\u1946-\u194F]",mlym:"[\u0D66-\u0D6F]",mong:"[\u1810-\u1819]",mymr:"[\u1040-\u1049]",orya:"[\u0B66-\u0B6F]",tamldec:"[\u0BE6-\u0BEF]",telu:"[\u0C66-\u0C6F]",thai:"[\u0E50-\u0E59]",tibt:"[\u0F20-\u0F29]",latn:"\\d"};const numberingSystemsUTF16={arab:[1632,1641],arabext:[1776,1785],bali:[6992,7001],beng:[2534,2543],deva:[2406,2415],fullwide:[65296,65303],gujr:[2790,2799],khmr:[6112,6121],knda:[3302,3311],laoo:[3792,3801],limb:[6470,6479],mlym:[3430,3439],mong:[6160,6169],mymr:[4160,4169],orya:[2918,2927],tamldec:[3046,3055],telu:[3174,3183],thai:[3664,3673],tibt:[3872,3881]};const hanidecChars=numberingSystems.hanidec.replace(/[\[|\]]/g,"").split("");function parseDigits(str){let value=parseInt(str,10);if(isNaN(value)){value="";for(let i=0;i<str.length;i++){const code=str.charCodeAt(i);if(str[i].search(numberingSystems.hanidec)!==-1){value+=hanidecChars.indexOf(str[i]);}else{for(const key in numberingSystemsUTF16){const[min,max]=numberingSystemsUTF16[key];if(code>=min&&code<=max){value+=code-min;}}}}return parseInt(value,10);}else{return value;}}// cache of {numberingSystem: {append: regex}}
 const digitRegexCache=new Map();function resetDigitRegexCache(){digitRegexCache.clear();}function digitRegex({numberingSystem},append=""){const ns=numberingSystem||"latn";let appendCache=digitRegexCache.get(ns);if(appendCache===undefined){appendCache=new Map();digitRegexCache.set(ns,appendCache);}let regex=appendCache.get(append);if(regex===undefined){regex=new RegExp(`${numberingSystems[ns]}${append}`);appendCache.set(append,regex);}return regex;}let now=()=>Date.now(),defaultZone="system",defaultLocale=null,defaultNumberingSystem=null,defaultOutputCalendar=null,twoDigitCutoffYear=60,throwOnInvalid,defaultWeekSettings=null;/**
- * Settings contains static getters and setters that control Luxon's overall behavior. Luxon is a simple library with few options, but the ones it does have live here.
- */class Settings{/**
-   * Get the callback for returning the current timestamp.
-   * @type {function}
-   */static get now(){return now;}/**
-   * Set the callback for returning the current timestamp.
-   * The function should return a number, which will be interpreted as an Epoch millisecond count
-   * @type {function}
-   * @example Settings.now = () => Date.now() + 3000 // pretend it is 3 seconds in the future
-   * @example Settings.now = () => 0 // always pretend it's Jan 1, 1970 at midnight in UTC time
-   */static set now(n){now=n;}/**
-   * Set the default time zone to create DateTimes in. Does not affect existing instances.
-   * Use the value "system" to reset this value to the system's time zone.
-   * @type {string}
-   */static set defaultZone(zone){defaultZone=zone;}/**
-   * Get the default time zone object currently used to create DateTimes. Does not affect existing instances.
-   * The default value is the system's time zone (the one set on the machine that runs this code).
-   * @type {Zone}
-   */static get defaultZone(){return normalizeZone(defaultZone,SystemZone.instance);}/**
-   * Get the default locale to create DateTimes with. Does not affect existing instances.
-   * @type {string}
-   */static get defaultLocale(){return defaultLocale;}/**
-   * Set the default locale to create DateTimes with. Does not affect existing instances.
-   * @type {string}
-   */static set defaultLocale(locale){defaultLocale=locale;}/**
-   * Get the default numbering system to create DateTimes with. Does not affect existing instances.
-   * @type {string}
-   */static get defaultNumberingSystem(){return defaultNumberingSystem;}/**
-   * Set the default numbering system to create DateTimes with. Does not affect existing instances.
-   * @type {string}
-   */static set defaultNumberingSystem(numberingSystem){defaultNumberingSystem=numberingSystem;}/**
-   * Get the default output calendar to create DateTimes with. Does not affect existing instances.
-   * @type {string}
-   */static get defaultOutputCalendar(){return defaultOutputCalendar;}/**
-   * Set the default output calendar to create DateTimes with. Does not affect existing instances.
-   * @type {string}
-   */static set defaultOutputCalendar(outputCalendar){defaultOutputCalendar=outputCalendar;}/**
-   * @typedef {Object} WeekSettings
-   * @property {number} firstDay
-   * @property {number} minimalDays
-   * @property {number[]} weekend
-   *//**
-   * @return {WeekSettings|null}
-   */static get defaultWeekSettings(){return defaultWeekSettings;}/**
-   * Allows overriding the default locale week settings, i.e. the start of the week, the weekend and
-   * how many days are required in the first week of a year.
-   * Does not affect existing instances.
-   *
-   * @param {WeekSettings|null} weekSettings
-   */static set defaultWeekSettings(weekSettings){defaultWeekSettings=validateWeekSettings(weekSettings);}/**
-   * Get the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
-   * @type {number}
-   */static get twoDigitCutoffYear(){return twoDigitCutoffYear;}/**
-   * Set the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
-   * @type {number}
-   * @example Settings.twoDigitCutoffYear = 0 // all 'yy' are interpreted as 20th century
-   * @example Settings.twoDigitCutoffYear = 99 // all 'yy' are interpreted as 21st century
-   * @example Settings.twoDigitCutoffYear = 50 // '49' -> 2049; '50' -> 1950
-   * @example Settings.twoDigitCutoffYear = 1950 // interpreted as 50
-   * @example Settings.twoDigitCutoffYear = 2050 // ALSO interpreted as 50
-   */static set twoDigitCutoffYear(cutoffYear){twoDigitCutoffYear=cutoffYear%100;}/**
-   * Get whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
-   * @type {boolean}
-   */static get throwOnInvalid(){return throwOnInvalid;}/**
-   * Set whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
-   * @type {boolean}
-   */static set throwOnInvalid(t){throwOnInvalid=t;}/**
-   * Reset Luxon's global caches. Should only be necessary in testing scenarios.
-   * @return {void}
-   */static resetCaches(){Locale.resetCache();IANAZone.resetCache();DateTime$1.resetCache();resetDigitRegexCache();}}class Invalid{constructor(reason,explanation){this.reason=reason;this.explanation=explanation;}toMessage(){if(this.explanation){return`${this.reason}: ${this.explanation}`;}else{return this.reason;}}}const nonLeapLadder=[0,31,59,90,120,151,181,212,243,273,304,334],leapLadder=[0,31,60,91,121,152,182,213,244,274,305,335];function unitOutOfRange(unit,value){return new Invalid("unit out of range",`you specified ${value} (of type ${typeof value}) as a ${unit}, which is invalid`);}function dayOfWeek(year,month,day){const d=new Date(Date.UTC(year,month-1,day));if(year<100&&year>=0){d.setUTCFullYear(d.getUTCFullYear()-1900);}const js=d.getUTCDay();return js===0?7:js;}function computeOrdinal(year,month,day){return day+(isLeapYear(year)?leapLadder:nonLeapLadder)[month-1];}function uncomputeOrdinal(year,ordinal){const table=isLeapYear(year)?leapLadder:nonLeapLadder,month0=table.findIndex(i=>i<ordinal),day=ordinal-table[month0];return{month:month0+1,day};}function isoWeekdayToLocal(isoWeekday,startOfWeek){return(isoWeekday-startOfWeek+7)%7+1;}/**
- * @private
- */function gregorianToWeek(gregObj,minDaysInFirstWeek=4,startOfWeek=1){const{year,month,day}=gregObj,ordinal=computeOrdinal(year,month,day),weekday=isoWeekdayToLocal(dayOfWeek(year,month,day),startOfWeek);let weekNumber=Math.floor((ordinal-weekday+14-minDaysInFirstWeek)/7),weekYear;if(weekNumber<1){weekYear=year-1;weekNumber=weeksInWeekYear(weekYear,minDaysInFirstWeek,startOfWeek);}else if(weekNumber>weeksInWeekYear(year,minDaysInFirstWeek,startOfWeek)){weekYear=year+1;weekNumber=1;}else{weekYear=year;}return _objectSpread({weekYear,weekNumber,weekday},timeObject(gregObj));}function weekToGregorian(weekData,minDaysInFirstWeek=4,startOfWeek=1){const{weekYear,weekNumber,weekday}=weekData,weekdayOfJan4=isoWeekdayToLocal(dayOfWeek(weekYear,1,minDaysInFirstWeek),startOfWeek),yearInDays=daysInYear(weekYear);let ordinal=weekNumber*7+weekday-weekdayOfJan4-7+minDaysInFirstWeek,year;if(ordinal<1){year=weekYear-1;ordinal+=daysInYear(year);}else if(ordinal>yearInDays){year=weekYear+1;ordinal-=daysInYear(weekYear);}else{year=weekYear;}const{month,day}=uncomputeOrdinal(year,ordinal);return _objectSpread({year,month,day},timeObject(weekData));}function gregorianToOrdinal(gregData){const{year,month,day}=gregData;const ordinal=computeOrdinal(year,month,day);return _objectSpread({year,ordinal},timeObject(gregData));}function ordinalToGregorian(ordinalData){const{year,ordinal}=ordinalData;const{month,day}=uncomputeOrdinal(year,ordinal);return _objectSpread({year,month,day},timeObject(ordinalData));}/**
- * Check if local week units like localWeekday are used in obj.
- * If so, validates that they are not mixed with ISO week units and then copies them to the normal week unit properties.
- * Modifies obj in-place!
- * @param obj the object values
- */function usesLocalWeekValues(obj,loc){const hasLocaleWeekData=!isUndefined(obj.localWeekday)||!isUndefined(obj.localWeekNumber)||!isUndefined(obj.localWeekYear);if(hasLocaleWeekData){const hasIsoWeekData=!isUndefined(obj.weekday)||!isUndefined(obj.weekNumber)||!isUndefined(obj.weekYear);if(hasIsoWeekData){throw new ConflictingSpecificationError("Cannot mix locale-based week fields with ISO-based week fields");}if(!isUndefined(obj.localWeekday))obj.weekday=obj.localWeekday;if(!isUndefined(obj.localWeekNumber))obj.weekNumber=obj.localWeekNumber;if(!isUndefined(obj.localWeekYear))obj.weekYear=obj.localWeekYear;delete obj.localWeekday;delete obj.localWeekNumber;delete obj.localWeekYear;return{minDaysInFirstWeek:loc.getMinDaysInFirstWeek(),startOfWeek:loc.getStartOfWeek()};}else{return{minDaysInFirstWeek:4,startOfWeek:1};}}function hasInvalidWeekData(obj,minDaysInFirstWeek=4,startOfWeek=1){const validYear=isInteger(obj.weekYear),validWeek=integerBetween(obj.weekNumber,1,weeksInWeekYear(obj.weekYear,minDaysInFirstWeek,startOfWeek)),validWeekday=integerBetween(obj.weekday,1,7);if(!validYear){return unitOutOfRange("weekYear",obj.weekYear);}else if(!validWeek){return unitOutOfRange("week",obj.weekNumber);}else if(!validWeekday){return unitOutOfRange("weekday",obj.weekday);}else return false;}function hasInvalidOrdinalData(obj){const validYear=isInteger(obj.year),validOrdinal=integerBetween(obj.ordinal,1,daysInYear(obj.year));if(!validYear){return unitOutOfRange("year",obj.year);}else if(!validOrdinal){return unitOutOfRange("ordinal",obj.ordinal);}else return false;}function hasInvalidGregorianData(obj){const validYear=isInteger(obj.year),validMonth=integerBetween(obj.month,1,12),validDay=integerBetween(obj.day,1,daysInMonth(obj.year,obj.month));if(!validYear){return unitOutOfRange("year",obj.year);}else if(!validMonth){return unitOutOfRange("month",obj.month);}else if(!validDay){return unitOutOfRange("day",obj.day);}else return false;}function hasInvalidTimeData(obj){const{hour,minute,second,millisecond}=obj;const validHour=integerBetween(hour,0,23)||hour===24&&minute===0&&second===0&&millisecond===0,validMinute=integerBetween(minute,0,59),validSecond=integerBetween(second,0,59),validMillisecond=integerBetween(millisecond,0,999);if(!validHour){return unitOutOfRange("hour",hour);}else if(!validMinute){return unitOutOfRange("minute",minute);}else if(!validSecond){return unitOutOfRange("second",second);}else if(!validMillisecond){return unitOutOfRange("millisecond",millisecond);}else return false;}/*
-  This is just a junk drawer, containing anything used across multiple classes.
-  Because Luxon is small(ish), this should stay small and we won't worry about splitting
-  it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
-*//**
- * @private
- */// TYPES
-function isUndefined(o){return typeof o==="undefined";}function isNumber$1(o){return typeof o==="number";}function isInteger(o){return typeof o==="number"&&o%1===0;}function isString(o){return typeof o==="string";}function isDate(o){return Object.prototype.toString.call(o)==="[object Date]";}// CAPABILITIES
+	 * Settings contains static getters and setters that control Luxon's overall behavior. Luxon is a simple library with few options, but the ones it does have live here.
+	 */class Settings{/**
+	   * Get the callback for returning the current timestamp.
+	   * @type {function}
+	   */static get now(){return now;}/**
+	   * Set the callback for returning the current timestamp.
+	   * The function should return a number, which will be interpreted as an Epoch millisecond count
+	   * @type {function}
+	   * @example Settings.now = () => Date.now() + 3000 // pretend it is 3 seconds in the future
+	   * @example Settings.now = () => 0 // always pretend it's Jan 1, 1970 at midnight in UTC time
+	   */static set now(n){now=n;}/**
+	   * Set the default time zone to create DateTimes in. Does not affect existing instances.
+	   * Use the value "system" to reset this value to the system's time zone.
+	   * @type {string}
+	   */static set defaultZone(zone){defaultZone=zone;}/**
+	   * Get the default time zone object currently used to create DateTimes. Does not affect existing instances.
+	   * The default value is the system's time zone (the one set on the machine that runs this code).
+	   * @type {Zone}
+	   */static get defaultZone(){return normalizeZone(defaultZone,SystemZone.instance);}/**
+	   * Get the default locale to create DateTimes with. Does not affect existing instances.
+	   * @type {string}
+	   */static get defaultLocale(){return defaultLocale;}/**
+	   * Set the default locale to create DateTimes with. Does not affect existing instances.
+	   * @type {string}
+	   */static set defaultLocale(locale){defaultLocale=locale;}/**
+	   * Get the default numbering system to create DateTimes with. Does not affect existing instances.
+	   * @type {string}
+	   */static get defaultNumberingSystem(){return defaultNumberingSystem;}/**
+	   * Set the default numbering system to create DateTimes with. Does not affect existing instances.
+	   * @type {string}
+	   */static set defaultNumberingSystem(numberingSystem){defaultNumberingSystem=numberingSystem;}/**
+	   * Get the default output calendar to create DateTimes with. Does not affect existing instances.
+	   * @type {string}
+	   */static get defaultOutputCalendar(){return defaultOutputCalendar;}/**
+	   * Set the default output calendar to create DateTimes with. Does not affect existing instances.
+	   * @type {string}
+	   */static set defaultOutputCalendar(outputCalendar){defaultOutputCalendar=outputCalendar;}/**
+	   * @typedef {Object} WeekSettings
+	   * @property {number} firstDay
+	   * @property {number} minimalDays
+	   * @property {number[]} weekend
+	   *//**
+	   * @return {WeekSettings|null}
+	   */static get defaultWeekSettings(){return defaultWeekSettings;}/**
+	   * Allows overriding the default locale week settings, i.e. the start of the week, the weekend and
+	   * how many days are required in the first week of a year.
+	   * Does not affect existing instances.
+	   *
+	   * @param {WeekSettings|null} weekSettings
+	   */static set defaultWeekSettings(weekSettings){defaultWeekSettings=validateWeekSettings(weekSettings);}/**
+	   * Get the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
+	   * @type {number}
+	   */static get twoDigitCutoffYear(){return twoDigitCutoffYear;}/**
+	   * Set the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
+	   * @type {number}
+	   * @example Settings.twoDigitCutoffYear = 0 // all 'yy' are interpreted as 20th century
+	   * @example Settings.twoDigitCutoffYear = 99 // all 'yy' are interpreted as 21st century
+	   * @example Settings.twoDigitCutoffYear = 50 // '49' -> 2049; '50' -> 1950
+	   * @example Settings.twoDigitCutoffYear = 1950 // interpreted as 50
+	   * @example Settings.twoDigitCutoffYear = 2050 // ALSO interpreted as 50
+	   */static set twoDigitCutoffYear(cutoffYear){twoDigitCutoffYear=cutoffYear%100;}/**
+	   * Get whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
+	   * @type {boolean}
+	   */static get throwOnInvalid(){return throwOnInvalid;}/**
+	   * Set whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
+	   * @type {boolean}
+	   */static set throwOnInvalid(t){throwOnInvalid=t;}/**
+	   * Reset Luxon's global caches. Should only be necessary in testing scenarios.
+	   * @return {void}
+	   */static resetCaches(){Locale.resetCache();IANAZone.resetCache();DateTime.resetCache();resetDigitRegexCache();}}class Invalid{constructor(reason,explanation){this.reason=reason;this.explanation=explanation;}toMessage(){if(this.explanation){return`${this.reason}: ${this.explanation}`;}else{return this.reason;}}}const nonLeapLadder=[0,31,59,90,120,151,181,212,243,273,304,334],leapLadder=[0,31,60,91,121,152,182,213,244,274,305,335];function unitOutOfRange(unit,value){return new Invalid("unit out of range",`you specified ${value} (of type ${typeof value}) as a ${unit}, which is invalid`);}function dayOfWeek(year,month,day){const d=new Date(Date.UTC(year,month-1,day));if(year<100&&year>=0){d.setUTCFullYear(d.getUTCFullYear()-1900);}const js=d.getUTCDay();return js===0?7:js;}function computeOrdinal(year,month,day){return day+(isLeapYear(year)?leapLadder:nonLeapLadder)[month-1];}function uncomputeOrdinal(year,ordinal){const table=isLeapYear(year)?leapLadder:nonLeapLadder,month0=table.findIndex(i=>i<ordinal),day=ordinal-table[month0];return{month:month0+1,day};}function isoWeekdayToLocal(isoWeekday,startOfWeek){return(isoWeekday-startOfWeek+7)%7+1;}/**
+	 * @private
+	 */function gregorianToWeek(gregObj,minDaysInFirstWeek=4,startOfWeek=1){const{year,month,day}=gregObj,ordinal=computeOrdinal(year,month,day),weekday=isoWeekdayToLocal(dayOfWeek(year,month,day),startOfWeek);let weekNumber=Math.floor((ordinal-weekday+14-minDaysInFirstWeek)/7),weekYear;if(weekNumber<1){weekYear=year-1;weekNumber=weeksInWeekYear(weekYear,minDaysInFirstWeek,startOfWeek);}else if(weekNumber>weeksInWeekYear(year,minDaysInFirstWeek,startOfWeek)){weekYear=year+1;weekNumber=1;}else{weekYear=year;}return _objectSpread({weekYear,weekNumber,weekday},timeObject(gregObj));}function weekToGregorian(weekData,minDaysInFirstWeek=4,startOfWeek=1){const{weekYear,weekNumber,weekday}=weekData,weekdayOfJan4=isoWeekdayToLocal(dayOfWeek(weekYear,1,minDaysInFirstWeek),startOfWeek),yearInDays=daysInYear(weekYear);let ordinal=weekNumber*7+weekday-weekdayOfJan4-7+minDaysInFirstWeek,year;if(ordinal<1){year=weekYear-1;ordinal+=daysInYear(year);}else if(ordinal>yearInDays){year=weekYear+1;ordinal-=daysInYear(weekYear);}else{year=weekYear;}const{month,day}=uncomputeOrdinal(year,ordinal);return _objectSpread({year,month,day},timeObject(weekData));}function gregorianToOrdinal(gregData){const{year,month,day}=gregData;const ordinal=computeOrdinal(year,month,day);return _objectSpread({year,ordinal},timeObject(gregData));}function ordinalToGregorian(ordinalData){const{year,ordinal}=ordinalData;const{month,day}=uncomputeOrdinal(year,ordinal);return _objectSpread({year,month,day},timeObject(ordinalData));}/**
+	 * Check if local week units like localWeekday are used in obj.
+	 * If so, validates that they are not mixed with ISO week units and then copies them to the normal week unit properties.
+	 * Modifies obj in-place!
+	 * @param obj the object values
+	 */function usesLocalWeekValues(obj,loc){const hasLocaleWeekData=!isUndefined(obj.localWeekday)||!isUndefined(obj.localWeekNumber)||!isUndefined(obj.localWeekYear);if(hasLocaleWeekData){const hasIsoWeekData=!isUndefined(obj.weekday)||!isUndefined(obj.weekNumber)||!isUndefined(obj.weekYear);if(hasIsoWeekData){throw new ConflictingSpecificationError("Cannot mix locale-based week fields with ISO-based week fields");}if(!isUndefined(obj.localWeekday))obj.weekday=obj.localWeekday;if(!isUndefined(obj.localWeekNumber))obj.weekNumber=obj.localWeekNumber;if(!isUndefined(obj.localWeekYear))obj.weekYear=obj.localWeekYear;delete obj.localWeekday;delete obj.localWeekNumber;delete obj.localWeekYear;return{minDaysInFirstWeek:loc.getMinDaysInFirstWeek(),startOfWeek:loc.getStartOfWeek()};}else{return{minDaysInFirstWeek:4,startOfWeek:1};}}function hasInvalidWeekData(obj,minDaysInFirstWeek=4,startOfWeek=1){const validYear=isInteger(obj.weekYear),validWeek=integerBetween(obj.weekNumber,1,weeksInWeekYear(obj.weekYear,minDaysInFirstWeek,startOfWeek)),validWeekday=integerBetween(obj.weekday,1,7);if(!validYear){return unitOutOfRange("weekYear",obj.weekYear);}else if(!validWeek){return unitOutOfRange("week",obj.weekNumber);}else if(!validWeekday){return unitOutOfRange("weekday",obj.weekday);}else return false;}function hasInvalidOrdinalData(obj){const validYear=isInteger(obj.year),validOrdinal=integerBetween(obj.ordinal,1,daysInYear(obj.year));if(!validYear){return unitOutOfRange("year",obj.year);}else if(!validOrdinal){return unitOutOfRange("ordinal",obj.ordinal);}else return false;}function hasInvalidGregorianData(obj){const validYear=isInteger(obj.year),validMonth=integerBetween(obj.month,1,12),validDay=integerBetween(obj.day,1,daysInMonth(obj.year,obj.month));if(!validYear){return unitOutOfRange("year",obj.year);}else if(!validMonth){return unitOutOfRange("month",obj.month);}else if(!validDay){return unitOutOfRange("day",obj.day);}else return false;}function hasInvalidTimeData(obj){const{hour,minute,second,millisecond}=obj;const validHour=integerBetween(hour,0,23)||hour===24&&minute===0&&second===0&&millisecond===0,validMinute=integerBetween(minute,0,59),validSecond=integerBetween(second,0,59),validMillisecond=integerBetween(millisecond,0,999);if(!validHour){return unitOutOfRange("hour",hour);}else if(!validMinute){return unitOutOfRange("minute",minute);}else if(!validSecond){return unitOutOfRange("second",second);}else if(!validMillisecond){return unitOutOfRange("millisecond",millisecond);}else return false;}/*
+	  This is just a junk drawer, containing anything used across multiple classes.
+	  Because Luxon is small(ish), this should stay small and we won't worry about splitting
+	  it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
+	*//**
+	 * @private
+	 */// TYPES
+function isUndefined(o){return typeof o==="undefined";}function isNumber(o){return typeof o==="number";}function isInteger(o){return typeof o==="number"&&o%1===0;}function isString(o){return typeof o==="string";}function isDate(o){return Object.prototype.toString.call(o)==="[object Date]";}// CAPABILITIES
 function hasRelative(){try{return typeof Intl!=="undefined"&&!!Intl.RelativeTimeFormat;}catch(e){return false;}}function hasLocaleWeekInfo(){try{return typeof Intl!=="undefined"&&!!Intl.Locale&&("weekInfo"in Intl.Locale.prototype||"getWeekInfo"in Intl.Locale.prototype);}catch(e){return false;}}// OBJECTS AND ARRAYS
-function maybeArray(thing){return Array.isArray(thing)?thing:[thing];}function bestBy(arr,by,compare){if(arr.length===0){return undefined;}return arr.reduce((best,next)=>{const pair=[by(next),next];if(!best){return pair;}else if(compare(best[0],pair[0])===best[0]){return best;}else{return pair;}},null)[1];}function pick$1(obj,keys){return keys.reduce((a,k)=>{a[k]=obj[k];return a;},{});}function hasOwnProperty(obj,prop){return Object.prototype.hasOwnProperty.call(obj,prop);}function validateWeekSettings(settings){if(settings==null){return null;}else if(typeof settings!=="object"){throw new InvalidArgumentError("Week settings must be an object");}else{if(!integerBetween(settings.firstDay,1,7)||!integerBetween(settings.minimalDays,1,7)||!Array.isArray(settings.weekend)||settings.weekend.some(v=>!integerBetween(v,1,7))){throw new InvalidArgumentError("Invalid week settings");}return{firstDay:settings.firstDay,minimalDays:settings.minimalDays,weekend:Array.from(settings.weekend)};}}// NUMBERS AND STRINGS
+function maybeArray(thing){return Array.isArray(thing)?thing:[thing];}function bestBy(arr,by,compare){if(arr.length===0){return undefined;}return arr.reduce((best,next)=>{const pair=[by(next),next];if(!best){return pair;}else if(compare(best[0],pair[0])===best[0]){return best;}else{return pair;}},null)[1];}function pick(obj,keys){return keys.reduce((a,k)=>{a[k]=obj[k];return a;},{});}function hasOwnProperty(obj,prop){return Object.prototype.hasOwnProperty.call(obj,prop);}function validateWeekSettings(settings){if(settings==null){return null;}else if(typeof settings!=="object"){throw new InvalidArgumentError("Week settings must be an object");}else{if(!integerBetween(settings.firstDay,1,7)||!integerBetween(settings.minimalDays,1,7)||!Array.isArray(settings.weekend)||settings.weekend.some(v=>!integerBetween(v,1,7))){throw new InvalidArgumentError("Invalid week settings");}return{firstDay:settings.firstDay,minimalDays:settings.minimalDays,weekend:Array.from(settings.weekend)};}}// NUMBERS AND STRINGS
 function integerBetween(thing,bottom,top){return isInteger(thing)&&thing>=bottom&&thing<=top;}// x % n but takes the sign of n instead of x
-function floorMod(x,n){return x-n*Math.floor(x/n);}function padStart$1(input,n=2){const isNeg=input<0;let padded;if(isNeg){padded="-"+(""+-input).padStart(n,"0");}else{padded=(""+input).padStart(n,"0");}return padded;}function parseInteger(string){if(isUndefined(string)||string===null||string===""){return undefined;}else{return parseInt(string,10);}}function parseFloating(string){if(isUndefined(string)||string===null||string===""){return undefined;}else{return parseFloat(string);}}function parseMillis(fraction){// Return undefined (instead of 0) in these cases, where fraction is not set
-if(isUndefined(fraction)||fraction===null||fraction===""){return undefined;}else{const f=parseFloat("0."+fraction)*1000;return Math.floor(f);}}function roundTo(number,digits,towardZero=false){const factor=10**digits,rounder=towardZero?Math.trunc:Math.round;return rounder(number*factor)/factor;}// DATE BASICS
+function floorMod(x,n){return x-n*Math.floor(x/n);}function padStart(input,n=2){const isNeg=input<0;let padded;if(isNeg){padded="-"+(""+-input).padStart(n,"0");}else{padded=(""+input).padStart(n,"0");}return padded;}function parseInteger(string){if(isUndefined(string)||string===null||string===""){return undefined;}else{return parseInt(string,10);}}function parseFloating(string){if(isUndefined(string)||string===null||string===""){return undefined;}else{return parseFloat(string);}}function parseMillis(fraction){// Return undefined (instead of 0) in these cases, where fraction is not set
+if(isUndefined(fraction)||fraction===null||fraction===""){return undefined;}else{const f=parseFloat("0."+fraction)*1000;return Math.floor(f);}}function roundTo(number,digits,rounding="round"){const factor=10**digits;switch(rounding){case"expand":return number>0?Math.ceil(number*factor)/factor:Math.floor(number*factor)/factor;case"trunc":return Math.trunc(number*factor)/factor;case"round":return Math.round(number*factor)/factor;case"floor":return Math.floor(number*factor)/factor;case"ceil":return Math.ceil(number*factor)/factor;default:throw new RangeError(`Value rounding ${rounding} is out of range`);}}// DATE BASICS
 function isLeapYear(year){return year%4===0&&(year%100!==0||year%400===0);}function daysInYear(year){return isLeapYear(year)?366:365;}function daysInMonth(year,month){const modMonth=floorMod(month-1,12)+1,modYear=year+(month-modMonth)/12;if(modMonth===2){return isLeapYear(modYear)?29:28;}else{return[31,null,31,30,31,30,31,31,30,31,30,31][modMonth-1];}}// convert a calendar object to a local timestamp (epoch, but with the offset baked in)
 function objToLocalTS(obj){let d=Date.UTC(obj.year,obj.month-1,obj.day,obj.hour,obj.minute,obj.second,obj.millisecond);// for legacy reasons, years between 0 and 99 are interpreted as 19XX; revert that
 if(obj.year<100&&obj.year>=0){d=new Date(d);// set the month and day again, this is necessary because year 2000 is a leap year, but year 100 is not
@@ -2220,20 +2289,21 @@ function firstWeekOffset(year,minDaysInFirstWeek,startOfWeek){const fwdlw=isoWee
 function parseZoneInfo(ts,offsetFormat,locale,timeZone=null){const date=new Date(ts),intlOpts={hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"};if(timeZone){intlOpts.timeZone=timeZone;}const modified=_objectSpread({timeZoneName:offsetFormat},intlOpts);const parsed=new Intl.DateTimeFormat(locale,modified).formatToParts(date).find(m=>m.type.toLowerCase()==="timezonename");return parsed?parsed.value:null;}// signedOffset('-5', '30') -> -330
 function signedOffset(offHourStr,offMinuteStr){let offHour=parseInt(offHourStr,10);// don't || this because we want to preserve -0
 if(Number.isNaN(offHour)){offHour=0;}const offMin=parseInt(offMinuteStr,10)||0,offMinSigned=offHour<0||Object.is(offHour,-0)?-offMin:offMin;return offHour*60+offMinSigned;}// COERCION
-function asNumber(value){const numericValue=Number(value);if(typeof value==="boolean"||value===""||Number.isNaN(numericValue))throw new InvalidArgumentError(`Invalid unit value ${value}`);return numericValue;}function normalizeObject(obj,normalizer){const normalized={};for(const u in obj){if(hasOwnProperty(obj,u)){const v=obj[u];if(v===undefined||v===null)continue;normalized[normalizer(u)]=asNumber(v);}}return normalized;}/**
- * Returns the offset's value as a string
- * @param {number} ts - Epoch milliseconds for which to get the offset
- * @param {string} format - What style of offset to return.
- *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
- * @return {string}
- */function formatOffset(offset,format){const hours=Math.trunc(Math.abs(offset/60)),minutes=Math.trunc(Math.abs(offset%60)),sign=offset>=0?"+":"-";switch(format){case"short":return`${sign}${padStart$1(hours,2)}:${padStart$1(minutes,2)}`;case"narrow":return`${sign}${hours}${minutes>0?`:${minutes}`:""}`;case"techie":return`${sign}${padStart$1(hours,2)}${padStart$1(minutes,2)}`;default:throw new RangeError(`Value format ${format} is out of range for property format`);}}function timeObject(obj){return pick$1(obj,["hour","minute","second","millisecond"]);}/**
- * @private
- */const monthsLong=["January","February","March","April","May","June","July","August","September","October","November","December"];const monthsShort=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];const monthsNarrow=["J","F","M","A","M","J","J","A","S","O","N","D"];function months(length){switch(length){case"narrow":return[...monthsNarrow];case"short":return[...monthsShort];case"long":return[...monthsLong];case"numeric":return["1","2","3","4","5","6","7","8","9","10","11","12"];case"2-digit":return["01","02","03","04","05","06","07","08","09","10","11","12"];default:return null;}}const weekdaysLong=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];const weekdaysShort=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];const weekdaysNarrow=["M","T","W","T","F","S","S"];function weekdays(length){switch(length){case"narrow":return[...weekdaysNarrow];case"short":return[...weekdaysShort];case"long":return[...weekdaysLong];case"numeric":return["1","2","3","4","5","6","7"];default:return null;}}const meridiems=["AM","PM"];const erasLong=["Before Christ","Anno Domini"];const erasShort=["BC","AD"];const erasNarrow=["B","A"];function eras(length){switch(length){case"narrow":return[...erasNarrow];case"short":return[...erasShort];case"long":return[...erasLong];default:return null;}}function meridiemForDateTime(dt){return meridiems[dt.hour<12?0:1];}function weekdayForDateTime(dt,length){return weekdays(length)[dt.weekday-1];}function monthForDateTime(dt,length){return months(length)[dt.month-1];}function eraForDateTime(dt,length){return eras(length)[dt.year<0?0:1];}function formatRelativeTime(unit,count,numeric="always",narrow=false){const units={years:["year","yr."],quarters:["quarter","qtr."],months:["month","mo."],weeks:["week","wk."],days:["day","day","days"],hours:["hour","hr."],minutes:["minute","min."],seconds:["second","sec."]};const lastable=["hours","minutes","seconds"].indexOf(unit)===-1;if(numeric==="auto"&&lastable){const isDay=unit==="days";switch(count){case 1:return isDay?"tomorrow":`next ${units[unit][0]}`;case-1:return isDay?"yesterday":`last ${units[unit][0]}`;case 0:return isDay?"today":`this ${units[unit][0]}`;}}const isInPast=Object.is(count,-0)||count<0,fmtValue=Math.abs(count),singular=fmtValue===1,lilUnits=units[unit],fmtUnit=narrow?singular?lilUnits[1]:lilUnits[2]||lilUnits[1]:singular?units[unit][0]:unit;return isInPast?`${fmtValue} ${fmtUnit} ago`:`in ${fmtValue} ${fmtUnit}`;}function stringifyTokens(splits,tokenToString){let s="";for(const token of splits){if(token.literal){s+=token.val;}else{s+=tokenToString(token.val);}}return s;}const macroTokenToFormatOpts={D:DATE_SHORT,DD:DATE_MED,DDD:DATE_FULL,DDDD:DATE_HUGE,t:TIME_SIMPLE,tt:TIME_WITH_SECONDS,ttt:TIME_WITH_SHORT_OFFSET,tttt:TIME_WITH_LONG_OFFSET,T:TIME_24_SIMPLE,TT:TIME_24_WITH_SECONDS,TTT:TIME_24_WITH_SHORT_OFFSET,TTTT:TIME_24_WITH_LONG_OFFSET,f:DATETIME_SHORT,ff:DATETIME_MED,fff:DATETIME_FULL,ffff:DATETIME_HUGE,F:DATETIME_SHORT_WITH_SECONDS,FF:DATETIME_MED_WITH_SECONDS,FFF:DATETIME_FULL_WITH_SECONDS,FFFF:DATETIME_HUGE_WITH_SECONDS};/**
- * @private
- */class Formatter{static create(locale,opts={}){return new Formatter(locale,opts);}static parseFormat(fmt){// white-space is always considered a literal in user-provided formats
+function asNumber(value){const numericValue=Number(value);if(typeof value==="boolean"||value===""||!Number.isFinite(numericValue))throw new InvalidArgumentError(`Invalid unit value ${value}`);return numericValue;}function normalizeObject(obj,normalizer){const normalized={};for(const u in obj){if(hasOwnProperty(obj,u)){const v=obj[u];if(v===undefined||v===null)continue;normalized[normalizer(u)]=asNumber(v);}}return normalized;}/**
+	 * Returns the offset's value as a string
+	 * @param {number} ts - Epoch milliseconds for which to get the offset
+	 * @param {string} format - What style of offset to return.
+	 *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
+	 * @return {string}
+	 */function formatOffset(offset,format){const hours=Math.trunc(Math.abs(offset/60)),minutes=Math.trunc(Math.abs(offset%60)),sign=offset>=0?"+":"-";switch(format){case"short":return`${sign}${padStart(hours,2)}:${padStart(minutes,2)}`;case"narrow":return`${sign}${hours}${minutes>0?`:${minutes}`:""}`;case"techie":return`${sign}${padStart(hours,2)}${padStart(minutes,2)}`;default:throw new RangeError(`Value format ${format} is out of range for property format`);}}function timeObject(obj){return pick(obj,["hour","minute","second","millisecond"]);}/**
+	 * @private
+	 */const monthsLong=["January","February","March","April","May","June","July","August","September","October","November","December"];const monthsShort=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];const monthsNarrow=["J","F","M","A","M","J","J","A","S","O","N","D"];function months(length){switch(length){case"narrow":return[...monthsNarrow];case"short":return[...monthsShort];case"long":return[...monthsLong];case"numeric":return["1","2","3","4","5","6","7","8","9","10","11","12"];case"2-digit":return["01","02","03","04","05","06","07","08","09","10","11","12"];default:return null;}}const weekdaysLong=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];const weekdaysShort=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];const weekdaysNarrow=["M","T","W","T","F","S","S"];function weekdays(length){switch(length){case"narrow":return[...weekdaysNarrow];case"short":return[...weekdaysShort];case"long":return[...weekdaysLong];case"numeric":return["1","2","3","4","5","6","7"];default:return null;}}const meridiems=["AM","PM"];const erasLong=["Before Christ","Anno Domini"];const erasShort=["BC","AD"];const erasNarrow=["B","A"];function eras(length){switch(length){case"narrow":return[...erasNarrow];case"short":return[...erasShort];case"long":return[...erasLong];default:return null;}}function meridiemForDateTime(dt){return meridiems[dt.hour<12?0:1];}function weekdayForDateTime(dt,length){return weekdays(length)[dt.weekday-1];}function monthForDateTime(dt,length){return months(length)[dt.month-1];}function eraForDateTime(dt,length){return eras(length)[dt.year<0?0:1];}function formatRelativeTime(unit,count,numeric="always",narrow=false){const units={years:["year","yr."],quarters:["quarter","qtr."],months:["month","mo."],weeks:["week","wk."],days:["day","day","days"],hours:["hour","hr."],minutes:["minute","min."],seconds:["second","sec."]};const lastable=["hours","minutes","seconds"].indexOf(unit)===-1;if(numeric==="auto"&&lastable){const isDay=unit==="days";switch(count){case 1:return isDay?"tomorrow":`next ${units[unit][0]}`;case-1:return isDay?"yesterday":`last ${units[unit][0]}`;case 0:return isDay?"today":`this ${units[unit][0]}`;}}const isInPast=Object.is(count,-0)||count<0,fmtValue=Math.abs(count),singular=fmtValue===1,lilUnits=units[unit],fmtUnit=narrow?singular?lilUnits[1]:lilUnits[2]||lilUnits[1]:singular?units[unit][0]:unit;return isInPast?`${fmtValue} ${fmtUnit} ago`:`in ${fmtValue} ${fmtUnit}`;}function stringifyTokens(splits,tokenToString){let s="";for(const token of splits){if(token.literal){s+=token.val;}else{s+=tokenToString(token.val);}}return s;}const macroTokenToFormatOpts={D:DATE_SHORT,DD:DATE_MED,DDD:DATE_FULL,DDDD:DATE_HUGE,t:TIME_SIMPLE,tt:TIME_WITH_SECONDS,ttt:TIME_WITH_SHORT_OFFSET,tttt:TIME_WITH_LONG_OFFSET,T:TIME_24_SIMPLE,TT:TIME_24_WITH_SECONDS,TTT:TIME_24_WITH_SHORT_OFFSET,TTTT:TIME_24_WITH_LONG_OFFSET,f:DATETIME_SHORT,ff:DATETIME_MED,fff:DATETIME_FULL,ffff:DATETIME_HUGE,F:DATETIME_SHORT_WITH_SECONDS,FF:DATETIME_MED_WITH_SECONDS,FFF:DATETIME_FULL_WITH_SECONDS,FFFF:DATETIME_HUGE_WITH_SECONDS};/**
+	 * @private
+	 */class Formatter{static create(locale,opts={}){return new Formatter(locale,opts);}static parseFormat(fmt){// white-space is always considered a literal in user-provided formats
 // the " " token has a special meaning (see unitForToken)
-let current=null,currentFull="",bracketed=false;const splits=[];for(let i=0;i<fmt.length;i++){const c=fmt.charAt(i);if(c==="'"){if(currentFull.length>0){splits.push({literal:bracketed||/^\s+$/.test(currentFull),val:currentFull});}current=null;currentFull="";bracketed=!bracketed;}else if(bracketed){currentFull+=c;}else if(c===current){currentFull+=c;}else{if(currentFull.length>0){splits.push({literal:/^\s+$/.test(currentFull),val:currentFull});}currentFull=c;current=c;}}if(currentFull.length>0){splits.push({literal:bracketed||/^\s+$/.test(currentFull),val:currentFull});}return splits;}static macroTokenToFormatOpts(token){return macroTokenToFormatOpts[token];}constructor(locale,formatOpts){this.opts=formatOpts;this.loc=locale;this.systemLoc=null;}formatWithSystemDefault(dt,opts){if(this.systemLoc===null){this.systemLoc=this.loc.redefaultToSystem();}const df=this.systemLoc.dtFormatter(dt,_objectSpread(_objectSpread({},this.opts),opts));return df.format();}dtFormatter(dt,opts={}){return this.loc.dtFormatter(dt,_objectSpread(_objectSpread({},this.opts),opts));}formatDateTime(dt,opts){return this.dtFormatter(dt,opts).format();}formatDateTimeParts(dt,opts){return this.dtFormatter(dt,opts).formatToParts();}formatInterval(interval,opts){const df=this.dtFormatter(interval.start,opts);return df.dtf.formatRange(interval.start.toJSDate(),interval.end.toJSDate());}resolvedOptions(dt,opts){return this.dtFormatter(dt,opts).resolvedOptions();}num(n,p=0){// we get some perf out of doing this here, annoyingly
-if(this.opts.forceSimple){return padStart$1(n,p);}const opts=_objectSpread({},this.opts);if(p>0){opts.padTo=p;}return this.loc.numberFormatter(opts).format(n);}formatDateTimeFromString(dt,fmt){const knownEnglish=this.loc.listingMode()==="en",useDateTimeFormatter=this.loc.outputCalendar&&this.loc.outputCalendar!=="gregory",string=(opts,extract)=>this.loc.extract(dt,opts,extract),formatOffset=opts=>{if(dt.isOffsetFixed&&dt.offset===0&&opts.allowZ){return"Z";}return dt.isValid?dt.zone.formatOffset(dt.ts,opts.format):"";},meridiem=()=>knownEnglish?meridiemForDateTime(dt):string({hour:"numeric",hourCycle:"h12"},"dayperiod"),month=(length,standalone)=>knownEnglish?monthForDateTime(dt,length):string(standalone?{month:length}:{month:length,day:"numeric"},"month"),weekday=(length,standalone)=>knownEnglish?weekdayForDateTime(dt,length):string(standalone?{weekday:length}:{weekday:length,month:"long",day:"numeric"},"weekday"),maybeMacro=token=>{const formatOpts=Formatter.macroTokenToFormatOpts(token);if(formatOpts){return this.formatWithSystemDefault(dt,formatOpts);}else{return token;}},era=length=>knownEnglish?eraForDateTime(dt,length):string({era:length},"era"),tokenToString=token=>{// Where possible: https://cldr.unicode.org/translation/date-time/date-time-symbols
+let current=null,currentFull="",bracketed=false;const splits=[];for(let i=0;i<fmt.length;i++){const c=fmt.charAt(i);if(c==="'"){// turn '' into a literal signal quote instead of just skipping the empty literal
+if(currentFull.length>0||bracketed){splits.push({literal:bracketed||/^\s+$/.test(currentFull),val:currentFull===""?"'":currentFull});}current=null;currentFull="";bracketed=!bracketed;}else if(bracketed){currentFull+=c;}else if(c===current){currentFull+=c;}else{if(currentFull.length>0){splits.push({literal:/^\s+$/.test(currentFull),val:currentFull});}currentFull=c;current=c;}}if(currentFull.length>0){splits.push({literal:bracketed||/^\s+$/.test(currentFull),val:currentFull});}return splits;}static macroTokenToFormatOpts(token){return macroTokenToFormatOpts[token];}constructor(locale,formatOpts){this.opts=formatOpts;this.loc=locale;this.systemLoc=null;}formatWithSystemDefault(dt,opts){if(this.systemLoc===null){this.systemLoc=this.loc.redefaultToSystem();}const df=this.systemLoc.dtFormatter(dt,_objectSpread(_objectSpread({},this.opts),opts));return df.format();}dtFormatter(dt,opts={}){return this.loc.dtFormatter(dt,_objectSpread(_objectSpread({},this.opts),opts));}formatDateTime(dt,opts){return this.dtFormatter(dt,opts).format();}formatDateTimeParts(dt,opts){return this.dtFormatter(dt,opts).formatToParts();}formatInterval(interval,opts){const df=this.dtFormatter(interval.start,opts);return df.dtf.formatRange(interval.start.toJSDate(),interval.end.toJSDate());}resolvedOptions(dt,opts){return this.dtFormatter(dt,opts).resolvedOptions();}num(n,p=0,signDisplay=undefined){// we get some perf out of doing this here, annoyingly
+if(this.opts.forceSimple){return padStart(n,p);}const opts=_objectSpread({},this.opts);if(p>0){opts.padTo=p;}if(signDisplay){opts.signDisplay=signDisplay;}return this.loc.numberFormatter(opts).format(n);}formatDateTimeFromString(dt,fmt){const knownEnglish=this.loc.listingMode()==="en",useDateTimeFormatter=this.loc.outputCalendar&&this.loc.outputCalendar!=="gregory",string=(opts,extract)=>this.loc.extract(dt,opts,extract),formatOffset=opts=>{if(dt.isOffsetFixed&&dt.offset===0&&opts.allowZ){return"Z";}return dt.isValid?dt.zone.formatOffset(dt.ts,opts.format):"";},meridiem=()=>knownEnglish?meridiemForDateTime(dt):string({hour:"numeric",hourCycle:"h12"},"dayperiod"),month=(length,standalone)=>knownEnglish?monthForDateTime(dt,length):string(standalone?{month:length}:{month:length,day:"numeric"},"month"),weekday=(length,standalone)=>knownEnglish?weekdayForDateTime(dt,length):string(standalone?{weekday:length}:{weekday:length,month:"long",day:"numeric"},"weekday"),maybeMacro=token=>{const formatOpts=Formatter.macroTokenToFormatOpts(token);if(formatOpts){return this.formatWithSystemDefault(dt,formatOpts);}else{return token;}},era=length=>knownEnglish?eraForDateTime(dt,length):string({era:length},"era"),tokenToString=token=>{// Where possible: https://cldr.unicode.org/translation/date-time/date-time-symbols
 switch(token){// ms
 case"S":return this.num(dt.millisecond);case"u":// falls through
 case"SSS":return this.num(dt.millisecond,3);// seconds
@@ -2282,17 +2352,20 @@ case"G":// like AD
 return era("short");case"GG":// like Anno Domini
 return era("long");case"GGGGG":return era("narrow");case"kk":return this.num(dt.weekYear.toString().slice(-2),2);case"kkkk":return this.num(dt.weekYear,4);case"W":return this.num(dt.weekNumber);case"WW":return this.num(dt.weekNumber,2);case"n":return this.num(dt.localWeekNumber);case"nn":return this.num(dt.localWeekNumber,2);case"ii":return this.num(dt.localWeekYear.toString().slice(-2),2);case"iiii":return this.num(dt.localWeekYear,4);case"o":return this.num(dt.ordinal);case"ooo":return this.num(dt.ordinal,3);case"q":// like 1
 return this.num(dt.quarter);case"qq":// like 01
-return this.num(dt.quarter,2);case"X":return this.num(Math.floor(dt.ts/1000));case"x":return this.num(dt.ts);default:return maybeMacro(token);}};return stringifyTokens(Formatter.parseFormat(fmt),tokenToString);}formatDurationFromString(dur,fmt){const tokenToField=token=>{switch(token[0]){case"S":return"millisecond";case"s":return"second";case"m":return"minute";case"h":return"hour";case"d":return"day";case"w":return"week";case"M":return"month";case"y":return"year";default:return null;}},tokenToString=lildur=>token=>{const mapped=tokenToField(token);if(mapped){return this.num(lildur.get(mapped),token.length);}else{return token;}},tokens=Formatter.parseFormat(fmt),realTokens=tokens.reduce((found,{literal,val})=>literal?found:found.concat(val),[]),collapsed=dur.shiftTo(...realTokens.map(tokenToField).filter(t=>t));return stringifyTokens(tokens,tokenToString(collapsed));}}/*
- * This file handles parsing for well-specified formats. Here's how it works:
- * Two things go into parsing: a regex to match with and an extractor to take apart the groups in the match.
- * An extractor is just a function that takes a regex match array and returns a { year: ..., month: ... } object
- * parse() does the work of executing the regex and applying the extractor. It takes multiple regex/extractor pairs to try in sequence.
- * Extractors can take a "cursor" representing the offset in the match to look at. This makes it easy to combine extractors.
- * combineExtractors() does the work of combining them, keeping track of the cursor through multiple extractions.
- * Some extractions are super dumb and simpleParse and fromStrings help DRY them.
- */const ianaRegex=/[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;function combineRegexes(...regexes){const full=regexes.reduce((f,r)=>f+r.source,"");return RegExp(`^${full}$`);}function combineExtractors(...extractors){return m=>extractors.reduce(([mergedVals,mergedZone,cursor],ex)=>{const[val,zone,next]=ex(m,cursor);return[_objectSpread(_objectSpread({},mergedVals),val),zone||mergedZone,next];},[{},null,1]).slice(0,2);}function parse$2(s,...patterns){if(s==null){return[null,null];}for(const[regex,extractor]of patterns){const m=regex.exec(s);if(m){return extractor(m);}}return[null,null];}function simpleParse(...keys){return(match,cursor)=>{const ret={};let i;for(i=0;i<keys.length;i++){ret[keys[i]]=parseInteger(match[cursor+i]);}return[ret,null,cursor+i];};}// ISO and SQL parsing
-const offsetRegex=/(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/;const isoExtendedZone=`(?:${offsetRegex.source}?(?:\\[(${ianaRegex.source})\\])?)?`;const isoTimeBaseRegex=/(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;const isoTimeRegex=RegExp(`${isoTimeBaseRegex.source}${isoExtendedZone}`);const isoTimeExtensionRegex=RegExp(`(?:T${isoTimeRegex.source})?`);const isoYmdRegex=/([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/;const isoWeekRegex=/(\d{4})-?W(\d\d)(?:-?(\d))?/;const isoOrdinalRegex=/(\d{4})-?(\d{3})/;const extractISOWeekData=simpleParse("weekYear","weekNumber","weekDay");const extractISOOrdinalData=simpleParse("year","ordinal");const sqlYmdRegex=/(\d{4})-(\d\d)-(\d\d)/;// dumbed-down version of the ISO one
-const sqlTimeRegex=RegExp(`${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${ianaRegex.source}))?`);const sqlTimeExtensionRegex=RegExp(`(?: ${sqlTimeRegex.source})?`);function int$1(match,pos,fallback){const m=match[pos];return isUndefined(m)?fallback:parseInteger(m);}function extractISOYmd(match,cursor){const item={year:int$1(match,cursor),month:int$1(match,cursor+1,1),day:int$1(match,cursor+2,1)};return[item,null,cursor+3];}function extractISOTime(match,cursor){const item={hours:int$1(match,cursor,0),minutes:int$1(match,cursor+1,0),seconds:int$1(match,cursor+2,0),milliseconds:parseMillis(match[cursor+3])};return[item,null,cursor+4];}function extractISOOffset(match,cursor){const local=!match[cursor]&&!match[cursor+1],fullOffset=signedOffset(match[cursor+1],match[cursor+2]),zone=local?null:FixedOffsetZone.instance(fullOffset);return[{},zone,cursor+3];}function extractIANAZone(match,cursor){const zone=match[cursor]?IANAZone.create(match[cursor]):null;return[{},zone,cursor+1];}// ISO time parsing
+return this.num(dt.quarter,2);case"X":return this.num(Math.floor(dt.ts/1000));case"x":return this.num(dt.ts);default:return maybeMacro(token);}};return stringifyTokens(Formatter.parseFormat(fmt),tokenToString);}formatDurationFromString(dur,fmt){const invertLargest=this.opts.signMode==="negativeLargestOnly"?-1:1;const tokenToField=token=>{switch(token[0]){case"S":return"milliseconds";case"s":return"seconds";case"m":return"minutes";case"h":return"hours";case"d":return"days";case"w":return"weeks";case"M":return"months";case"y":return"years";default:return null;}},tokenToString=(lildur,info)=>token=>{const mapped=tokenToField(token);if(mapped){const inversionFactor=info.isNegativeDuration&&mapped!==info.largestUnit?invertLargest:1;let signDisplay;if(this.opts.signMode==="negativeLargestOnly"&&mapped!==info.largestUnit){signDisplay="never";}else if(this.opts.signMode==="all"){signDisplay="always";}else{// "auto" and "negative" are the same, but "auto" has better support
+signDisplay="auto";}return this.num(lildur.get(mapped)*inversionFactor,token.length,signDisplay);}else{return token;}},tokens=Formatter.parseFormat(fmt),realTokens=tokens.reduce((found,{literal,val})=>literal?found:found.concat(val),[]),collapsed=dur.shiftTo(...realTokens.map(tokenToField).filter(t=>t)),durationInfo={isNegativeDuration:collapsed<0,// this relies on "collapsed" being based on "shiftTo", which builds up the object
+// in order
+largestUnit:Object.keys(collapsed.values)[0]};return stringifyTokens(tokens,tokenToString(collapsed,durationInfo));}}/*
+	 * This file handles parsing for well-specified formats. Here's how it works:
+	 * Two things go into parsing: a regex to match with and an extractor to take apart the groups in the match.
+	 * An extractor is just a function that takes a regex match array and returns a { year: ..., month: ... } object
+	 * parse() does the work of executing the regex and applying the extractor. It takes multiple regex/extractor pairs to try in sequence.
+	 * Extractors can take a "cursor" representing the offset in the match to look at. This makes it easy to combine extractors.
+	 * combineExtractors() does the work of combining them, keeping track of the cursor through multiple extractions.
+	 * Some extractions are super dumb and simpleParse and fromStrings help DRY them.
+	 */const ianaRegex=/[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;function combineRegexes(...regexes){const full=regexes.reduce((f,r)=>f+r.source,"");return RegExp(`^${full}$`);}function combineExtractors(...extractors){return m=>extractors.reduce(([mergedVals,mergedZone,cursor],ex)=>{const[val,zone,next]=ex(m,cursor);return[_objectSpread(_objectSpread({},mergedVals),val),zone||mergedZone,next];},[{},null,1]).slice(0,2);}function parse(s,...patterns){if(s==null){return[null,null];}for(const[regex,extractor]of patterns){const m=regex.exec(s);if(m){return extractor(m);}}return[null,null];}function simpleParse(...keys){return(match,cursor)=>{const ret={};let i;for(i=0;i<keys.length;i++){ret[keys[i]]=parseInteger(match[cursor+i]);}return[ret,null,cursor+i];};}// ISO and SQL parsing
+const offsetRegex=/(?:([Zz])|([+-]\d\d)(?::?(\d\d))?)/;const isoExtendedZone=`(?:${offsetRegex.source}?(?:\\[(${ianaRegex.source})\\])?)?`;const isoTimeBaseRegex=/(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;const isoTimeRegex=RegExp(`${isoTimeBaseRegex.source}${isoExtendedZone}`);const isoTimeExtensionRegex=RegExp(`(?:[Tt]${isoTimeRegex.source})?`);const isoYmdRegex=/([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/;const isoWeekRegex=/(\d{4})-?W(\d\d)(?:-?(\d))?/;const isoOrdinalRegex=/(\d{4})-?(\d{3})/;const extractISOWeekData=simpleParse("weekYear","weekNumber","weekDay");const extractISOOrdinalData=simpleParse("year","ordinal");const sqlYmdRegex=/(\d{4})-(\d\d)-(\d\d)/;// dumbed-down version of the ISO one
+const sqlTimeRegex=RegExp(`${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${ianaRegex.source}))?`);const sqlTimeExtensionRegex=RegExp(`(?: ${sqlTimeRegex.source})?`);function int(match,pos,fallback){const m=match[pos];return isUndefined(m)?fallback:parseInteger(m);}function extractISOYmd(match,cursor){const item={year:int(match,cursor),month:int(match,cursor+1,1),day:int(match,cursor+2,1)};return[item,null,cursor+3];}function extractISOTime(match,cursor){const item={hours:int(match,cursor,0),minutes:int(match,cursor+1,0),seconds:int(match,cursor+2,0),milliseconds:parseMillis(match[cursor+3])};return[item,null,cursor+4];}function extractISOOffset(match,cursor){const local=!match[cursor]&&!match[cursor+1],fullOffset=signedOffset(match[cursor+1],match[cursor+2]),zone=local?null:FixedOffsetZone.instance(fullOffset);return[{},zone,cursor+3];}function extractIANAZone(match,cursor){const zone=match[cursor]?IANAZone.create(match[cursor]):null;return[{},zone,cursor+1];}// ISO time parsing
 const isoTimeOnly=RegExp(`^T?${isoTimeBaseRegex.source}$`);// ISO duration parsing
 const isoDuration=/^-?P(?:(?:(-?\d{1,20}(?:\.\d{1,20})?)Y)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20}(?:\.\d{1,20})?)W)?(?:(-?\d{1,20}(?:\.\d{1,20})?)D)?(?:T(?:(-?\d{1,20}(?:\.\d{1,20})?)H)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,20}))?S)?)?)$/;function extractISODuration(match){const[s,yearStr,monthStr,weekStr,dayStr,hourStr,minuteStr,secondStr,millisecondsStr]=match;const hasNegativePrefix=s[0]==="-";const negativeSeconds=secondStr&&secondStr[0]==="-";const maybeNegate=(num,force=false)=>num!==undefined&&(force||num&&hasNegativePrefix)?-num:num;return[{years:maybeNegate(parseFloating(yearStr)),months:maybeNegate(parseFloating(monthStr)),weeks:maybeNegate(parseFloating(weekStr)),days:maybeNegate(parseFloating(dayStr)),hours:maybeNegate(parseFloating(hourStr)),minutes:maybeNegate(parseFloating(minuteStr)),seconds:maybeNegate(parseFloating(secondStr),secondStr==="-0"),milliseconds:maybeNegate(parseMillis(millisecondsStr),negativeSeconds)}];}// These are a little braindead. EDT *should* tell us that we're in, say, America/New_York
 // and not just that we're in -240 *right now*. But since I don't think these are used that often
@@ -2301,12 +2374,12 @@ const obsOffsets={GMT:0,EDT:-4*60,EST:-5*60,CDT:-5*60,CST:-6*60,MDT:-6*60,MST:-7
 const rfc2822=/^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|(?:([+-]\d\d)(\d\d)))$/;function extractRFC2822(match){const[,weekdayStr,dayStr,monthStr,yearStr,hourStr,minuteStr,secondStr,obsOffset,milOffset,offHourStr,offMinuteStr]=match,result=fromStrings(weekdayStr,yearStr,monthStr,dayStr,hourStr,minuteStr,secondStr);let offset;if(obsOffset){offset=obsOffsets[obsOffset];}else if(milOffset){offset=0;}else{offset=signedOffset(offHourStr,offMinuteStr);}return[result,new FixedOffsetZone(offset)];}function preprocessRFC2822(s){// Remove comments and folding whitespace and replace multiple-spaces with a single space
 return s.replace(/\([^()]*\)|[\n\t]/g," ").replace(/(\s\s+)/g," ").trim();}// http date
 const rfc1123=/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d\d) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d\d):(\d\d):(\d\d) GMT$/,rfc850=/^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/,ascii=/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;function extractRFC1123Or850(match){const[,weekdayStr,dayStr,monthStr,yearStr,hourStr,minuteStr,secondStr]=match,result=fromStrings(weekdayStr,yearStr,monthStr,dayStr,hourStr,minuteStr,secondStr);return[result,FixedOffsetZone.utcInstance];}function extractASCII(match){const[,weekdayStr,monthStr,dayStr,hourStr,minuteStr,secondStr,yearStr]=match,result=fromStrings(weekdayStr,yearStr,monthStr,dayStr,hourStr,minuteStr,secondStr);return[result,FixedOffsetZone.utcInstance];}const isoYmdWithTimeExtensionRegex=combineRegexes(isoYmdRegex,isoTimeExtensionRegex);const isoWeekWithTimeExtensionRegex=combineRegexes(isoWeekRegex,isoTimeExtensionRegex);const isoOrdinalWithTimeExtensionRegex=combineRegexes(isoOrdinalRegex,isoTimeExtensionRegex);const isoTimeCombinedRegex=combineRegexes(isoTimeRegex);const extractISOYmdTimeAndOffset=combineExtractors(extractISOYmd,extractISOTime,extractISOOffset,extractIANAZone);const extractISOWeekTimeAndOffset=combineExtractors(extractISOWeekData,extractISOTime,extractISOOffset,extractIANAZone);const extractISOOrdinalDateAndTime=combineExtractors(extractISOOrdinalData,extractISOTime,extractISOOffset,extractIANAZone);const extractISOTimeAndOffset=combineExtractors(extractISOTime,extractISOOffset,extractIANAZone);/*
- * @private
- */function parseISODate(s){return parse$2(s,[isoYmdWithTimeExtensionRegex,extractISOYmdTimeAndOffset],[isoWeekWithTimeExtensionRegex,extractISOWeekTimeAndOffset],[isoOrdinalWithTimeExtensionRegex,extractISOOrdinalDateAndTime],[isoTimeCombinedRegex,extractISOTimeAndOffset]);}function parseRFC2822Date(s){return parse$2(preprocessRFC2822(s),[rfc2822,extractRFC2822]);}function parseHTTPDate(s){return parse$2(s,[rfc1123,extractRFC1123Or850],[rfc850,extractRFC1123Or850],[ascii,extractASCII]);}function parseISODuration(s){return parse$2(s,[isoDuration,extractISODuration]);}const extractISOTimeOnly=combineExtractors(extractISOTime);function parseISOTimeOnly(s){return parse$2(s,[isoTimeOnly,extractISOTimeOnly]);}const sqlYmdWithTimeExtensionRegex=combineRegexes(sqlYmdRegex,sqlTimeExtensionRegex);const sqlTimeCombinedRegex=combineRegexes(sqlTimeRegex);const extractISOTimeOffsetAndIANAZone=combineExtractors(extractISOTime,extractISOOffset,extractIANAZone);function parseSQL(s){return parse$2(s,[sqlYmdWithTimeExtensionRegex,extractISOYmdTimeAndOffset],[sqlTimeCombinedRegex,extractISOTimeOffsetAndIANAZone]);}const INVALID$2="Invalid Duration";// unit conversion constants
+	 * @private
+	 */function parseISODate(s){return parse(s,[isoYmdWithTimeExtensionRegex,extractISOYmdTimeAndOffset],[isoWeekWithTimeExtensionRegex,extractISOWeekTimeAndOffset],[isoOrdinalWithTimeExtensionRegex,extractISOOrdinalDateAndTime],[isoTimeCombinedRegex,extractISOTimeAndOffset]);}function parseRFC2822Date(s){return parse(preprocessRFC2822(s),[rfc2822,extractRFC2822]);}function parseHTTPDate(s){return parse(s,[rfc1123,extractRFC1123Or850],[rfc850,extractRFC1123Or850],[ascii,extractASCII]);}function parseISODuration(s){return parse(s,[isoDuration,extractISODuration]);}const extractISOTimeOnly=combineExtractors(extractISOTime);function parseISOTimeOnly(s){return parse(s,[isoTimeOnly,extractISOTimeOnly]);}const sqlYmdWithTimeExtensionRegex=combineRegexes(sqlYmdRegex,sqlTimeExtensionRegex);const sqlTimeCombinedRegex=combineRegexes(sqlTimeRegex);const extractISOTimeOffsetAndIANAZone=combineExtractors(extractISOTime,extractISOOffset,extractIANAZone);function parseSQL(s){return parse(s,[sqlYmdWithTimeExtensionRegex,extractISOYmdTimeAndOffset],[sqlTimeCombinedRegex,extractISOTimeOffsetAndIANAZone]);}const INVALID$2="Invalid Duration";// unit conversion constants
 const lowOrderMatrix={weeks:{days:7,hours:7*24,minutes:7*24*60,seconds:7*24*60*60,milliseconds:7*24*60*60*1000},days:{hours:24,minutes:24*60,seconds:24*60*60,milliseconds:24*60*60*1000},hours:{minutes:60,seconds:60*60,milliseconds:60*60*1000},minutes:{seconds:60,milliseconds:60*1000},seconds:{milliseconds:1000}},casualMatrix=_objectSpread({years:{quarters:4,months:12,weeks:52,days:365,hours:365*24,minutes:365*24*60,seconds:365*24*60*60,milliseconds:365*24*60*60*1000},quarters:{months:3,weeks:13,days:91,hours:91*24,minutes:91*24*60,seconds:91*24*60*60,milliseconds:91*24*60*60*1000},months:{weeks:4,days:30,hours:30*24,minutes:30*24*60,seconds:30*24*60*60,milliseconds:30*24*60*60*1000}},lowOrderMatrix),daysInYearAccurate=146097.0/400,daysInMonthAccurate=146097.0/4800,accurateMatrix=_objectSpread({years:{quarters:4,months:12,weeks:daysInYearAccurate/7,days:daysInYearAccurate,hours:daysInYearAccurate*24,minutes:daysInYearAccurate*24*60,seconds:daysInYearAccurate*24*60*60,milliseconds:daysInYearAccurate*24*60*60*1000},quarters:{months:3,weeks:daysInYearAccurate/28,days:daysInYearAccurate/4,hours:daysInYearAccurate*24/4,minutes:daysInYearAccurate*24*60/4,seconds:daysInYearAccurate*24*60*60/4,milliseconds:daysInYearAccurate*24*60*60*1000/4},months:{weeks:daysInMonthAccurate/7,days:daysInMonthAccurate,hours:daysInMonthAccurate*24,minutes:daysInMonthAccurate*24*60,seconds:daysInMonthAccurate*24*60*60,milliseconds:daysInMonthAccurate*24*60*60*1000}},lowOrderMatrix);// units ordered by size
 const orderedUnits$1=["years","quarters","months","weeks","days","hours","minutes","seconds","milliseconds"];const reverseUnits=orderedUnits$1.slice(0).reverse();// clone really means "create another instance just like this one, but with these changes"
 function clone$1(dur,alts,clear=false){// deep merge for vals
-const conf={values:clear?alts.values:_objectSpread(_objectSpread({},dur.values),alts.values||{}),loc:dur.loc.clone(alts.loc),conversionAccuracy:alts.conversionAccuracy||dur.conversionAccuracy,matrix:alts.matrix||dur.matrix};return new Duration(conf);}function durationToMillis(matrix,vals){var _vals$milliseconds;let sum=(_vals$milliseconds=vals.milliseconds)!==null&&_vals$milliseconds!==void 0?_vals$milliseconds:0;for(const unit of reverseUnits.slice(1)){if(vals[unit]){sum+=vals[unit]*matrix[unit]["milliseconds"];}}return sum;}// NB: mutates parameters
+const conf={values:clear?alts.values:_objectSpread(_objectSpread({},dur.values),alts.values||{}),loc:dur.loc.clone(alts.loc),conversionAccuracy:alts.conversionAccuracy||dur.conversionAccuracy,matrix:alts.matrix||dur.matrix};return new Duration(conf);}function durationToMillis(matrix,vals){var _vals$milliseconds;let sum=(_vals$milliseconds=vals.milliseconds)!=null?_vals$milliseconds:0;for(const unit of reverseUnits.slice(1)){if(vals[unit]){sum+=vals[unit]*matrix[unit]["milliseconds"];}}return sum;}// NB: mutates parameters
 function normalizeValues(matrix,vals){// the logic below assumes the overall value of the duration is positive
 // if this is not the case, factor is used to make it so
 const factor=durationToMillis(matrix,vals)<0?-1:1;orderedUnits$1.reduceRight((previous,current)=>{if(!isUndefined(vals[current])){if(previous){const previousVal=vals[previous]*factor;const conv=matrix[current][previous];// if (previousVal < 0):
@@ -2328,673 +2401,684 @@ const rollUp=Math.floor(previousVal/conv);vals[current]+=rollUp*factor;vals[prev
 // for example for { years: 2.5, days: 0, seconds: 0 } we want to get { years: 2, days: 182, hours: 12 }
 orderedUnits$1.reduce((previous,current)=>{if(!isUndefined(vals[current])){if(previous){const fraction=vals[previous]%1;vals[previous]-=fraction;vals[current]+=fraction*matrix[previous][current];}return current;}else{return previous;}},null);}// Remove all properties with a value of 0 from an object
 function removeZeroes(vals){const newVals={};for(const[key,value]of Object.entries(vals)){if(value!==0){newVals[key]=value;}}return newVals;}/**
- * A Duration object represents a period of time, like "2 months" or "1 day, 1 hour". Conceptually, it's just a map of units to their quantities, accompanied by some additional configuration and methods for creating, parsing, interrogating, transforming, and formatting them. They can be used on their own or in conjunction with other Luxon types; for example, you can use {@link DateTime#plus} to add a Duration object to a DateTime, producing another DateTime.
- *
- * Here is a brief overview of commonly used methods and getters in Duration:
- *
- * * **Creation** To create a Duration, use {@link Duration.fromMillis}, {@link Duration.fromObject}, or {@link Duration.fromISO}.
- * * **Unit values** See the {@link Duration#years}, {@link Duration#months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
- * * **Configuration** See  {@link Duration#locale} and {@link Duration#numberingSystem} accessors.
- * * **Transformation** To create new Durations out of old ones use {@link Duration#plus}, {@link Duration#minus}, {@link Duration#normalize}, {@link Duration#set}, {@link Duration#reconfigure}, {@link Duration#shiftTo}, and {@link Duration#negate}.
- * * **Output** To convert the Duration into other representations, see {@link Duration#as}, {@link Duration#toISO}, {@link Duration#toFormat}, and {@link Duration#toJSON}
- *
- * There's are more methods documented below. In addition, for more information on subtler topics like internationalization and validity, see the external documentation.
- */class Duration{/**
-   * @private
-   */constructor(config){const accurate=config.conversionAccuracy==="longterm"||false;let matrix=accurate?accurateMatrix:casualMatrix;if(config.matrix){matrix=config.matrix;}/**
-     * @access private
-     */this.values=config.values;/**
-     * @access private
-     */this.loc=config.loc||Locale.create();/**
-     * @access private
-     */this.conversionAccuracy=accurate?"longterm":"casual";/**
-     * @access private
-     */this.invalid=config.invalid||null;/**
-     * @access private
-     */this.matrix=matrix;/**
-     * @access private
-     */this.isLuxonDuration=true;}/**
-   * Create Duration from a number of milliseconds.
-   * @param {number} count of milliseconds
-   * @param {Object} opts - options for parsing
-   * @param {string} [opts.locale='en-US'] - the locale to use
-   * @param {string} opts.numberingSystem - the numbering system to use
-   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
-   * @return {Duration}
-   */static fromMillis(count,opts){return Duration.fromObject({milliseconds:count},opts);}/**
-   * Create a Duration from a JavaScript object with keys like 'years' and 'hours'.
-   * If this object is empty then a zero milliseconds duration is returned.
-   * @param {Object} obj - the object to create the DateTime from
-   * @param {number} obj.years
-   * @param {number} obj.quarters
-   * @param {number} obj.months
-   * @param {number} obj.weeks
-   * @param {number} obj.days
-   * @param {number} obj.hours
-   * @param {number} obj.minutes
-   * @param {number} obj.seconds
-   * @param {number} obj.milliseconds
-   * @param {Object} [opts=[]] - options for creating this Duration
-   * @param {string} [opts.locale='en-US'] - the locale to use
-   * @param {string} opts.numberingSystem - the numbering system to use
-   * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
-   * @param {string} [opts.matrix=Object] - the custom conversion system to use
-   * @return {Duration}
-   */static fromObject(obj,opts={}){if(obj==null||typeof obj!=="object"){throw new InvalidArgumentError(`Duration.fromObject: argument expected to be an object, got ${obj===null?"null":typeof obj}`);}return new Duration({values:normalizeObject(obj,Duration.normalizeUnit),loc:Locale.fromObject(opts),conversionAccuracy:opts.conversionAccuracy,matrix:opts.matrix});}/**
-   * Create a Duration from DurationLike.
-   *
-   * @param {Object | number | Duration} durationLike
-   * One of:
-   * - object with keys like 'years' and 'hours'.
-   * - number representing milliseconds
-   * - Duration instance
-   * @return {Duration}
-   */static fromDurationLike(durationLike){if(isNumber$1(durationLike)){return Duration.fromMillis(durationLike);}else if(Duration.isDuration(durationLike)){return durationLike;}else if(typeof durationLike==="object"){return Duration.fromObject(durationLike);}else{throw new InvalidArgumentError(`Unknown duration argument ${durationLike} of type ${typeof durationLike}`);}}/**
-   * Create a Duration from an ISO 8601 duration string.
-   * @param {string} text - text to parse
-   * @param {Object} opts - options for parsing
-   * @param {string} [opts.locale='en-US'] - the locale to use
-   * @param {string} opts.numberingSystem - the numbering system to use
-   * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
-   * @param {string} [opts.matrix=Object] - the preset conversion system to use
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
-   * @example Duration.fromISO('P3Y6M1W4DT12H30M5S').toObject() //=> { years: 3, months: 6, weeks: 1, days: 4, hours: 12, minutes: 30, seconds: 5 }
-   * @example Duration.fromISO('PT23H').toObject() //=> { hours: 23 }
-   * @example Duration.fromISO('P5Y3M').toObject() //=> { years: 5, months: 3 }
-   * @return {Duration}
-   */static fromISO(text,opts){const[parsed]=parseISODuration(text);if(parsed){return Duration.fromObject(parsed,opts);}else{return Duration.invalid("unparsable",`the input "${text}" can't be parsed as ISO 8601`);}}/**
-   * Create a Duration from an ISO 8601 time string.
-   * @param {string} text - text to parse
-   * @param {Object} opts - options for parsing
-   * @param {string} [opts.locale='en-US'] - the locale to use
-   * @param {string} opts.numberingSystem - the numbering system to use
-   * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
-   * @param {string} [opts.matrix=Object] - the conversion system to use
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Times
-   * @example Duration.fromISOTime('11:22:33.444').toObject() //=> { hours: 11, minutes: 22, seconds: 33, milliseconds: 444 }
-   * @example Duration.fromISOTime('11:00').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
-   * @example Duration.fromISOTime('T11:00').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
-   * @example Duration.fromISOTime('1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
-   * @example Duration.fromISOTime('T1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
-   * @return {Duration}
-   */static fromISOTime(text,opts){const[parsed]=parseISOTimeOnly(text);if(parsed){return Duration.fromObject(parsed,opts);}else{return Duration.invalid("unparsable",`the input "${text}" can't be parsed as ISO 8601`);}}/**
-   * Create an invalid Duration.
-   * @param {string} reason - simple string of why this datetime is invalid. Should not contain parameters or anything else data-dependent
-   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
-   * @return {Duration}
-   */static invalid(reason,explanation=null){if(!reason){throw new InvalidArgumentError("need to specify a reason the Duration is invalid");}const invalid=reason instanceof Invalid?reason:new Invalid(reason,explanation);if(Settings.throwOnInvalid){throw new InvalidDurationError(invalid);}else{return new Duration({invalid});}}/**
-   * @private
-   */static normalizeUnit(unit){const normalized={year:"years",years:"years",quarter:"quarters",quarters:"quarters",month:"months",months:"months",week:"weeks",weeks:"weeks",day:"days",days:"days",hour:"hours",hours:"hours",minute:"minutes",minutes:"minutes",second:"seconds",seconds:"seconds",millisecond:"milliseconds",milliseconds:"milliseconds"}[unit?unit.toLowerCase():unit];if(!normalized)throw new InvalidUnitError(unit);return normalized;}/**
-   * Check if an object is a Duration. Works across context boundaries
-   * @param {object} o
-   * @return {boolean}
-   */static isDuration(o){return o&&o.isLuxonDuration||false;}/**
-   * Get  the locale of a Duration, such 'en-GB'
-   * @type {string}
-   */get locale(){return this.isValid?this.loc.locale:null;}/**
-   * Get the numbering system of a Duration, such 'beng'. The numbering system is used when formatting the Duration
-   *
-   * @type {string}
-   */get numberingSystem(){return this.isValid?this.loc.numberingSystem:null;}/**
-   * Returns a string representation of this Duration formatted according to the specified format string. You may use these tokens:
-   * * `S` for milliseconds
-   * * `s` for seconds
-   * * `m` for minutes
-   * * `h` for hours
-   * * `d` for days
-   * * `w` for weeks
-   * * `M` for months
-   * * `y` for years
-   * Notes:
-   * * Add padding by repeating the token, e.g. "yy" pads the years to two digits, "hhhh" pads the hours out to four digits
-   * * Tokens can be escaped by wrapping with single quotes.
-   * * The duration will be converted to the set of units in the format string using {@link Duration#shiftTo} and the Durations's conversion accuracy setting.
-   * @param {string} fmt - the format string
-   * @param {Object} opts - options
-   * @param {boolean} [opts.floor=true] - floor numerical values
-   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("y d s") //=> "1 6 2"
-   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("yy dd sss") //=> "01 06 002"
-   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("M S") //=> "12 518402000"
-   * @return {string}
-   */toFormat(fmt,opts={}){// reverse-compat since 1.2; we always round down now, never up, and we do it by default
+	 * A Duration object represents a period of time, like "2 months" or "1 day, 1 hour". Conceptually, it's just a map of units to their quantities, accompanied by some additional configuration and methods for creating, parsing, interrogating, transforming, and formatting them. They can be used on their own or in conjunction with other Luxon types; for example, you can use {@link DateTime#plus} to add a Duration object to a DateTime, producing another DateTime.
+	 *
+	 * Here is a brief overview of commonly used methods and getters in Duration:
+	 *
+	 * * **Creation** To create a Duration, use {@link Duration.fromMillis}, {@link Duration.fromObject}, or {@link Duration.fromISO}.
+	 * * **Unit values** See the {@link Duration#years}, {@link Duration#months}, {@link Duration#weeks}, {@link Duration#days}, {@link Duration#hours}, {@link Duration#minutes}, {@link Duration#seconds}, {@link Duration#milliseconds} accessors.
+	 * * **Configuration** See  {@link Duration#locale} and {@link Duration#numberingSystem} accessors.
+	 * * **Transformation** To create new Durations out of old ones use {@link Duration#plus}, {@link Duration#minus}, {@link Duration#normalize}, {@link Duration#set}, {@link Duration#reconfigure}, {@link Duration#shiftTo}, and {@link Duration#negate}.
+	 * * **Output** To convert the Duration into other representations, see {@link Duration#as}, {@link Duration#toISO}, {@link Duration#toFormat}, and {@link Duration#toJSON}
+	 *
+	 * There's are more methods documented below. In addition, for more information on subtler topics like internationalization and validity, see the external documentation.
+	 */class Duration{/**
+	   * @private
+	   */constructor(config){const accurate=config.conversionAccuracy==="longterm"||false;let matrix=accurate?accurateMatrix:casualMatrix;if(config.matrix){matrix=config.matrix;}/**
+	     * @access private
+	     */this.values=config.values;/**
+	     * @access private
+	     */this.loc=config.loc||Locale.create();/**
+	     * @access private
+	     */this.conversionAccuracy=accurate?"longterm":"casual";/**
+	     * @access private
+	     */this.invalid=config.invalid||null;/**
+	     * @access private
+	     */this.matrix=matrix;/**
+	     * @access private
+	     */this.isLuxonDuration=true;}/**
+	   * Create Duration from a number of milliseconds.
+	   * @param {number} count of milliseconds
+	   * @param {Object} opts - options for parsing
+	   * @param {string} [opts.locale='en-US'] - the locale to use
+	   * @param {string} opts.numberingSystem - the numbering system to use
+	   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+	   * @return {Duration}
+	   */static fromMillis(count,opts){return Duration.fromObject({milliseconds:count},opts);}/**
+	   * Create a Duration from a JavaScript object with keys like 'years' and 'hours'.
+	   * If this object is empty then a zero milliseconds duration is returned.
+	   * @param {Object} obj - the object to create the DateTime from
+	   * @param {number} obj.years
+	   * @param {number} obj.quarters
+	   * @param {number} obj.months
+	   * @param {number} obj.weeks
+	   * @param {number} obj.days
+	   * @param {number} obj.hours
+	   * @param {number} obj.minutes
+	   * @param {number} obj.seconds
+	   * @param {number} obj.milliseconds
+	   * @param {Object} [opts=[]] - options for creating this Duration
+	   * @param {string} [opts.locale='en-US'] - the locale to use
+	   * @param {string} opts.numberingSystem - the numbering system to use
+	   * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
+	   * @param {string} [opts.matrix=Object] - the custom conversion system to use
+	   * @return {Duration}
+	   */static fromObject(obj,opts={}){if(obj==null||typeof obj!=="object"){throw new InvalidArgumentError(`Duration.fromObject: argument expected to be an object, got ${obj===null?"null":typeof obj}`);}return new Duration({values:normalizeObject(obj,Duration.normalizeUnit),loc:Locale.fromObject(opts),conversionAccuracy:opts.conversionAccuracy,matrix:opts.matrix});}/**
+	   * Create a Duration from DurationLike.
+	   *
+	   * @param {Object | number | Duration} durationLike
+	   * One of:
+	   * - object with keys like 'years' and 'hours'.
+	   * - number representing milliseconds
+	   * - Duration instance
+	   * @return {Duration}
+	   */static fromDurationLike(durationLike){if(isNumber(durationLike)){return Duration.fromMillis(durationLike);}else if(Duration.isDuration(durationLike)){return durationLike;}else if(typeof durationLike==="object"){return Duration.fromObject(durationLike);}else{throw new InvalidArgumentError(`Unknown duration argument ${durationLike} of type ${typeof durationLike}`);}}/**
+	   * Create a Duration from an ISO 8601 duration string.
+	   * @param {string} text - text to parse
+	   * @param {Object} opts - options for parsing
+	   * @param {string} [opts.locale='en-US'] - the locale to use
+	   * @param {string} opts.numberingSystem - the numbering system to use
+	   * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
+	   * @param {string} [opts.matrix=Object] - the preset conversion system to use
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
+	   * @example Duration.fromISO('P3Y6M1W4DT12H30M5S').toObject() //=> { years: 3, months: 6, weeks: 1, days: 4, hours: 12, minutes: 30, seconds: 5 }
+	   * @example Duration.fromISO('PT23H').toObject() //=> { hours: 23 }
+	   * @example Duration.fromISO('P5Y3M').toObject() //=> { years: 5, months: 3 }
+	   * @return {Duration}
+	   */static fromISO(text,opts){const[parsed]=parseISODuration(text);if(parsed){return Duration.fromObject(parsed,opts);}else{return Duration.invalid("unparsable",`the input "${text}" can't be parsed as ISO 8601`);}}/**
+	   * Create a Duration from an ISO 8601 time string.
+	   * @param {string} text - text to parse
+	   * @param {Object} opts - options for parsing
+	   * @param {string} [opts.locale='en-US'] - the locale to use
+	   * @param {string} opts.numberingSystem - the numbering system to use
+	   * @param {string} [opts.conversionAccuracy='casual'] - the preset conversion system to use
+	   * @param {string} [opts.matrix=Object] - the conversion system to use
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Times
+	   * @example Duration.fromISOTime('11:22:33.444').toObject() //=> { hours: 11, minutes: 22, seconds: 33, milliseconds: 444 }
+	   * @example Duration.fromISOTime('11:00').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
+	   * @example Duration.fromISOTime('T11:00').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
+	   * @example Duration.fromISOTime('1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
+	   * @example Duration.fromISOTime('T1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
+	   * @return {Duration}
+	   */static fromISOTime(text,opts){const[parsed]=parseISOTimeOnly(text);if(parsed){return Duration.fromObject(parsed,opts);}else{return Duration.invalid("unparsable",`the input "${text}" can't be parsed as ISO 8601`);}}/**
+	   * Create an invalid Duration.
+	   * @param {string} reason - simple string of why this datetime is invalid. Should not contain parameters or anything else data-dependent
+	   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
+	   * @return {Duration}
+	   */static invalid(reason,explanation=null){if(!reason){throw new InvalidArgumentError("need to specify a reason the Duration is invalid");}const invalid=reason instanceof Invalid?reason:new Invalid(reason,explanation);if(Settings.throwOnInvalid){throw new InvalidDurationError(invalid);}else{return new Duration({invalid});}}/**
+	   * @private
+	   */static normalizeUnit(unit){const normalized={year:"years",years:"years",quarter:"quarters",quarters:"quarters",month:"months",months:"months",week:"weeks",weeks:"weeks",day:"days",days:"days",hour:"hours",hours:"hours",minute:"minutes",minutes:"minutes",second:"seconds",seconds:"seconds",millisecond:"milliseconds",milliseconds:"milliseconds"}[unit?unit.toLowerCase():unit];if(!normalized)throw new InvalidUnitError(unit);return normalized;}/**
+	   * Check if an object is a Duration. Works across context boundaries
+	   * @param {object} o
+	   * @return {boolean}
+	   */static isDuration(o){return o&&o.isLuxonDuration||false;}/**
+	   * Get  the locale of a Duration, such 'en-GB'
+	   * @type {string}
+	   */get locale(){return this.isValid?this.loc.locale:null;}/**
+	   * Get the numbering system of a Duration, such 'beng'. The numbering system is used when formatting the Duration
+	   *
+	   * @type {string}
+	   */get numberingSystem(){return this.isValid?this.loc.numberingSystem:null;}/**
+	   * Returns a string representation of this Duration formatted according to the specified format string. You may use these tokens:
+	   * * `S` for milliseconds
+	   * * `s` for seconds
+	   * * `m` for minutes
+	   * * `h` for hours
+	   * * `d` for days
+	   * * `w` for weeks
+	   * * `M` for months
+	   * * `y` for years
+	   * Notes:
+	   * * Add padding by repeating the token, e.g. "yy" pads the years to two digits, "hhhh" pads the hours out to four digits
+	   * * Tokens can be escaped by wrapping with single quotes.
+	   * * The duration will be converted to the set of units in the format string using {@link Duration#shiftTo} and the Durations's conversion accuracy setting.
+	   * @param {string} fmt - the format string
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.floor=true] - floor numerical values
+	   * @param {'negative'|'all'|'negativeLargestOnly'} [opts.signMode=negative] - How to handle signs
+	   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("y d s") //=> "1 6 2"
+	   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("yy dd sss") //=> "01 06 002"
+	   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("M S") //=> "12 518402000"
+	   * @example Duration.fromObject({ days: 6, seconds: 2 }).toFormat("d s", { signMode: "all" }) //=> "+6 +2"
+	   * @example Duration.fromObject({ days: -6, seconds: -2 }).toFormat("d s", { signMode: "all" }) //=> "-6 -2"
+	   * @example Duration.fromObject({ days: -6, seconds: -2 }).toFormat("d s", { signMode: "negativeLargestOnly" }) //=> "-6 2"
+	   * @return {string}
+	   */toFormat(fmt,opts={}){// reverse-compat since 1.2; we always round down now, never up, and we do it by default
 const fmtOpts=_objectSpread(_objectSpread({},opts),{},{floor:opts.round!==false&&opts.floor!==false});return this.isValid?Formatter.create(this.loc,fmtOpts).formatDurationFromString(this,fmt):INVALID$2;}/**
-   * Returns a string representation of a Duration with all units included.
-   * To modify its behavior, use `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options
-   * @param {Object} opts - Formatting options. Accepts the same keys as the options parameter of the native `Intl.NumberFormat` constructor, as well as `listStyle`.
-   * @param {string} [opts.listStyle='narrow'] - How to format the merged list. Corresponds to the `style` property of the options parameter of the native `Intl.ListFormat` constructor.
-   * @example
-   * ```js
-   * var dur = Duration.fromObject({ days: 1, hours: 5, minutes: 6 })
-   * dur.toHuman() //=> '1 day, 5 hours, 6 minutes'
-   * dur.toHuman({ listStyle: "long" }) //=> '1 day, 5 hours, and 6 minutes'
-   * dur.toHuman({ unitDisplay: "short" }) //=> '1 day, 5 hr, 6 min'
-   * ```
-   */toHuman(opts={}){if(!this.isValid)return INVALID$2;const l=orderedUnits$1.map(unit=>{const val=this.values[unit];if(isUndefined(val)){return null;}return this.loc.numberFormatter(_objectSpread(_objectSpread({style:"unit",unitDisplay:"long"},opts),{},{unit:unit.slice(0,-1)})).format(val);}).filter(n=>n);return this.loc.listFormatter(_objectSpread({type:"conjunction",style:opts.listStyle||"narrow"},opts)).format(l);}/**
-   * Returns a JavaScript object with this Duration's values.
-   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toObject() //=> { years: 1, days: 6, seconds: 2 }
-   * @return {Object}
-   */toObject(){if(!this.isValid)return{};return _objectSpread({},this.values);}/**
-   * Returns an ISO 8601-compliant string representation of this Duration.
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
-   * @example Duration.fromObject({ years: 3, seconds: 45 }).toISO() //=> 'P3YT45S'
-   * @example Duration.fromObject({ months: 4, seconds: 45 }).toISO() //=> 'P4MT45S'
-   * @example Duration.fromObject({ months: 5 }).toISO() //=> 'P5M'
-   * @example Duration.fromObject({ minutes: 5 }).toISO() //=> 'PT5M'
-   * @example Duration.fromObject({ milliseconds: 6 }).toISO() //=> 'PT0.006S'
-   * @return {string}
-   */toISO(){// we could use the formatter, but this is an easier way to get the minimum string
+	   * Returns a string representation of a Duration with all units included.
+	   * To modify its behavior, use `listStyle` and any Intl.NumberFormat option, though `unitDisplay` is especially relevant.
+	   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options
+	   * @param {Object} opts - Formatting options. Accepts the same keys as the options parameter of the native `Intl.NumberFormat` constructor, as well as `listStyle`.
+	   * @param {string} [opts.listStyle='narrow'] - How to format the merged list. Corresponds to the `style` property of the options parameter of the native `Intl.ListFormat` constructor.
+	   * @param {boolean} [opts.showZeros=true] - Show all units previously used by the duration even if they are zero
+	   * @example
+	   * ```js
+	   * var dur = Duration.fromObject({ months: 1, weeks: 0, hours: 5, minutes: 6 })
+	   * dur.toHuman() //=> '1 month, 0 weeks, 5 hours, 6 minutes'
+	   * dur.toHuman({ listStyle: "long" }) //=> '1 month, 0 weeks, 5 hours, and 6 minutes'
+	   * dur.toHuman({ unitDisplay: "short" }) //=> '1 mth, 0 wks, 5 hr, 6 min'
+	   * dur.toHuman({ showZeros: false }) //=> '1 month, 5 hours, 6 minutes'
+	   * ```
+	   */toHuman(opts={}){if(!this.isValid)return INVALID$2;const showZeros=opts.showZeros!==false;const l=orderedUnits$1.map(unit=>{const val=this.values[unit];if(isUndefined(val)||val===0&&!showZeros){return null;}return this.loc.numberFormatter(_objectSpread(_objectSpread({style:"unit",unitDisplay:"long"},opts),{},{unit:unit.slice(0,-1)})).format(val);}).filter(n=>n);return this.loc.listFormatter(_objectSpread({type:"conjunction",style:opts.listStyle||"narrow"},opts)).format(l);}/**
+	   * Returns a JavaScript object with this Duration's values.
+	   * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toObject() //=> { years: 1, days: 6, seconds: 2 }
+	   * @return {Object}
+	   */toObject(){if(!this.isValid)return{};return _objectSpread({},this.values);}/**
+	   * Returns an ISO 8601-compliant string representation of this Duration.
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Durations
+	   * @example Duration.fromObject({ years: 3, seconds: 45 }).toISO() //=> 'P3YT45S'
+	   * @example Duration.fromObject({ months: 4, seconds: 45 }).toISO() //=> 'P4MT45S'
+	   * @example Duration.fromObject({ months: 5 }).toISO() //=> 'P5M'
+	   * @example Duration.fromObject({ minutes: 5 }).toISO() //=> 'PT5M'
+	   * @example Duration.fromObject({ milliseconds: 6 }).toISO() //=> 'PT0.006S'
+	   * @return {string}
+	   */toISO(){// we could use the formatter, but this is an easier way to get the minimum string
 if(!this.isValid)return null;let s="P";if(this.years!==0)s+=this.years+"Y";if(this.months!==0||this.quarters!==0)s+=this.months+this.quarters*3+"M";if(this.weeks!==0)s+=this.weeks+"W";if(this.days!==0)s+=this.days+"D";if(this.hours!==0||this.minutes!==0||this.seconds!==0||this.milliseconds!==0)s+="T";if(this.hours!==0)s+=this.hours+"H";if(this.minutes!==0)s+=this.minutes+"M";if(this.seconds!==0||this.milliseconds!==0)// this will handle "floating point madness" by removing extra decimal places
 // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
 s+=roundTo(this.seconds+this.milliseconds/1000,3)+"S";if(s==="P")s+="T0S";return s;}/**
-   * Returns an ISO 8601-compliant string representation of this Duration, formatted as a time of day.
-   * Note that this will return null if the duration is invalid, negative, or equal to or greater than 24 hours.
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Times
-   * @param {Object} opts - options
-   * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
-   * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
-   * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
-   * @param {string} [opts.format='extended'] - choose between the basic and extended format
-   * @example Duration.fromObject({ hours: 11 }).toISOTime() //=> '11:00:00.000'
-   * @example Duration.fromObject({ hours: 11 }).toISOTime({ suppressMilliseconds: true }) //=> '11:00:00'
-   * @example Duration.fromObject({ hours: 11 }).toISOTime({ suppressSeconds: true }) //=> '11:00'
-   * @example Duration.fromObject({ hours: 11 }).toISOTime({ includePrefix: true }) //=> 'T11:00:00.000'
-   * @example Duration.fromObject({ hours: 11 }).toISOTime({ format: 'basic' }) //=> '110000.000'
-   * @return {string}
-   */toISOTime(opts={}){if(!this.isValid)return null;const millis=this.toMillis();if(millis<0||millis>=86400000)return null;opts=_objectSpread(_objectSpread({suppressMilliseconds:false,suppressSeconds:false,includePrefix:false,format:"extended"},opts),{},{includeOffset:false});const dateTime=DateTime$1.fromMillis(millis,{zone:"UTC"});return dateTime.toISOTime(opts);}/**
-   * Returns an ISO 8601 representation of this Duration appropriate for use in JSON.
-   * @return {string}
-   */toJSON(){return this.toISO();}/**
-   * Returns an ISO 8601 representation of this Duration appropriate for use in debugging.
-   * @return {string}
-   */toString(){return this.toISO();}/**
-   * Returns a string representation of this Duration appropriate for the REPL.
-   * @return {string}
-   */[Symbol.for("nodejs.util.inspect.custom")](){if(this.isValid){return`Duration { values: ${JSON.stringify(this.values)} }`;}else{return`Duration { Invalid, reason: ${this.invalidReason} }`;}}/**
-   * Returns an milliseconds value of this Duration.
-   * @return {number}
-   */toMillis(){if(!this.isValid)return NaN;return durationToMillis(this.matrix,this.values);}/**
-   * Returns an milliseconds value of this Duration. Alias of {@link toMillis}
-   * @return {number}
-   */valueOf(){return this.toMillis();}/**
-   * Make this Duration longer by the specified amount. Return a newly-constructed Duration.
-   * @param {Duration|Object|number} duration - The amount to add. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
-   * @return {Duration}
-   */plus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration),result={};for(const k of orderedUnits$1){if(hasOwnProperty(dur.values,k)||hasOwnProperty(this.values,k)){result[k]=dur.get(k)+this.get(k);}}return clone$1(this,{values:result},true);}/**
-   * Make this Duration shorter by the specified amount. Return a newly-constructed Duration.
-   * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
-   * @return {Duration}
-   */minus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration);return this.plus(dur.negate());}/**
-   * Scale this Duration by the specified amount. Return a newly-constructed Duration.
-   * @param {function} fn - The function to apply to each unit. Arity is 1 or 2: the value of the unit and, optionally, the unit name. Must return a number.
-   * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits(x => x * 2) //=> { hours: 2, minutes: 60 }
-   * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits((x, u) => u === "hours" ? x * 2 : x) //=> { hours: 2, minutes: 30 }
-   * @return {Duration}
-   */mapUnits(fn){if(!this.isValid)return this;const result={};for(const k of Object.keys(this.values)){result[k]=asNumber(fn(this.values[k],k));}return clone$1(this,{values:result},true);}/**
-   * Get the value of unit.
-   * @param {string} unit - a unit such as 'minute' or 'day'
-   * @example Duration.fromObject({years: 2, days: 3}).get('years') //=> 2
-   * @example Duration.fromObject({years: 2, days: 3}).get('months') //=> 0
-   * @example Duration.fromObject({years: 2, days: 3}).get('days') //=> 3
-   * @return {number}
-   */get(unit){return this[Duration.normalizeUnit(unit)];}/**
-   * "Set" the values of specified units. Return a newly-constructed Duration.
-   * @param {Object} values - a mapping of units to numbers
-   * @example dur.set({ years: 2017 })
-   * @example dur.set({ hours: 8, minutes: 30 })
-   * @return {Duration}
-   */set(values){if(!this.isValid)return this;const mixed=_objectSpread(_objectSpread({},this.values),normalizeObject(values,Duration.normalizeUnit));return clone$1(this,{values:mixed});}/**
-   * "Set" the locale and/or numberingSystem.  Returns a newly-constructed Duration.
-   * @example dur.reconfigure({ locale: 'en-GB' })
-   * @return {Duration}
-   */reconfigure({locale,numberingSystem,conversionAccuracy,matrix}={}){const loc=this.loc.clone({locale,numberingSystem});const opts={loc,matrix,conversionAccuracy};return clone$1(this,opts);}/**
-   * Return the length of the duration in the specified unit.
-   * @param {string} unit - a unit such as 'minutes' or 'days'
-   * @example Duration.fromObject({years: 1}).as('days') //=> 365
-   * @example Duration.fromObject({years: 1}).as('months') //=> 12
-   * @example Duration.fromObject({hours: 60}).as('days') //=> 2.5
-   * @return {number}
-   */as(unit){return this.isValid?this.shiftTo(unit).get(unit):NaN;}/**
-   * Reduce this Duration to its canonical representation in its current units.
-   * Assuming the overall value of the Duration is positive, this means:
-   * - excessive values for lower-order units are converted to higher-order units (if possible, see first and second example)
-   * - negative lower-order units are converted to higher order units (there must be such a higher order unit, otherwise
-   *   the overall value would be negative, see third example)
-   * - fractional values for higher-order units are converted to lower-order units (if possible, see fourth example)
-   *
-   * If the overall value is negative, the result of this method is equivalent to `this.negate().normalize().negate()`.
-   * @example Duration.fromObject({ years: 2, days: 5000 }).normalize().toObject() //=> { years: 15, days: 255 }
-   * @example Duration.fromObject({ days: 5000 }).normalize().toObject() //=> { days: 5000 }
-   * @example Duration.fromObject({ hours: 12, minutes: -45 }).normalize().toObject() //=> { hours: 11, minutes: 15 }
-   * @example Duration.fromObject({ years: 2.5, days: 0, hours: 0 }).normalize().toObject() //=> { years: 2, days: 182, hours: 12 }
-   * @return {Duration}
-   */normalize(){if(!this.isValid)return this;const vals=this.toObject();normalizeValues(this.matrix,vals);return clone$1(this,{values:vals},true);}/**
-   * Rescale units to its largest representation
-   * @example Duration.fromObject({ milliseconds: 90000 }).rescale().toObject() //=> { minutes: 1, seconds: 30 }
-   * @return {Duration}
-   */rescale(){if(!this.isValid)return this;const vals=removeZeroes(this.normalize().shiftToAll().toObject());return clone$1(this,{values:vals},true);}/**
-   * Convert this Duration into its representation in a different set of units.
-   * @example Duration.fromObject({ hours: 1, seconds: 30 }).shiftTo('minutes', 'milliseconds').toObject() //=> { minutes: 60, milliseconds: 30000 }
-   * @return {Duration}
-   */shiftTo(...units){if(!this.isValid)return this;if(units.length===0){return this;}units=units.map(u=>Duration.normalizeUnit(u));const built={},accumulated={},vals=this.toObject();let lastUnit;for(const k of orderedUnits$1){if(units.indexOf(k)>=0){lastUnit=k;let own=0;// anything we haven't boiled down yet should get boiled to this unit
+	   * Returns an ISO 8601-compliant string representation of this Duration, formatted as a time of day.
+	   * Note that this will return null if the duration is invalid, negative, or equal to or greater than 24 hours.
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Times
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
+	   * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
+	   * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
+	   * @param {string} [opts.format='extended'] - choose between the basic and extended format
+	   * @example Duration.fromObject({ hours: 11 }).toISOTime() //=> '11:00:00.000'
+	   * @example Duration.fromObject({ hours: 11 }).toISOTime({ suppressMilliseconds: true }) //=> '11:00:00'
+	   * @example Duration.fromObject({ hours: 11 }).toISOTime({ suppressSeconds: true }) //=> '11:00'
+	   * @example Duration.fromObject({ hours: 11 }).toISOTime({ includePrefix: true }) //=> 'T11:00:00.000'
+	   * @example Duration.fromObject({ hours: 11 }).toISOTime({ format: 'basic' }) //=> '110000.000'
+	   * @return {string}
+	   */toISOTime(opts={}){if(!this.isValid)return null;const millis=this.toMillis();if(millis<0||millis>=86400000)return null;opts=_objectSpread(_objectSpread({suppressMilliseconds:false,suppressSeconds:false,includePrefix:false,format:"extended"},opts),{},{includeOffset:false});const dateTime=DateTime.fromMillis(millis,{zone:"UTC"});return dateTime.toISOTime(opts);}/**
+	   * Returns an ISO 8601 representation of this Duration appropriate for use in JSON.
+	   * @return {string}
+	   */toJSON(){return this.toISO();}/**
+	   * Returns an ISO 8601 representation of this Duration appropriate for use in debugging.
+	   * @return {string}
+	   */toString(){return this.toISO();}/**
+	   * Returns a string representation of this Duration appropriate for the REPL.
+	   * @return {string}
+	   */[Symbol.for("nodejs.util.inspect.custom")](){if(this.isValid){return`Duration { values: ${JSON.stringify(this.values)} }`;}else{return`Duration { Invalid, reason: ${this.invalidReason} }`;}}/**
+	   * Returns an milliseconds value of this Duration.
+	   * @return {number}
+	   */toMillis(){if(!this.isValid)return NaN;return durationToMillis(this.matrix,this.values);}/**
+	   * Returns an milliseconds value of this Duration. Alias of {@link toMillis}
+	   * @return {number}
+	   */valueOf(){return this.toMillis();}/**
+	   * Make this Duration longer by the specified amount. Return a newly-constructed Duration.
+	   * @param {Duration|Object|number} duration - The amount to add. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
+	   * @return {Duration}
+	   */plus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration),result={};for(const k of orderedUnits$1){if(hasOwnProperty(dur.values,k)||hasOwnProperty(this.values,k)){result[k]=dur.get(k)+this.get(k);}}return clone$1(this,{values:result},true);}/**
+	   * Make this Duration shorter by the specified amount. Return a newly-constructed Duration.
+	   * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
+	   * @return {Duration}
+	   */minus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration);return this.plus(dur.negate());}/**
+	   * Scale this Duration by the specified amount. Return a newly-constructed Duration.
+	   * @param {function} fn - The function to apply to each unit. Arity is 1 or 2: the value of the unit and, optionally, the unit name. Must return a number.
+	   * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits(x => x * 2) //=> { hours: 2, minutes: 60 }
+	   * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits((x, u) => u === "hours" ? x * 2 : x) //=> { hours: 2, minutes: 30 }
+	   * @return {Duration}
+	   */mapUnits(fn){if(!this.isValid)return this;const result={};for(const k of Object.keys(this.values)){result[k]=asNumber(fn(this.values[k],k));}return clone$1(this,{values:result},true);}/**
+	   * Get the value of unit.
+	   * @param {string} unit - a unit such as 'minute' or 'day'
+	   * @example Duration.fromObject({years: 2, days: 3}).get('years') //=> 2
+	   * @example Duration.fromObject({years: 2, days: 3}).get('months') //=> 0
+	   * @example Duration.fromObject({years: 2, days: 3}).get('days') //=> 3
+	   * @return {number}
+	   */get(unit){return this[Duration.normalizeUnit(unit)];}/**
+	   * "Set" the values of specified units. Return a newly-constructed Duration.
+	   * @param {Object} values - a mapping of units to numbers
+	   * @example dur.set({ years: 2017 })
+	   * @example dur.set({ hours: 8, minutes: 30 })
+	   * @return {Duration}
+	   */set(values){if(!this.isValid)return this;const mixed=_objectSpread(_objectSpread({},this.values),normalizeObject(values,Duration.normalizeUnit));return clone$1(this,{values:mixed});}/**
+	   * "Set" the locale and/or numberingSystem.  Returns a newly-constructed Duration.
+	   * @example dur.reconfigure({ locale: 'en-GB' })
+	   * @return {Duration}
+	   */reconfigure({locale,numberingSystem,conversionAccuracy,matrix}={}){const loc=this.loc.clone({locale,numberingSystem});const opts={loc,matrix,conversionAccuracy};return clone$1(this,opts);}/**
+	   * Return the length of the duration in the specified unit.
+	   * @param {string} unit - a unit such as 'minutes' or 'days'
+	   * @example Duration.fromObject({years: 1}).as('days') //=> 365
+	   * @example Duration.fromObject({years: 1}).as('months') //=> 12
+	   * @example Duration.fromObject({hours: 60}).as('days') //=> 2.5
+	   * @return {number}
+	   */as(unit){return this.isValid?this.shiftTo(unit).get(unit):NaN;}/**
+	   * Reduce this Duration to its canonical representation in its current units.
+	   * Assuming the overall value of the Duration is positive, this means:
+	   * - excessive values for lower-order units are converted to higher-order units (if possible, see first and second example)
+	   * - negative lower-order units are converted to higher order units (there must be such a higher order unit, otherwise
+	   *   the overall value would be negative, see third example)
+	   * - fractional values for higher-order units are converted to lower-order units (if possible, see fourth example)
+	   *
+	   * If the overall value is negative, the result of this method is equivalent to `this.negate().normalize().negate()`.
+	   * @example Duration.fromObject({ years: 2, days: 5000 }).normalize().toObject() //=> { years: 15, days: 255 }
+	   * @example Duration.fromObject({ days: 5000 }).normalize().toObject() //=> { days: 5000 }
+	   * @example Duration.fromObject({ hours: 12, minutes: -45 }).normalize().toObject() //=> { hours: 11, minutes: 15 }
+	   * @example Duration.fromObject({ years: 2.5, days: 0, hours: 0 }).normalize().toObject() //=> { years: 2, days: 182, hours: 12 }
+	   * @return {Duration}
+	   */normalize(){if(!this.isValid)return this;const vals=this.toObject();normalizeValues(this.matrix,vals);return clone$1(this,{values:vals},true);}/**
+	   * Rescale units to its largest representation
+	   * @example Duration.fromObject({ milliseconds: 90000 }).rescale().toObject() //=> { minutes: 1, seconds: 30 }
+	   * @return {Duration}
+	   */rescale(){if(!this.isValid)return this;const vals=removeZeroes(this.normalize().shiftToAll().toObject());return clone$1(this,{values:vals},true);}/**
+	   * Convert this Duration into its representation in a different set of units.
+	   * @example Duration.fromObject({ hours: 1, seconds: 30 }).shiftTo('minutes', 'milliseconds').toObject() //=> { minutes: 60, milliseconds: 30000 }
+	   * @return {Duration}
+	   */shiftTo(...units){if(!this.isValid)return this;if(units.length===0){return this;}units=units.map(u=>Duration.normalizeUnit(u));const built={},accumulated={},vals=this.toObject();let lastUnit;for(const k of orderedUnits$1){if(units.indexOf(k)>=0){lastUnit=k;let own=0;// anything we haven't boiled down yet should get boiled to this unit
 for(const ak in accumulated){own+=this.matrix[ak][k]*accumulated[ak];accumulated[ak]=0;}// plus anything that's already in this unit
-if(isNumber$1(vals[k])){own+=vals[k];}// only keep the integer part for now in the hopes of putting any decimal part
+if(isNumber(vals[k])){own+=vals[k];}// only keep the integer part for now in the hopes of putting any decimal part
 // into a smaller unit later
 const i=Math.trunc(own);built[k]=i;accumulated[k]=(own*1000-i*1000)/1000;// otherwise, keep it in the wings to boil it later
-}else if(isNumber$1(vals[k])){accumulated[k]=vals[k];}}// anything leftover becomes the decimal for the last unit
+}else if(isNumber(vals[k])){accumulated[k]=vals[k];}}// anything leftover becomes the decimal for the last unit
 // lastUnit must be defined since units is not empty
 for(const key in accumulated){if(accumulated[key]!==0){built[lastUnit]+=key===lastUnit?accumulated[key]:accumulated[key]/this.matrix[lastUnit][key];}}normalizeValues(this.matrix,built);return clone$1(this,{values:built},true);}/**
-   * Shift this Duration to all available units.
-   * Same as shiftTo("years", "months", "weeks", "days", "hours", "minutes", "seconds", "milliseconds")
-   * @return {Duration}
-   */shiftToAll(){if(!this.isValid)return this;return this.shiftTo("years","months","weeks","days","hours","minutes","seconds","milliseconds");}/**
-   * Return the negative of this Duration.
-   * @example Duration.fromObject({ hours: 1, seconds: 30 }).negate().toObject() //=> { hours: -1, seconds: -30 }
-   * @return {Duration}
-   */negate(){if(!this.isValid)return this;const negated={};for(const k of Object.keys(this.values)){negated[k]=this.values[k]===0?0:-this.values[k];}return clone$1(this,{values:negated},true);}/**
-   * Get the years.
-   * @type {number}
-   */get years(){return this.isValid?this.values.years||0:NaN;}/**
-   * Get the quarters.
-   * @type {number}
-   */get quarters(){return this.isValid?this.values.quarters||0:NaN;}/**
-   * Get the months.
-   * @type {number}
-   */get months(){return this.isValid?this.values.months||0:NaN;}/**
-   * Get the weeks
-   * @type {number}
-   */get weeks(){return this.isValid?this.values.weeks||0:NaN;}/**
-   * Get the days.
-   * @type {number}
-   */get days(){return this.isValid?this.values.days||0:NaN;}/**
-   * Get the hours.
-   * @type {number}
-   */get hours(){return this.isValid?this.values.hours||0:NaN;}/**
-   * Get the minutes.
-   * @type {number}
-   */get minutes(){return this.isValid?this.values.minutes||0:NaN;}/**
-   * Get the seconds.
-   * @return {number}
-   */get seconds(){return this.isValid?this.values.seconds||0:NaN;}/**
-   * Get the milliseconds.
-   * @return {number}
-   */get milliseconds(){return this.isValid?this.values.milliseconds||0:NaN;}/**
-   * Returns whether the Duration is invalid. Invalid durations are returned by diff operations
-   * on invalid DateTimes or Intervals.
-   * @return {boolean}
-   */get isValid(){return this.invalid===null;}/**
-   * Returns an error code if this Duration became invalid, or null if the Duration is valid
-   * @return {string}
-   */get invalidReason(){return this.invalid?this.invalid.reason:null;}/**
-   * Returns an explanation of why this Duration became invalid, or null if the Duration is valid
-   * @type {string}
-   */get invalidExplanation(){return this.invalid?this.invalid.explanation:null;}/**
-   * Equality check
-   * Two Durations are equal iff they have the same units and the same values for each unit.
-   * @param {Duration} other
-   * @return {boolean}
-   */equals(other){if(!this.isValid||!other.isValid){return false;}if(!this.loc.equals(other.loc)){return false;}function eq(v1,v2){// Consider 0 and undefined as equal
+	   * Shift this Duration to all available units.
+	   * Same as shiftTo("years", "months", "weeks", "days", "hours", "minutes", "seconds", "milliseconds")
+	   * @return {Duration}
+	   */shiftToAll(){if(!this.isValid)return this;return this.shiftTo("years","months","weeks","days","hours","minutes","seconds","milliseconds");}/**
+	   * Return the negative of this Duration.
+	   * @example Duration.fromObject({ hours: 1, seconds: 30 }).negate().toObject() //=> { hours: -1, seconds: -30 }
+	   * @return {Duration}
+	   */negate(){if(!this.isValid)return this;const negated={};for(const k of Object.keys(this.values)){negated[k]=this.values[k]===0?0:-this.values[k];}return clone$1(this,{values:negated},true);}/**
+	   * Removes all units with values equal to 0 from this Duration.
+	   * @example Duration.fromObject({ years: 2, days: 0, hours: 0, minutes: 0 }).removeZeros().toObject() //=> { years: 2 }
+	   * @return {Duration}
+	   */removeZeros(){if(!this.isValid)return this;const vals=removeZeroes(this.values);return clone$1(this,{values:vals},true);}/**
+	   * Get the years.
+	   * @type {number}
+	   */get years(){return this.isValid?this.values.years||0:NaN;}/**
+	   * Get the quarters.
+	   * @type {number}
+	   */get quarters(){return this.isValid?this.values.quarters||0:NaN;}/**
+	   * Get the months.
+	   * @type {number}
+	   */get months(){return this.isValid?this.values.months||0:NaN;}/**
+	   * Get the weeks
+	   * @type {number}
+	   */get weeks(){return this.isValid?this.values.weeks||0:NaN;}/**
+	   * Get the days.
+	   * @type {number}
+	   */get days(){return this.isValid?this.values.days||0:NaN;}/**
+	   * Get the hours.
+	   * @type {number}
+	   */get hours(){return this.isValid?this.values.hours||0:NaN;}/**
+	   * Get the minutes.
+	   * @type {number}
+	   */get minutes(){return this.isValid?this.values.minutes||0:NaN;}/**
+	   * Get the seconds.
+	   * @return {number}
+	   */get seconds(){return this.isValid?this.values.seconds||0:NaN;}/**
+	   * Get the milliseconds.
+	   * @return {number}
+	   */get milliseconds(){return this.isValid?this.values.milliseconds||0:NaN;}/**
+	   * Returns whether the Duration is invalid. Invalid durations are returned by diff operations
+	   * on invalid DateTimes or Intervals.
+	   * @return {boolean}
+	   */get isValid(){return this.invalid===null;}/**
+	   * Returns an error code if this Duration became invalid, or null if the Duration is valid
+	   * @return {string}
+	   */get invalidReason(){return this.invalid?this.invalid.reason:null;}/**
+	   * Returns an explanation of why this Duration became invalid, or null if the Duration is valid
+	   * @type {string}
+	   */get invalidExplanation(){return this.invalid?this.invalid.explanation:null;}/**
+	   * Equality check
+	   * Two Durations are equal iff they have the same units and the same values for each unit.
+	   * @param {Duration} other
+	   * @return {boolean}
+	   */equals(other){if(!this.isValid||!other.isValid){return false;}if(!this.loc.equals(other.loc)){return false;}function eq(v1,v2){// Consider 0 and undefined as equal
 if(v1===undefined||v1===0)return v2===undefined||v2===0;return v1===v2;}for(const u of orderedUnits$1){if(!eq(this.values[u],other.values[u])){return false;}}return true;}}const INVALID$1="Invalid Interval";// checks if the start is equal to or before the end
 function validateStartEnd(start,end){if(!start||!start.isValid){return Interval.invalid("missing or invalid start");}else if(!end||!end.isValid){return Interval.invalid("missing or invalid end");}else if(end<start){return Interval.invalid("end before start",`The end of an interval must be after its start, but you had start=${start.toISO()} and end=${end.toISO()}`);}else{return null;}}/**
- * An Interval object represents a half-open interval of time, where each endpoint is a {@link DateTime}. Conceptually, it's a container for those two endpoints, accompanied by methods for creating, parsing, interrogating, comparing, transforming, and formatting them.
- *
- * Here is a brief overview of the most commonly used methods and getters in Interval:
- *
- * * **Creation** To create an Interval, use {@link Interval.fromDateTimes}, {@link Interval.after}, {@link Interval.before}, or {@link Interval.fromISO}.
- * * **Accessors** Use {@link Interval#start} and {@link Interval#end} to get the start and end.
- * * **Interrogation** To analyze the Interval, use {@link Interval#count}, {@link Interval#length}, {@link Interval#hasSame}, {@link Interval#contains}, {@link Interval#isAfter}, or {@link Interval#isBefore}.
- * * **Transformation** To create other Intervals out of this one, use {@link Interval#set}, {@link Interval#splitAt}, {@link Interval#splitBy}, {@link Interval#divideEqually}, {@link Interval.merge}, {@link Interval.xor}, {@link Interval#union}, {@link Interval#intersection}, or {@link Interval#difference}.
- * * **Comparison** To compare this Interval to another one, use {@link Interval#equals}, {@link Interval#overlaps}, {@link Interval#abutsStart}, {@link Interval#abutsEnd}, {@link Interval#engulfs}
- * * **Output** To convert the Interval into other representations, see {@link Interval#toString}, {@link Interval#toLocaleString}, {@link Interval#toISO}, {@link Interval#toISODate}, {@link Interval#toISOTime}, {@link Interval#toFormat}, and {@link Interval#toDuration}.
- */class Interval{/**
-   * @private
-   */constructor(config){/**
-     * @access private
-     */this.s=config.start;/**
-     * @access private
-     */this.e=config.end;/**
-     * @access private
-     */this.invalid=config.invalid||null;/**
-     * @access private
-     */this.isLuxonInterval=true;}/**
-   * Create an invalid Interval.
-   * @param {string} reason - simple string of why this Interval is invalid. Should not contain parameters or anything else data-dependent
-   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
-   * @return {Interval}
-   */static invalid(reason,explanation=null){if(!reason){throw new InvalidArgumentError("need to specify a reason the Interval is invalid");}const invalid=reason instanceof Invalid?reason:new Invalid(reason,explanation);if(Settings.throwOnInvalid){throw new InvalidIntervalError(invalid);}else{return new Interval({invalid});}}/**
-   * Create an Interval from a start DateTime and an end DateTime. Inclusive of the start but not the end.
-   * @param {DateTime|Date|Object} start
-   * @param {DateTime|Date|Object} end
-   * @return {Interval}
-   */static fromDateTimes(start,end){const builtStart=friendlyDateTime(start),builtEnd=friendlyDateTime(end);const validateError=validateStartEnd(builtStart,builtEnd);if(validateError==null){return new Interval({start:builtStart,end:builtEnd});}else{return validateError;}}/**
-   * Create an Interval from a start DateTime and a Duration to extend to.
-   * @param {DateTime|Date|Object} start
-   * @param {Duration|Object|number} duration - the length of the Interval.
-   * @return {Interval}
-   */static after(start,duration){const dur=Duration.fromDurationLike(duration),dt=friendlyDateTime(start);return Interval.fromDateTimes(dt,dt.plus(dur));}/**
-   * Create an Interval from an end DateTime and a Duration to extend backwards to.
-   * @param {DateTime|Date|Object} end
-   * @param {Duration|Object|number} duration - the length of the Interval.
-   * @return {Interval}
-   */static before(end,duration){const dur=Duration.fromDurationLike(duration),dt=friendlyDateTime(end);return Interval.fromDateTimes(dt.minus(dur),dt);}/**
-   * Create an Interval from an ISO 8601 string.
-   * Accepts `<start>/<end>`, `<start>/<duration>`, and `<duration>/<end>` formats.
-   * @param {string} text - the ISO string to parse
-   * @param {Object} [opts] - options to pass {@link DateTime#fromISO} and optionally {@link Duration#fromISO}
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
-   * @return {Interval}
-   */static fromISO(text,opts){const[s,e]=(text||"").split("/",2);if(s&&e){let start,startIsValid;try{start=DateTime$1.fromISO(s,opts);startIsValid=start.isValid;}catch(e){startIsValid=false;}let end,endIsValid;try{end=DateTime$1.fromISO(e,opts);endIsValid=end.isValid;}catch(e){endIsValid=false;}if(startIsValid&&endIsValid){return Interval.fromDateTimes(start,end);}if(startIsValid){const dur=Duration.fromISO(e,opts);if(dur.isValid){return Interval.after(start,dur);}}else if(endIsValid){const dur=Duration.fromISO(s,opts);if(dur.isValid){return Interval.before(end,dur);}}}return Interval.invalid("unparsable",`the input "${text}" can't be parsed as ISO 8601`);}/**
-   * Check if an object is an Interval. Works across context boundaries
-   * @param {object} o
-   * @return {boolean}
-   */static isInterval(o){return o&&o.isLuxonInterval||false;}/**
-   * Returns the start of the Interval
-   * @type {DateTime}
-   */get start(){return this.isValid?this.s:null;}/**
-   * Returns the end of the Interval
-   * @type {DateTime}
-   */get end(){return this.isValid?this.e:null;}/**
-   * Returns the last DateTime included in the interval (since end is not part of the interval)
-   * @type {DateTime}
-   */get lastDateTime(){return this.isValid?this.e?this.e.minus(1):null:null;}/**
-   * Returns whether this Interval's end is at least its start, meaning that the Interval isn't 'backwards'.
-   * @type {boolean}
-   */get isValid(){return this.invalidReason===null;}/**
-   * Returns an error code if this Interval is invalid, or null if the Interval is valid
-   * @type {string}
-   */get invalidReason(){return this.invalid?this.invalid.reason:null;}/**
-   * Returns an explanation of why this Interval became invalid, or null if the Interval is valid
-   * @type {string}
-   */get invalidExplanation(){return this.invalid?this.invalid.explanation:null;}/**
-   * Returns the length of the Interval in the specified unit.
-   * @param {string} unit - the unit (such as 'hours' or 'days') to return the length in.
-   * @return {number}
-   */length(unit="milliseconds"){return this.isValid?this.toDuration(...[unit]).get(unit):NaN;}/**
-   * Returns the count of minutes, hours, days, months, or years included in the Interval, even in part.
-   * Unlike {@link Interval#length} this counts sections of the calendar, not periods of time, e.g. specifying 'day'
-   * asks 'what dates are included in this interval?', not 'how many days long is this interval?'
-   * @param {string} [unit='milliseconds'] - the unit of time to count.
-   * @param {Object} opts - options
-   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week; this operation will always use the locale of the start DateTime
-   * @return {number}
-   */count(unit="milliseconds",opts){if(!this.isValid)return NaN;const start=this.start.startOf(unit,opts);let end;if(opts!==null&&opts!==void 0&&opts.useLocaleWeeks){end=this.end.reconfigure({locale:start.locale});}else{end=this.end;}end=end.startOf(unit,opts);return Math.floor(end.diff(start,unit).get(unit))+(end.valueOf()!==this.end.valueOf());}/**
-   * Returns whether this Interval's start and end are both in the same unit of time
-   * @param {string} unit - the unit of time to check sameness on
-   * @return {boolean}
-   */hasSame(unit){return this.isValid?this.isEmpty()||this.e.minus(1).hasSame(this.s,unit):false;}/**
-   * Return whether this Interval has the same start and end DateTimes.
-   * @return {boolean}
-   */isEmpty(){return this.s.valueOf()===this.e.valueOf();}/**
-   * Return whether this Interval's start is after the specified DateTime.
-   * @param {DateTime} dateTime
-   * @return {boolean}
-   */isAfter(dateTime){if(!this.isValid)return false;return this.s>dateTime;}/**
-   * Return whether this Interval's end is before the specified DateTime.
-   * @param {DateTime} dateTime
-   * @return {boolean}
-   */isBefore(dateTime){if(!this.isValid)return false;return this.e<=dateTime;}/**
-   * Return whether this Interval contains the specified DateTime.
-   * @param {DateTime} dateTime
-   * @return {boolean}
-   */contains(dateTime){if(!this.isValid)return false;return this.s<=dateTime&&this.e>dateTime;}/**
-   * "Sets" the start and/or end dates. Returns a newly-constructed Interval.
-   * @param {Object} values - the values to set
-   * @param {DateTime} values.start - the starting DateTime
-   * @param {DateTime} values.end - the ending DateTime
-   * @return {Interval}
-   */set({start,end}={}){if(!this.isValid)return this;return Interval.fromDateTimes(start||this.s,end||this.e);}/**
-   * Split this Interval at each of the specified DateTimes
-   * @param {...DateTime} dateTimes - the unit of time to count.
-   * @return {Array}
-   */splitAt(...dateTimes){if(!this.isValid)return[];const sorted=dateTimes.map(friendlyDateTime).filter(d=>this.contains(d)).sort((a,b)=>a.toMillis()-b.toMillis()),results=[];let{s}=this,i=0;while(s<this.e){const added=sorted[i]||this.e,next=+added>+this.e?this.e:added;results.push(Interval.fromDateTimes(s,next));s=next;i+=1;}return results;}/**
-   * Split this Interval into smaller Intervals, each of the specified length.
-   * Left over time is grouped into a smaller interval
-   * @param {Duration|Object|number} duration - The length of each resulting interval.
-   * @return {Array}
-   */splitBy(duration){const dur=Duration.fromDurationLike(duration);if(!this.isValid||!dur.isValid||dur.as("milliseconds")===0){return[];}let{s}=this,idx=1,next;const results=[];while(s<this.e){const added=this.start.plus(dur.mapUnits(x=>x*idx));next=+added>+this.e?this.e:added;results.push(Interval.fromDateTimes(s,next));s=next;idx+=1;}return results;}/**
-   * Split this Interval into the specified number of smaller intervals.
-   * @param {number} numberOfParts - The number of Intervals to divide the Interval into.
-   * @return {Array}
-   */divideEqually(numberOfParts){if(!this.isValid)return[];return this.splitBy(this.length()/numberOfParts).slice(0,numberOfParts);}/**
-   * Return whether this Interval overlaps with the specified Interval
-   * @param {Interval} other
-   * @return {boolean}
-   */overlaps(other){return this.e>other.s&&this.s<other.e;}/**
-   * Return whether this Interval's end is adjacent to the specified Interval's start.
-   * @param {Interval} other
-   * @return {boolean}
-   */abutsStart(other){if(!this.isValid)return false;return+this.e===+other.s;}/**
-   * Return whether this Interval's start is adjacent to the specified Interval's end.
-   * @param {Interval} other
-   * @return {boolean}
-   */abutsEnd(other){if(!this.isValid)return false;return+other.e===+this.s;}/**
-   * Returns true if this Interval fully contains the specified Interval, specifically if the intersect (of this Interval and the other Interval) is equal to the other Interval; false otherwise.
-   * @param {Interval} other
-   * @return {boolean}
-   */engulfs(other){if(!this.isValid)return false;return this.s<=other.s&&this.e>=other.e;}/**
-   * Return whether this Interval has the same start and end as the specified Interval.
-   * @param {Interval} other
-   * @return {boolean}
-   */equals(other){if(!this.isValid||!other.isValid){return false;}return this.s.equals(other.s)&&this.e.equals(other.e);}/**
-   * Return an Interval representing the intersection of this Interval and the specified Interval.
-   * Specifically, the resulting Interval has the maximum start time and the minimum end time of the two Intervals.
-   * Returns null if the intersection is empty, meaning, the intervals don't intersect.
-   * @param {Interval} other
-   * @return {Interval}
-   */intersection(other){if(!this.isValid)return this;const s=this.s>other.s?this.s:other.s,e=this.e<other.e?this.e:other.e;if(s>=e){return null;}else{return Interval.fromDateTimes(s,e);}}/**
-   * Return an Interval representing the union of this Interval and the specified Interval.
-   * Specifically, the resulting Interval has the minimum start time and the maximum end time of the two Intervals.
-   * @param {Interval} other
-   * @return {Interval}
-   */union(other){if(!this.isValid)return this;const s=this.s<other.s?this.s:other.s,e=this.e>other.e?this.e:other.e;return Interval.fromDateTimes(s,e);}/**
-   * Merge an array of Intervals into an equivalent minimal set of Intervals.
-   * Combines overlapping and adjacent Intervals.
-   * The resulting array will contain the Intervals in ascending order, that is, starting with the earliest Interval
-   * and ending with the latest.
-   *
-   * @param {Array} intervals
-   * @return {Array}
-   */static merge(intervals){const[found,final]=intervals.sort((a,b)=>a.s-b.s).reduce(([sofar,current],item)=>{if(!current){return[sofar,item];}else if(current.overlaps(item)||current.abutsStart(item)){return[sofar,current.union(item)];}else{return[sofar.concat([current]),item];}},[[],null]);if(final){found.push(final);}return found;}/**
-   * Return an array of Intervals representing the spans of time that only appear in one of the specified Intervals.
-   * @param {Array} intervals
-   * @return {Array}
-   */static xor(intervals){let start=null,currentCount=0;const results=[],ends=intervals.map(i=>[{time:i.s,type:"s"},{time:i.e,type:"e"}]),flattened=Array.prototype.concat(...ends),arr=flattened.sort((a,b)=>a.time-b.time);for(const i of arr){currentCount+=i.type==="s"?1:-1;if(currentCount===1){start=i.time;}else{if(start&&+start!==+i.time){results.push(Interval.fromDateTimes(start,i.time));}start=null;}}return Interval.merge(results);}/**
-   * Return an Interval representing the span of time in this Interval that doesn't overlap with any of the specified Intervals.
-   * @param {...Interval} intervals
-   * @return {Array}
-   */difference(...intervals){return Interval.xor([this].concat(intervals)).map(i=>this.intersection(i)).filter(i=>i&&!i.isEmpty());}/**
-   * Returns a string representation of this Interval appropriate for debugging.
-   * @return {string}
-   */toString(){if(!this.isValid)return INVALID$1;return`[${this.s.toISO()} – ${this.e.toISO()})`;}/**
-   * Returns a string representation of this Interval appropriate for the REPL.
-   * @return {string}
-   */[Symbol.for("nodejs.util.inspect.custom")](){if(this.isValid){return`Interval { start: ${this.s.toISO()}, end: ${this.e.toISO()} }`;}else{return`Interval { Invalid, reason: ${this.invalidReason} }`;}}/**
-   * Returns a localized string representing this Interval. Accepts the same options as the
-   * Intl.DateTimeFormat constructor and any presets defined by Luxon, such as
-   * {@link DateTime.DATE_FULL} or {@link DateTime.TIME_SIMPLE}. The exact behavior of this method
-   * is browser-specific, but in general it will return an appropriate representation of the
-   * Interval in the assigned locale. Defaults to the system's locale if no locale has been
-   * specified.
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
-   * @param {Object} [formatOpts=DateTime.DATE_SHORT] - Either a DateTime preset or
-   * Intl.DateTimeFormat constructor options.
-   * @param {Object} opts - Options to override the configuration of the start DateTime.
-   * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(); //=> 11/7/2022 – 11/8/2022
-   * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(DateTime.DATE_FULL); //=> November 7 – 8, 2022
-   * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(DateTime.DATE_FULL, { locale: 'fr-FR' }); //=> 7–8 novembre 2022
-   * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString(DateTime.TIME_SIMPLE); //=> 6:00 – 8:00 PM
-   * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> Mon, Nov 07, 6:00 – 8:00 p
-   * @return {string}
-   */toLocaleString(formatOpts=DATE_SHORT,opts={}){return this.isValid?Formatter.create(this.s.loc.clone(opts),formatOpts).formatInterval(this):INVALID$1;}/**
-   * Returns an ISO 8601-compliant string representation of this Interval.
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
-   * @param {Object} opts - The same options as {@link DateTime#toISO}
-   * @return {string}
-   */toISO(opts){if(!this.isValid)return INVALID$1;return`${this.s.toISO(opts)}/${this.e.toISO(opts)}`;}/**
-   * Returns an ISO 8601-compliant string representation of date of this Interval.
-   * The time components are ignored.
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
-   * @return {string}
-   */toISODate(){if(!this.isValid)return INVALID$1;return`${this.s.toISODate()}/${this.e.toISODate()}`;}/**
-   * Returns an ISO 8601-compliant string representation of time of this Interval.
-   * The date components are ignored.
-   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
-   * @param {Object} opts - The same options as {@link DateTime#toISO}
-   * @return {string}
-   */toISOTime(opts){if(!this.isValid)return INVALID$1;return`${this.s.toISOTime(opts)}/${this.e.toISOTime(opts)}`;}/**
-   * Returns a string representation of this Interval formatted according to the specified format
-   * string. **You may not want this.** See {@link Interval#toLocaleString} for a more flexible
-   * formatting tool.
-   * @param {string} dateFormat - The format string. This string formats the start and end time.
-   * See {@link DateTime#toFormat} for details.
-   * @param {Object} opts - Options.
-   * @param {string} [opts.separator =  ' – '] - A separator to place between the start and end
-   * representations.
-   * @return {string}
-   */toFormat(dateFormat,{separator=" – "}={}){if(!this.isValid)return INVALID$1;return`${this.s.toFormat(dateFormat)}${separator}${this.e.toFormat(dateFormat)}`;}/**
-   * Return a Duration representing the time spanned by this interval.
-   * @param {string|string[]} [unit=['milliseconds']] - the unit or units (such as 'hours' or 'days') to include in the duration.
-   * @param {Object} opts - options that affect the creation of the Duration
-   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
-   * @example Interval.fromDateTimes(dt1, dt2).toDuration().toObject() //=> { milliseconds: 88489257 }
-   * @example Interval.fromDateTimes(dt1, dt2).toDuration('days').toObject() //=> { days: 1.0241812152777778 }
-   * @example Interval.fromDateTimes(dt1, dt2).toDuration(['hours', 'minutes']).toObject() //=> { hours: 24, minutes: 34.82095 }
-   * @example Interval.fromDateTimes(dt1, dt2).toDuration(['hours', 'minutes', 'seconds']).toObject() //=> { hours: 24, minutes: 34, seconds: 49.257 }
-   * @example Interval.fromDateTimes(dt1, dt2).toDuration('seconds').toObject() //=> { seconds: 88489.257 }
-   * @return {Duration}
-   */toDuration(unit,opts){if(!this.isValid){return Duration.invalid(this.invalidReason);}return this.e.diff(this.s,unit,opts);}/**
-   * Run mapFn on the interval start and end, returning a new Interval from the resulting DateTimes
-   * @param {function} mapFn
-   * @return {Interval}
-   * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.toUTC())
-   * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.plus({ hours: 2 }))
-   */mapEndpoints(mapFn){return Interval.fromDateTimes(mapFn(this.s),mapFn(this.e));}}/**
- * The Info class contains static methods for retrieving general time and date related data. For example, it has methods for finding out if a time zone has a DST, for listing the months in any supported locale, and for discovering which of Luxon features are available in the current environment.
- */class Info{/**
-   * Return whether the specified zone contains a DST.
-   * @param {string|Zone} [zone='local'] - Zone to check. Defaults to the environment's local zone.
-   * @return {boolean}
-   */static hasDST(zone=Settings.defaultZone){const proto=DateTime$1.now().setZone(zone).set({month:12});return!zone.isUniversal&&proto.offset!==proto.set({month:6}).offset;}/**
-   * Return whether the specified zone is a valid IANA specifier.
-   * @param {string} zone - Zone to check
-   * @return {boolean}
-   */static isValidIANAZone(zone){return IANAZone.isValidZone(zone);}/**
-   * Converts the input into a {@link Zone} instance.
-   *
-   * * If `input` is already a Zone instance, it is returned unchanged.
-   * * If `input` is a string containing a valid time zone name, a Zone instance
-   *   with that name is returned.
-   * * If `input` is a string that doesn't refer to a known time zone, a Zone
-   *   instance with {@link Zone#isValid} == false is returned.
-   * * If `input is a number, a Zone instance with the specified fixed offset
-   *   in minutes is returned.
-   * * If `input` is `null` or `undefined`, the default zone is returned.
-   * @param {string|Zone|number} [input] - the value to be converted
-   * @return {Zone}
-   */static normalizeZone(input){return normalizeZone(input,Settings.defaultZone);}/**
-   * Get the weekday on which the week starts according to the given locale.
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @returns {number} the start of the week, 1 for Monday through 7 for Sunday
-   */static getStartOfWeek({locale=null,locObj=null}={}){return(locObj||Locale.create(locale)).getStartOfWeek();}/**
-   * Get the minimum number of days necessary in a week before it is considered part of the next year according
-   * to the given locale.
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @returns {number}
-   */static getMinimumDaysInFirstWeek({locale=null,locObj=null}={}){return(locObj||Locale.create(locale)).getMinDaysInFirstWeek();}/**
-   * Get the weekdays, which are considered the weekend according to the given locale
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @returns {number[]} an array of weekdays, 1 for Monday through 7 for Sunday
-   */static getWeekendWeekdays({locale=null,locObj=null}={}){// copy the array, because we cache it internally
+	 * An Interval object represents a half-open interval of time, where each endpoint is a {@link DateTime}. Conceptually, it's a container for those two endpoints, accompanied by methods for creating, parsing, interrogating, comparing, transforming, and formatting them.
+	 *
+	 * Here is a brief overview of the most commonly used methods and getters in Interval:
+	 *
+	 * * **Creation** To create an Interval, use {@link Interval.fromDateTimes}, {@link Interval.after}, {@link Interval.before}, or {@link Interval.fromISO}.
+	 * * **Accessors** Use {@link Interval#start} and {@link Interval#end} to get the start and end.
+	 * * **Interrogation** To analyze the Interval, use {@link Interval#count}, {@link Interval#length}, {@link Interval#hasSame}, {@link Interval#contains}, {@link Interval#isAfter}, or {@link Interval#isBefore}.
+	 * * **Transformation** To create other Intervals out of this one, use {@link Interval#set}, {@link Interval#splitAt}, {@link Interval#splitBy}, {@link Interval#divideEqually}, {@link Interval.merge}, {@link Interval.xor}, {@link Interval#union}, {@link Interval#intersection}, or {@link Interval#difference}.
+	 * * **Comparison** To compare this Interval to another one, use {@link Interval#equals}, {@link Interval#overlaps}, {@link Interval#abutsStart}, {@link Interval#abutsEnd}, {@link Interval#engulfs}
+	 * * **Output** To convert the Interval into other representations, see {@link Interval#toString}, {@link Interval#toLocaleString}, {@link Interval#toISO}, {@link Interval#toISODate}, {@link Interval#toISOTime}, {@link Interval#toFormat}, and {@link Interval#toDuration}.
+	 */class Interval{/**
+	   * @private
+	   */constructor(config){/**
+	     * @access private
+	     */this.s=config.start;/**
+	     * @access private
+	     */this.e=config.end;/**
+	     * @access private
+	     */this.invalid=config.invalid||null;/**
+	     * @access private
+	     */this.isLuxonInterval=true;}/**
+	   * Create an invalid Interval.
+	   * @param {string} reason - simple string of why this Interval is invalid. Should not contain parameters or anything else data-dependent
+	   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
+	   * @return {Interval}
+	   */static invalid(reason,explanation=null){if(!reason){throw new InvalidArgumentError("need to specify a reason the Interval is invalid");}const invalid=reason instanceof Invalid?reason:new Invalid(reason,explanation);if(Settings.throwOnInvalid){throw new InvalidIntervalError(invalid);}else{return new Interval({invalid});}}/**
+	   * Create an Interval from a start DateTime and an end DateTime. Inclusive of the start but not the end.
+	   * @param {DateTime|Date|Object} start
+	   * @param {DateTime|Date|Object} end
+	   * @return {Interval}
+	   */static fromDateTimes(start,end){const builtStart=friendlyDateTime(start),builtEnd=friendlyDateTime(end);const validateError=validateStartEnd(builtStart,builtEnd);if(validateError==null){return new Interval({start:builtStart,end:builtEnd});}else{return validateError;}}/**
+	   * Create an Interval from a start DateTime and a Duration to extend to.
+	   * @param {DateTime|Date|Object} start
+	   * @param {Duration|Object|number} duration - the length of the Interval.
+	   * @return {Interval}
+	   */static after(start,duration){const dur=Duration.fromDurationLike(duration),dt=friendlyDateTime(start);return Interval.fromDateTimes(dt,dt.plus(dur));}/**
+	   * Create an Interval from an end DateTime and a Duration to extend backwards to.
+	   * @param {DateTime|Date|Object} end
+	   * @param {Duration|Object|number} duration - the length of the Interval.
+	   * @return {Interval}
+	   */static before(end,duration){const dur=Duration.fromDurationLike(duration),dt=friendlyDateTime(end);return Interval.fromDateTimes(dt.minus(dur),dt);}/**
+	   * Create an Interval from an ISO 8601 string.
+	   * Accepts `<start>/<end>`, `<start>/<duration>`, and `<duration>/<end>` formats.
+	   * @param {string} text - the ISO string to parse
+	   * @param {Object} [opts] - options to pass {@link DateTime#fromISO} and optionally {@link Duration#fromISO}
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+	   * @return {Interval}
+	   */static fromISO(text,opts){const[s,e]=(text||"").split("/",2);if(s&&e){let start,startIsValid;try{start=DateTime.fromISO(s,opts);startIsValid=start.isValid;}catch(e){startIsValid=false;}let end,endIsValid;try{end=DateTime.fromISO(e,opts);endIsValid=end.isValid;}catch(e){endIsValid=false;}if(startIsValid&&endIsValid){return Interval.fromDateTimes(start,end);}if(startIsValid){const dur=Duration.fromISO(e,opts);if(dur.isValid){return Interval.after(start,dur);}}else if(endIsValid){const dur=Duration.fromISO(s,opts);if(dur.isValid){return Interval.before(end,dur);}}}return Interval.invalid("unparsable",`the input "${text}" can't be parsed as ISO 8601`);}/**
+	   * Check if an object is an Interval. Works across context boundaries
+	   * @param {object} o
+	   * @return {boolean}
+	   */static isInterval(o){return o&&o.isLuxonInterval||false;}/**
+	   * Returns the start of the Interval
+	   * @type {DateTime}
+	   */get start(){return this.isValid?this.s:null;}/**
+	   * Returns the end of the Interval. This is the first instant which is not part of the interval
+	   * (Interval is half-open).
+	   * @type {DateTime}
+	   */get end(){return this.isValid?this.e:null;}/**
+	   * Returns the last DateTime included in the interval (since end is not part of the interval)
+	   * @type {DateTime}
+	   */get lastDateTime(){return this.isValid?this.e?this.e.minus(1):null:null;}/**
+	   * Returns whether this Interval's end is at least its start, meaning that the Interval isn't 'backwards'.
+	   * @type {boolean}
+	   */get isValid(){return this.invalidReason===null;}/**
+	   * Returns an error code if this Interval is invalid, or null if the Interval is valid
+	   * @type {string}
+	   */get invalidReason(){return this.invalid?this.invalid.reason:null;}/**
+	   * Returns an explanation of why this Interval became invalid, or null if the Interval is valid
+	   * @type {string}
+	   */get invalidExplanation(){return this.invalid?this.invalid.explanation:null;}/**
+	   * Returns the length of the Interval in the specified unit.
+	   * @param {string} unit - the unit (such as 'hours' or 'days') to return the length in.
+	   * @return {number}
+	   */length(unit="milliseconds"){return this.isValid?this.toDuration(...[unit]).get(unit):NaN;}/**
+	   * Returns the count of minutes, hours, days, months, or years included in the Interval, even in part.
+	   * Unlike {@link Interval#length} this counts sections of the calendar, not periods of time, e.g. specifying 'day'
+	   * asks 'what dates are included in this interval?', not 'how many days long is this interval?'
+	   * @param {string} [unit='milliseconds'] - the unit of time to count.
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week; this operation will always use the locale of the start DateTime
+	   * @return {number}
+	   */count(unit="milliseconds",opts){if(!this.isValid)return NaN;const start=this.start.startOf(unit,opts);let end;if(opts!=null&&opts.useLocaleWeeks){end=this.end.reconfigure({locale:start.locale});}else{end=this.end;}end=end.startOf(unit,opts);return Math.floor(end.diff(start,unit).get(unit))+(end.valueOf()!==this.end.valueOf());}/**
+	   * Returns whether this Interval's start and end are both in the same unit of time
+	   * @param {string} unit - the unit of time to check sameness on
+	   * @return {boolean}
+	   */hasSame(unit){return this.isValid?this.isEmpty()||this.e.minus(1).hasSame(this.s,unit):false;}/**
+	   * Return whether this Interval has the same start and end DateTimes.
+	   * @return {boolean}
+	   */isEmpty(){return this.s.valueOf()===this.e.valueOf();}/**
+	   * Return whether this Interval's start is after the specified DateTime.
+	   * @param {DateTime} dateTime
+	   * @return {boolean}
+	   */isAfter(dateTime){if(!this.isValid)return false;return this.s>dateTime;}/**
+	   * Return whether this Interval's end is before the specified DateTime.
+	   * @param {DateTime} dateTime
+	   * @return {boolean}
+	   */isBefore(dateTime){if(!this.isValid)return false;return this.e<=dateTime;}/**
+	   * Return whether this Interval contains the specified DateTime.
+	   * @param {DateTime} dateTime
+	   * @return {boolean}
+	   */contains(dateTime){if(!this.isValid)return false;return this.s<=dateTime&&this.e>dateTime;}/**
+	   * "Sets" the start and/or end dates. Returns a newly-constructed Interval.
+	   * @param {Object} values - the values to set
+	   * @param {DateTime} values.start - the starting DateTime
+	   * @param {DateTime} values.end - the ending DateTime
+	   * @return {Interval}
+	   */set({start,end}={}){if(!this.isValid)return this;return Interval.fromDateTimes(start||this.s,end||this.e);}/**
+	   * Split this Interval at each of the specified DateTimes
+	   * @param {...DateTime} dateTimes - the unit of time to count.
+	   * @return {Array}
+	   */splitAt(...dateTimes){if(!this.isValid)return[];const sorted=dateTimes.map(friendlyDateTime).filter(d=>this.contains(d)).sort((a,b)=>a.toMillis()-b.toMillis()),results=[];let{s}=this,i=0;while(s<this.e){const added=sorted[i]||this.e,next=+added>+this.e?this.e:added;results.push(Interval.fromDateTimes(s,next));s=next;i+=1;}return results;}/**
+	   * Split this Interval into smaller Intervals, each of the specified length.
+	   * Left over time is grouped into a smaller interval
+	   * @param {Duration|Object|number} duration - The length of each resulting interval.
+	   * @return {Array}
+	   */splitBy(duration){const dur=Duration.fromDurationLike(duration);if(!this.isValid||!dur.isValid||dur.as("milliseconds")===0){return[];}let{s}=this,idx=1,next;const results=[];while(s<this.e){const added=this.start.plus(dur.mapUnits(x=>x*idx));next=+added>+this.e?this.e:added;results.push(Interval.fromDateTimes(s,next));s=next;idx+=1;}return results;}/**
+	   * Split this Interval into the specified number of smaller intervals.
+	   * @param {number} numberOfParts - The number of Intervals to divide the Interval into.
+	   * @return {Array}
+	   */divideEqually(numberOfParts){if(!this.isValid)return[];return this.splitBy(this.length()/numberOfParts).slice(0,numberOfParts);}/**
+	   * Return whether this Interval overlaps with the specified Interval
+	   * @param {Interval} other
+	   * @return {boolean}
+	   */overlaps(other){return this.e>other.s&&this.s<other.e;}/**
+	   * Return whether this Interval's end is adjacent to the specified Interval's start.
+	   * @param {Interval} other
+	   * @return {boolean}
+	   */abutsStart(other){if(!this.isValid)return false;return+this.e===+other.s;}/**
+	   * Return whether this Interval's start is adjacent to the specified Interval's end.
+	   * @param {Interval} other
+	   * @return {boolean}
+	   */abutsEnd(other){if(!this.isValid)return false;return+other.e===+this.s;}/**
+	   * Returns true if this Interval fully contains the specified Interval, specifically if the intersect (of this Interval and the other Interval) is equal to the other Interval; false otherwise.
+	   * @param {Interval} other
+	   * @return {boolean}
+	   */engulfs(other){if(!this.isValid)return false;return this.s<=other.s&&this.e>=other.e;}/**
+	   * Return whether this Interval has the same start and end as the specified Interval.
+	   * @param {Interval} other
+	   * @return {boolean}
+	   */equals(other){if(!this.isValid||!other.isValid){return false;}return this.s.equals(other.s)&&this.e.equals(other.e);}/**
+	   * Return an Interval representing the intersection of this Interval and the specified Interval.
+	   * Specifically, the resulting Interval has the maximum start time and the minimum end time of the two Intervals.
+	   * Returns null if the intersection is empty, meaning, the intervals don't intersect.
+	   * @param {Interval} other
+	   * @return {Interval}
+	   */intersection(other){if(!this.isValid)return this;const s=this.s>other.s?this.s:other.s,e=this.e<other.e?this.e:other.e;if(s>=e){return null;}else{return Interval.fromDateTimes(s,e);}}/**
+	   * Return an Interval representing the union of this Interval and the specified Interval.
+	   * Specifically, the resulting Interval has the minimum start time and the maximum end time of the two Intervals.
+	   * @param {Interval} other
+	   * @return {Interval}
+	   */union(other){if(!this.isValid)return this;const s=this.s<other.s?this.s:other.s,e=this.e>other.e?this.e:other.e;return Interval.fromDateTimes(s,e);}/**
+	   * Merge an array of Intervals into an equivalent minimal set of Intervals.
+	   * Combines overlapping and adjacent Intervals.
+	   * The resulting array will contain the Intervals in ascending order, that is, starting with the earliest Interval
+	   * and ending with the latest.
+	   *
+	   * @param {Array} intervals
+	   * @return {Array}
+	   */static merge(intervals){const[found,final]=intervals.sort((a,b)=>a.s-b.s).reduce(([sofar,current],item)=>{if(!current){return[sofar,item];}else if(current.overlaps(item)||current.abutsStart(item)){return[sofar,current.union(item)];}else{return[sofar.concat([current]),item];}},[[],null]);if(final){found.push(final);}return found;}/**
+	   * Return an array of Intervals representing the spans of time that only appear in one of the specified Intervals.
+	   * @param {Array} intervals
+	   * @return {Array}
+	   */static xor(intervals){let start=null,currentCount=0;const results=[],ends=intervals.map(i=>[{time:i.s,type:"s"},{time:i.e,type:"e"}]),flattened=Array.prototype.concat(...ends),arr=flattened.sort((a,b)=>a.time-b.time);for(const i of arr){currentCount+=i.type==="s"?1:-1;if(currentCount===1){start=i.time;}else{if(start&&+start!==+i.time){results.push(Interval.fromDateTimes(start,i.time));}start=null;}}return Interval.merge(results);}/**
+	   * Return an Interval representing the span of time in this Interval that doesn't overlap with any of the specified Intervals.
+	   * @param {...Interval} intervals
+	   * @return {Array}
+	   */difference(...intervals){return Interval.xor([this].concat(intervals)).map(i=>this.intersection(i)).filter(i=>i&&!i.isEmpty());}/**
+	   * Returns a string representation of this Interval appropriate for debugging.
+	   * @return {string}
+	   */toString(){if(!this.isValid)return INVALID$1;return`[${this.s.toISO()} – ${this.e.toISO()})`;}/**
+	   * Returns a string representation of this Interval appropriate for the REPL.
+	   * @return {string}
+	   */[Symbol.for("nodejs.util.inspect.custom")](){if(this.isValid){return`Interval { start: ${this.s.toISO()}, end: ${this.e.toISO()} }`;}else{return`Interval { Invalid, reason: ${this.invalidReason} }`;}}/**
+	   * Returns a localized string representing this Interval. Accepts the same options as the
+	   * Intl.DateTimeFormat constructor and any presets defined by Luxon, such as
+	   * {@link DateTime.DATE_FULL} or {@link DateTime.TIME_SIMPLE}. The exact behavior of this method
+	   * is browser-specific, but in general it will return an appropriate representation of the
+	   * Interval in the assigned locale. Defaults to the system's locale if no locale has been
+	   * specified.
+	   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
+	   * @param {Object} [formatOpts=DateTime.DATE_SHORT] - Either a DateTime preset or
+	   * Intl.DateTimeFormat constructor options.
+	   * @param {Object} opts - Options to override the configuration of the start DateTime.
+	   * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(); //=> 11/7/2022 – 11/8/2022
+	   * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(DateTime.DATE_FULL); //=> November 7 – 8, 2022
+	   * @example Interval.fromISO('2022-11-07T09:00Z/2022-11-08T09:00Z').toLocaleString(DateTime.DATE_FULL, { locale: 'fr-FR' }); //=> 7–8 novembre 2022
+	   * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString(DateTime.TIME_SIMPLE); //=> 6:00 – 8:00 PM
+	   * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> Mon, Nov 07, 6:00 – 8:00 p
+	   * @return {string}
+	   */toLocaleString(formatOpts=DATE_SHORT,opts={}){return this.isValid?Formatter.create(this.s.loc.clone(opts),formatOpts).formatInterval(this):INVALID$1;}/**
+	   * Returns an ISO 8601-compliant string representation of this Interval.
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+	   * @param {Object} opts - The same options as {@link DateTime#toISO}
+	   * @return {string}
+	   */toISO(opts){if(!this.isValid)return INVALID$1;return`${this.s.toISO(opts)}/${this.e.toISO(opts)}`;}/**
+	   * Returns an ISO 8601-compliant string representation of date of this Interval.
+	   * The time components are ignored.
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+	   * @return {string}
+	   */toISODate(){if(!this.isValid)return INVALID$1;return`${this.s.toISODate()}/${this.e.toISODate()}`;}/**
+	   * Returns an ISO 8601-compliant string representation of time of this Interval.
+	   * The date components are ignored.
+	   * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+	   * @param {Object} opts - The same options as {@link DateTime#toISO}
+	   * @return {string}
+	   */toISOTime(opts){if(!this.isValid)return INVALID$1;return`${this.s.toISOTime(opts)}/${this.e.toISOTime(opts)}`;}/**
+	   * Returns a string representation of this Interval formatted according to the specified format
+	   * string. **You may not want this.** See {@link Interval#toLocaleString} for a more flexible
+	   * formatting tool.
+	   * @param {string} dateFormat - The format string. This string formats the start and end time.
+	   * See {@link DateTime#toFormat} for details.
+	   * @param {Object} opts - Options.
+	   * @param {string} [opts.separator =  ' – '] - A separator to place between the start and end
+	   * representations.
+	   * @return {string}
+	   */toFormat(dateFormat,{separator=" – "}={}){if(!this.isValid)return INVALID$1;return`${this.s.toFormat(dateFormat)}${separator}${this.e.toFormat(dateFormat)}`;}/**
+	   * Return a Duration representing the time spanned by this interval.
+	   * @param {string|string[]} [unit=['milliseconds']] - the unit or units (such as 'hours' or 'days') to include in the duration.
+	   * @param {Object} opts - options that affect the creation of the Duration
+	   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+	   * @example Interval.fromDateTimes(dt1, dt2).toDuration().toObject() //=> { milliseconds: 88489257 }
+	   * @example Interval.fromDateTimes(dt1, dt2).toDuration('days').toObject() //=> { days: 1.0241812152777778 }
+	   * @example Interval.fromDateTimes(dt1, dt2).toDuration(['hours', 'minutes']).toObject() //=> { hours: 24, minutes: 34.82095 }
+	   * @example Interval.fromDateTimes(dt1, dt2).toDuration(['hours', 'minutes', 'seconds']).toObject() //=> { hours: 24, minutes: 34, seconds: 49.257 }
+	   * @example Interval.fromDateTimes(dt1, dt2).toDuration('seconds').toObject() //=> { seconds: 88489.257 }
+	   * @return {Duration}
+	   */toDuration(unit,opts){if(!this.isValid){return Duration.invalid(this.invalidReason);}return this.e.diff(this.s,unit,opts);}/**
+	   * Run mapFn on the interval start and end, returning a new Interval from the resulting DateTimes
+	   * @param {function} mapFn
+	   * @return {Interval}
+	   * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.toUTC())
+	   * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.plus({ hours: 2 }))
+	   */mapEndpoints(mapFn){return Interval.fromDateTimes(mapFn(this.s),mapFn(this.e));}}/**
+	 * The Info class contains static methods for retrieving general time and date related data. For example, it has methods for finding out if a time zone has a DST, for listing the months in any supported locale, and for discovering which of Luxon features are available in the current environment.
+	 */class Info{/**
+	   * Return whether the specified zone contains a DST.
+	   * @param {string|Zone} [zone='local'] - Zone to check. Defaults to the environment's local zone.
+	   * @return {boolean}
+	   */static hasDST(zone=Settings.defaultZone){const proto=DateTime.now().setZone(zone).set({month:12});return!zone.isUniversal&&proto.offset!==proto.set({month:6}).offset;}/**
+	   * Return whether the specified zone is a valid IANA specifier.
+	   * @param {string} zone - Zone to check
+	   * @return {boolean}
+	   */static isValidIANAZone(zone){return IANAZone.isValidZone(zone);}/**
+	   * Converts the input into a {@link Zone} instance.
+	   *
+	   * * If `input` is already a Zone instance, it is returned unchanged.
+	   * * If `input` is a string containing a valid time zone name, a Zone instance
+	   *   with that name is returned.
+	   * * If `input` is a string that doesn't refer to a known time zone, a Zone
+	   *   instance with {@link Zone#isValid} == false is returned.
+	   * * If `input is a number, a Zone instance with the specified fixed offset
+	   *   in minutes is returned.
+	   * * If `input` is `null` or `undefined`, the default zone is returned.
+	   * @param {string|Zone|number} [input] - the value to be converted
+	   * @return {Zone}
+	   */static normalizeZone(input){return normalizeZone(input,Settings.defaultZone);}/**
+	   * Get the weekday on which the week starts according to the given locale.
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @returns {number} the start of the week, 1 for Monday through 7 for Sunday
+	   */static getStartOfWeek({locale=null,locObj=null}={}){return(locObj||Locale.create(locale)).getStartOfWeek();}/**
+	   * Get the minimum number of days necessary in a week before it is considered part of the next year according
+	   * to the given locale.
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @returns {number}
+	   */static getMinimumDaysInFirstWeek({locale=null,locObj=null}={}){return(locObj||Locale.create(locale)).getMinDaysInFirstWeek();}/**
+	   * Get the weekdays, which are considered the weekend according to the given locale
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @returns {number[]} an array of weekdays, 1 for Monday through 7 for Sunday
+	   */static getWeekendWeekdays({locale=null,locObj=null}={}){// copy the array, because we cache it internally
 return(locObj||Locale.create(locale)).getWeekendDays().slice();}/**
-   * Return an array of standalone month names.
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
-   * @param {string} [length='long'] - the length of the month representation, such as "numeric", "2-digit", "narrow", "short", "long"
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @param {string} [opts.numberingSystem=null] - the numbering system
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @param {string} [opts.outputCalendar='gregory'] - the calendar
-   * @example Info.months()[0] //=> 'January'
-   * @example Info.months('short')[0] //=> 'Jan'
-   * @example Info.months('numeric')[0] //=> '1'
-   * @example Info.months('short', { locale: 'fr-CA' } )[0] //=> 'janv.'
-   * @example Info.months('numeric', { locale: 'ar' })[0] //=> '١'
-   * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
-   * @return {Array}
-   */static months(length="long",{locale=null,numberingSystem=null,locObj=null,outputCalendar="gregory"}={}){return(locObj||Locale.create(locale,numberingSystem,outputCalendar)).months(length);}/**
-   * Return an array of format month names.
-   * Format months differ from standalone months in that they're meant to appear next to the day of the month. In some languages, that
-   * changes the string.
-   * See {@link Info#months}
-   * @param {string} [length='long'] - the length of the month representation, such as "numeric", "2-digit", "narrow", "short", "long"
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @param {string} [opts.numberingSystem=null] - the numbering system
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @param {string} [opts.outputCalendar='gregory'] - the calendar
-   * @return {Array}
-   */static monthsFormat(length="long",{locale=null,numberingSystem=null,locObj=null,outputCalendar="gregory"}={}){return(locObj||Locale.create(locale,numberingSystem,outputCalendar)).months(length,true);}/**
-   * Return an array of standalone week names.
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
-   * @param {string} [length='long'] - the length of the weekday representation, such as "narrow", "short", "long".
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @param {string} [opts.numberingSystem=null] - the numbering system
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @example Info.weekdays()[0] //=> 'Monday'
-   * @example Info.weekdays('short')[0] //=> 'Mon'
-   * @example Info.weekdays('short', { locale: 'fr-CA' })[0] //=> 'lun.'
-   * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
-   * @return {Array}
-   */static weekdays(length="long",{locale=null,numberingSystem=null,locObj=null}={}){return(locObj||Locale.create(locale,numberingSystem,null)).weekdays(length);}/**
-   * Return an array of format week names.
-   * Format weekdays differ from standalone weekdays in that they're meant to appear next to more date information. In some languages, that
-   * changes the string.
-   * See {@link Info#weekdays}
-   * @param {string} [length='long'] - the length of the month representation, such as "narrow", "short", "long".
-   * @param {Object} opts - options
-   * @param {string} [opts.locale=null] - the locale code
-   * @param {string} [opts.numberingSystem=null] - the numbering system
-   * @param {string} [opts.locObj=null] - an existing locale object to use
-   * @return {Array}
-   */static weekdaysFormat(length="long",{locale=null,numberingSystem=null,locObj=null}={}){return(locObj||Locale.create(locale,numberingSystem,null)).weekdays(length,true);}/**
-   * Return an array of meridiems.
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @example Info.meridiems() //=> [ 'AM', 'PM' ]
-   * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
-   * @return {Array}
-   */static meridiems({locale=null}={}){return Locale.create(locale).meridiems();}/**
-   * Return an array of eras, such as ['BC', 'AD']. The locale can be specified, but the calendar system is always Gregorian.
-   * @param {string} [length='short'] - the length of the era representation, such as "short" or "long".
-   * @param {Object} opts - options
-   * @param {string} [opts.locale] - the locale code
-   * @example Info.eras() //=> [ 'BC', 'AD' ]
-   * @example Info.eras('long') //=> [ 'Before Christ', 'Anno Domini' ]
-   * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
-   * @return {Array}
-   */static eras(length="short",{locale=null}={}){return Locale.create(locale,null,"gregory").eras(length);}/**
-   * Return the set of available features in this environment.
-   * Some features of Luxon are not available in all environments. For example, on older browsers, relative time formatting support is not available. Use this function to figure out if that's the case.
-   * Keys:
-   * * `relative`: whether this environment supports relative time formatting
-   * * `localeWeek`: whether this environment supports different weekdays for the start of the week based on the locale
-   * @example Info.features() //=> { relative: false, localeWeek: true }
-   * @return {Object}
-   */static features(){return{relative:hasRelative(),localeWeek:hasLocaleWeekInfo()};}}function dayDiff(earlier,later){const utcDayStart=dt=>dt.toUTC(0,{keepLocalTime:true}).startOf("day").valueOf(),ms=utcDayStart(later)-utcDayStart(earlier);return Math.floor(Duration.fromMillis(ms).as("days"));}function highOrderDiffs(cursor,later,units){const differs=[["years",(a,b)=>b.year-a.year],["quarters",(a,b)=>b.quarter-a.quarter+(b.year-a.year)*4],["months",(a,b)=>b.month-a.month+(b.year-a.year)*12],["weeks",(a,b)=>{const days=dayDiff(a,b);return(days-days%7)/7;}],["days",dayDiff]];const results={};const earlier=cursor;let lowestOrder,highWater;/* This loop tries to diff using larger units first.
-     If we overshoot, we backtrack and try the next smaller unit.
-     "cursor" starts out at the earlier timestamp and moves closer and closer to "later"
-     as we use smaller and smaller units.
-     highWater keeps track of where we would be if we added one more of the smallest unit,
-     this is used later to potentially convert any difference smaller than the smallest higher order unit
-     into a fraction of that smallest higher order unit
-  */for(const[unit,differ]of differs){if(units.indexOf(unit)>=0){lowestOrder=unit;results[unit]=differ(cursor,later);highWater=earlier.plus(results);if(highWater>later){// we overshot the end point, backtrack cursor by 1
+	   * Return an array of standalone month names.
+	   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
+	   * @param {string} [length='long'] - the length of the month representation, such as "numeric", "2-digit", "narrow", "short", "long"
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @param {string} [opts.numberingSystem=null] - the numbering system
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @param {string} [opts.outputCalendar='gregory'] - the calendar
+	   * @example Info.months()[0] //=> 'January'
+	   * @example Info.months('short')[0] //=> 'Jan'
+	   * @example Info.months('numeric')[0] //=> '1'
+	   * @example Info.months('short', { locale: 'fr-CA' } )[0] //=> 'janv.'
+	   * @example Info.months('numeric', { locale: 'ar' })[0] //=> '١'
+	   * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
+	   * @return {Array}
+	   */static months(length="long",{locale=null,numberingSystem=null,locObj=null,outputCalendar="gregory"}={}){return(locObj||Locale.create(locale,numberingSystem,outputCalendar)).months(length);}/**
+	   * Return an array of format month names.
+	   * Format months differ from standalone months in that they're meant to appear next to the day of the month. In some languages, that
+	   * changes the string.
+	   * See {@link Info#months}
+	   * @param {string} [length='long'] - the length of the month representation, such as "numeric", "2-digit", "narrow", "short", "long"
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @param {string} [opts.numberingSystem=null] - the numbering system
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @param {string} [opts.outputCalendar='gregory'] - the calendar
+	   * @return {Array}
+	   */static monthsFormat(length="long",{locale=null,numberingSystem=null,locObj=null,outputCalendar="gregory"}={}){return(locObj||Locale.create(locale,numberingSystem,outputCalendar)).months(length,true);}/**
+	   * Return an array of standalone week names.
+	   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
+	   * @param {string} [length='long'] - the length of the weekday representation, such as "narrow", "short", "long".
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @param {string} [opts.numberingSystem=null] - the numbering system
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @example Info.weekdays()[0] //=> 'Monday'
+	   * @example Info.weekdays('short')[0] //=> 'Mon'
+	   * @example Info.weekdays('short', { locale: 'fr-CA' })[0] //=> 'lun.'
+	   * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
+	   * @return {Array}
+	   */static weekdays(length="long",{locale=null,numberingSystem=null,locObj=null}={}){return(locObj||Locale.create(locale,numberingSystem,null)).weekdays(length);}/**
+	   * Return an array of format week names.
+	   * Format weekdays differ from standalone weekdays in that they're meant to appear next to more date information. In some languages, that
+	   * changes the string.
+	   * See {@link Info#weekdays}
+	   * @param {string} [length='long'] - the length of the month representation, such as "narrow", "short", "long".
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale=null] - the locale code
+	   * @param {string} [opts.numberingSystem=null] - the numbering system
+	   * @param {string} [opts.locObj=null] - an existing locale object to use
+	   * @return {Array}
+	   */static weekdaysFormat(length="long",{locale=null,numberingSystem=null,locObj=null}={}){return(locObj||Locale.create(locale,numberingSystem,null)).weekdays(length,true);}/**
+	   * Return an array of meridiems.
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @example Info.meridiems() //=> [ 'AM', 'PM' ]
+	   * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
+	   * @return {Array}
+	   */static meridiems({locale=null}={}){return Locale.create(locale).meridiems();}/**
+	   * Return an array of eras, such as ['BC', 'AD']. The locale can be specified, but the calendar system is always Gregorian.
+	   * @param {string} [length='short'] - the length of the era representation, such as "short" or "long".
+	   * @param {Object} opts - options
+	   * @param {string} [opts.locale] - the locale code
+	   * @example Info.eras() //=> [ 'BC', 'AD' ]
+	   * @example Info.eras('long') //=> [ 'Before Christ', 'Anno Domini' ]
+	   * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
+	   * @return {Array}
+	   */static eras(length="short",{locale=null}={}){return Locale.create(locale,null,"gregory").eras(length);}/**
+	   * Return the set of available features in this environment.
+	   * Some features of Luxon are not available in all environments. For example, on older browsers, relative time formatting support is not available. Use this function to figure out if that's the case.
+	   * Keys:
+	   * * `relative`: whether this environment supports relative time formatting
+	   * * `localeWeek`: whether this environment supports different weekdays for the start of the week based on the locale
+	   * @example Info.features() //=> { relative: false, localeWeek: true }
+	   * @return {Object}
+	   */static features(){return{relative:hasRelative(),localeWeek:hasLocaleWeekInfo()};}}function dayDiff(earlier,later){const utcDayStart=dt=>dt.toUTC(0,{keepLocalTime:true}).startOf("day").valueOf(),ms=utcDayStart(later)-utcDayStart(earlier);return Math.floor(Duration.fromMillis(ms).as("days"));}function highOrderDiffs(cursor,later,units){const differs=[["years",(a,b)=>b.year-a.year],["quarters",(a,b)=>b.quarter-a.quarter+(b.year-a.year)*4],["months",(a,b)=>b.month-a.month+(b.year-a.year)*12],["weeks",(a,b)=>{const days=dayDiff(a,b);return(days-days%7)/7;}],["days",dayDiff]];const results={};const earlier=cursor;let lowestOrder,highWater;/* This loop tries to diff using larger units first.
+	     If we overshoot, we backtrack and try the next smaller unit.
+	     "cursor" starts out at the earlier timestamp and moves closer and closer to "later"
+	     as we use smaller and smaller units.
+	     highWater keeps track of where we would be if we added one more of the smallest unit,
+	     this is used later to potentially convert any difference smaller than the smallest higher order unit
+	     into a fraction of that smallest higher order unit
+	  */for(const[unit,differ]of differs){if(units.indexOf(unit)>=0){lowestOrder=unit;results[unit]=differ(cursor,later);highWater=earlier.plus(results);if(highWater>later){// we overshot the end point, backtrack cursor by 1
 results[unit]--;cursor=earlier.plus(results);// if we are still overshooting now, we need to backtrack again
 // this happens in certain situations when diffing times in different zones,
 // because this calculation ignores time zones
@@ -3005,9 +3089,9 @@ results[unit]--;cursor=earlier.plus(results);}}else{cursor=highWater;}}}return[c
 return s.replace(/\./g,"\\.?").replace(spaceOrNBSPRegExp,spaceOrNBSP);}function stripInsensitivities(s){return s.replace(/\./g,"")// ignore dots that were made optional
 .replace(spaceOrNBSPRegExp," ")// interchange space and nbsp
 .toLowerCase();}function oneOf(strings,startIndex){if(strings===null){return null;}else{return{regex:RegExp(strings.map(fixListRegex).join("|")),deser:([s])=>strings.findIndex(i=>stripInsensitivities(s)===stripInsensitivities(i))+startIndex};}}function offset(regex,groups){return{regex,deser:([,h,m])=>signedOffset(h,m),groups};}function simple(regex){return{regex,deser:([s])=>s};}function escapeToken(value){return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g,"\\$&");}/**
- * @param token
- * @param {Locale} loc
- */function unitForToken(token,loc){const one=digitRegex(loc),two=digitRegex(loc,"{2}"),three=digitRegex(loc,"{3}"),four=digitRegex(loc,"{4}"),six=digitRegex(loc,"{6}"),oneOrTwo=digitRegex(loc,"{1,2}"),oneToThree=digitRegex(loc,"{1,3}"),oneToSix=digitRegex(loc,"{1,6}"),oneToNine=digitRegex(loc,"{1,9}"),twoToFour=digitRegex(loc,"{2,4}"),fourToSix=digitRegex(loc,"{4,6}"),literal=t=>({regex:RegExp(escapeToken(t.val)),deser:([s])=>s,literal:true}),unitate=t=>{if(token.literal){return literal(t);}switch(t.val){// era
+	 * @param token
+	 * @param {Locale} loc
+	 */function unitForToken(token,loc){const one=digitRegex(loc),two=digitRegex(loc,"{2}"),three=digitRegex(loc,"{3}"),four=digitRegex(loc,"{4}"),six=digitRegex(loc,"{6}"),oneOrTwo=digitRegex(loc,"{1,2}"),oneToThree=digitRegex(loc,"{1,3}"),oneToSix=digitRegex(loc,"{1,6}"),oneToNine=digitRegex(loc,"{1,9}"),twoToFour=digitRegex(loc,"{2,4}"),fourToSix=digitRegex(loc,"{4,6}"),literal=t=>({regex:RegExp(escapeToken(t.val)),deser:([s])=>s,literal:true}),unitate=t=>{if(token.literal){return literal(t);}switch(t.val){// era
 case"G":return oneOf(loc.eras("short"),0);case"GG":return oneOf(loc.eras("long"),0);// years
 case"y":return intUnit(oneToSix);case"yy":return intUnit(twoToFour,untruncateYear);case"yyyy":return intUnit(four);case"yyyyy":return intUnit(fourToSix);case"yyyyyy":return intUnit(six);// months
 case"M":return intUnit(oneOrTwo);case"MM":return intUnit(two);case"MMM":return oneOf(loc.months("short",true),1);case"MMMM":return oneOf(loc.months("long",true),1);case"L":return intUnit(oneOrTwo);case"LL":return intUnit(two);case"LLL":return oneOf(loc.months("short",false),1);case"LLLL":return oneOf(loc.months("long",false),1);// dates
@@ -3027,16 +3111,16 @@ case" ":return simple(/[^\S\n\r]/);default:return literal(t);}};const unit=unita
 // if not, refer back to the resolvedOpts, which are based on the locale
 let actualType=type;if(type==="hour"){if(formatOpts.hour12!=null){actualType=formatOpts.hour12?"hour12":"hour24";}else if(formatOpts.hourCycle!=null){if(formatOpts.hourCycle==="h11"||formatOpts.hourCycle==="h12"){actualType="hour12";}else{actualType="hour24";}}else{// tokens only differentiate between 24 hours or not,
 // so we do not need to check hourCycle here, which is less supported anyways
-actualType=resolvedOpts.hour12?"hour12":"hour24";}}let val=partTypeStyleToTokenVal[actualType];if(typeof val==="object"){val=val[style];}if(val){return{literal:false,val};}return undefined;}function buildRegex(units){const re=units.map(u=>u.regex).reduce((f,r)=>`${f}(${r.source})`,"");return[`^${re}$`,units];}function match(input,regex,handlers){const matches=input.match(regex);if(matches){const all={};let matchIndex=1;for(const i in handlers){if(hasOwnProperty(handlers,i)){const h=handlers[i],groups=h.groups?h.groups+1:1;if(!h.literal&&h.token){all[h.token.val[0]]=h.deser(matches.slice(matchIndex,matchIndex+groups));}matchIndex+=groups;}}return[matches,all];}else{return[matches,{}];}}function dateTimeFromMatches(matches){const toField=token=>{switch(token){case"S":return"millisecond";case"s":return"second";case"m":return"minute";case"h":case"H":return"hour";case"d":return"day";case"o":return"ordinal";case"L":case"M":return"month";case"y":return"year";case"E":case"c":return"weekday";case"W":return"weekNumber";case"k":return"weekYear";case"q":return"quarter";default:return null;}};let zone=null;let specificOffset;if(!isUndefined(matches.z)){zone=IANAZone.create(matches.z);}if(!isUndefined(matches.Z)){if(!zone){zone=new FixedOffsetZone(matches.Z);}specificOffset=matches.Z;}if(!isUndefined(matches.q)){matches.M=(matches.q-1)*3+1;}if(!isUndefined(matches.h)){if(matches.h<12&&matches.a===1){matches.h+=12;}else if(matches.h===12&&matches.a===0){matches.h=0;}}if(matches.G===0&&matches.y){matches.y=-matches.y;}if(!isUndefined(matches.u)){matches.S=parseMillis(matches.u);}const vals=Object.keys(matches).reduce((r,k)=>{const f=toField(k);if(f){r[f]=matches[k];}return r;},{});return[vals,zone,specificOffset];}let dummyDateTimeCache=null;function getDummyDateTime(){if(!dummyDateTimeCache){dummyDateTimeCache=DateTime$1.fromMillis(1555555555555);}return dummyDateTimeCache;}function maybeExpandMacroToken(token,locale){if(token.literal){return token;}const formatOpts=Formatter.macroTokenToFormatOpts(token.val);const tokens=formatOptsToTokens(formatOpts,locale);if(tokens==null||tokens.includes(undefined)){return token;}return tokens;}function expandMacroTokens(tokens,locale){return Array.prototype.concat(...tokens.map(t=>maybeExpandMacroToken(t,locale)));}/**
- * @private
- */class TokenParser{constructor(locale,format){this.locale=locale;this.format=format;this.tokens=expandMacroTokens(Formatter.parseFormat(format),locale);this.units=this.tokens.map(t=>unitForToken(t,locale));this.disqualifyingUnit=this.units.find(t=>t.invalidReason);if(!this.disqualifyingUnit){const[regexString,handlers]=buildRegex(this.units);this.regex=RegExp(regexString,"i");this.handlers=handlers;}}explainFromTokens(input){if(!this.isValid){return{input,tokens:this.tokens,invalidReason:this.invalidReason};}else{const[rawMatches,matches]=match(input,this.regex,this.handlers),[result,zone,specificOffset]=matches?dateTimeFromMatches(matches):[null,null,undefined];if(hasOwnProperty(matches,"a")&&hasOwnProperty(matches,"H")){throw new ConflictingSpecificationError("Can't include meridiem when specifying 24-hour format");}return{input,tokens:this.tokens,regex:this.regex,rawMatches,matches,result,zone,specificOffset};}}get isValid(){return!this.disqualifyingUnit;}get invalidReason(){return this.disqualifyingUnit?this.disqualifyingUnit.invalidReason:null;}}function explainFromTokens(locale,input,format){const parser=new TokenParser(locale,format);return parser.explainFromTokens(input);}function parseFromTokens(locale,input,format){const{result,zone,specificOffset,invalidReason}=explainFromTokens(locale,input,format);return[result,zone,specificOffset,invalidReason];}function formatOptsToTokens(formatOpts,locale){if(!formatOpts){return null;}const formatter=Formatter.create(locale,formatOpts);const df=formatter.dtFormatter(getDummyDateTime());const parts=df.formatToParts();const resolvedOpts=df.resolvedOptions();return parts.map(p=>tokenForPart(p,formatOpts,resolvedOpts));}const INVALID="Invalid DateTime";const MAX_DATE$1=8.64e15;function unsupportedZone(zone){return new Invalid("unsupported zone",`the zone "${zone.name}" is not supported`);}// we cache week data on the DT object and this intermediates the cache
+actualType=resolvedOpts.hour12?"hour12":"hour24";}}let val=partTypeStyleToTokenVal[actualType];if(typeof val==="object"){val=val[style];}if(val){return{literal:false,val};}return undefined;}function buildRegex(units){const re=units.map(u=>u.regex).reduce((f,r)=>`${f}(${r.source})`,"");return[`^${re}$`,units];}function match(input,regex,handlers){const matches=input.match(regex);if(matches){const all={};let matchIndex=1;for(const i in handlers){if(hasOwnProperty(handlers,i)){const h=handlers[i],groups=h.groups?h.groups+1:1;if(!h.literal&&h.token){all[h.token.val[0]]=h.deser(matches.slice(matchIndex,matchIndex+groups));}matchIndex+=groups;}}return[matches,all];}else{return[matches,{}];}}function dateTimeFromMatches(matches){const toField=token=>{switch(token){case"S":return"millisecond";case"s":return"second";case"m":return"minute";case"h":case"H":return"hour";case"d":return"day";case"o":return"ordinal";case"L":case"M":return"month";case"y":return"year";case"E":case"c":return"weekday";case"W":return"weekNumber";case"k":return"weekYear";case"q":return"quarter";default:return null;}};let zone=null;let specificOffset;if(!isUndefined(matches.z)){zone=IANAZone.create(matches.z);}if(!isUndefined(matches.Z)){if(!zone){zone=new FixedOffsetZone(matches.Z);}specificOffset=matches.Z;}if(!isUndefined(matches.q)){matches.M=(matches.q-1)*3+1;}if(!isUndefined(matches.h)){if(matches.h<12&&matches.a===1){matches.h+=12;}else if(matches.h===12&&matches.a===0){matches.h=0;}}if(matches.G===0&&matches.y){matches.y=-matches.y;}if(!isUndefined(matches.u)){matches.S=parseMillis(matches.u);}const vals=Object.keys(matches).reduce((r,k)=>{const f=toField(k);if(f){r[f]=matches[k];}return r;},{});return[vals,zone,specificOffset];}let dummyDateTimeCache=null;function getDummyDateTime(){if(!dummyDateTimeCache){dummyDateTimeCache=DateTime.fromMillis(1555555555555);}return dummyDateTimeCache;}function maybeExpandMacroToken(token,locale){if(token.literal){return token;}const formatOpts=Formatter.macroTokenToFormatOpts(token.val);const tokens=formatOptsToTokens(formatOpts,locale);if(tokens==null||tokens.includes(undefined)){return token;}return tokens;}function expandMacroTokens(tokens,locale){return Array.prototype.concat(...tokens.map(t=>maybeExpandMacroToken(t,locale)));}/**
+	 * @private
+	 */class TokenParser{constructor(locale,format){this.locale=locale;this.format=format;this.tokens=expandMacroTokens(Formatter.parseFormat(format),locale);this.units=this.tokens.map(t=>unitForToken(t,locale));this.disqualifyingUnit=this.units.find(t=>t.invalidReason);if(!this.disqualifyingUnit){const[regexString,handlers]=buildRegex(this.units);this.regex=RegExp(regexString,"i");this.handlers=handlers;}}explainFromTokens(input){if(!this.isValid){return{input,tokens:this.tokens,invalidReason:this.invalidReason};}else{const[rawMatches,matches]=match(input,this.regex,this.handlers),[result,zone,specificOffset]=matches?dateTimeFromMatches(matches):[null,null,undefined];if(hasOwnProperty(matches,"a")&&hasOwnProperty(matches,"H")){throw new ConflictingSpecificationError("Can't include meridiem when specifying 24-hour format");}return{input,tokens:this.tokens,regex:this.regex,rawMatches,matches,result,zone,specificOffset};}}get isValid(){return!this.disqualifyingUnit;}get invalidReason(){return this.disqualifyingUnit?this.disqualifyingUnit.invalidReason:null;}}function explainFromTokens(locale,input,format){const parser=new TokenParser(locale,format);return parser.explainFromTokens(input);}function parseFromTokens(locale,input,format){const{result,zone,specificOffset,invalidReason}=explainFromTokens(locale,input,format);return[result,zone,specificOffset,invalidReason];}function formatOptsToTokens(formatOpts,locale){if(!formatOpts){return null;}const formatter=Formatter.create(locale,formatOpts);const df=formatter.dtFormatter(getDummyDateTime());const parts=df.formatToParts();const resolvedOpts=df.resolvedOptions();return parts.map(p=>tokenForPart(p,formatOpts,resolvedOpts));}const INVALID="Invalid DateTime";const MAX_DATE=8.64e15;function unsupportedZone(zone){return new Invalid("unsupported zone",`the zone "${zone.name}" is not supported`);}// we cache week data on the DT object and this intermediates the cache
 /**
- * @param {DateTime} dt
- */function possiblyCachedWeekData(dt){if(dt.weekData===null){dt.weekData=gregorianToWeek(dt.c);}return dt.weekData;}/**
- * @param {DateTime} dt
- */function possiblyCachedLocalWeekData(dt){if(dt.localWeekData===null){dt.localWeekData=gregorianToWeek(dt.c,dt.loc.getMinDaysInFirstWeek(),dt.loc.getStartOfWeek());}return dt.localWeekData;}// clone really means, "make a new object with these modifications". all "setters" really use this
+	 * @param {DateTime} dt
+	 */function possiblyCachedWeekData(dt){if(dt.weekData===null){dt.weekData=gregorianToWeek(dt.c);}return dt.weekData;}/**
+	 * @param {DateTime} dt
+	 */function possiblyCachedLocalWeekData(dt){if(dt.localWeekData===null){dt.localWeekData=gregorianToWeek(dt.c,dt.loc.getMinDaysInFirstWeek(),dt.loc.getStartOfWeek());}return dt.localWeekData;}// clone really means, "make a new object with these modifications". all "setters" really use this
 // to create a new object while only changing some of the properties
-function clone$2(inst,alts){const current={ts:inst.ts,zone:inst.zone,c:inst.c,o:inst.o,loc:inst.loc,invalid:inst.invalid};return new DateTime$1(_objectSpread(_objectSpread(_objectSpread({},current),alts),{},{old:current}));}// find the right offset a given local time. The o input is our guess, which determines which
+function clone(inst,alts){const current={ts:inst.ts,zone:inst.zone,c:inst.c,o:inst.o,loc:inst.loc,invalid:inst.invalid};return new DateTime(_objectSpread(_objectSpread(_objectSpread({},current),alts),{},{old:current}));}// find the right offset a given local time. The o input is our guess, which determines which
 // offset we'll pick in ambiguous cases (e.g. there are two 3 AMs b/c Fallback DST)
 function fixOffset(localTS,o,tz){// Our UTC time is just a guess because our offset is just a guess
 let utcGuess=localTS-o*60*1000;// Test whether the zone matches the offset for this ts
@@ -3050,9 +3134,9 @@ function objToTS(obj,offset,zone){return fixOffset(objToLocalTS(obj),offset,zone
 function adjustTime(inst,dur){const oPre=inst.o,year=inst.c.year+Math.trunc(dur.years),month=inst.c.month+Math.trunc(dur.months)+Math.trunc(dur.quarters)*3,c=_objectSpread(_objectSpread({},inst.c),{},{year,month,day:Math.min(inst.c.day,daysInMonth(year,month))+Math.trunc(dur.days)+Math.trunc(dur.weeks)*7}),millisToAdd=Duration.fromObject({years:dur.years-Math.trunc(dur.years),quarters:dur.quarters-Math.trunc(dur.quarters),months:dur.months-Math.trunc(dur.months),weeks:dur.weeks-Math.trunc(dur.weeks),days:dur.days-Math.trunc(dur.days),hours:dur.hours,minutes:dur.minutes,seconds:dur.seconds,milliseconds:dur.milliseconds}).as("milliseconds"),localTS=objToLocalTS(c);let[ts,o]=fixOffset(localTS,oPre,inst.zone);if(millisToAdd!==0){ts+=millisToAdd;// that could have changed the offset by going over a DST, but we want to keep the ts the same
 o=inst.zone.offset(ts);}return{ts,o};}// helper useful in turning the results of parsing into real dates
 // by handling the zone options
-function parseDataToDateTime(parsed,parsedZone,opts,format,text,specificOffset){const{setZone,zone}=opts;if(parsed&&Object.keys(parsed).length!==0||parsedZone){const interpretationZone=parsedZone||zone,inst=DateTime$1.fromObject(parsed,_objectSpread(_objectSpread({},opts),{},{zone:interpretationZone,specificOffset}));return setZone?inst:inst.setZone(zone);}else{return DateTime$1.invalid(new Invalid("unparsable",`the input "${text}" can't be parsed as ${format}`));}}// if you want to output a technical format (e.g. RFC 2822), this helper
+function parseDataToDateTime(parsed,parsedZone,opts,format,text,specificOffset){const{setZone,zone}=opts;if(parsed&&Object.keys(parsed).length!==0||parsedZone){const interpretationZone=parsedZone||zone,inst=DateTime.fromObject(parsed,_objectSpread(_objectSpread({},opts),{},{zone:interpretationZone,specificOffset}));return setZone?inst:inst.setZone(zone);}else{return DateTime.invalid(new Invalid("unparsable",`the input "${text}" can't be parsed as ${format}`));}}// if you want to output a technical format (e.g. RFC 2822), this helper
 // helps handle the details
-function toTechFormat(dt,format,allowZ=true){return dt.isValid?Formatter.create(Locale.create("en-US"),{allowZ,forceSimple:true}).formatDateTimeFromString(dt,format):null;}function toISODate(o,extended){const longFormat=o.c.year>9999||o.c.year<0;let c="";if(longFormat&&o.c.year>=0)c+="+";c+=padStart$1(o.c.year,longFormat?6:4);if(extended){c+="-";c+=padStart$1(o.c.month);c+="-";c+=padStart$1(o.c.day);}else{c+=padStart$1(o.c.month);c+=padStart$1(o.c.day);}return c;}function toISOTime(o,extended,suppressSeconds,suppressMilliseconds,includeOffset,extendedZone){let c=padStart$1(o.c.hour);if(extended){c+=":";c+=padStart$1(o.c.minute);if(o.c.millisecond!==0||o.c.second!==0||!suppressSeconds){c+=":";}}else{c+=padStart$1(o.c.minute);}if(o.c.millisecond!==0||o.c.second!==0||!suppressSeconds){c+=padStart$1(o.c.second);if(o.c.millisecond!==0||!suppressMilliseconds){c+=".";c+=padStart$1(o.c.millisecond,3);}}if(includeOffset){if(o.isOffsetFixed&&o.offset===0&&!extendedZone){c+="Z";}else if(o.o<0){c+="-";c+=padStart$1(Math.trunc(-o.o/60));c+=":";c+=padStart$1(Math.trunc(-o.o%60));}else{c+="+";c+=padStart$1(Math.trunc(o.o/60));c+=":";c+=padStart$1(Math.trunc(o.o%60));}}if(extendedZone){c+="["+o.zone.ianaName+"]";}return c;}// defaults for unspecified units in the supported calendars
+function toTechFormat(dt,format,allowZ=true){return dt.isValid?Formatter.create(Locale.create("en-US"),{allowZ,forceSimple:true}).formatDateTimeFromString(dt,format):null;}function toISODate(o,extended,precision){const longFormat=o.c.year>9999||o.c.year<0;let c="";if(longFormat&&o.c.year>=0)c+="+";c+=padStart(o.c.year,longFormat?6:4);if(precision==="year")return c;if(extended){c+="-";c+=padStart(o.c.month);if(precision==="month")return c;c+="-";}else{c+=padStart(o.c.month);if(precision==="month")return c;}c+=padStart(o.c.day);return c;}function toISOTime(o,extended,suppressSeconds,suppressMilliseconds,includeOffset,extendedZone,precision){let showSeconds=!suppressSeconds||o.c.millisecond!==0||o.c.second!==0,c="";switch(precision){case"day":case"month":case"year":break;default:c+=padStart(o.c.hour);if(precision==="hour")break;if(extended){c+=":";c+=padStart(o.c.minute);if(precision==="minute")break;if(showSeconds){c+=":";c+=padStart(o.c.second);}}else{c+=padStart(o.c.minute);if(precision==="minute")break;if(showSeconds){c+=padStart(o.c.second);}}if(precision==="second")break;if(showSeconds&&(!suppressMilliseconds||o.c.millisecond!==0)){c+=".";c+=padStart(o.c.millisecond,3);}}if(includeOffset){if(o.isOffsetFixed&&o.offset===0&&!extendedZone){c+="Z";}else if(o.o<0){c+="-";c+=padStart(Math.trunc(-o.o/60));c+=":";c+=padStart(Math.trunc(-o.o%60));}else{c+="+";c+=padStart(Math.trunc(o.o/60));c+=":";c+=padStart(Math.trunc(o.o%60));}}if(extendedZone){c+="["+o.zone.ianaName+"]";}return c;}// defaults for unspecified units in the supported calendars
 const defaultUnitValues={month:1,day:1,hour:0,minute:0,second:0,millisecond:0},defaultWeekUnitValues={weekNumber:1,weekday:1,hour:0,minute:0,second:0,millisecond:0},defaultOrdinalUnitValues={ordinal:1,hour:0,minute:0,second:0,millisecond:0};// Units in the supported calendars, sorted by bigness
 const orderedUnits=["year","month","day","hour","minute","second","millisecond"],orderedWeekUnits=["weekYear","weekNumber","weekday","hour","minute","second","millisecond"],orderedOrdinalUnits=["year","ordinal","hour","minute","second","millisecond"];// standardize case and plurality in units
 function normalizeUnit(unit){const normalized={year:"year",years:"year",month:"month",months:"month",day:"day",days:"day",hour:"hour",hours:"hour",minute:"minute",minutes:"minute",quarter:"quarter",quarters:"quarter",second:"second",seconds:"second",millisecond:"millisecond",milliseconds:"millisecond",weekday:"weekday",weekdays:"weekday",weeknumber:"weekNumber",weeksnumber:"weekNumber",weeknumbers:"weekNumber",weekyear:"weekYear",weekyears:"weekYear",ordinal:"ordinal"}[unit.toLowerCase()];if(!normalized)throw new InvalidUnitError(unit);return normalized;}function normalizeUnitWithLocalWeeks(unit){switch(unit.toLowerCase()){case"localweekday":case"localweekdays":return"localWeekday";case"localweeknumber":case"localweeknumbers":return"localWeekNumber";case"localweekyear":case"localweekyears":return"localWeekYear";default:return normalizeUnit(unit);}}// cache offsets for zones based on the current timestamp when this function is
@@ -3075,173 +3159,173 @@ function normalizeUnit(unit){const normalized={year:"year",years:"year",month:"m
 // higher-order units from tsNow (as we do in fromObject, this requires that
 // offset is calculated from tsNow).
 /**
- * @param {Zone} zone
- * @return {number}
- */function guessOffsetForZone(zone){if(zoneOffsetTs===undefined){zoneOffsetTs=Settings.now();}// Do not cache anything but IANA zones, because it is not safe to do so.
+	 * @param {Zone} zone
+	 * @return {number}
+	 */function guessOffsetForZone(zone){if(zoneOffsetTs===undefined){zoneOffsetTs=Settings.now();}// Do not cache anything but IANA zones, because it is not safe to do so.
 // Guessing an offset which is not present in the zone can cause wrong results from fixOffset
 if(zone.type!=="iana"){return zone.offset(zoneOffsetTs);}const zoneName=zone.name;let offsetGuess=zoneOffsetGuessCache.get(zoneName);if(offsetGuess===undefined){offsetGuess=zone.offset(zoneOffsetTs);zoneOffsetGuessCache.set(zoneName,offsetGuess);}return offsetGuess;}// this is a dumbed down version of fromObject() that runs about 60% faster
 // but doesn't do any validation, makes a bunch of assumptions about what units
 // are present, and so on.
-function quickDT(obj,opts){const zone=normalizeZone(opts.zone,Settings.defaultZone);if(!zone.isValid){return DateTime$1.invalid(unsupportedZone(zone));}const loc=Locale.fromObject(opts);let ts,o;// assume we have the higher-order units
-if(!isUndefined(obj.year)){for(const u of orderedUnits){if(isUndefined(obj[u])){obj[u]=defaultUnitValues[u];}}const invalid=hasInvalidGregorianData(obj)||hasInvalidTimeData(obj);if(invalid){return DateTime$1.invalid(invalid);}const offsetProvis=guessOffsetForZone(zone);[ts,o]=objToTS(obj,offsetProvis,zone);}else{ts=Settings.now();}return new DateTime$1({ts,zone,loc,o});}function diffRelative(start,end,opts){const round=isUndefined(opts.round)?true:opts.round,format=(c,unit)=>{c=roundTo(c,round||opts.calendary?0:2,true);const formatter=end.loc.clone(opts).relFormatter(opts);return formatter.format(c,unit);},differ=unit=>{if(opts.calendary){if(!end.hasSame(start,unit)){return end.startOf(unit).diff(start.startOf(unit),unit).get(unit);}else return 0;}else{return end.diff(start,unit).get(unit);}};if(opts.unit){return format(differ(opts.unit),opts.unit);}for(const unit of opts.units){const count=differ(unit);if(Math.abs(count)>=1){return format(count,unit);}}return format(start>end?-0:0,opts.units[opts.units.length-1]);}function lastOpts(argList){let opts={},args;if(argList.length>0&&typeof argList[argList.length-1]==="object"){opts=argList[argList.length-1];args=Array.from(argList).slice(0,argList.length-1);}else{args=Array.from(argList);}return[opts,args];}/**
- * Timestamp to use for cached zone offset guesses (exposed for test)
- */let zoneOffsetTs;/**
- * Cache for zone offset guesses (exposed for test).
- *
- * This optimizes quickDT via guessOffsetForZone to avoid repeated calls of
- * zone.offset().
- */const zoneOffsetGuessCache=new Map();/**
- * A DateTime is an immutable data structure representing a specific date and time and accompanying methods. It contains class and instance methods for creating, parsing, interrogating, transforming, and formatting them.
- *
- * A DateTime comprises of:
- * * A timestamp. Each DateTime instance refers to a specific millisecond of the Unix epoch.
- * * A time zone. Each instance is considered in the context of a specific zone (by default the local system's zone).
- * * Configuration properties that effect how output strings are formatted, such as `locale`, `numberingSystem`, and `outputCalendar`.
- *
- * Here is a brief overview of the most commonly used functionality it provides:
- *
- * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime.local}, {@link DateTime.utc}, and (most flexibly) {@link DateTime.fromObject}. To create one from a standard string format, use {@link DateTime.fromISO}, {@link DateTime.fromHTTP}, and {@link DateTime.fromRFC2822}. To create one from a custom string format, use {@link DateTime.fromFormat}. To create one from a native JS date, use {@link DateTime.fromJSDate}.
- * * **Gregorian calendar and time**: To examine the Gregorian properties of a DateTime individually (i.e as opposed to collectively through {@link DateTime#toObject}), use the {@link DateTime#year}, {@link DateTime#month},
- * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
- * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
- * * **Configuration** See the {@link DateTime#locale} and {@link DateTime#numberingSystem} accessors.
- * * **Transformation**: To transform the DateTime into other DateTimes, use {@link DateTime#set}, {@link DateTime#reconfigure}, {@link DateTime#setZone}, {@link DateTime#setLocale}, {@link DateTime.plus}, {@link DateTime#minus}, {@link DateTime#endOf}, {@link DateTime#startOf}, {@link DateTime#toUTC}, and {@link DateTime#toLocal}.
- * * **Output**: To convert the DateTime to other representations, use the {@link DateTime#toRelative}, {@link DateTime#toRelativeCalendar}, {@link DateTime#toJSON}, {@link DateTime#toISO}, {@link DateTime#toHTTP}, {@link DateTime#toObject}, {@link DateTime#toRFC2822}, {@link DateTime#toString}, {@link DateTime#toLocaleString}, {@link DateTime#toFormat}, {@link DateTime#toMillis} and {@link DateTime#toJSDate}.
- *
- * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
- */let DateTime$1=class DateTime{/**
-   * @access private
-   */constructor(config){const zone=config.zone||Settings.defaultZone;let invalid=config.invalid||(Number.isNaN(config.ts)?new Invalid("invalid input"):null)||(!zone.isValid?unsupportedZone(zone):null);/**
-     * @access private
-     */this.ts=isUndefined(config.ts)?Settings.now():config.ts;let c=null,o=null;if(!invalid){const unchanged=config.old&&config.old.ts===this.ts&&config.old.zone.equals(zone);if(unchanged){[c,o]=[config.old.c,config.old.o];}else{// If an offset has been passed and we have not been called from
+function quickDT(obj,opts){const zone=normalizeZone(opts.zone,Settings.defaultZone);if(!zone.isValid){return DateTime.invalid(unsupportedZone(zone));}const loc=Locale.fromObject(opts);let ts,o;// assume we have the higher-order units
+if(!isUndefined(obj.year)){for(const u of orderedUnits){if(isUndefined(obj[u])){obj[u]=defaultUnitValues[u];}}const invalid=hasInvalidGregorianData(obj)||hasInvalidTimeData(obj);if(invalid){return DateTime.invalid(invalid);}const offsetProvis=guessOffsetForZone(zone);[ts,o]=objToTS(obj,offsetProvis,zone);}else{ts=Settings.now();}return new DateTime({ts,zone,loc,o});}function diffRelative(start,end,opts){const round=isUndefined(opts.round)?true:opts.round,rounding=isUndefined(opts.rounding)?"trunc":opts.rounding,format=(c,unit)=>{c=roundTo(c,round||opts.calendary?0:2,opts.calendary?"round":rounding);const formatter=end.loc.clone(opts).relFormatter(opts);return formatter.format(c,unit);},differ=unit=>{if(opts.calendary){if(!end.hasSame(start,unit)){return end.startOf(unit).diff(start.startOf(unit),unit).get(unit);}else return 0;}else{return end.diff(start,unit).get(unit);}};if(opts.unit){return format(differ(opts.unit),opts.unit);}for(const unit of opts.units){const count=differ(unit);if(Math.abs(count)>=1){return format(count,unit);}}return format(start>end?-0:0,opts.units[opts.units.length-1]);}function lastOpts(argList){let opts={},args;if(argList.length>0&&typeof argList[argList.length-1]==="object"){opts=argList[argList.length-1];args=Array.from(argList).slice(0,argList.length-1);}else{args=Array.from(argList);}return[opts,args];}/**
+	 * Timestamp to use for cached zone offset guesses (exposed for test)
+	 */let zoneOffsetTs;/**
+	 * Cache for zone offset guesses (exposed for test).
+	 *
+	 * This optimizes quickDT via guessOffsetForZone to avoid repeated calls of
+	 * zone.offset().
+	 */const zoneOffsetGuessCache=new Map();/**
+	 * A DateTime is an immutable data structure representing a specific date and time and accompanying methods. It contains class and instance methods for creating, parsing, interrogating, transforming, and formatting them.
+	 *
+	 * A DateTime comprises of:
+	 * * A timestamp. Each DateTime instance refers to a specific millisecond of the Unix epoch.
+	 * * A time zone. Each instance is considered in the context of a specific zone (by default the local system's zone).
+	 * * Configuration properties that effect how output strings are formatted, such as `locale`, `numberingSystem`, and `outputCalendar`.
+	 *
+	 * Here is a brief overview of the most commonly used functionality it provides:
+	 *
+	 * * **Creation**: To create a DateTime from its components, use one of its factory class methods: {@link DateTime.local}, {@link DateTime.utc}, and (most flexibly) {@link DateTime.fromObject}. To create one from a standard string format, use {@link DateTime.fromISO}, {@link DateTime.fromHTTP}, and {@link DateTime.fromRFC2822}. To create one from a custom string format, use {@link DateTime.fromFormat}. To create one from a native JS date, use {@link DateTime.fromJSDate}.
+	 * * **Gregorian calendar and time**: To examine the Gregorian properties of a DateTime individually (i.e as opposed to collectively through {@link DateTime#toObject}), use the {@link DateTime#year}, {@link DateTime#month},
+	 * {@link DateTime#day}, {@link DateTime#hour}, {@link DateTime#minute}, {@link DateTime#second}, {@link DateTime#millisecond} accessors.
+	 * * **Week calendar**: For ISO week calendar attributes, see the {@link DateTime#weekYear}, {@link DateTime#weekNumber}, and {@link DateTime#weekday} accessors.
+	 * * **Configuration** See the {@link DateTime#locale} and {@link DateTime#numberingSystem} accessors.
+	 * * **Transformation**: To transform the DateTime into other DateTimes, use {@link DateTime#set}, {@link DateTime#reconfigure}, {@link DateTime#setZone}, {@link DateTime#setLocale}, {@link DateTime.plus}, {@link DateTime#minus}, {@link DateTime#endOf}, {@link DateTime#startOf}, {@link DateTime#toUTC}, and {@link DateTime#toLocal}.
+	 * * **Output**: To convert the DateTime to other representations, use the {@link DateTime#toRelative}, {@link DateTime#toRelativeCalendar}, {@link DateTime#toJSON}, {@link DateTime#toISO}, {@link DateTime#toHTTP}, {@link DateTime#toObject}, {@link DateTime#toRFC2822}, {@link DateTime#toString}, {@link DateTime#toLocaleString}, {@link DateTime#toFormat}, {@link DateTime#toMillis} and {@link DateTime#toJSDate}.
+	 *
+	 * There's plenty others documented below. In addition, for more information on subtler topics like internationalization, time zones, alternative calendars, validity, and so on, see the external documentation.
+	 */class DateTime{/**
+	   * @access private
+	   */constructor(config){const zone=config.zone||Settings.defaultZone;let invalid=config.invalid||(Number.isNaN(config.ts)?new Invalid("invalid input"):null)||(!zone.isValid?unsupportedZone(zone):null);/**
+	     * @access private
+	     */this.ts=isUndefined(config.ts)?Settings.now():config.ts;let c=null,o=null;if(!invalid){const unchanged=config.old&&config.old.ts===this.ts&&config.old.zone.equals(zone);if(unchanged){[c,o]=[config.old.c,config.old.o];}else{// If an offset has been passed and we have not been called from
 // clone(), we can trust it and avoid the offset calculation.
-const ot=isNumber$1(config.o)&&!config.old?config.o:zone.offset(this.ts);c=tsToObj(this.ts,ot);invalid=Number.isNaN(c.year)?new Invalid("invalid input"):null;c=invalid?null:c;o=invalid?null:ot;}}/**
-     * @access private
-     */this._zone=zone;/**
-     * @access private
-     */this.loc=config.loc||Locale.create();/**
-     * @access private
-     */this.invalid=invalid;/**
-     * @access private
-     */this.weekData=null;/**
-     * @access private
-     */this.localWeekData=null;/**
-     * @access private
-     */this.c=c;/**
-     * @access private
-     */this.o=o;/**
-     * @access private
-     */this.isLuxonDateTime=true;}// CONSTRUCT
+const ot=isNumber(config.o)&&!config.old?config.o:zone.offset(this.ts);c=tsToObj(this.ts,ot);invalid=Number.isNaN(c.year)?new Invalid("invalid input"):null;c=invalid?null:c;o=invalid?null:ot;}}/**
+	     * @access private
+	     */this._zone=zone;/**
+	     * @access private
+	     */this.loc=config.loc||Locale.create();/**
+	     * @access private
+	     */this.invalid=invalid;/**
+	     * @access private
+	     */this.weekData=null;/**
+	     * @access private
+	     */this.localWeekData=null;/**
+	     * @access private
+	     */this.c=c;/**
+	     * @access private
+	     */this.o=o;/**
+	     * @access private
+	     */this.isLuxonDateTime=true;}// CONSTRUCT
 /**
-   * Create a DateTime for the current instant, in the system's time zone.
-   *
-   * Use Settings to override these default values if needed.
-   * @example DateTime.now().toISO() //~> now in the ISO format
-   * @return {DateTime}
-   */static now(){return new DateTime({});}/**
-   * Create a local DateTime
-   * @param {number} [year] - The calendar year. If omitted (as in, call `local()` with no arguments), the current time will be used
-   * @param {number} [month=1] - The month, 1-indexed
-   * @param {number} [day=1] - The day of the month, 1-indexed
-   * @param {number} [hour=0] - The hour of the day, in 24-hour time
-   * @param {number} [minute=0] - The minute of the hour, meaning a number between 0 and 59
-   * @param {number} [second=0] - The second of the minute, meaning a number between 0 and 59
-   * @param {number} [millisecond=0] - The millisecond of the second, meaning a number between 0 and 999
-   * @example DateTime.local()                                  //~> now
-   * @example DateTime.local({ zone: "America/New_York" })      //~> now, in US east coast time
-   * @example DateTime.local(2017)                              //~> 2017-01-01T00:00:00
-   * @example DateTime.local(2017, 3)                           //~> 2017-03-01T00:00:00
-   * @example DateTime.local(2017, 3, 12, { locale: "fr" })     //~> 2017-03-12T00:00:00, with a French locale
-   * @example DateTime.local(2017, 3, 12, 5)                    //~> 2017-03-12T05:00:00
-   * @example DateTime.local(2017, 3, 12, 5, { zone: "utc" })   //~> 2017-03-12T05:00:00, in UTC
-   * @example DateTime.local(2017, 3, 12, 5, 45)                //~> 2017-03-12T05:45:00
-   * @example DateTime.local(2017, 3, 12, 5, 45, 10)            //~> 2017-03-12T05:45:10
-   * @example DateTime.local(2017, 3, 12, 5, 45, 10, 765)       //~> 2017-03-12T05:45:10.765
-   * @return {DateTime}
-   */static local(){const[opts,args]=lastOpts(arguments),[year,month,day,hour,minute,second,millisecond]=args;return quickDT({year,month,day,hour,minute,second,millisecond},opts);}/**
-   * Create a DateTime in UTC
-   * @param {number} [year] - The calendar year. If omitted (as in, call `utc()` with no arguments), the current time will be used
-   * @param {number} [month=1] - The month, 1-indexed
-   * @param {number} [day=1] - The day of the month
-   * @param {number} [hour=0] - The hour of the day, in 24-hour time
-   * @param {number} [minute=0] - The minute of the hour, meaning a number between 0 and 59
-   * @param {number} [second=0] - The second of the minute, meaning a number between 0 and 59
-   * @param {number} [millisecond=0] - The millisecond of the second, meaning a number between 0 and 999
-   * @param {Object} options - configuration options for the DateTime
-   * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
-   * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
-   * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {string} [options.weekSettings] - the week settings to set on the resulting DateTime instance
-   * @example DateTime.utc()                                              //~> now
-   * @example DateTime.utc(2017)                                          //~> 2017-01-01T00:00:00Z
-   * @example DateTime.utc(2017, 3)                                       //~> 2017-03-01T00:00:00Z
-   * @example DateTime.utc(2017, 3, 12)                                   //~> 2017-03-12T00:00:00Z
-   * @example DateTime.utc(2017, 3, 12, 5)                                //~> 2017-03-12T05:00:00Z
-   * @example DateTime.utc(2017, 3, 12, 5, 45)                            //~> 2017-03-12T05:45:00Z
-   * @example DateTime.utc(2017, 3, 12, 5, 45, { locale: "fr" })          //~> 2017-03-12T05:45:00Z with a French locale
-   * @example DateTime.utc(2017, 3, 12, 5, 45, 10)                        //~> 2017-03-12T05:45:10Z
-   * @example DateTime.utc(2017, 3, 12, 5, 45, 10, 765, { locale: "fr" }) //~> 2017-03-12T05:45:10.765Z with a French locale
-   * @return {DateTime}
-   */static utc(){const[opts,args]=lastOpts(arguments),[year,month,day,hour,minute,second,millisecond]=args;opts.zone=FixedOffsetZone.utcInstance;return quickDT({year,month,day,hour,minute,second,millisecond},opts);}/**
-   * Create a DateTime from a JavaScript Date object. Uses the default zone.
-   * @param {Date} date - a JavaScript Date object
-   * @param {Object} options - configuration options for the DateTime
-   * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
-   * @return {DateTime}
-   */static fromJSDate(date,options={}){const ts=isDate(date)?date.valueOf():NaN;if(Number.isNaN(ts)){return DateTime.invalid("invalid input");}const zoneToUse=normalizeZone(options.zone,Settings.defaultZone);if(!zoneToUse.isValid){return DateTime.invalid(unsupportedZone(zoneToUse));}return new DateTime({ts:ts,zone:zoneToUse,loc:Locale.fromObject(options)});}/**
-   * Create a DateTime from a number of milliseconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
-   * @param {number} milliseconds - a number of milliseconds since 1970 UTC
-   * @param {Object} options - configuration options for the DateTime
-   * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
-   * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
-   * @param {string} options.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @param {string} options.numberingSystem - the numbering system to set on the resulting DateTime instance
-   * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
-   * @return {DateTime}
-   */static fromMillis(milliseconds,options={}){if(!isNumber$1(milliseconds)){throw new InvalidArgumentError(`fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`);}else if(milliseconds<-MAX_DATE$1||milliseconds>MAX_DATE$1){// this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
+	   * Create a DateTime for the current instant, in the system's time zone.
+	   *
+	   * Use Settings to override these default values if needed.
+	   * @example DateTime.now().toISO() //~> now in the ISO format
+	   * @return {DateTime}
+	   */static now(){return new DateTime({});}/**
+	   * Create a local DateTime
+	   * @param {number} [year] - The calendar year. If omitted (as in, call `local()` with no arguments), the current time will be used
+	   * @param {number} [month=1] - The month, 1-indexed
+	   * @param {number} [day=1] - The day of the month, 1-indexed
+	   * @param {number} [hour=0] - The hour of the day, in 24-hour time
+	   * @param {number} [minute=0] - The minute of the hour, meaning a number between 0 and 59
+	   * @param {number} [second=0] - The second of the minute, meaning a number between 0 and 59
+	   * @param {number} [millisecond=0] - The millisecond of the second, meaning a number between 0 and 999
+	   * @example DateTime.local()                                  //~> now
+	   * @example DateTime.local({ zone: "America/New_York" })      //~> now, in US east coast time
+	   * @example DateTime.local(2017)                              //~> 2017-01-01T00:00:00
+	   * @example DateTime.local(2017, 3)                           //~> 2017-03-01T00:00:00
+	   * @example DateTime.local(2017, 3, 12, { locale: "fr" })     //~> 2017-03-12T00:00:00, with a French locale
+	   * @example DateTime.local(2017, 3, 12, 5)                    //~> 2017-03-12T05:00:00
+	   * @example DateTime.local(2017, 3, 12, 5, { zone: "utc" })   //~> 2017-03-12T05:00:00, in UTC
+	   * @example DateTime.local(2017, 3, 12, 5, 45)                //~> 2017-03-12T05:45:00
+	   * @example DateTime.local(2017, 3, 12, 5, 45, 10)            //~> 2017-03-12T05:45:10
+	   * @example DateTime.local(2017, 3, 12, 5, 45, 10, 765)       //~> 2017-03-12T05:45:10.765
+	   * @return {DateTime}
+	   */static local(){const[opts,args]=lastOpts(arguments),[year,month,day,hour,minute,second,millisecond]=args;return quickDT({year,month,day,hour,minute,second,millisecond},opts);}/**
+	   * Create a DateTime in UTC
+	   * @param {number} [year] - The calendar year. If omitted (as in, call `utc()` with no arguments), the current time will be used
+	   * @param {number} [month=1] - The month, 1-indexed
+	   * @param {number} [day=1] - The day of the month
+	   * @param {number} [hour=0] - The hour of the day, in 24-hour time
+	   * @param {number} [minute=0] - The minute of the hour, meaning a number between 0 and 59
+	   * @param {number} [second=0] - The second of the minute, meaning a number between 0 and 59
+	   * @param {number} [millisecond=0] - The millisecond of the second, meaning a number between 0 and 999
+	   * @param {Object} options - configuration options for the DateTime
+	   * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
+	   * @param {string} [options.outputCalendar] - the output calendar to set on the resulting DateTime instance
+	   * @param {string} [options.numberingSystem] - the numbering system to set on the resulting DateTime instance
+	   * @param {string} [options.weekSettings] - the week settings to set on the resulting DateTime instance
+	   * @example DateTime.utc()                                              //~> now
+	   * @example DateTime.utc(2017)                                          //~> 2017-01-01T00:00:00Z
+	   * @example DateTime.utc(2017, 3)                                       //~> 2017-03-01T00:00:00Z
+	   * @example DateTime.utc(2017, 3, 12)                                   //~> 2017-03-12T00:00:00Z
+	   * @example DateTime.utc(2017, 3, 12, 5)                                //~> 2017-03-12T05:00:00Z
+	   * @example DateTime.utc(2017, 3, 12, 5, 45)                            //~> 2017-03-12T05:45:00Z
+	   * @example DateTime.utc(2017, 3, 12, 5, 45, { locale: "fr" })          //~> 2017-03-12T05:45:00Z with a French locale
+	   * @example DateTime.utc(2017, 3, 12, 5, 45, 10)                        //~> 2017-03-12T05:45:10Z
+	   * @example DateTime.utc(2017, 3, 12, 5, 45, 10, 765, { locale: "fr" }) //~> 2017-03-12T05:45:10.765Z with a French locale
+	   * @return {DateTime}
+	   */static utc(){const[opts,args]=lastOpts(arguments),[year,month,day,hour,minute,second,millisecond]=args;opts.zone=FixedOffsetZone.utcInstance;return quickDT({year,month,day,hour,minute,second,millisecond},opts);}/**
+	   * Create a DateTime from a JavaScript Date object. Uses the default zone.
+	   * @param {Date} date - a JavaScript Date object
+	   * @param {Object} options - configuration options for the DateTime
+	   * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
+	   * @return {DateTime}
+	   */static fromJSDate(date,options={}){const ts=isDate(date)?date.valueOf():NaN;if(Number.isNaN(ts)){return DateTime.invalid("invalid input");}const zoneToUse=normalizeZone(options.zone,Settings.defaultZone);if(!zoneToUse.isValid){return DateTime.invalid(unsupportedZone(zoneToUse));}return new DateTime({ts:ts,zone:zoneToUse,loc:Locale.fromObject(options)});}/**
+	   * Create a DateTime from a number of milliseconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
+	   * @param {number} milliseconds - a number of milliseconds since 1970 UTC
+	   * @param {Object} options - configuration options for the DateTime
+	   * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
+	   * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
+	   * @param {string} options.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @param {string} options.numberingSystem - the numbering system to set on the resulting DateTime instance
+	   * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @return {DateTime}
+	   */static fromMillis(milliseconds,options={}){if(!isNumber(milliseconds)){throw new InvalidArgumentError(`fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`);}else if(milliseconds<-MAX_DATE||milliseconds>MAX_DATE){// this isn't perfect because we can still end up out of range because of additional shifting, but it's a start
 return DateTime.invalid("Timestamp out of range");}else{return new DateTime({ts:milliseconds,zone:normalizeZone(options.zone,Settings.defaultZone),loc:Locale.fromObject(options)});}}/**
-   * Create a DateTime from a number of seconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
-   * @param {number} seconds - a number of seconds since 1970 UTC
-   * @param {Object} options - configuration options for the DateTime
-   * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
-   * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
-   * @param {string} options.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @param {string} options.numberingSystem - the numbering system to set on the resulting DateTime instance
-   * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
-   * @return {DateTime}
-   */static fromSeconds(seconds,options={}){if(!isNumber$1(seconds)){throw new InvalidArgumentError("fromSeconds requires a numerical input");}else{return new DateTime({ts:seconds*1000,zone:normalizeZone(options.zone,Settings.defaultZone),loc:Locale.fromObject(options)});}}/**
-   * Create a DateTime from a JavaScript object with keys like 'year' and 'hour' with reasonable defaults.
-   * @param {Object} obj - the object to create the DateTime from
-   * @param {number} obj.year - a year, such as 1987
-   * @param {number} obj.month - a month, 1-12
-   * @param {number} obj.day - a day of the month, 1-31, depending on the month
-   * @param {number} obj.ordinal - day of the year, 1-365 or 366
-   * @param {number} obj.weekYear - an ISO week year
-   * @param {number} obj.weekNumber - an ISO week number, between 1 and 52 or 53, depending on the year
-   * @param {number} obj.weekday - an ISO weekday, 1-7, where 1 is Monday and 7 is Sunday
-   * @param {number} obj.localWeekYear - a week year, according to the locale
-   * @param {number} obj.localWeekNumber - a week number, between 1 and 52 or 53, depending on the year, according to the locale
-   * @param {number} obj.localWeekday - a weekday, 1-7, where 1 is the first and 7 is the last day of the week, according to the locale
-   * @param {number} obj.hour - hour of the day, 0-23
-   * @param {number} obj.minute - minute of the hour, 0-59
-   * @param {number} obj.second - second of the minute, 0-59
-   * @param {number} obj.millisecond - millisecond of the second, 0-999
-   * @param {Object} opts - options for creating this DateTime
-   * @param {string|Zone} [opts.zone='local'] - interpret the numbers in the context of a particular zone. Can take any value taken as the first argument to setZone()
-   * @param {string} [opts.locale='system\'s locale'] - a locale to set on the resulting DateTime instance
-   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
-   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
-   * @example DateTime.fromObject({ year: 1982, month: 5, day: 25}).toISODate() //=> '1982-05-25'
-   * @example DateTime.fromObject({ year: 1982 }).toISODate() //=> '1982-01-01'
-   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }) //~> today at 10:26:06
-   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }, { zone: 'utc' }),
-   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }, { zone: 'local' })
-   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }, { zone: 'America/New_York' })
-   * @example DateTime.fromObject({ weekYear: 2016, weekNumber: 2, weekday: 3 }).toISODate() //=> '2016-01-13'
-   * @example DateTime.fromObject({ localWeekYear: 2022, localWeekNumber: 1, localWeekday: 1 }, { locale: "en-US" }).toISODate() //=> '2021-12-26'
-   * @return {DateTime}
-   */static fromObject(obj,opts={}){obj=obj||{};const zoneToUse=normalizeZone(opts.zone,Settings.defaultZone);if(!zoneToUse.isValid){return DateTime.invalid(unsupportedZone(zoneToUse));}const loc=Locale.fromObject(opts);const normalized=normalizeObject(obj,normalizeUnitWithLocalWeeks);const{minDaysInFirstWeek,startOfWeek}=usesLocalWeekValues(normalized,loc);const tsNow=Settings.now(),offsetProvis=!isUndefined(opts.specificOffset)?opts.specificOffset:zoneToUse.offset(tsNow),containsOrdinal=!isUndefined(normalized.ordinal),containsGregorYear=!isUndefined(normalized.year),containsGregorMD=!isUndefined(normalized.month)||!isUndefined(normalized.day),containsGregor=containsGregorYear||containsGregorMD,definiteWeekDef=normalized.weekYear||normalized.weekNumber;// cases:
+	   * Create a DateTime from a number of seconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
+	   * @param {number} seconds - a number of seconds since 1970 UTC
+	   * @param {Object} options - configuration options for the DateTime
+	   * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
+	   * @param {string} [options.locale] - a locale to set on the resulting DateTime instance
+	   * @param {string} options.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @param {string} options.numberingSystem - the numbering system to set on the resulting DateTime instance
+	   * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @return {DateTime}
+	   */static fromSeconds(seconds,options={}){if(!isNumber(seconds)){throw new InvalidArgumentError("fromSeconds requires a numerical input");}else{return new DateTime({ts:seconds*1000,zone:normalizeZone(options.zone,Settings.defaultZone),loc:Locale.fromObject(options)});}}/**
+	   * Create a DateTime from a JavaScript object with keys like 'year' and 'hour' with reasonable defaults.
+	   * @param {Object} obj - the object to create the DateTime from
+	   * @param {number} obj.year - a year, such as 1987
+	   * @param {number} obj.month - a month, 1-12
+	   * @param {number} obj.day - a day of the month, 1-31, depending on the month
+	   * @param {number} obj.ordinal - day of the year, 1-365 or 366
+	   * @param {number} obj.weekYear - an ISO week year
+	   * @param {number} obj.weekNumber - an ISO week number, between 1 and 52 or 53, depending on the year
+	   * @param {number} obj.weekday - an ISO weekday, 1-7, where 1 is Monday and 7 is Sunday
+	   * @param {number} obj.localWeekYear - a week year, according to the locale
+	   * @param {number} obj.localWeekNumber - a week number, between 1 and 52 or 53, depending on the year, according to the locale
+	   * @param {number} obj.localWeekday - a weekday, 1-7, where 1 is the first and 7 is the last day of the week, according to the locale
+	   * @param {number} obj.hour - hour of the day, 0-23
+	   * @param {number} obj.minute - minute of the hour, 0-59
+	   * @param {number} obj.second - second of the minute, 0-59
+	   * @param {number} obj.millisecond - millisecond of the second, 0-999
+	   * @param {Object} opts - options for creating this DateTime
+	   * @param {string|Zone} [opts.zone='local'] - interpret the numbers in the context of a particular zone. Can take any value taken as the first argument to setZone()
+	   * @param {string} [opts.locale='system\'s locale'] - a locale to set on the resulting DateTime instance
+	   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
+	   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @example DateTime.fromObject({ year: 1982, month: 5, day: 25}).toISODate() //=> '1982-05-25'
+	   * @example DateTime.fromObject({ year: 1982 }).toISODate() //=> '1982-01-01'
+	   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }) //~> today at 10:26:06
+	   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }, { zone: 'utc' }),
+	   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }, { zone: 'local' })
+	   * @example DateTime.fromObject({ hour: 10, minute: 26, second: 6 }, { zone: 'America/New_York' })
+	   * @example DateTime.fromObject({ weekYear: 2016, weekNumber: 2, weekday: 3 }).toISODate() //=> '2016-01-13'
+	   * @example DateTime.fromObject({ localWeekYear: 2022, localWeekNumber: 1, localWeekday: 1 }, { locale: "en-US" }).toISODate() //=> '2021-12-26'
+	   * @return {DateTime}
+	   */static fromObject(obj,opts={}){obj=obj||{};const zoneToUse=normalizeZone(opts.zone,Settings.defaultZone);if(!zoneToUse.isValid){return DateTime.invalid(unsupportedZone(zoneToUse));}const loc=Locale.fromObject(opts);const normalized=normalizeObject(obj,normalizeUnitWithLocalWeeks);const{minDaysInFirstWeek,startOfWeek}=usesLocalWeekValues(normalized,loc);const tsNow=Settings.now(),offsetProvis=!isUndefined(opts.specificOffset)?opts.specificOffset:zoneToUse.offset(tsNow),containsOrdinal=!isUndefined(normalized.ordinal),containsGregorYear=!isUndefined(normalized.year),containsGregorMD=!isUndefined(normalized.month)||!isUndefined(normalized.day),containsGregor=containsGregorYear||containsGregorMD,definiteWeekDef=normalized.weekYear||normalized.weekNumber;// cases:
 // just a weekday -> this week's instance of that weekday, no worries
 // (gregorian data or ordinal) + (weekYear or weekNumber) -> error
 // (gregorian month or day) + ordinal -> error
@@ -3252,705 +3336,713 @@ let foundFirst=false;for(const u of units){const v=normalized[u];if(!isUndefined
 const higherOrderInvalid=useWeekData?hasInvalidWeekData(normalized,minDaysInFirstWeek,startOfWeek):containsOrdinal?hasInvalidOrdinalData(normalized):hasInvalidGregorianData(normalized),invalid=higherOrderInvalid||hasInvalidTimeData(normalized);if(invalid){return DateTime.invalid(invalid);}// compute the actual time
 const gregorian=useWeekData?weekToGregorian(normalized,minDaysInFirstWeek,startOfWeek):containsOrdinal?ordinalToGregorian(normalized):normalized,[tsFinal,offsetFinal]=objToTS(gregorian,offsetProvis,zoneToUse),inst=new DateTime({ts:tsFinal,zone:zoneToUse,o:offsetFinal,loc});// gregorian data + weekday serves only to validate
 if(normalized.weekday&&containsGregor&&obj.weekday!==inst.weekday){return DateTime.invalid("mismatched weekday",`you can't specify both a weekday of ${normalized.weekday} and a date of ${inst.toISO()}`);}if(!inst.isValid){return DateTime.invalid(inst.invalid);}return inst;}/**
-   * Create a DateTime from an ISO 8601 string
-   * @param {string} text - the ISO string
-   * @param {Object} opts - options to affect the creation
-   * @param {string|Zone} [opts.zone='local'] - use this zone if no offset is specified in the input string itself. Will also convert the time to this zone
-   * @param {boolean} [opts.setZone=false] - override the zone with a fixed-offset zone specified in the string itself, if it specifies one
-   * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
-   * @param {string} [opts.outputCalendar] - the output calendar to set on the resulting DateTime instance
-   * @param {string} [opts.numberingSystem] - the numbering system to set on the resulting DateTime instance
-   * @param {string} [opts.weekSettings] - the week settings to set on the resulting DateTime instance
-   * @example DateTime.fromISO('2016-05-25T09:08:34.123')
-   * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00')
-   * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00', {setZone: true})
-   * @example DateTime.fromISO('2016-05-25T09:08:34.123', {zone: 'utc'})
-   * @example DateTime.fromISO('2016-W05-4')
-   * @return {DateTime}
-   */static fromISO(text,opts={}){const[vals,parsedZone]=parseISODate(text);return parseDataToDateTime(vals,parsedZone,opts,"ISO 8601",text);}/**
-   * Create a DateTime from an RFC 2822 string
-   * @param {string} text - the RFC 2822 string
-   * @param {Object} opts - options to affect the creation
-   * @param {string|Zone} [opts.zone='local'] - convert the time to this zone. Since the offset is always specified in the string itself, this has no effect on the interpretation of string, merely the zone the resulting DateTime is expressed in.
-   * @param {boolean} [opts.setZone=false] - override the zone with a fixed-offset zone specified in the string itself, if it specifies one
-   * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
-   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
-   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
-   * @example DateTime.fromRFC2822('25 Nov 2016 13:23:12 GMT')
-   * @example DateTime.fromRFC2822('Fri, 25 Nov 2016 13:23:12 +0600')
-   * @example DateTime.fromRFC2822('25 Nov 2016 13:23 Z')
-   * @return {DateTime}
-   */static fromRFC2822(text,opts={}){const[vals,parsedZone]=parseRFC2822Date(text);return parseDataToDateTime(vals,parsedZone,opts,"RFC 2822",text);}/**
-   * Create a DateTime from an HTTP header date
-   * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
-   * @param {string} text - the HTTP header date
-   * @param {Object} opts - options to affect the creation
-   * @param {string|Zone} [opts.zone='local'] - convert the time to this zone. Since HTTP dates are always in UTC, this has no effect on the interpretation of string, merely the zone the resulting DateTime is expressed in.
-   * @param {boolean} [opts.setZone=false] - override the zone with the fixed-offset zone specified in the string. For HTTP dates, this is always UTC, so this option is equivalent to setting the `zone` option to 'utc', but this option is included for consistency with similar methods.
-   * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
-   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
-   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
-   * @example DateTime.fromHTTP('Sun, 06 Nov 1994 08:49:37 GMT')
-   * @example DateTime.fromHTTP('Sunday, 06-Nov-94 08:49:37 GMT')
-   * @example DateTime.fromHTTP('Sun Nov  6 08:49:37 1994')
-   * @return {DateTime}
-   */static fromHTTP(text,opts={}){const[vals,parsedZone]=parseHTTPDate(text);return parseDataToDateTime(vals,parsedZone,opts,"HTTP",opts);}/**
-   * Create a DateTime from an input string and format string.
-   * Defaults to en-US if no locale has been specified, regardless of the system's locale. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/#/parsing?id=table-of-tokens).
-   * @param {string} text - the string to parse
-   * @param {string} fmt - the format the string is expected to be in (see the link below for the formats)
-   * @param {Object} opts - options to affect the creation
-   * @param {string|Zone} [opts.zone='local'] - use this zone if no offset is specified in the input string itself. Will also convert the DateTime to this zone
-   * @param {boolean} [opts.setZone=false] - override the zone with a zone specified in the string itself, if it specifies one
-   * @param {string} [opts.locale='en-US'] - a locale string to use when parsing. Will also set the DateTime to this locale
-   * @param {string} opts.numberingSystem - the numbering system to use when parsing. Will also set the resulting DateTime to this numbering system
-   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
-   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @return {DateTime}
-   */static fromFormat(text,fmt,opts={}){if(isUndefined(text)||isUndefined(fmt)){throw new InvalidArgumentError("fromFormat requires an input string and a format");}const{locale=null,numberingSystem=null}=opts,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true}),[vals,parsedZone,specificOffset,invalid]=parseFromTokens(localeToUse,text,fmt);if(invalid){return DateTime.invalid(invalid);}else{return parseDataToDateTime(vals,parsedZone,opts,`format ${fmt}`,text,specificOffset);}}/**
-   * @deprecated use fromFormat instead
-   */static fromString(text,fmt,opts={}){return DateTime.fromFormat(text,fmt,opts);}/**
-   * Create a DateTime from a SQL date, time, or datetime
-   * Defaults to en-US if no locale has been specified, regardless of the system's locale
-   * @param {string} text - the string to parse
-   * @param {Object} opts - options to affect the creation
-   * @param {string|Zone} [opts.zone='local'] - use this zone if no offset is specified in the input string itself. Will also convert the DateTime to this zone
-   * @param {boolean} [opts.setZone=false] - override the zone with a zone specified in the string itself, if it specifies one
-   * @param {string} [opts.locale='en-US'] - a locale string to use when parsing. Will also set the DateTime to this locale
-   * @param {string} opts.numberingSystem - the numbering system to use when parsing. Will also set the resulting DateTime to this numbering system
-   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
-   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
-   * @example DateTime.fromSQL('2017-05-15')
-   * @example DateTime.fromSQL('2017-05-15 09:12:34')
-   * @example DateTime.fromSQL('2017-05-15 09:12:34.342')
-   * @example DateTime.fromSQL('2017-05-15 09:12:34.342+06:00')
-   * @example DateTime.fromSQL('2017-05-15 09:12:34.342 America/Los_Angeles')
-   * @example DateTime.fromSQL('2017-05-15 09:12:34.342 America/Los_Angeles', { setZone: true })
-   * @example DateTime.fromSQL('2017-05-15 09:12:34.342', { zone: 'America/Los_Angeles' })
-   * @example DateTime.fromSQL('09:12:34.342')
-   * @return {DateTime}
-   */static fromSQL(text,opts={}){const[vals,parsedZone]=parseSQL(text);return parseDataToDateTime(vals,parsedZone,opts,"SQL",text);}/**
-   * Create an invalid DateTime.
-   * @param {string} reason - simple string of why this DateTime is invalid. Should not contain parameters or anything else data-dependent.
-   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
-   * @return {DateTime}
-   */static invalid(reason,explanation=null){if(!reason){throw new InvalidArgumentError("need to specify a reason the DateTime is invalid");}const invalid=reason instanceof Invalid?reason:new Invalid(reason,explanation);if(Settings.throwOnInvalid){throw new InvalidDateTimeError(invalid);}else{return new DateTime({invalid});}}/**
-   * Check if an object is an instance of DateTime. Works across context boundaries
-   * @param {object} o
-   * @return {boolean}
-   */static isDateTime(o){return o&&o.isLuxonDateTime||false;}/**
-   * Produce the format string for a set of options
-   * @param formatOpts
-   * @param localeOpts
-   * @returns {string}
-   */static parseFormatForOpts(formatOpts,localeOpts={}){const tokenList=formatOptsToTokens(formatOpts,Locale.fromObject(localeOpts));return!tokenList?null:tokenList.map(t=>t?t.val:null).join("");}/**
-   * Produce the the fully expanded format token for the locale
-   * Does NOT quote characters, so quoted tokens will not round trip correctly
-   * @param fmt
-   * @param localeOpts
-   * @returns {string}
-   */static expandFormat(fmt,localeOpts={}){const expanded=expandMacroTokens(Formatter.parseFormat(fmt),Locale.fromObject(localeOpts));return expanded.map(t=>t.val).join("");}static resetCache(){zoneOffsetTs=undefined;zoneOffsetGuessCache.clear();}// INFO
+	   * Create a DateTime from an ISO 8601 string
+	   * @param {string} text - the ISO string
+	   * @param {Object} opts - options to affect the creation
+	   * @param {string|Zone} [opts.zone='local'] - use this zone if no offset is specified in the input string itself. Will also convert the time to this zone
+	   * @param {boolean} [opts.setZone=false] - override the zone with a fixed-offset zone specified in the string itself, if it specifies one
+	   * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
+	   * @param {string} [opts.outputCalendar] - the output calendar to set on the resulting DateTime instance
+	   * @param {string} [opts.numberingSystem] - the numbering system to set on the resulting DateTime instance
+	   * @param {string} [opts.weekSettings] - the week settings to set on the resulting DateTime instance
+	   * @example DateTime.fromISO('2016-05-25T09:08:34.123')
+	   * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00')
+	   * @example DateTime.fromISO('2016-05-25T09:08:34.123+06:00', {setZone: true})
+	   * @example DateTime.fromISO('2016-05-25T09:08:34.123', {zone: 'utc'})
+	   * @example DateTime.fromISO('2016-W05-4')
+	   * @return {DateTime}
+	   */static fromISO(text,opts={}){const[vals,parsedZone]=parseISODate(text);return parseDataToDateTime(vals,parsedZone,opts,"ISO 8601",text);}/**
+	   * Create a DateTime from an RFC 2822 string
+	   * @param {string} text - the RFC 2822 string
+	   * @param {Object} opts - options to affect the creation
+	   * @param {string|Zone} [opts.zone='local'] - convert the time to this zone. Since the offset is always specified in the string itself, this has no effect on the interpretation of string, merely the zone the resulting DateTime is expressed in.
+	   * @param {boolean} [opts.setZone=false] - override the zone with a fixed-offset zone specified in the string itself, if it specifies one
+	   * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
+	   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
+	   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @example DateTime.fromRFC2822('25 Nov 2016 13:23:12 GMT')
+	   * @example DateTime.fromRFC2822('Fri, 25 Nov 2016 13:23:12 +0600')
+	   * @example DateTime.fromRFC2822('25 Nov 2016 13:23 Z')
+	   * @return {DateTime}
+	   */static fromRFC2822(text,opts={}){const[vals,parsedZone]=parseRFC2822Date(text);return parseDataToDateTime(vals,parsedZone,opts,"RFC 2822",text);}/**
+	   * Create a DateTime from an HTTP header date
+	   * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
+	   * @param {string} text - the HTTP header date
+	   * @param {Object} opts - options to affect the creation
+	   * @param {string|Zone} [opts.zone='local'] - convert the time to this zone. Since HTTP dates are always in UTC, this has no effect on the interpretation of string, merely the zone the resulting DateTime is expressed in.
+	   * @param {boolean} [opts.setZone=false] - override the zone with the fixed-offset zone specified in the string. For HTTP dates, this is always UTC, so this option is equivalent to setting the `zone` option to 'utc', but this option is included for consistency with similar methods.
+	   * @param {string} [opts.locale='system's locale'] - a locale to set on the resulting DateTime instance
+	   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @param {string} opts.numberingSystem - the numbering system to set on the resulting DateTime instance
+	   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @example DateTime.fromHTTP('Sun, 06 Nov 1994 08:49:37 GMT')
+	   * @example DateTime.fromHTTP('Sunday, 06-Nov-94 08:49:37 GMT')
+	   * @example DateTime.fromHTTP('Sun Nov  6 08:49:37 1994')
+	   * @return {DateTime}
+	   */static fromHTTP(text,opts={}){const[vals,parsedZone]=parseHTTPDate(text);return parseDataToDateTime(vals,parsedZone,opts,"HTTP",opts);}/**
+	   * Create a DateTime from an input string and format string.
+	   * Defaults to en-US if no locale has been specified, regardless of the system's locale. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/#/parsing?id=table-of-tokens).
+	   * @param {string} text - the string to parse
+	   * @param {string} fmt - the format the string is expected to be in (see the link below for the formats)
+	   * @param {Object} opts - options to affect the creation
+	   * @param {string|Zone} [opts.zone='local'] - use this zone if no offset is specified in the input string itself. Will also convert the DateTime to this zone
+	   * @param {boolean} [opts.setZone=false] - override the zone with a zone specified in the string itself, if it specifies one
+	   * @param {string} [opts.locale='en-US'] - a locale string to use when parsing. Will also set the DateTime to this locale
+	   * @param {string} opts.numberingSystem - the numbering system to use when parsing. Will also set the resulting DateTime to this numbering system
+	   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @return {DateTime}
+	   */static fromFormat(text,fmt,opts={}){if(isUndefined(text)||isUndefined(fmt)){throw new InvalidArgumentError("fromFormat requires an input string and a format");}const{locale=null,numberingSystem=null}=opts,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true}),[vals,parsedZone,specificOffset,invalid]=parseFromTokens(localeToUse,text,fmt);if(invalid){return DateTime.invalid(invalid);}else{return parseDataToDateTime(vals,parsedZone,opts,`format ${fmt}`,text,specificOffset);}}/**
+	   * @deprecated use fromFormat instead
+	   */static fromString(text,fmt,opts={}){return DateTime.fromFormat(text,fmt,opts);}/**
+	   * Create a DateTime from a SQL date, time, or datetime
+	   * Defaults to en-US if no locale has been specified, regardless of the system's locale
+	   * @param {string} text - the string to parse
+	   * @param {Object} opts - options to affect the creation
+	   * @param {string|Zone} [opts.zone='local'] - use this zone if no offset is specified in the input string itself. Will also convert the DateTime to this zone
+	   * @param {boolean} [opts.setZone=false] - override the zone with a zone specified in the string itself, if it specifies one
+	   * @param {string} [opts.locale='en-US'] - a locale string to use when parsing. Will also set the DateTime to this locale
+	   * @param {string} opts.numberingSystem - the numbering system to use when parsing. Will also set the resulting DateTime to this numbering system
+	   * @param {string} opts.weekSettings - the week settings to set on the resulting DateTime instance
+	   * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
+	   * @example DateTime.fromSQL('2017-05-15')
+	   * @example DateTime.fromSQL('2017-05-15 09:12:34')
+	   * @example DateTime.fromSQL('2017-05-15 09:12:34.342')
+	   * @example DateTime.fromSQL('2017-05-15 09:12:34.342+06:00')
+	   * @example DateTime.fromSQL('2017-05-15 09:12:34.342 America/Los_Angeles')
+	   * @example DateTime.fromSQL('2017-05-15 09:12:34.342 America/Los_Angeles', { setZone: true })
+	   * @example DateTime.fromSQL('2017-05-15 09:12:34.342', { zone: 'America/Los_Angeles' })
+	   * @example DateTime.fromSQL('09:12:34.342')
+	   * @return {DateTime}
+	   */static fromSQL(text,opts={}){const[vals,parsedZone]=parseSQL(text);return parseDataToDateTime(vals,parsedZone,opts,"SQL",text);}/**
+	   * Create an invalid DateTime.
+	   * @param {string} reason - simple string of why this DateTime is invalid. Should not contain parameters or anything else data-dependent.
+	   * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
+	   * @return {DateTime}
+	   */static invalid(reason,explanation=null){if(!reason){throw new InvalidArgumentError("need to specify a reason the DateTime is invalid");}const invalid=reason instanceof Invalid?reason:new Invalid(reason,explanation);if(Settings.throwOnInvalid){throw new InvalidDateTimeError(invalid);}else{return new DateTime({invalid});}}/**
+	   * Check if an object is an instance of DateTime. Works across context boundaries
+	   * @param {object} o
+	   * @return {boolean}
+	   */static isDateTime(o){return o&&o.isLuxonDateTime||false;}/**
+	   * Produce the format string for a set of options
+	   * @param formatOpts
+	   * @param localeOpts
+	   * @returns {string}
+	   */static parseFormatForOpts(formatOpts,localeOpts={}){const tokenList=formatOptsToTokens(formatOpts,Locale.fromObject(localeOpts));return!tokenList?null:tokenList.map(t=>t?t.val:null).join("");}/**
+	   * Produce the the fully expanded format token for the locale
+	   * Does NOT quote characters, so quoted tokens will not round trip correctly
+	   * @param fmt
+	   * @param localeOpts
+	   * @returns {string}
+	   */static expandFormat(fmt,localeOpts={}){const expanded=expandMacroTokens(Formatter.parseFormat(fmt),Locale.fromObject(localeOpts));return expanded.map(t=>t.val).join("");}static resetCache(){zoneOffsetTs=undefined;zoneOffsetGuessCache.clear();}// INFO
 /**
-   * Get the value of unit.
-   * @param {string} unit - a unit such as 'minute' or 'day'
-   * @example DateTime.local(2017, 7, 4).get('month'); //=> 7
-   * @example DateTime.local(2017, 7, 4).get('day'); //=> 4
-   * @return {number}
-   */get(unit){return this[unit];}/**
-   * Returns whether the DateTime is valid. Invalid DateTimes occur when:
-   * * The DateTime was created from invalid calendar information, such as the 13th month or February 30
-   * * The DateTime was created by an operation on another invalid date
-   * @type {boolean}
-   */get isValid(){return this.invalid===null;}/**
-   * Returns an error code if this DateTime is invalid, or null if the DateTime is valid
-   * @type {string}
-   */get invalidReason(){return this.invalid?this.invalid.reason:null;}/**
-   * Returns an explanation of why this DateTime became invalid, or null if the DateTime is valid
-   * @type {string}
-   */get invalidExplanation(){return this.invalid?this.invalid.explanation:null;}/**
-   * Get the locale of a DateTime, such 'en-GB'. The locale is used when formatting the DateTime
-   *
-   * @type {string}
-   */get locale(){return this.isValid?this.loc.locale:null;}/**
-   * Get the numbering system of a DateTime, such 'beng'. The numbering system is used when formatting the DateTime
-   *
-   * @type {string}
-   */get numberingSystem(){return this.isValid?this.loc.numberingSystem:null;}/**
-   * Get the output calendar of a DateTime, such 'islamic'. The output calendar is used when formatting the DateTime
-   *
-   * @type {string}
-   */get outputCalendar(){return this.isValid?this.loc.outputCalendar:null;}/**
-   * Get the time zone associated with this DateTime.
-   * @type {Zone}
-   */get zone(){return this._zone;}/**
-   * Get the name of the time zone.
-   * @type {string}
-   */get zoneName(){return this.isValid?this.zone.name:null;}/**
-   * Get the year
-   * @example DateTime.local(2017, 5, 25).year //=> 2017
-   * @type {number}
-   */get year(){return this.isValid?this.c.year:NaN;}/**
-   * Get the quarter
-   * @example DateTime.local(2017, 5, 25).quarter //=> 2
-   * @type {number}
-   */get quarter(){return this.isValid?Math.ceil(this.c.month/3):NaN;}/**
-   * Get the month (1-12).
-   * @example DateTime.local(2017, 5, 25).month //=> 5
-   * @type {number}
-   */get month(){return this.isValid?this.c.month:NaN;}/**
-   * Get the day of the month (1-30ish).
-   * @example DateTime.local(2017, 5, 25).day //=> 25
-   * @type {number}
-   */get day(){return this.isValid?this.c.day:NaN;}/**
-   * Get the hour of the day (0-23).
-   * @example DateTime.local(2017, 5, 25, 9).hour //=> 9
-   * @type {number}
-   */get hour(){return this.isValid?this.c.hour:NaN;}/**
-   * Get the minute of the hour (0-59).
-   * @example DateTime.local(2017, 5, 25, 9, 30).minute //=> 30
-   * @type {number}
-   */get minute(){return this.isValid?this.c.minute:NaN;}/**
-   * Get the second of the minute (0-59).
-   * @example DateTime.local(2017, 5, 25, 9, 30, 52).second //=> 52
-   * @type {number}
-   */get second(){return this.isValid?this.c.second:NaN;}/**
-   * Get the millisecond of the second (0-999).
-   * @example DateTime.local(2017, 5, 25, 9, 30, 52, 654).millisecond //=> 654
-   * @type {number}
-   */get millisecond(){return this.isValid?this.c.millisecond:NaN;}/**
-   * Get the week year
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2014, 12, 31).weekYear //=> 2015
-   * @type {number}
-   */get weekYear(){return this.isValid?possiblyCachedWeekData(this).weekYear:NaN;}/**
-   * Get the week number of the week year (1-52ish).
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2017, 5, 25).weekNumber //=> 21
-   * @type {number}
-   */get weekNumber(){return this.isValid?possiblyCachedWeekData(this).weekNumber:NaN;}/**
-   * Get the day of the week.
-   * 1 is Monday and 7 is Sunday
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2014, 11, 31).weekday //=> 4
-   * @type {number}
-   */get weekday(){return this.isValid?possiblyCachedWeekData(this).weekday:NaN;}/**
-   * Returns true if this date is on a weekend according to the locale, false otherwise
-   * @returns {boolean}
-   */get isWeekend(){return this.isValid&&this.loc.getWeekendDays().includes(this.weekday);}/**
-   * Get the day of the week according to the locale.
-   * 1 is the first day of the week and 7 is the last day of the week.
-   * If the locale assigns Sunday as the first day of the week, then a date which is a Sunday will return 1,
-   * @returns {number}
-   */get localWeekday(){return this.isValid?possiblyCachedLocalWeekData(this).weekday:NaN;}/**
-   * Get the week number of the week year according to the locale. Different locales assign week numbers differently,
-   * because the week can start on different days of the week (see localWeekday) and because a different number of days
-   * is required for a week to count as the first week of a year.
-   * @returns {number}
-   */get localWeekNumber(){return this.isValid?possiblyCachedLocalWeekData(this).weekNumber:NaN;}/**
-   * Get the week year according to the locale. Different locales assign week numbers (and therefor week years)
-   * differently, see localWeekNumber.
-   * @returns {number}
-   */get localWeekYear(){return this.isValid?possiblyCachedLocalWeekData(this).weekYear:NaN;}/**
-   * Get the ordinal (meaning the day of the year)
-   * @example DateTime.local(2017, 5, 25).ordinal //=> 145
-   * @type {number|DateTime}
-   */get ordinal(){return this.isValid?gregorianToOrdinal(this.c).ordinal:NaN;}/**
-   * Get the human readable short month name, such as 'Oct'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
-   * @type {string}
-   */get monthShort(){return this.isValid?Info.months("short",{locObj:this.loc})[this.month-1]:null;}/**
-   * Get the human readable long month name, such as 'October'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).monthLong //=> October
-   * @type {string}
-   */get monthLong(){return this.isValid?Info.months("long",{locObj:this.loc})[this.month-1]:null;}/**
-   * Get the human readable short weekday, such as 'Mon'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
-   * @type {string}
-   */get weekdayShort(){return this.isValid?Info.weekdays("short",{locObj:this.loc})[this.weekday-1]:null;}/**
-   * Get the human readable long weekday, such as 'Monday'.
-   * Defaults to the system's locale if no locale has been specified
-   * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
-   * @type {string}
-   */get weekdayLong(){return this.isValid?Info.weekdays("long",{locObj:this.loc})[this.weekday-1]:null;}/**
-   * Get the UTC offset of this DateTime in minutes
-   * @example DateTime.now().offset //=> -240
-   * @example DateTime.utc().offset //=> 0
-   * @type {number}
-   */get offset(){return this.isValid?+this.o:NaN;}/**
-   * Get the short human name for the zone's current offset, for example "EST" or "EDT".
-   * Defaults to the system's locale if no locale has been specified
-   * @type {string}
-   */get offsetNameShort(){if(this.isValid){return this.zone.offsetName(this.ts,{format:"short",locale:this.locale});}else{return null;}}/**
-   * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
-   * Defaults to the system's locale if no locale has been specified
-   * @type {string}
-   */get offsetNameLong(){if(this.isValid){return this.zone.offsetName(this.ts,{format:"long",locale:this.locale});}else{return null;}}/**
-   * Get whether this zone's offset ever changes, as in a DST.
-   * @type {boolean}
-   */get isOffsetFixed(){return this.isValid?this.zone.isUniversal:null;}/**
-   * Get whether the DateTime is in a DST.
-   * @type {boolean}
-   */get isInDST(){if(this.isOffsetFixed){return false;}else{return this.offset>this.set({month:1,day:1}).offset||this.offset>this.set({month:5}).offset;}}/**
-   * Get those DateTimes which have the same local time as this DateTime, but a different offset from UTC
-   * in this DateTime's zone. During DST changes local time can be ambiguous, for example
-   * `2023-10-29T02:30:00` in `Europe/Berlin` can have offset `+01:00` or `+02:00`.
-   * This method will return both possible DateTimes if this DateTime's local time is ambiguous.
-   * @returns {DateTime[]}
-   */getPossibleOffsets(){if(!this.isValid||this.isOffsetFixed){return[this];}const dayMs=86400000;const minuteMs=60000;const localTS=objToLocalTS(this.c);const oEarlier=this.zone.offset(localTS-dayMs);const oLater=this.zone.offset(localTS+dayMs);const o1=this.zone.offset(localTS-oEarlier*minuteMs);const o2=this.zone.offset(localTS-oLater*minuteMs);if(o1===o2){return[this];}const ts1=localTS-o1*minuteMs;const ts2=localTS-o2*minuteMs;const c1=tsToObj(ts1,o1);const c2=tsToObj(ts2,o2);if(c1.hour===c2.hour&&c1.minute===c2.minute&&c1.second===c2.second&&c1.millisecond===c2.millisecond){return[clone$2(this,{ts:ts1}),clone$2(this,{ts:ts2})];}return[this];}/**
-   * Returns true if this DateTime is in a leap year, false otherwise
-   * @example DateTime.local(2016).isInLeapYear //=> true
-   * @example DateTime.local(2013).isInLeapYear //=> false
-   * @type {boolean}
-   */get isInLeapYear(){return isLeapYear(this.year);}/**
-   * Returns the number of days in this DateTime's month
-   * @example DateTime.local(2016, 2).daysInMonth //=> 29
-   * @example DateTime.local(2016, 3).daysInMonth //=> 31
-   * @type {number}
-   */get daysInMonth(){return daysInMonth(this.year,this.month);}/**
-   * Returns the number of days in this DateTime's year
-   * @example DateTime.local(2016).daysInYear //=> 366
-   * @example DateTime.local(2013).daysInYear //=> 365
-   * @type {number}
-   */get daysInYear(){return this.isValid?daysInYear(this.year):NaN;}/**
-   * Returns the number of weeks in this DateTime's year
-   * @see https://en.wikipedia.org/wiki/ISO_week_date
-   * @example DateTime.local(2004).weeksInWeekYear //=> 53
-   * @example DateTime.local(2013).weeksInWeekYear //=> 52
-   * @type {number}
-   */get weeksInWeekYear(){return this.isValid?weeksInWeekYear(this.weekYear):NaN;}/**
-   * Returns the number of weeks in this DateTime's local week year
-   * @example DateTime.local(2020, 6, {locale: 'en-US'}).weeksInLocalWeekYear //=> 52
-   * @example DateTime.local(2020, 6, {locale: 'de-DE'}).weeksInLocalWeekYear //=> 53
-   * @type {number}
-   */get weeksInLocalWeekYear(){return this.isValid?weeksInWeekYear(this.localWeekYear,this.loc.getMinDaysInFirstWeek(),this.loc.getStartOfWeek()):NaN;}/**
-   * Returns the resolved Intl options for this DateTime.
-   * This is useful in understanding the behavior of formatting methods
-   * @param {Object} opts - the same options as toLocaleString
-   * @return {Object}
-   */resolvedLocaleOptions(opts={}){const{locale,numberingSystem,calendar}=Formatter.create(this.loc.clone(opts),opts).resolvedOptions(this);return{locale,numberingSystem,outputCalendar:calendar};}// TRANSFORM
+	   * Get the value of unit.
+	   * @param {string} unit - a unit such as 'minute' or 'day'
+	   * @example DateTime.local(2017, 7, 4).get('month'); //=> 7
+	   * @example DateTime.local(2017, 7, 4).get('day'); //=> 4
+	   * @return {number}
+	   */get(unit){return this[unit];}/**
+	   * Returns whether the DateTime is valid. Invalid DateTimes occur when:
+	   * * The DateTime was created from invalid calendar information, such as the 13th month or February 30
+	   * * The DateTime was created by an operation on another invalid date
+	   * @type {boolean}
+	   */get isValid(){return this.invalid===null;}/**
+	   * Returns an error code if this DateTime is invalid, or null if the DateTime is valid
+	   * @type {string}
+	   */get invalidReason(){return this.invalid?this.invalid.reason:null;}/**
+	   * Returns an explanation of why this DateTime became invalid, or null if the DateTime is valid
+	   * @type {string}
+	   */get invalidExplanation(){return this.invalid?this.invalid.explanation:null;}/**
+	   * Get the locale of a DateTime, such 'en-GB'. The locale is used when formatting the DateTime
+	   *
+	   * @type {string}
+	   */get locale(){return this.isValid?this.loc.locale:null;}/**
+	   * Get the numbering system of a DateTime, such 'beng'. The numbering system is used when formatting the DateTime
+	   *
+	   * @type {string}
+	   */get numberingSystem(){return this.isValid?this.loc.numberingSystem:null;}/**
+	   * Get the output calendar of a DateTime, such 'islamic'. The output calendar is used when formatting the DateTime
+	   *
+	   * @type {string}
+	   */get outputCalendar(){return this.isValid?this.loc.outputCalendar:null;}/**
+	   * Get the time zone associated with this DateTime.
+	   * @type {Zone}
+	   */get zone(){return this._zone;}/**
+	   * Get the name of the time zone.
+	   * @type {string}
+	   */get zoneName(){return this.isValid?this.zone.name:null;}/**
+	   * Get the year
+	   * @example DateTime.local(2017, 5, 25).year //=> 2017
+	   * @type {number}
+	   */get year(){return this.isValid?this.c.year:NaN;}/**
+	   * Get the quarter
+	   * @example DateTime.local(2017, 5, 25).quarter //=> 2
+	   * @type {number}
+	   */get quarter(){return this.isValid?Math.ceil(this.c.month/3):NaN;}/**
+	   * Get the month (1-12).
+	   * @example DateTime.local(2017, 5, 25).month //=> 5
+	   * @type {number}
+	   */get month(){return this.isValid?this.c.month:NaN;}/**
+	   * Get the day of the month (1-30ish).
+	   * @example DateTime.local(2017, 5, 25).day //=> 25
+	   * @type {number}
+	   */get day(){return this.isValid?this.c.day:NaN;}/**
+	   * Get the hour of the day (0-23).
+	   * @example DateTime.local(2017, 5, 25, 9).hour //=> 9
+	   * @type {number}
+	   */get hour(){return this.isValid?this.c.hour:NaN;}/**
+	   * Get the minute of the hour (0-59).
+	   * @example DateTime.local(2017, 5, 25, 9, 30).minute //=> 30
+	   * @type {number}
+	   */get minute(){return this.isValid?this.c.minute:NaN;}/**
+	   * Get the second of the minute (0-59).
+	   * @example DateTime.local(2017, 5, 25, 9, 30, 52).second //=> 52
+	   * @type {number}
+	   */get second(){return this.isValid?this.c.second:NaN;}/**
+	   * Get the millisecond of the second (0-999).
+	   * @example DateTime.local(2017, 5, 25, 9, 30, 52, 654).millisecond //=> 654
+	   * @type {number}
+	   */get millisecond(){return this.isValid?this.c.millisecond:NaN;}/**
+	   * Get the week year
+	   * @see https://en.wikipedia.org/wiki/ISO_week_date
+	   * @example DateTime.local(2014, 12, 31).weekYear //=> 2015
+	   * @type {number}
+	   */get weekYear(){return this.isValid?possiblyCachedWeekData(this).weekYear:NaN;}/**
+	   * Get the week number of the week year (1-52ish).
+	   * @see https://en.wikipedia.org/wiki/ISO_week_date
+	   * @example DateTime.local(2017, 5, 25).weekNumber //=> 21
+	   * @type {number}
+	   */get weekNumber(){return this.isValid?possiblyCachedWeekData(this).weekNumber:NaN;}/**
+	   * Get the day of the week.
+	   * 1 is Monday and 7 is Sunday
+	   * @see https://en.wikipedia.org/wiki/ISO_week_date
+	   * @example DateTime.local(2014, 11, 31).weekday //=> 4
+	   * @type {number}
+	   */get weekday(){return this.isValid?possiblyCachedWeekData(this).weekday:NaN;}/**
+	   * Returns true if this date is on a weekend according to the locale, false otherwise
+	   * @returns {boolean}
+	   */get isWeekend(){return this.isValid&&this.loc.getWeekendDays().includes(this.weekday);}/**
+	   * Get the day of the week according to the locale.
+	   * 1 is the first day of the week and 7 is the last day of the week.
+	   * If the locale assigns Sunday as the first day of the week, then a date which is a Sunday will return 1,
+	   * @returns {number}
+	   */get localWeekday(){return this.isValid?possiblyCachedLocalWeekData(this).weekday:NaN;}/**
+	   * Get the week number of the week year according to the locale. Different locales assign week numbers differently,
+	   * because the week can start on different days of the week (see localWeekday) and because a different number of days
+	   * is required for a week to count as the first week of a year.
+	   * @returns {number}
+	   */get localWeekNumber(){return this.isValid?possiblyCachedLocalWeekData(this).weekNumber:NaN;}/**
+	   * Get the week year according to the locale. Different locales assign week numbers (and therefor week years)
+	   * differently, see localWeekNumber.
+	   * @returns {number}
+	   */get localWeekYear(){return this.isValid?possiblyCachedLocalWeekData(this).weekYear:NaN;}/**
+	   * Get the ordinal (meaning the day of the year)
+	   * @example DateTime.local(2017, 5, 25).ordinal //=> 145
+	   * @type {number|DateTime}
+	   */get ordinal(){return this.isValid?gregorianToOrdinal(this.c).ordinal:NaN;}/**
+	   * Get the human readable short month name, such as 'Oct'.
+	   * Defaults to the system's locale if no locale has been specified
+	   * @example DateTime.local(2017, 10, 30).monthShort //=> Oct
+	   * @type {string}
+	   */get monthShort(){return this.isValid?Info.months("short",{locObj:this.loc})[this.month-1]:null;}/**
+	   * Get the human readable long month name, such as 'October'.
+	   * Defaults to the system's locale if no locale has been specified
+	   * @example DateTime.local(2017, 10, 30).monthLong //=> October
+	   * @type {string}
+	   */get monthLong(){return this.isValid?Info.months("long",{locObj:this.loc})[this.month-1]:null;}/**
+	   * Get the human readable short weekday, such as 'Mon'.
+	   * Defaults to the system's locale if no locale has been specified
+	   * @example DateTime.local(2017, 10, 30).weekdayShort //=> Mon
+	   * @type {string}
+	   */get weekdayShort(){return this.isValid?Info.weekdays("short",{locObj:this.loc})[this.weekday-1]:null;}/**
+	   * Get the human readable long weekday, such as 'Monday'.
+	   * Defaults to the system's locale if no locale has been specified
+	   * @example DateTime.local(2017, 10, 30).weekdayLong //=> Monday
+	   * @type {string}
+	   */get weekdayLong(){return this.isValid?Info.weekdays("long",{locObj:this.loc})[this.weekday-1]:null;}/**
+	   * Get the UTC offset of this DateTime in minutes
+	   * @example DateTime.now().offset //=> -240
+	   * @example DateTime.utc().offset //=> 0
+	   * @type {number}
+	   */get offset(){return this.isValid?+this.o:NaN;}/**
+	   * Get the short human name for the zone's current offset, for example "EST" or "EDT".
+	   * Defaults to the system's locale if no locale has been specified
+	   * @type {string}
+	   */get offsetNameShort(){if(this.isValid){return this.zone.offsetName(this.ts,{format:"short",locale:this.locale});}else{return null;}}/**
+	   * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
+	   * Defaults to the system's locale if no locale has been specified
+	   * @type {string}
+	   */get offsetNameLong(){if(this.isValid){return this.zone.offsetName(this.ts,{format:"long",locale:this.locale});}else{return null;}}/**
+	   * Get whether this zone's offset ever changes, as in a DST.
+	   * @type {boolean}
+	   */get isOffsetFixed(){return this.isValid?this.zone.isUniversal:null;}/**
+	   * Get whether the DateTime is in a DST.
+	   * @type {boolean}
+	   */get isInDST(){if(this.isOffsetFixed){return false;}else{return this.offset>this.set({month:1,day:1}).offset||this.offset>this.set({month:5}).offset;}}/**
+	   * Get those DateTimes which have the same local time as this DateTime, but a different offset from UTC
+	   * in this DateTime's zone. During DST changes local time can be ambiguous, for example
+	   * `2023-10-29T02:30:00` in `Europe/Berlin` can have offset `+01:00` or `+02:00`.
+	   * This method will return both possible DateTimes if this DateTime's local time is ambiguous.
+	   * @returns {DateTime[]}
+	   */getPossibleOffsets(){if(!this.isValid||this.isOffsetFixed){return[this];}const dayMs=86400000;const minuteMs=60000;const localTS=objToLocalTS(this.c);const oEarlier=this.zone.offset(localTS-dayMs);const oLater=this.zone.offset(localTS+dayMs);const o1=this.zone.offset(localTS-oEarlier*minuteMs);const o2=this.zone.offset(localTS-oLater*minuteMs);if(o1===o2){return[this];}const ts1=localTS-o1*minuteMs;const ts2=localTS-o2*minuteMs;const c1=tsToObj(ts1,o1);const c2=tsToObj(ts2,o2);if(c1.hour===c2.hour&&c1.minute===c2.minute&&c1.second===c2.second&&c1.millisecond===c2.millisecond){return[clone(this,{ts:ts1}),clone(this,{ts:ts2})];}return[this];}/**
+	   * Returns true if this DateTime is in a leap year, false otherwise
+	   * @example DateTime.local(2016).isInLeapYear //=> true
+	   * @example DateTime.local(2013).isInLeapYear //=> false
+	   * @type {boolean}
+	   */get isInLeapYear(){return isLeapYear(this.year);}/**
+	   * Returns the number of days in this DateTime's month
+	   * @example DateTime.local(2016, 2).daysInMonth //=> 29
+	   * @example DateTime.local(2016, 3).daysInMonth //=> 31
+	   * @type {number}
+	   */get daysInMonth(){return daysInMonth(this.year,this.month);}/**
+	   * Returns the number of days in this DateTime's year
+	   * @example DateTime.local(2016).daysInYear //=> 366
+	   * @example DateTime.local(2013).daysInYear //=> 365
+	   * @type {number}
+	   */get daysInYear(){return this.isValid?daysInYear(this.year):NaN;}/**
+	   * Returns the number of weeks in this DateTime's year
+	   * @see https://en.wikipedia.org/wiki/ISO_week_date
+	   * @example DateTime.local(2004).weeksInWeekYear //=> 53
+	   * @example DateTime.local(2013).weeksInWeekYear //=> 52
+	   * @type {number}
+	   */get weeksInWeekYear(){return this.isValid?weeksInWeekYear(this.weekYear):NaN;}/**
+	   * Returns the number of weeks in this DateTime's local week year
+	   * @example DateTime.local(2020, 6, {locale: 'en-US'}).weeksInLocalWeekYear //=> 52
+	   * @example DateTime.local(2020, 6, {locale: 'de-DE'}).weeksInLocalWeekYear //=> 53
+	   * @type {number}
+	   */get weeksInLocalWeekYear(){return this.isValid?weeksInWeekYear(this.localWeekYear,this.loc.getMinDaysInFirstWeek(),this.loc.getStartOfWeek()):NaN;}/**
+	   * Returns the resolved Intl options for this DateTime.
+	   * This is useful in understanding the behavior of formatting methods
+	   * @param {Object} opts - the same options as toLocaleString
+	   * @return {Object}
+	   */resolvedLocaleOptions(opts={}){const{locale,numberingSystem,calendar}=Formatter.create(this.loc.clone(opts),opts).resolvedOptions(this);return{locale,numberingSystem,outputCalendar:calendar};}// TRANSFORM
 /**
-   * "Set" the DateTime's zone to UTC. Returns a newly-constructed DateTime.
-   *
-   * Equivalent to {@link DateTime#setZone}('utc')
-   * @param {number} [offset=0] - optionally, an offset from UTC in minutes
-   * @param {Object} [opts={}] - options to pass to `setZone()`
-   * @return {DateTime}
-   */toUTC(offset=0,opts={}){return this.setZone(FixedOffsetZone.instance(offset),opts);}/**
-   * "Set" the DateTime's zone to the host's local zone. Returns a newly-constructed DateTime.
-   *
-   * Equivalent to `setZone('local')`
-   * @return {DateTime}
-   */toLocal(){return this.setZone(Settings.defaultZone);}/**
-   * "Set" the DateTime's zone to specified zone. Returns a newly-constructed DateTime.
-   *
-   * By default, the setter keeps the underlying time the same (as in, the same timestamp), but the new instance will report different local times and consider DSTs when making computations, as with {@link DateTime#plus}. You may wish to use {@link DateTime#toLocal} and {@link DateTime#toUTC} which provide simple convenience wrappers for commonly used zones.
-   * @param {string|Zone} [zone='local'] - a zone identifier. As a string, that can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3', or the strings 'local' or 'utc'. You may also supply an instance of a {@link DateTime#Zone} class.
-   * @param {Object} opts - options
-   * @param {boolean} [opts.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
-   * @return {DateTime}
-   */setZone(zone,{keepLocalTime=false,keepCalendarTime=false}={}){zone=normalizeZone(zone,Settings.defaultZone);if(zone.equals(this.zone)){return this;}else if(!zone.isValid){return DateTime.invalid(unsupportedZone(zone));}else{let newTS=this.ts;if(keepLocalTime||keepCalendarTime){const offsetGuess=zone.offset(this.ts);const asObj=this.toObject();[newTS]=objToTS(asObj,offsetGuess,zone);}return clone$2(this,{ts:newTS,zone});}}/**
-   * "Set" the locale, numberingSystem, or outputCalendar. Returns a newly-constructed DateTime.
-   * @param {Object} properties - the properties to set
-   * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
-   * @return {DateTime}
-   */reconfigure({locale,numberingSystem,outputCalendar}={}){const loc=this.loc.clone({locale,numberingSystem,outputCalendar});return clone$2(this,{loc});}/**
-   * "Set" the locale. Returns a newly-constructed DateTime.
-   * Just a convenient alias for reconfigure({ locale })
-   * @example DateTime.local(2017, 5, 25).setLocale('en-GB')
-   * @return {DateTime}
-   */setLocale(locale){return this.reconfigure({locale});}/**
-   * "Set" the values of specified units. Returns a newly-constructed DateTime.
-   * You can only set units with this method; for "setting" metadata, see {@link DateTime#reconfigure} and {@link DateTime#setZone}.
-   *
-   * This method also supports setting locale-based week units, i.e. `localWeekday`, `localWeekNumber` and `localWeekYear`.
-   * They cannot be mixed with ISO-week units like `weekday`.
-   * @param {Object} values - a mapping of units to numbers
-   * @example dt.set({ year: 2017 })
-   * @example dt.set({ hour: 8, minute: 30 })
-   * @example dt.set({ weekday: 5 })
-   * @example dt.set({ year: 2005, ordinal: 234 })
-   * @return {DateTime}
-   */set(values){if(!this.isValid)return this;const normalized=normalizeObject(values,normalizeUnitWithLocalWeeks);const{minDaysInFirstWeek,startOfWeek}=usesLocalWeekValues(normalized,this.loc);const settingWeekStuff=!isUndefined(normalized.weekYear)||!isUndefined(normalized.weekNumber)||!isUndefined(normalized.weekday),containsOrdinal=!isUndefined(normalized.ordinal),containsGregorYear=!isUndefined(normalized.year),containsGregorMD=!isUndefined(normalized.month)||!isUndefined(normalized.day),containsGregor=containsGregorYear||containsGregorMD,definiteWeekDef=normalized.weekYear||normalized.weekNumber;if((containsGregor||containsOrdinal)&&definiteWeekDef){throw new ConflictingSpecificationError("Can't mix weekYear/weekNumber units with year/month/day or ordinals");}if(containsGregorMD&&containsOrdinal){throw new ConflictingSpecificationError("Can't mix ordinal dates with month/day");}let mixed;if(settingWeekStuff){mixed=weekToGregorian(_objectSpread(_objectSpread({},gregorianToWeek(this.c,minDaysInFirstWeek,startOfWeek)),normalized),minDaysInFirstWeek,startOfWeek);}else if(!isUndefined(normalized.ordinal)){mixed=ordinalToGregorian(_objectSpread(_objectSpread({},gregorianToOrdinal(this.c)),normalized));}else{mixed=_objectSpread(_objectSpread({},this.toObject()),normalized);// if we didn't set the day but we ended up on an overflow date,
+	   * "Set" the DateTime's zone to UTC. Returns a newly-constructed DateTime.
+	   *
+	   * Equivalent to {@link DateTime#setZone}('utc')
+	   * @param {number} [offset=0] - optionally, an offset from UTC in minutes
+	   * @param {Object} [opts={}] - options to pass to `setZone()`
+	   * @return {DateTime}
+	   */toUTC(offset=0,opts={}){return this.setZone(FixedOffsetZone.instance(offset),opts);}/**
+	   * "Set" the DateTime's zone to the host's local zone. Returns a newly-constructed DateTime.
+	   *
+	   * Equivalent to `setZone('local')`
+	   * @return {DateTime}
+	   */toLocal(){return this.setZone(Settings.defaultZone);}/**
+	   * "Set" the DateTime's zone to specified zone. Returns a newly-constructed DateTime.
+	   *
+	   * By default, the setter keeps the underlying time the same (as in, the same timestamp), but the new instance will report different local times and consider DSTs when making computations, as with {@link DateTime#plus}. You may wish to use {@link DateTime#toLocal} and {@link DateTime#toUTC} which provide simple convenience wrappers for commonly used zones.
+	   * @param {string|Zone} [zone='local'] - a zone identifier. As a string, that can be any IANA zone supported by the host environment, or a fixed-offset name of the form 'UTC+3', or the strings 'local' or 'utc'. You may also supply an instance of a {@link DateTime#Zone} class.
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
+	   * @return {DateTime}
+	   */setZone(zone,{keepLocalTime=false,keepCalendarTime=false}={}){zone=normalizeZone(zone,Settings.defaultZone);if(zone.equals(this.zone)){return this;}else if(!zone.isValid){return DateTime.invalid(unsupportedZone(zone));}else{let newTS=this.ts;if(keepLocalTime||keepCalendarTime){const offsetGuess=zone.offset(this.ts);const asObj=this.toObject();[newTS]=objToTS(asObj,offsetGuess,zone);}return clone(this,{ts:newTS,zone});}}/**
+	   * "Set" the locale, numberingSystem, or outputCalendar. Returns a newly-constructed DateTime.
+	   * @param {Object} properties - the properties to set
+	   * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
+	   * @return {DateTime}
+	   */reconfigure({locale,numberingSystem,outputCalendar}={}){const loc=this.loc.clone({locale,numberingSystem,outputCalendar});return clone(this,{loc});}/**
+	   * "Set" the locale. Returns a newly-constructed DateTime.
+	   * Just a convenient alias for reconfigure({ locale })
+	   * @example DateTime.local(2017, 5, 25).setLocale('en-GB')
+	   * @return {DateTime}
+	   */setLocale(locale){return this.reconfigure({locale});}/**
+	   * "Set" the values of specified units. Returns a newly-constructed DateTime.
+	   * You can only set units with this method; for "setting" metadata, see {@link DateTime#reconfigure} and {@link DateTime#setZone}.
+	   *
+	   * This method also supports setting locale-based week units, i.e. `localWeekday`, `localWeekNumber` and `localWeekYear`.
+	   * They cannot be mixed with ISO-week units like `weekday`.
+	   * @param {Object} values - a mapping of units to numbers
+	   * @example dt.set({ year: 2017 })
+	   * @example dt.set({ hour: 8, minute: 30 })
+	   * @example dt.set({ weekday: 5 })
+	   * @example dt.set({ year: 2005, ordinal: 234 })
+	   * @return {DateTime}
+	   */set(values){if(!this.isValid)return this;const normalized=normalizeObject(values,normalizeUnitWithLocalWeeks);const{minDaysInFirstWeek,startOfWeek}=usesLocalWeekValues(normalized,this.loc);const settingWeekStuff=!isUndefined(normalized.weekYear)||!isUndefined(normalized.weekNumber)||!isUndefined(normalized.weekday),containsOrdinal=!isUndefined(normalized.ordinal),containsGregorYear=!isUndefined(normalized.year),containsGregorMD=!isUndefined(normalized.month)||!isUndefined(normalized.day),containsGregor=containsGregorYear||containsGregorMD,definiteWeekDef=normalized.weekYear||normalized.weekNumber;if((containsGregor||containsOrdinal)&&definiteWeekDef){throw new ConflictingSpecificationError("Can't mix weekYear/weekNumber units with year/month/day or ordinals");}if(containsGregorMD&&containsOrdinal){throw new ConflictingSpecificationError("Can't mix ordinal dates with month/day");}let mixed;if(settingWeekStuff){mixed=weekToGregorian(_objectSpread(_objectSpread({},gregorianToWeek(this.c,minDaysInFirstWeek,startOfWeek)),normalized),minDaysInFirstWeek,startOfWeek);}else if(!isUndefined(normalized.ordinal)){mixed=ordinalToGregorian(_objectSpread(_objectSpread({},gregorianToOrdinal(this.c)),normalized));}else{mixed=_objectSpread(_objectSpread({},this.toObject()),normalized);// if we didn't set the day but we ended up on an overflow date,
 // use the last day of the right month
-if(isUndefined(normalized.day)){mixed.day=Math.min(daysInMonth(mixed.year,mixed.month),mixed.day);}}const[ts,o]=objToTS(mixed,this.o,this.zone);return clone$2(this,{ts,o});}/**
-   * Add a period of time to this DateTime and return the resulting DateTime
-   *
-   * Adding hours, minutes, seconds, or milliseconds increases the timestamp by the right number of milliseconds. Adding days, months, or years shifts the calendar, accounting for DSTs and leap years along the way. Thus, `dt.plus({ hours: 24 })` may result in a different time than `dt.plus({ days: 1 })` if there's a DST shift in between.
-   * @param {Duration|Object|number} duration - The amount to add. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
-   * @example DateTime.now().plus(123) //~> in 123 milliseconds
-   * @example DateTime.now().plus({ minutes: 15 }) //~> in 15 minutes
-   * @example DateTime.now().plus({ days: 1 }) //~> this time tomorrow
-   * @example DateTime.now().plus({ days: -1 }) //~> this time yesterday
-   * @example DateTime.now().plus({ hours: 3, minutes: 13 }) //~> in 3 hr, 13 min
-   * @example DateTime.now().plus(Duration.fromObject({ hours: 3, minutes: 13 })) //~> in 3 hr, 13 min
-   * @return {DateTime}
-   */plus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration);return clone$2(this,adjustTime(this,dur));}/**
-   * Subtract a period of time to this DateTime and return the resulting DateTime
-   * See {@link DateTime#plus}
-   * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
-   @return {DateTime}
-   */minus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration).negate();return clone$2(this,adjustTime(this,dur));}/**
-   * "Set" this DateTime to the beginning of a unit of time.
-   * @param {string} unit - The unit to go to the beginning of. Can be 'year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', or 'millisecond'.
-   * @param {Object} opts - options
-   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week
-   * @example DateTime.local(2014, 3, 3).startOf('month').toISODate(); //=> '2014-03-01'
-   * @example DateTime.local(2014, 3, 3).startOf('year').toISODate(); //=> '2014-01-01'
-   * @example DateTime.local(2014, 3, 3).startOf('week').toISODate(); //=> '2014-03-03', weeks always start on Mondays
-   * @example DateTime.local(2014, 3, 3, 5, 30).startOf('day').toISOTime(); //=> '00:00.000-05:00'
-   * @example DateTime.local(2014, 3, 3, 5, 30).startOf('hour').toISOTime(); //=> '05:00:00.000-05:00'
-   * @return {DateTime}
-   */startOf(unit,{useLocaleWeeks=false}={}){if(!this.isValid)return this;const o={},normalizedUnit=Duration.normalizeUnit(unit);switch(normalizedUnit){case"years":o.month=1;// falls through
+if(isUndefined(normalized.day)){mixed.day=Math.min(daysInMonth(mixed.year,mixed.month),mixed.day);}}const[ts,o]=objToTS(mixed,this.o,this.zone);return clone(this,{ts,o});}/**
+	   * Add a period of time to this DateTime and return the resulting DateTime
+	   *
+	   * Adding hours, minutes, seconds, or milliseconds increases the timestamp by the right number of milliseconds. Adding days, months, or years shifts the calendar, accounting for DSTs and leap years along the way. Thus, `dt.plus({ hours: 24 })` may result in a different time than `dt.plus({ days: 1 })` if there's a DST shift in between.
+	   * @param {Duration|Object|number} duration - The amount to add. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
+	   * @example DateTime.now().plus(123) //~> in 123 milliseconds
+	   * @example DateTime.now().plus({ minutes: 15 }) //~> in 15 minutes
+	   * @example DateTime.now().plus({ days: 1 }) //~> this time tomorrow
+	   * @example DateTime.now().plus({ days: -1 }) //~> this time yesterday
+	   * @example DateTime.now().plus({ hours: 3, minutes: 13 }) //~> in 3 hr, 13 min
+	   * @example DateTime.now().plus(Duration.fromObject({ hours: 3, minutes: 13 })) //~> in 3 hr, 13 min
+	   * @return {DateTime}
+	   */plus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration);return clone(this,adjustTime(this,dur));}/**
+	   * Subtract a period of time to this DateTime and return the resulting DateTime
+	   * See {@link DateTime#plus}
+	   * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
+	   @return {DateTime}
+	   */minus(duration){if(!this.isValid)return this;const dur=Duration.fromDurationLike(duration).negate();return clone(this,adjustTime(this,dur));}/**
+	   * "Set" this DateTime to the beginning of a unit of time.
+	   * @param {string} unit - The unit to go to the beginning of. Can be 'year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', or 'millisecond'.
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week
+	   * @example DateTime.local(2014, 3, 3).startOf('month').toISODate(); //=> '2014-03-01'
+	   * @example DateTime.local(2014, 3, 3).startOf('year').toISODate(); //=> '2014-01-01'
+	   * @example DateTime.local(2014, 3, 3).startOf('week').toISODate(); //=> '2014-03-03', weeks always start on Mondays
+	   * @example DateTime.local(2014, 3, 3, 5, 30).startOf('day').toISOTime(); //=> '00:00.000-05:00'
+	   * @example DateTime.local(2014, 3, 3, 5, 30).startOf('hour').toISOTime(); //=> '05:00:00.000-05:00'
+	   * @return {DateTime}
+	   */startOf(unit,{useLocaleWeeks=false}={}){if(!this.isValid)return this;const o={},normalizedUnit=Duration.normalizeUnit(unit);switch(normalizedUnit){case"years":o.month=1;// falls through
 case"quarters":case"months":o.day=1;// falls through
 case"weeks":case"days":o.hour=0;// falls through
 case"hours":o.minute=0;// falls through
 case"minutes":o.second=0;// falls through
 case"seconds":o.millisecond=0;break;// no default, invalid units throw in normalizeUnit()
 }if(normalizedUnit==="weeks"){if(useLocaleWeeks){const startOfWeek=this.loc.getStartOfWeek();const{weekday}=this;if(weekday<startOfWeek){o.weekNumber=this.weekNumber-1;}o.weekday=startOfWeek;}else{o.weekday=1;}}if(normalizedUnit==="quarters"){const q=Math.ceil(this.month/3);o.month=(q-1)*3+1;}return this.set(o);}/**
-   * "Set" this DateTime to the end (meaning the last millisecond) of a unit of time
-   * @param {string} unit - The unit to go to the end of. Can be 'year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', or 'millisecond'.
-   * @param {Object} opts - options
-   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week
-   * @example DateTime.local(2014, 3, 3).endOf('month').toISO(); //=> '2014-03-31T23:59:59.999-05:00'
-   * @example DateTime.local(2014, 3, 3).endOf('year').toISO(); //=> '2014-12-31T23:59:59.999-05:00'
-   * @example DateTime.local(2014, 3, 3).endOf('week').toISO(); // => '2014-03-09T23:59:59.999-05:00', weeks start on Mondays
-   * @example DateTime.local(2014, 3, 3, 5, 30).endOf('day').toISO(); //=> '2014-03-03T23:59:59.999-05:00'
-   * @example DateTime.local(2014, 3, 3, 5, 30).endOf('hour').toISO(); //=> '2014-03-03T05:59:59.999-05:00'
-   * @return {DateTime}
-   */endOf(unit,opts){return this.isValid?this.plus({[unit]:1}).startOf(unit,opts).minus(1):this;}// OUTPUT
+	   * "Set" this DateTime to the end (meaning the last millisecond) of a unit of time
+	   * @param {string} unit - The unit to go to the end of. Can be 'year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second', or 'millisecond'.
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week
+	   * @example DateTime.local(2014, 3, 3).endOf('month').toISO(); //=> '2014-03-31T23:59:59.999-05:00'
+	   * @example DateTime.local(2014, 3, 3).endOf('year').toISO(); //=> '2014-12-31T23:59:59.999-05:00'
+	   * @example DateTime.local(2014, 3, 3).endOf('week').toISO(); // => '2014-03-09T23:59:59.999-05:00', weeks start on Mondays
+	   * @example DateTime.local(2014, 3, 3, 5, 30).endOf('day').toISO(); //=> '2014-03-03T23:59:59.999-05:00'
+	   * @example DateTime.local(2014, 3, 3, 5, 30).endOf('hour').toISO(); //=> '2014-03-03T05:59:59.999-05:00'
+	   * @return {DateTime}
+	   */endOf(unit,opts){return this.isValid?this.plus({[unit]:1}).startOf(unit,opts).minus(1):this;}// OUTPUT
 /**
-   * Returns a string representation of this DateTime formatted according to the specified format string.
-   * **You may not want this.** See {@link DateTime#toLocaleString} for a more flexible formatting tool. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
-   * Defaults to en-US if no locale has been specified, regardless of the system's locale.
-   * @param {string} fmt - the format string
-   * @param {Object} opts - opts to override the configuration options on this DateTime
-   * @example DateTime.now().toFormat('yyyy LLL dd') //=> '2017 Apr 22'
-   * @example DateTime.now().setLocale('fr').toFormat('yyyy LLL dd') //=> '2017 avr. 22'
-   * @example DateTime.now().toFormat('yyyy LLL dd', { locale: "fr" }) //=> '2017 avr. 22'
-   * @example DateTime.now().toFormat("HH 'hours and' mm 'minutes'") //=> '20 hours and 55 minutes'
-   * @return {string}
-   */toFormat(fmt,opts={}){return this.isValid?Formatter.create(this.loc.redefaultToEN(opts)).formatDateTimeFromString(this,fmt):INVALID;}/**
-   * Returns a localized string representing this date. Accepts the same options as the Intl.DateTimeFormat constructor and any presets defined by Luxon, such as `DateTime.DATE_FULL` or `DateTime.TIME_SIMPLE`.
-   * The exact behavior of this method is browser-specific, but in general it will return an appropriate representation
-   * of the DateTime in the assigned locale.
-   * Defaults to the system's locale if no locale has been specified
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
-   * @param formatOpts {Object} - Intl.DateTimeFormat constructor options and configuration options
-   * @param {Object} opts - opts to override the configuration options on this DateTime
-   * @example DateTime.now().toLocaleString(); //=> 4/20/2017
-   * @example DateTime.now().setLocale('en-gb').toLocaleString(); //=> '20/04/2017'
-   * @example DateTime.now().toLocaleString(DateTime.DATE_FULL); //=> 'April 20, 2017'
-   * @example DateTime.now().toLocaleString(DateTime.DATE_FULL, { locale: 'fr' }); //=> '28 août 2022'
-   * @example DateTime.now().toLocaleString(DateTime.TIME_SIMPLE); //=> '11:32 AM'
-   * @example DateTime.now().toLocaleString(DateTime.DATETIME_SHORT); //=> '4/20/2017, 11:32 AM'
-   * @example DateTime.now().toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' }); //=> 'Thursday, April 20'
-   * @example DateTime.now().toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> 'Thu, Apr 20, 11:27 AM'
-   * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); //=> '11:32'
-   * @return {string}
-   */toLocaleString(formatOpts=DATE_SHORT,opts={}){return this.isValid?Formatter.create(this.loc.clone(opts),formatOpts).formatDateTime(this):INVALID;}/**
-   * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
-   * Defaults to the system's locale if no locale has been specified
-   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat/formatToParts
-   * @param opts {Object} - Intl.DateTimeFormat constructor options, same as `toLocaleString`.
-   * @example DateTime.now().toLocaleParts(); //=> [
-   *                                   //=>   { type: 'day', value: '25' },
-   *                                   //=>   { type: 'literal', value: '/' },
-   *                                   //=>   { type: 'month', value: '05' },
-   *                                   //=>   { type: 'literal', value: '/' },
-   *                                   //=>   { type: 'year', value: '1982' }
-   *                                   //=> ]
-   */toLocaleParts(opts={}){return this.isValid?Formatter.create(this.loc.clone(opts),opts).formatDateTimeParts(this):[];}/**
-   * Returns an ISO 8601-compliant string representation of this DateTime
-   * @param {Object} opts - options
-   * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
-   * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
-   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-   * @param {boolean} [opts.extendedZone=false] - add the time zone format extension
-   * @param {string} [opts.format='extended'] - choose between the basic and extended format
-   * @example DateTime.utc(1983, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
-   * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
-   * @example DateTime.now().toISO({ includeOffset: false }) //=> '2017-04-22T20:47:05.335'
-   * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
-   * @return {string|null}
-   */toISO({format="extended",suppressSeconds=false,suppressMilliseconds=false,includeOffset=true,extendedZone=false}={}){if(!this.isValid){return null;}const ext=format==="extended";let c=toISODate(this,ext);c+="T";c+=toISOTime(this,ext,suppressSeconds,suppressMilliseconds,includeOffset,extendedZone);return c;}/**
-   * Returns an ISO 8601-compliant string representation of this DateTime's date component
-   * @param {Object} opts - options
-   * @param {string} [opts.format='extended'] - choose between the basic and extended format
-   * @example DateTime.utc(1982, 5, 25).toISODate() //=> '1982-05-25'
-   * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
-   * @return {string|null}
-   */toISODate({format="extended"}={}){if(!this.isValid){return null;}return toISODate(this,format==="extended");}/**
-   * Returns an ISO 8601-compliant string representation of this DateTime's week date
-   * @example DateTime.utc(1982, 5, 25).toISOWeekDate() //=> '1982-W21-2'
-   * @return {string}
-   */toISOWeekDate(){return toTechFormat(this,"kkkk-'W'WW-c");}/**
-   * Returns an ISO 8601-compliant string representation of this DateTime's time component
-   * @param {Object} opts - options
-   * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
-   * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
-   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-   * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
-   * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
-   * @param {string} [opts.format='extended'] - choose between the basic and extended format
-   * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
-   * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
-   * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
-   * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
-   * @return {string}
-   */toISOTime({suppressMilliseconds=false,suppressSeconds=false,includeOffset=true,includePrefix=false,extendedZone=false,format="extended"}={}){if(!this.isValid){return null;}let c=includePrefix?"T":"";return c+toISOTime(this,format==="extended",suppressSeconds,suppressMilliseconds,includeOffset,extendedZone);}/**
-   * Returns an RFC 2822-compatible string representation of this DateTime
-   * @example DateTime.utc(2014, 7, 13).toRFC2822() //=> 'Sun, 13 Jul 2014 00:00:00 +0000'
-   * @example DateTime.local(2014, 7, 13).toRFC2822() //=> 'Sun, 13 Jul 2014 00:00:00 -0400'
-   * @return {string}
-   */toRFC2822(){return toTechFormat(this,"EEE, dd LLL yyyy HH:mm:ss ZZZ",false);}/**
-   * Returns a string representation of this DateTime appropriate for use in HTTP headers. The output is always expressed in GMT.
-   * Specifically, the string conforms to RFC 1123.
-   * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
-   * @example DateTime.utc(2014, 7, 13).toHTTP() //=> 'Sun, 13 Jul 2014 00:00:00 GMT'
-   * @example DateTime.utc(2014, 7, 13, 19).toHTTP() //=> 'Sun, 13 Jul 2014 19:00:00 GMT'
-   * @return {string}
-   */toHTTP(){return toTechFormat(this.toUTC(),"EEE, dd LLL yyyy HH:mm:ss 'GMT'");}/**
-   * Returns a string representation of this DateTime appropriate for use in SQL Date
-   * @example DateTime.utc(2014, 7, 13).toSQLDate() //=> '2014-07-13'
-   * @return {string|null}
-   */toSQLDate(){if(!this.isValid){return null;}return toISODate(this,true);}/**
-   * Returns a string representation of this DateTime appropriate for use in SQL Time
-   * @param {Object} opts - options
-   * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
-   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-   * @param {boolean} [opts.includeOffsetSpace=true] - include the space between the time and the offset, such as '05:15:16.345 -04:00'
-   * @example DateTime.utc().toSQL() //=> '05:15:16.345'
-   * @example DateTime.now().toSQL() //=> '05:15:16.345 -04:00'
-   * @example DateTime.now().toSQL({ includeOffset: false }) //=> '05:15:16.345'
-   * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
-   * @return {string}
-   */toSQLTime({includeOffset=true,includeZone=false,includeOffsetSpace=true}={}){let fmt="HH:mm:ss.SSS";if(includeZone||includeOffset){if(includeOffsetSpace){fmt+=" ";}if(includeZone){fmt+="z";}else if(includeOffset){fmt+="ZZ";}}return toTechFormat(this,fmt,true);}/**
-   * Returns a string representation of this DateTime appropriate for use in SQL DateTime
-   * @param {Object} opts - options
-   * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
-   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
-   * @param {boolean} [opts.includeOffsetSpace=true] - include the space between the time and the offset, such as '05:15:16.345 -04:00'
-   * @example DateTime.utc(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 Z'
-   * @example DateTime.local(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 -04:00'
-   * @example DateTime.local(2014, 7, 13).toSQL({ includeOffset: false }) //=> '2014-07-13 00:00:00.000'
-   * @example DateTime.local(2014, 7, 13).toSQL({ includeZone: true }) //=> '2014-07-13 00:00:00.000 America/New_York'
-   * @return {string}
-   */toSQL(opts={}){if(!this.isValid){return null;}return`${this.toSQLDate()} ${this.toSQLTime(opts)}`;}/**
-   * Returns a string representation of this DateTime appropriate for debugging
-   * @return {string}
-   */toString(){return this.isValid?this.toISO():INVALID;}/**
-   * Returns a string representation of this DateTime appropriate for the REPL.
-   * @return {string}
-   */[Symbol.for("nodejs.util.inspect.custom")](){if(this.isValid){return`DateTime { ts: ${this.toISO()}, zone: ${this.zone.name}, locale: ${this.locale} }`;}else{return`DateTime { Invalid, reason: ${this.invalidReason} }`;}}/**
-   * Returns the epoch milliseconds of this DateTime. Alias of {@link DateTime#toMillis}
-   * @return {number}
-   */valueOf(){return this.toMillis();}/**
-   * Returns the epoch milliseconds of this DateTime.
-   * @return {number}
-   */toMillis(){return this.isValid?this.ts:NaN;}/**
-   * Returns the epoch seconds (including milliseconds in the fractional part) of this DateTime.
-   * @return {number}
-   */toSeconds(){return this.isValid?this.ts/1000:NaN;}/**
-   * Returns the epoch seconds (as a whole number) of this DateTime.
-   * @return {number}
-   */toUnixInteger(){return this.isValid?Math.floor(this.ts/1000):NaN;}/**
-   * Returns an ISO 8601 representation of this DateTime appropriate for use in JSON.
-   * @return {string}
-   */toJSON(){return this.toISO();}/**
-   * Returns a BSON serializable equivalent to this DateTime.
-   * @return {Date}
-   */toBSON(){return this.toJSDate();}/**
-   * Returns a JavaScript object with this DateTime's year, month, day, and so on.
-   * @param opts - options for generating the object
-   * @param {boolean} [opts.includeConfig=false] - include configuration attributes in the output
-   * @example DateTime.now().toObject() //=> { year: 2017, month: 4, day: 22, hour: 20, minute: 49, second: 42, millisecond: 268 }
-   * @return {Object}
-   */toObject(opts={}){if(!this.isValid)return{};const base=_objectSpread({},this.c);if(opts.includeConfig){base.outputCalendar=this.outputCalendar;base.numberingSystem=this.loc.numberingSystem;base.locale=this.loc.locale;}return base;}/**
-   * Returns a JavaScript Date equivalent to this DateTime.
-   * @return {Date}
-   */toJSDate(){return new Date(this.isValid?this.ts:NaN);}// COMPARE
+	   * Returns a string representation of this DateTime formatted according to the specified format string.
+	   * **You may not want this.** See {@link DateTime#toLocaleString} for a more flexible formatting tool. For a table of tokens and their interpretations, see [here](https://moment.github.io/luxon/#/formatting?id=table-of-tokens).
+	   * Defaults to en-US if no locale has been specified, regardless of the system's locale.
+	   * @param {string} fmt - the format string
+	   * @param {Object} opts - opts to override the configuration options on this DateTime
+	   * @example DateTime.now().toFormat('yyyy LLL dd') //=> '2017 Apr 22'
+	   * @example DateTime.now().setLocale('fr').toFormat('yyyy LLL dd') //=> '2017 avr. 22'
+	   * @example DateTime.now().toFormat('yyyy LLL dd', { locale: "fr" }) //=> '2017 avr. 22'
+	   * @example DateTime.now().toFormat("HH 'hours and' mm 'minutes'") //=> '20 hours and 55 minutes'
+	   * @return {string}
+	   */toFormat(fmt,opts={}){return this.isValid?Formatter.create(this.loc.redefaultToEN(opts)).formatDateTimeFromString(this,fmt):INVALID;}/**
+	   * Returns a localized string representing this date. Accepts the same options as the Intl.DateTimeFormat constructor and any presets defined by Luxon, such as `DateTime.DATE_FULL` or `DateTime.TIME_SIMPLE`.
+	   * The exact behavior of this method is browser-specific, but in general it will return an appropriate representation
+	   * of the DateTime in the assigned locale.
+	   * Defaults to the system's locale if no locale has been specified
+	   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat
+	   * @param formatOpts {Object} - Intl.DateTimeFormat constructor options and configuration options
+	   * @param {Object} opts - opts to override the configuration options on this DateTime
+	   * @example DateTime.now().toLocaleString(); //=> 4/20/2017
+	   * @example DateTime.now().setLocale('en-gb').toLocaleString(); //=> '20/04/2017'
+	   * @example DateTime.now().toLocaleString(DateTime.DATE_FULL); //=> 'April 20, 2017'
+	   * @example DateTime.now().toLocaleString(DateTime.DATE_FULL, { locale: 'fr' }); //=> '28 août 2022'
+	   * @example DateTime.now().toLocaleString(DateTime.TIME_SIMPLE); //=> '11:32 AM'
+	   * @example DateTime.now().toLocaleString(DateTime.DATETIME_SHORT); //=> '4/20/2017, 11:32 AM'
+	   * @example DateTime.now().toLocaleString({ weekday: 'long', month: 'long', day: '2-digit' }); //=> 'Thursday, April 20'
+	   * @example DateTime.now().toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> 'Thu, Apr 20, 11:27 AM'
+	   * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); //=> '11:32'
+	   * @return {string}
+	   */toLocaleString(formatOpts=DATE_SHORT,opts={}){return this.isValid?Formatter.create(this.loc.clone(opts),formatOpts).formatDateTime(this):INVALID;}/**
+	   * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
+	   * Defaults to the system's locale if no locale has been specified
+	   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat/formatToParts
+	   * @param opts {Object} - Intl.DateTimeFormat constructor options, same as `toLocaleString`.
+	   * @example DateTime.now().toLocaleParts(); //=> [
+	   *                                   //=>   { type: 'day', value: '25' },
+	   *                                   //=>   { type: 'literal', value: '/' },
+	   *                                   //=>   { type: 'month', value: '05' },
+	   *                                   //=>   { type: 'literal', value: '/' },
+	   *                                   //=>   { type: 'year', value: '1982' }
+	   *                                   //=> ]
+	   */toLocaleParts(opts={}){return this.isValid?Formatter.create(this.loc.clone(opts),opts).formatDateTimeParts(this):[];}/**
+	   * Returns an ISO 8601-compliant string representation of this DateTime
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
+	   * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
+	   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+	   * @param {boolean} [opts.extendedZone=false] - add the time zone format extension
+	   * @param {string} [opts.format='extended'] - choose between the basic and extended format
+	   * @param {string} [opts.precision='milliseconds'] - truncate output to desired presicion: 'years', 'months', 'days', 'hours', 'minutes', 'seconds' or 'milliseconds'. When precision and suppressSeconds or suppressMilliseconds are used together, precision sets the maximum unit shown in the output, however seconds or milliseconds will still be suppressed if they are 0.
+	   * @example DateTime.utc(1983, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
+	   * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
+	   * @example DateTime.now().toISO({ includeOffset: false }) //=> '2017-04-22T20:47:05.335'
+	   * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
+	   * @example DateTime.now().toISO({ precision: 'day' }) //=> '2017-04-22Z'
+	   * @example DateTime.now().toISO({ precision: 'minute' }) //=> '2017-04-22T20:47Z'
+	   * @return {string|null}
+	   */toISO({format="extended",suppressSeconds=false,suppressMilliseconds=false,includeOffset=true,extendedZone=false,precision="milliseconds"}={}){if(!this.isValid){return null;}precision=normalizeUnit(precision);const ext=format==="extended";let c=toISODate(this,ext,precision);if(orderedUnits.indexOf(precision)>=3)c+="T";c+=toISOTime(this,ext,suppressSeconds,suppressMilliseconds,includeOffset,extendedZone,precision);return c;}/**
+	   * Returns an ISO 8601-compliant string representation of this DateTime's date component
+	   * @param {Object} opts - options
+	   * @param {string} [opts.format='extended'] - choose between the basic and extended format
+	   * @param {string} [opts.precision='day'] - truncate output to desired precision: 'years', 'months', or 'days'.
+	   * @example DateTime.utc(1982, 5, 25).toISODate() //=> '1982-05-25'
+	   * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
+	   * @example DateTime.utc(1982, 5, 25).toISODate({ precision: 'month' }) //=> '1982-05'
+	   * @return {string|null}
+	   */toISODate({format="extended",precision="day"}={}){if(!this.isValid){return null;}return toISODate(this,format==="extended",normalizeUnit(precision));}/**
+	   * Returns an ISO 8601-compliant string representation of this DateTime's week date
+	   * @example DateTime.utc(1982, 5, 25).toISOWeekDate() //=> '1982-W21-2'
+	   * @return {string}
+	   */toISOWeekDate(){return toTechFormat(this,"kkkk-'W'WW-c");}/**
+	   * Returns an ISO 8601-compliant string representation of this DateTime's time component
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.suppressMilliseconds=false] - exclude milliseconds from the format if they're 0
+	   * @param {boolean} [opts.suppressSeconds=false] - exclude seconds from the format if they're 0
+	   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+	   * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
+	   * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
+	   * @param {string} [opts.format='extended'] - choose between the basic and extended format
+	   * @param {string} [opts.precision='milliseconds'] - truncate output to desired presicion: 'hours', 'minutes', 'seconds' or 'milliseconds'. When precision and suppressSeconds or suppressMilliseconds are used together, precision sets the maximum unit shown in the output, however seconds or milliseconds will still be suppressed if they are 0.
+	   * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
+	   * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
+	   * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
+	   * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
+	   * @example DateTime.utc().set({ hour: 7, minute: 34, second: 56 }).toISOTime({ precision: 'minute' }) //=> '07:34Z'
+	   * @return {string}
+	   */toISOTime({suppressMilliseconds=false,suppressSeconds=false,includeOffset=true,includePrefix=false,extendedZone=false,format="extended",precision="milliseconds"}={}){if(!this.isValid){return null;}precision=normalizeUnit(precision);let c=includePrefix&&orderedUnits.indexOf(precision)>=3?"T":"";return c+toISOTime(this,format==="extended",suppressSeconds,suppressMilliseconds,includeOffset,extendedZone,precision);}/**
+	   * Returns an RFC 2822-compatible string representation of this DateTime
+	   * @example DateTime.utc(2014, 7, 13).toRFC2822() //=> 'Sun, 13 Jul 2014 00:00:00 +0000'
+	   * @example DateTime.local(2014, 7, 13).toRFC2822() //=> 'Sun, 13 Jul 2014 00:00:00 -0400'
+	   * @return {string}
+	   */toRFC2822(){return toTechFormat(this,"EEE, dd LLL yyyy HH:mm:ss ZZZ",false);}/**
+	   * Returns a string representation of this DateTime appropriate for use in HTTP headers. The output is always expressed in GMT.
+	   * Specifically, the string conforms to RFC 1123.
+	   * @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.3.1
+	   * @example DateTime.utc(2014, 7, 13).toHTTP() //=> 'Sun, 13 Jul 2014 00:00:00 GMT'
+	   * @example DateTime.utc(2014, 7, 13, 19).toHTTP() //=> 'Sun, 13 Jul 2014 19:00:00 GMT'
+	   * @return {string}
+	   */toHTTP(){return toTechFormat(this.toUTC(),"EEE, dd LLL yyyy HH:mm:ss 'GMT'");}/**
+	   * Returns a string representation of this DateTime appropriate for use in SQL Date
+	   * @example DateTime.utc(2014, 7, 13).toSQLDate() //=> '2014-07-13'
+	   * @return {string|null}
+	   */toSQLDate(){if(!this.isValid){return null;}return toISODate(this,true);}/**
+	   * Returns a string representation of this DateTime appropriate for use in SQL Time
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
+	   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+	   * @param {boolean} [opts.includeOffsetSpace=true] - include the space between the time and the offset, such as '05:15:16.345 -04:00'
+	   * @example DateTime.utc().toSQL() //=> '05:15:16.345'
+	   * @example DateTime.now().toSQL() //=> '05:15:16.345 -04:00'
+	   * @example DateTime.now().toSQL({ includeOffset: false }) //=> '05:15:16.345'
+	   * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
+	   * @return {string}
+	   */toSQLTime({includeOffset=true,includeZone=false,includeOffsetSpace=true}={}){let fmt="HH:mm:ss.SSS";if(includeZone||includeOffset){if(includeOffsetSpace){fmt+=" ";}if(includeZone){fmt+="z";}else if(includeOffset){fmt+="ZZ";}}return toTechFormat(this,fmt,true);}/**
+	   * Returns a string representation of this DateTime appropriate for use in SQL DateTime
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.includeZone=false] - include the zone, such as 'America/New_York'. Overrides includeOffset.
+	   * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
+	   * @param {boolean} [opts.includeOffsetSpace=true] - include the space between the time and the offset, such as '05:15:16.345 -04:00'
+	   * @example DateTime.utc(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 Z'
+	   * @example DateTime.local(2014, 7, 13).toSQL() //=> '2014-07-13 00:00:00.000 -04:00'
+	   * @example DateTime.local(2014, 7, 13).toSQL({ includeOffset: false }) //=> '2014-07-13 00:00:00.000'
+	   * @example DateTime.local(2014, 7, 13).toSQL({ includeZone: true }) //=> '2014-07-13 00:00:00.000 America/New_York'
+	   * @return {string}
+	   */toSQL(opts={}){if(!this.isValid){return null;}return`${this.toSQLDate()} ${this.toSQLTime(opts)}`;}/**
+	   * Returns a string representation of this DateTime appropriate for debugging
+	   * @return {string}
+	   */toString(){return this.isValid?this.toISO():INVALID;}/**
+	   * Returns a string representation of this DateTime appropriate for the REPL.
+	   * @return {string}
+	   */[Symbol.for("nodejs.util.inspect.custom")](){if(this.isValid){return`DateTime { ts: ${this.toISO()}, zone: ${this.zone.name}, locale: ${this.locale} }`;}else{return`DateTime { Invalid, reason: ${this.invalidReason} }`;}}/**
+	   * Returns the epoch milliseconds of this DateTime. Alias of {@link DateTime#toMillis}
+	   * @return {number}
+	   */valueOf(){return this.toMillis();}/**
+	   * Returns the epoch milliseconds of this DateTime.
+	   * @return {number}
+	   */toMillis(){return this.isValid?this.ts:NaN;}/**
+	   * Returns the epoch seconds (including milliseconds in the fractional part) of this DateTime.
+	   * @return {number}
+	   */toSeconds(){return this.isValid?this.ts/1000:NaN;}/**
+	   * Returns the epoch seconds (as a whole number) of this DateTime.
+	   * @return {number}
+	   */toUnixInteger(){return this.isValid?Math.floor(this.ts/1000):NaN;}/**
+	   * Returns an ISO 8601 representation of this DateTime appropriate for use in JSON.
+	   * @return {string}
+	   */toJSON(){return this.toISO();}/**
+	   * Returns a BSON serializable equivalent to this DateTime.
+	   * @return {Date}
+	   */toBSON(){return this.toJSDate();}/**
+	   * Returns a JavaScript object with this DateTime's year, month, day, and so on.
+	   * @param opts - options for generating the object
+	   * @param {boolean} [opts.includeConfig=false] - include configuration attributes in the output
+	   * @example DateTime.now().toObject() //=> { year: 2017, month: 4, day: 22, hour: 20, minute: 49, second: 42, millisecond: 268 }
+	   * @return {Object}
+	   */toObject(opts={}){if(!this.isValid)return{};const base=_objectSpread({},this.c);if(opts.includeConfig){base.outputCalendar=this.outputCalendar;base.numberingSystem=this.loc.numberingSystem;base.locale=this.loc.locale;}return base;}/**
+	   * Returns a JavaScript Date equivalent to this DateTime.
+	   * @return {Date}
+	   */toJSDate(){return new Date(this.isValid?this.ts:NaN);}// COMPARE
 /**
-   * Return the difference between two DateTimes as a Duration.
-   * @param {DateTime} otherDateTime - the DateTime to compare this one to
-   * @param {string|string[]} [unit=['milliseconds']] - the unit or array of units (such as 'hours' or 'days') to include in the duration.
-   * @param {Object} opts - options that affect the creation of the Duration
-   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
-   * @example
-   * var i1 = DateTime.fromISO('1982-05-25T09:45'),
-   *     i2 = DateTime.fromISO('1983-10-14T10:30');
-   * i2.diff(i1).toObject() //=> { milliseconds: 43807500000 }
-   * i2.diff(i1, 'hours').toObject() //=> { hours: 12168.75 }
-   * i2.diff(i1, ['months', 'days']).toObject() //=> { months: 16, days: 19.03125 }
-   * i2.diff(i1, ['months', 'days', 'hours']).toObject() //=> { months: 16, days: 19, hours: 0.75 }
-   * @return {Duration}
-   */diff(otherDateTime,unit="milliseconds",opts={}){if(!this.isValid||!otherDateTime.isValid){return Duration.invalid("created by diffing an invalid DateTime");}const durOpts=_objectSpread({locale:this.locale,numberingSystem:this.numberingSystem},opts);const units=maybeArray(unit).map(Duration.normalizeUnit),otherIsLater=otherDateTime.valueOf()>this.valueOf(),earlier=otherIsLater?this:otherDateTime,later=otherIsLater?otherDateTime:this,diffed=diff(earlier,later,units,durOpts);return otherIsLater?diffed.negate():diffed;}/**
-   * Return the difference between this DateTime and right now.
-   * See {@link DateTime#diff}
-   * @param {string|string[]} [unit=['milliseconds']] - the unit or units units (such as 'hours' or 'days') to include in the duration
-   * @param {Object} opts - options that affect the creation of the Duration
-   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
-   * @return {Duration}
-   */diffNow(unit="milliseconds",opts={}){return this.diff(DateTime.now(),unit,opts);}/**
-   * Return an Interval spanning between this DateTime and another DateTime
-   * @param {DateTime} otherDateTime - the other end point of the Interval
-   * @return {Interval|DateTime}
-   */until(otherDateTime){return this.isValid?Interval.fromDateTimes(this,otherDateTime):this;}/**
-   * Return whether this DateTime is in the same unit of time as another DateTime.
-   * Higher-order units must also be identical for this function to return `true`.
-   * Note that time zones are **ignored** in this comparison, which compares the **local** calendar time. Use {@link DateTime#setZone} to convert one of the dates if needed.
-   * @param {DateTime} otherDateTime - the other DateTime
-   * @param {string} unit - the unit of time to check sameness on
-   * @param {Object} opts - options
-   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week; only the locale of this DateTime is used
-   * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if otherDT is in the same current calendar day
-   * @return {boolean}
-   */hasSame(otherDateTime,unit,opts){if(!this.isValid)return false;const inputMs=otherDateTime.valueOf();const adjustedToZone=this.setZone(otherDateTime.zone,{keepLocalTime:true});return adjustedToZone.startOf(unit,opts)<=inputMs&&inputMs<=adjustedToZone.endOf(unit,opts);}/**
-   * Equality check
-   * Two DateTimes are equal if and only if they represent the same millisecond, have the same zone and location, and are both valid.
-   * To compare just the millisecond values, use `+dt1 === +dt2`.
-   * @param {DateTime} other - the other DateTime
-   * @return {boolean}
-   */equals(other){return this.isValid&&other.isValid&&this.valueOf()===other.valueOf()&&this.zone.equals(other.zone)&&this.loc.equals(other.loc);}/**
-   * Returns a string representation of a this time relative to now, such as "in two days". Can only internationalize if your
-   * platform supports Intl.RelativeTimeFormat. Rounds down by default.
-   * @param {Object} options - options that affect the output
-   * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
-   * @param {string} [options.style="long"] - the style of units, must be "long", "short", or "narrow"
-   * @param {string|string[]} options.unit - use a specific unit or array of units; if omitted, or an array, the method will pick the best unit. Use an array or one of "years", "quarters", "months", "weeks", "days", "hours", "minutes", or "seconds"
-   * @param {boolean} [options.round=true] - whether to round the numbers in the output.
-   * @param {number} [options.padding=0] - padding in milliseconds. This allows you to round up the result if it fits inside the threshold. Don't use in combination with {round: false} because the decimal output will include the padding.
-   * @param {string} options.locale - override the locale of this DateTime
-   * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
-   * @example DateTime.now().plus({ days: 1 }).toRelative() //=> "in 1 day"
-   * @example DateTime.now().setLocale("es").toRelative({ days: 1 }) //=> "dentro de 1 día"
-   * @example DateTime.now().plus({ days: 1 }).toRelative({ locale: "fr" }) //=> "dans 23 heures"
-   * @example DateTime.now().minus({ days: 2 }).toRelative() //=> "2 days ago"
-   * @example DateTime.now().minus({ days: 2 }).toRelative({ unit: "hours" }) //=> "48 hours ago"
-   * @example DateTime.now().minus({ hours: 36 }).toRelative({ round: false }) //=> "1.5 days ago"
-   */toRelative(options={}){if(!this.isValid)return null;const base=options.base||DateTime.fromObject({},{zone:this.zone}),padding=options.padding?this<base?-options.padding:options.padding:0;let units=["years","months","days","hours","minutes","seconds"];let unit=options.unit;if(Array.isArray(options.unit)){units=options.unit;unit=undefined;}return diffRelative(base,this.plus(padding),_objectSpread(_objectSpread({},options),{},{numeric:"always",units,unit}));}/**
-   * Returns a string representation of this date relative to today, such as "yesterday" or "next month".
-   * Only internationalizes on platforms that supports Intl.RelativeTimeFormat.
-   * @param {Object} options - options that affect the output
-   * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
-   * @param {string} options.locale - override the locale of this DateTime
-   * @param {string} options.unit - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", or "days"
-   * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
-   * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar() //=> "tomorrow"
-   * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelative() //=> ""mañana"
-   * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar({ locale: "fr" }) //=> "demain"
-   * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
-   */toRelativeCalendar(options={}){if(!this.isValid)return null;return diffRelative(options.base||DateTime.fromObject({},{zone:this.zone}),this,_objectSpread(_objectSpread({},options),{},{numeric:"auto",units:["years","months","days"],calendary:true}));}/**
-   * Return the min of several date times
-   * @param {...DateTime} dateTimes - the DateTimes from which to choose the minimum
-   * @return {DateTime} the min DateTime, or undefined if called with no argument
-   */static min(...dateTimes){if(!dateTimes.every(DateTime.isDateTime)){throw new InvalidArgumentError("min requires all arguments be DateTimes");}return bestBy(dateTimes,i=>i.valueOf(),Math.min);}/**
-   * Return the max of several date times
-   * @param {...DateTime} dateTimes - the DateTimes from which to choose the maximum
-   * @return {DateTime} the max DateTime, or undefined if called with no argument
-   */static max(...dateTimes){if(!dateTimes.every(DateTime.isDateTime)){throw new InvalidArgumentError("max requires all arguments be DateTimes");}return bestBy(dateTimes,i=>i.valueOf(),Math.max);}// MISC
+	   * Return the difference between two DateTimes as a Duration.
+	   * @param {DateTime} otherDateTime - the DateTime to compare this one to
+	   * @param {string|string[]} [unit=['milliseconds']] - the unit or array of units (such as 'hours' or 'days') to include in the duration.
+	   * @param {Object} opts - options that affect the creation of the Duration
+	   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+	   * @example
+	   * var i1 = DateTime.fromISO('1982-05-25T09:45'),
+	   *     i2 = DateTime.fromISO('1983-10-14T10:30');
+	   * i2.diff(i1).toObject() //=> { milliseconds: 43807500000 }
+	   * i2.diff(i1, 'hours').toObject() //=> { hours: 12168.75 }
+	   * i2.diff(i1, ['months', 'days']).toObject() //=> { months: 16, days: 19.03125 }
+	   * i2.diff(i1, ['months', 'days', 'hours']).toObject() //=> { months: 16, days: 19, hours: 0.75 }
+	   * @return {Duration}
+	   */diff(otherDateTime,unit="milliseconds",opts={}){if(!this.isValid||!otherDateTime.isValid){return Duration.invalid("created by diffing an invalid DateTime");}const durOpts=_objectSpread({locale:this.locale,numberingSystem:this.numberingSystem},opts);const units=maybeArray(unit).map(Duration.normalizeUnit),otherIsLater=otherDateTime.valueOf()>this.valueOf(),earlier=otherIsLater?this:otherDateTime,later=otherIsLater?otherDateTime:this,diffed=diff(earlier,later,units,durOpts);return otherIsLater?diffed.negate():diffed;}/**
+	   * Return the difference between this DateTime and right now.
+	   * See {@link DateTime#diff}
+	   * @param {string|string[]} [unit=['milliseconds']] - the unit or units units (such as 'hours' or 'days') to include in the duration
+	   * @param {Object} opts - options that affect the creation of the Duration
+	   * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
+	   * @return {Duration}
+	   */diffNow(unit="milliseconds",opts={}){return this.diff(DateTime.now(),unit,opts);}/**
+	   * Return an Interval spanning between this DateTime and another DateTime
+	   * @param {DateTime} otherDateTime - the other end point of the Interval
+	   * @return {Interval|DateTime}
+	   */until(otherDateTime){return this.isValid?Interval.fromDateTimes(this,otherDateTime):this;}/**
+	   * Return whether this DateTime is in the same unit of time as another DateTime.
+	   * Higher-order units must also be identical for this function to return `true`.
+	   * Note that time zones are **ignored** in this comparison, which compares the **local** calendar time. Use {@link DateTime#setZone} to convert one of the dates if needed.
+	   * @param {DateTime} otherDateTime - the other DateTime
+	   * @param {string} unit - the unit of time to check sameness on
+	   * @param {Object} opts - options
+	   * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week; only the locale of this DateTime is used
+	   * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if otherDT is in the same current calendar day
+	   * @return {boolean}
+	   */hasSame(otherDateTime,unit,opts){if(!this.isValid)return false;const inputMs=otherDateTime.valueOf();const adjustedToZone=this.setZone(otherDateTime.zone,{keepLocalTime:true});return adjustedToZone.startOf(unit,opts)<=inputMs&&inputMs<=adjustedToZone.endOf(unit,opts);}/**
+	   * Equality check
+	   * Two DateTimes are equal if and only if they represent the same millisecond, have the same zone and location, and are both valid.
+	   * To compare just the millisecond values, use `+dt1 === +dt2`.
+	   * @param {DateTime} other - the other DateTime
+	   * @return {boolean}
+	   */equals(other){return this.isValid&&other.isValid&&this.valueOf()===other.valueOf()&&this.zone.equals(other.zone)&&this.loc.equals(other.loc);}/**
+	   * Returns a string representation of a this time relative to now, such as "in two days". Can only internationalize if your
+	   * platform supports Intl.RelativeTimeFormat. Rounds towards zero by default.
+	   * @param {Object} options - options that affect the output
+	   * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
+	   * @param {string} [options.style="long"] - the style of units, must be "long", "short", or "narrow"
+	   * @param {string|string[]} options.unit - use a specific unit or array of units; if omitted, or an array, the method will pick the best unit. Use an array or one of "years", "quarters", "months", "weeks", "days", "hours", "minutes", or "seconds"
+	   * @param {boolean} [options.round=true] - whether to round the numbers in the output.
+	   * @param {string} [options.rounding="trunc"] - rounding method to use when rounding the numbers in the output. Can be "trunc" (toward zero), "expand" (away from zero), "round", "floor", or "ceil".
+	   * @param {number} [options.padding=0] - padding in milliseconds. This allows you to round up the result if it fits inside the threshold. Don't use in combination with {round: false} because the decimal output will include the padding.
+	   * @param {string} options.locale - override the locale of this DateTime
+	   * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
+	   * @example DateTime.now().plus({ days: 1 }).toRelative() //=> "in 1 day"
+	   * @example DateTime.now().setLocale("es").toRelative({ days: 1 }) //=> "dentro de 1 día"
+	   * @example DateTime.now().plus({ days: 1 }).toRelative({ locale: "fr" }) //=> "dans 23 heures"
+	   * @example DateTime.now().minus({ days: 2 }).toRelative() //=> "2 days ago"
+	   * @example DateTime.now().minus({ days: 2 }).toRelative({ unit: "hours" }) //=> "48 hours ago"
+	   * @example DateTime.now().minus({ hours: 36 }).toRelative({ round: false }) //=> "1.5 days ago"
+	   */toRelative(options={}){if(!this.isValid)return null;const base=options.base||DateTime.fromObject({},{zone:this.zone}),padding=options.padding?this<base?-options.padding:options.padding:0;let units=["years","months","days","hours","minutes","seconds"];let unit=options.unit;if(Array.isArray(options.unit)){units=options.unit;unit=undefined;}return diffRelative(base,this.plus(padding),_objectSpread(_objectSpread({},options),{},{numeric:"always",units,unit}));}/**
+	   * Returns a string representation of this date relative to today, such as "yesterday" or "next month".
+	   * Only internationalizes on platforms that supports Intl.RelativeTimeFormat.
+	   * @param {Object} options - options that affect the output
+	   * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
+	   * @param {string} options.locale - override the locale of this DateTime
+	   * @param {string} options.unit - use a specific unit; if omitted, the method will pick the unit. Use one of "years", "quarters", "months", "weeks", or "days"
+	   * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
+	   * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar() //=> "tomorrow"
+	   * @example DateTime.now().setLocale("es").plus({ days: 1 }).toRelative() //=> ""mañana"
+	   * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar({ locale: "fr" }) //=> "demain"
+	   * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
+	   */toRelativeCalendar(options={}){if(!this.isValid)return null;return diffRelative(options.base||DateTime.fromObject({},{zone:this.zone}),this,_objectSpread(_objectSpread({},options),{},{numeric:"auto",units:["years","months","days"],calendary:true}));}/**
+	   * Return the min of several date times
+	   * @param {...DateTime} dateTimes - the DateTimes from which to choose the minimum
+	   * @return {DateTime} the min DateTime, or undefined if called with no argument
+	   */static min(...dateTimes){if(!dateTimes.every(DateTime.isDateTime)){throw new InvalidArgumentError("min requires all arguments be DateTimes");}return bestBy(dateTimes,i=>i.valueOf(),Math.min);}/**
+	   * Return the max of several date times
+	   * @param {...DateTime} dateTimes - the DateTimes from which to choose the maximum
+	   * @return {DateTime} the max DateTime, or undefined if called with no argument
+	   */static max(...dateTimes){if(!dateTimes.every(DateTime.isDateTime)){throw new InvalidArgumentError("max requires all arguments be DateTimes");}return bestBy(dateTimes,i=>i.valueOf(),Math.max);}// MISC
 /**
-   * Explain how a string would be parsed by fromFormat()
-   * @param {string} text - the string to parse
-   * @param {string} fmt - the format the string is expected to be in (see description)
-   * @param {Object} options - options taken by fromFormat()
-   * @return {Object}
-   */static fromFormatExplain(text,fmt,options={}){const{locale=null,numberingSystem=null}=options,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true});return explainFromTokens(localeToUse,text,fmt);}/**
-   * @deprecated use fromFormatExplain instead
-   */static fromStringExplain(text,fmt,options={}){return DateTime.fromFormatExplain(text,fmt,options);}/**
-   * Build a parser for `fmt` using the given locale. This parser can be passed
-   * to {@link DateTime.fromFormatParser} to a parse a date in this format. This
-   * can be used to optimize cases where many dates need to be parsed in a
-   * specific format.
-   *
-   * @param {String} fmt - the format the string is expected to be in (see
-   * description)
-   * @param {Object} options - options used to set locale and numberingSystem
-   * for parser
-   * @returns {TokenParser} - opaque object to be used
-   */static buildFormatParser(fmt,options={}){const{locale=null,numberingSystem=null}=options,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true});return new TokenParser(localeToUse,fmt);}/**
-   * Create a DateTime from an input string and format parser.
-   *
-   * The format parser must have been created with the same locale as this call.
-   *
-   * @param {String} text - the string to parse
-   * @param {TokenParser} formatParser - parser from {@link DateTime.buildFormatParser}
-   * @param {Object} opts - options taken by fromFormat()
-   * @returns {DateTime}
-   */static fromFormatParser(text,formatParser,opts={}){if(isUndefined(text)||isUndefined(formatParser)){throw new InvalidArgumentError("fromFormatParser requires an input string and a format parser");}const{locale=null,numberingSystem=null}=opts,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true});if(!localeToUse.equals(formatParser.locale)){throw new InvalidArgumentError(`fromFormatParser called with a locale of ${localeToUse}, `+`but the format parser was created for ${formatParser.locale}`);}const{result,zone,specificOffset,invalidReason}=formatParser.explainFromTokens(text);if(invalidReason){return DateTime.invalid(invalidReason);}else{return parseDataToDateTime(result,zone,opts,`format ${formatParser.format}`,text,specificOffset);}}// FORMAT PRESETS
+	   * Explain how a string would be parsed by fromFormat()
+	   * @param {string} text - the string to parse
+	   * @param {string} fmt - the format the string is expected to be in (see description)
+	   * @param {Object} options - options taken by fromFormat()
+	   * @return {Object}
+	   */static fromFormatExplain(text,fmt,options={}){const{locale=null,numberingSystem=null}=options,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true});return explainFromTokens(localeToUse,text,fmt);}/**
+	   * @deprecated use fromFormatExplain instead
+	   */static fromStringExplain(text,fmt,options={}){return DateTime.fromFormatExplain(text,fmt,options);}/**
+	   * Build a parser for `fmt` using the given locale. This parser can be passed
+	   * to {@link DateTime.fromFormatParser} to a parse a date in this format. This
+	   * can be used to optimize cases where many dates need to be parsed in a
+	   * specific format.
+	   *
+	   * @param {String} fmt - the format the string is expected to be in (see
+	   * description)
+	   * @param {Object} options - options used to set locale and numberingSystem
+	   * for parser
+	   * @returns {TokenParser} - opaque object to be used
+	   */static buildFormatParser(fmt,options={}){const{locale=null,numberingSystem=null}=options,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true});return new TokenParser(localeToUse,fmt);}/**
+	   * Create a DateTime from an input string and format parser.
+	   *
+	   * The format parser must have been created with the same locale as this call.
+	   *
+	   * @param {String} text - the string to parse
+	   * @param {TokenParser} formatParser - parser from {@link DateTime.buildFormatParser}
+	   * @param {Object} opts - options taken by fromFormat()
+	   * @returns {DateTime}
+	   */static fromFormatParser(text,formatParser,opts={}){if(isUndefined(text)||isUndefined(formatParser)){throw new InvalidArgumentError("fromFormatParser requires an input string and a format parser");}const{locale=null,numberingSystem=null}=opts,localeToUse=Locale.fromOpts({locale,numberingSystem,defaultToEN:true});if(!localeToUse.equals(formatParser.locale)){throw new InvalidArgumentError(`fromFormatParser called with a locale of ${localeToUse}, `+`but the format parser was created for ${formatParser.locale}`);}const{result,zone,specificOffset,invalidReason}=formatParser.explainFromTokens(text);if(invalidReason){return DateTime.invalid(invalidReason);}else{return parseDataToDateTime(result,zone,opts,`format ${formatParser.format}`,text,specificOffset);}}// FORMAT PRESETS
 /**
-   * {@link DateTime#toLocaleString} format like 10/14/1983
-   * @type {Object}
-   */static get DATE_SHORT(){return DATE_SHORT;}/**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
-   * @type {Object}
-   */static get DATE_MED(){return DATE_MED;}/**
-   * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
-   * @type {Object}
-   */static get DATE_MED_WITH_WEEKDAY(){return DATE_MED_WITH_WEEKDAY;}/**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983'
-   * @type {Object}
-   */static get DATE_FULL(){return DATE_FULL;}/**
-   * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
-   * @type {Object}
-   */static get DATE_HUGE(){return DATE_HUGE;}/**
-   * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get TIME_SIMPLE(){return TIME_SIMPLE;}/**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get TIME_WITH_SECONDS(){return TIME_WITH_SECONDS;}/**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get TIME_WITH_SHORT_OFFSET(){return TIME_WITH_SHORT_OFFSET;}/**
-   * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get TIME_WITH_LONG_OFFSET(){return TIME_WITH_LONG_OFFSET;}/**
-   * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
-   * @type {Object}
-   */static get TIME_24_SIMPLE(){return TIME_24_SIMPLE;}/**
-   * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
-   * @type {Object}
-   */static get TIME_24_WITH_SECONDS(){return TIME_24_WITH_SECONDS;}/**
-   * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
-   * @type {Object}
-   */static get TIME_24_WITH_SHORT_OFFSET(){return TIME_24_WITH_SHORT_OFFSET;}/**
-   * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
-   * @type {Object}
-   */static get TIME_24_WITH_LONG_OFFSET(){return TIME_24_WITH_LONG_OFFSET;}/**
-   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_SHORT(){return DATETIME_SHORT;}/**
-   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_SHORT_WITH_SECONDS(){return DATETIME_SHORT_WITH_SECONDS;}/**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_MED(){return DATETIME_MED;}/**
-   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_MED_WITH_SECONDS(){return DATETIME_MED_WITH_SECONDS;}/**
-   * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_MED_WITH_WEEKDAY(){return DATETIME_MED_WITH_WEEKDAY;}/**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_FULL(){return DATETIME_FULL;}/**
-   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_FULL_WITH_SECONDS(){return DATETIME_FULL_WITH_SECONDS;}/**
-   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_HUGE(){return DATETIME_HUGE;}/**
-   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
-   * @type {Object}
-   */static get DATETIME_HUGE_WITH_SECONDS(){return DATETIME_HUGE_WITH_SECONDS;}};/**
- * @private
- */function friendlyDateTime(dateTimeish){if(DateTime$1.isDateTime(dateTimeish)){return dateTimeish;}else if(dateTimeish&&dateTimeish.valueOf&&isNumber$1(dateTimeish.valueOf())){return DateTime$1.fromJSDate(dateTimeish);}else if(dateTimeish&&typeof dateTimeish==="object"){return DateTime$1.fromObject(dateTimeish);}else{throw new InvalidArgumentError(`Unknown datetime argument: ${dateTimeish}, of type ${typeof dateTimeish}`);}}(function(){/* Detect if we're in a worker or not */var isWorker=false;try{document;}catch(e){isWorker=true;}if(isWorker){if(!self.Worker){self.Worker=function(path){var that=this;this.id=Math.random().toString(36).substr(2,5);this.eventListeners={"message":[]};self.addEventListener("message",function(e){if(e.data._from===that.id){var newEvent=new MessageEvent("message");newEvent.initMessageEvent("message",false,false,e.data.message,that,"",null,[]);that.dispatchEvent(newEvent);if(that.onmessage){that.onmessage(newEvent);}}});var location=self.location.pathname;var slashedPath=path.charAt(0)=='/'?path:'/'+path;var absPath=location.substring(0,location.lastIndexOf('/'))+slashedPath;self.postMessage({_subworker:true,cmd:'newWorker',id:this.id,path:absPath});};Worker.prototype={onerror:null,onmessage:null,postMessage:function(message,transfer){self.postMessage({_subworker:true,id:this.id,cmd:'passMessage',message:message,transfer:transfer},transfer);},terminate:function(){self.postMessage({_subworker:true,cmd:'terminate',id:this.id});},addEventListener:function(type,listener,useCapture){if(this.eventListeners[type]){this.eventListeners[type].push(listener);}},removeEventListener:function(type,listener,useCapture){if(!(type in this.eventListeners)){return;}var index=this.eventListeners[type].indexOf(listener);if(index!==-1){this.eventListeners[type].splice(index,1);}},dispatchEvent:function(event){var listeners=this.eventListeners[event.type];for(var i=0;i<listeners.length;i++){listeners[i](event);}}};}}var allWorkers={};var cmds={newWorker:function(event){var worker=new Worker(event.data.path);worker.addEventListener("message",function(e){var envelope={_from:event.data.id,message:e.data};event.target.postMessage(envelope);});allWorkers[event.data.id]=worker;},terminate:function(event){allWorkers[event.data.id].terminate();},passMessage:function(event){allWorkers[event.data.id].postMessage(event.data.message,event.data.transfer);}};var messageRecieved=function(event){if(event.data._subworker){cmds[event.data.cmd](event);}};/* Hijack Worker */var oldWorker=Worker;Worker=function(path){if(this.constructor!==Worker){throw new TypeError("Failed to construct 'Worker': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");}var blobIndex=path.indexOf('blob:');if(blobIndex!==-1&&blobIndex!==0){path=path.substring(blobIndex);}var newWorker=new oldWorker(path);newWorker.addEventListener("message",messageRecieved);return newWorker;};})();class RetrieverError extends Error{constructor(uri,originalError){super(uri);_defineProperty(this,"uri",void 0);_defineProperty(this,"originalError",void 0);this.uri=uri;this.originalError=originalError;this.name='RetrieverError';}}class ParserError extends Error{constructor(scope,type,errors){super(type);_defineProperty(this,"scope",void 0);_defineProperty(this,"errors",void 0);this.scope=scope;this.errors=errors;this.name='ParserError';}}const TILDE_RE=/~/g;const SLASH_RE=/\//g;const TILDE_0_RE=/~0/g;const TILDE_1_RE=/~1/g;function escape(frag){return frag.replace(TILDE_RE,'~0').replace(SLASH_RE,'~1');}function unescape(frag){return frag.replace(TILDE_1_RE,'/').replace(TILDE_0_RE,'~');}const __meta=Symbol();const LII_RE=/^[a-zA-Z][a-zA-Z0-9\.\-_:]*$/;// Location-independent identifier, JSON Schema draft 7, par. 8.2.3
+	   * {@link DateTime#toLocaleString} format like 10/14/1983
+	   * @type {Object}
+	   */static get DATE_SHORT(){return DATE_SHORT;}/**
+	   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
+	   * @type {Object}
+	   */static get DATE_MED(){return DATE_MED;}/**
+	   * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
+	   * @type {Object}
+	   */static get DATE_MED_WITH_WEEKDAY(){return DATE_MED_WITH_WEEKDAY;}/**
+	   * {@link DateTime#toLocaleString} format like 'October 14, 1983'
+	   * @type {Object}
+	   */static get DATE_FULL(){return DATE_FULL;}/**
+	   * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
+	   * @type {Object}
+	   */static get DATE_HUGE(){return DATE_HUGE;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get TIME_SIMPLE(){return TIME_SIMPLE;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get TIME_WITH_SECONDS(){return TIME_WITH_SECONDS;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get TIME_WITH_SHORT_OFFSET(){return TIME_WITH_SHORT_OFFSET;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get TIME_WITH_LONG_OFFSET(){return TIME_WITH_LONG_OFFSET;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
+	   * @type {Object}
+	   */static get TIME_24_SIMPLE(){return TIME_24_SIMPLE;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
+	   * @type {Object}
+	   */static get TIME_24_WITH_SECONDS(){return TIME_24_WITH_SECONDS;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
+	   * @type {Object}
+	   */static get TIME_24_WITH_SHORT_OFFSET(){return TIME_24_WITH_SHORT_OFFSET;}/**
+	   * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
+	   * @type {Object}
+	   */static get TIME_24_WITH_LONG_OFFSET(){return TIME_24_WITH_LONG_OFFSET;}/**
+	   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_SHORT(){return DATETIME_SHORT;}/**
+	   * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_SHORT_WITH_SECONDS(){return DATETIME_SHORT_WITH_SECONDS;}/**
+	   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_MED(){return DATETIME_MED;}/**
+	   * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_MED_WITH_SECONDS(){return DATETIME_MED_WITH_SECONDS;}/**
+	   * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_MED_WITH_WEEKDAY(){return DATETIME_MED_WITH_WEEKDAY;}/**
+	   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_FULL(){return DATETIME_FULL;}/**
+	   * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_FULL_WITH_SECONDS(){return DATETIME_FULL_WITH_SECONDS;}/**
+	   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_HUGE(){return DATETIME_HUGE;}/**
+	   * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
+	   * @type {Object}
+	   */static get DATETIME_HUGE_WITH_SECONDS(){return DATETIME_HUGE_WITH_SECONDS;}}/**
+	 * @private
+	 */function friendlyDateTime(dateTimeish){if(DateTime.isDateTime(dateTimeish)){return dateTimeish;}else if(dateTimeish&&dateTimeish.valueOf&&isNumber(dateTimeish.valueOf())){return DateTime.fromJSDate(dateTimeish);}else if(dateTimeish&&typeof dateTimeish==="object"){return DateTime.fromObject(dateTimeish);}else{throw new InvalidArgumentError(`Unknown datetime argument: ${dateTimeish}, of type ${typeof dateTimeish}`);}}const VERSION="3.7.2";luxon.DateTime=DateTime;luxon.Duration=Duration;luxon.FixedOffsetZone=FixedOffsetZone;luxon.IANAZone=IANAZone;luxon.Info=Info;luxon.Interval=Interval;luxon.InvalidZone=InvalidZone;luxon.Settings=Settings;luxon.SystemZone=SystemZone;luxon.VERSION=VERSION;luxon.Zone=Zone;return luxon;}var luxonExports=requireLuxon();(function(){/* Detect if we're in a worker or not */var isWorker=false;try{document;}catch(e){isWorker=true;}if(isWorker){if(!self.Worker){self.Worker=function(path){var that=this;this.id=Math.random().toString(36).substr(2,5);this.eventListeners={"message":[]};self.addEventListener("message",function(e){if(e.data._from===that.id){var newEvent=new MessageEvent("message");newEvent.initMessageEvent("message",false,false,e.data.message,that,"",null,[]);that.dispatchEvent(newEvent);if(that.onmessage){that.onmessage(newEvent);}}});var location=self.location.pathname;var slashedPath=path.charAt(0)=='/'?path:'/'+path;var absPath=location.substring(0,location.lastIndexOf('/'))+slashedPath;self.postMessage({_subworker:true,cmd:'newWorker',id:this.id,path:absPath});};Worker.prototype={onerror:null,onmessage:null,postMessage:function(message,transfer){self.postMessage({_subworker:true,id:this.id,cmd:'passMessage',message:message,transfer:transfer},transfer);},terminate:function(){self.postMessage({_subworker:true,cmd:'terminate',id:this.id});},addEventListener:function(type,listener,useCapture){if(this.eventListeners[type]){this.eventListeners[type].push(listener);}},removeEventListener:function(type,listener,useCapture){if(!(type in this.eventListeners)){return;}var index=this.eventListeners[type].indexOf(listener);if(index!==-1){this.eventListeners[type].splice(index,1);}},dispatchEvent:function(event){var listeners=this.eventListeners[event.type];for(var i=0;i<listeners.length;i++){listeners[i](event);}}};}}var allWorkers={};var cmds={newWorker:function(event){var worker=new Worker(event.data.path);worker.addEventListener("message",function(e){var envelope={_from:event.data.id,message:e.data};event.target.postMessage(envelope);});allWorkers[event.data.id]=worker;},terminate:function(event){allWorkers[event.data.id].terminate();},passMessage:function(event){allWorkers[event.data.id].postMessage(event.data.message,event.data.transfer);}};var messageRecieved=function(event){if(event.data._subworker){cmds[event.data.cmd](event);}};/* Hijack Worker */var oldWorker=Worker;Worker=function(path){if(this.constructor!==Worker){throw new TypeError("Failed to construct 'Worker': Please use the 'new' operator, this DOM object constructor cannot be called as a function.");}var blobIndex=path.indexOf('blob:');if(blobIndex!==-1&&blobIndex!==0){path=path.substring(blobIndex);}var newWorker=new oldWorker(path);newWorker.addEventListener("message",messageRecieved);return newWorker;};})();class RetrieverError extends Error{constructor(uri,originalError){super(uri);_defineProperty(this,"uri",void 0);_defineProperty(this,"originalError",void 0);this.uri=uri;this.originalError=originalError;this.name='RetrieverError';}}class ParserError extends Error{constructor(scope,type,errors){super(type);_defineProperty(this,"scope",void 0);_defineProperty(this,"errors",void 0);this.scope=scope;this.errors=errors;this.name='ParserError';}}const TILDE_RE=/~/g;const SLASH_RE=/\//g;const TILDE_0_RE=/~0/g;const TILDE_1_RE=/~1/g;function escape(frag){return frag.replace(TILDE_RE,'~0').replace(SLASH_RE,'~1');}function unescape(frag){return frag.replace(TILDE_1_RE,'/').replace(TILDE_0_RE,'~');}const __meta=Symbol();const LII_RE=/^[a-zA-Z][a-zA-Z0-9\.\-_:]*$/;// Location-independent identifier, JSON Schema draft 7, par. 8.2.3
 function normalizeUri(input,scope){const uri=new URL(input,scope);const out=uri.toString();return out+(!uri.hash&&out[out.length-1]!=='#'?'#':'');}function isRef(obj){return obj!==null&&typeof obj==='object'&&typeof obj.$ref==='string';}function isAnnotated(obj){return obj!==null&&typeof obj==='object'&&typeof obj[__meta]==='object';}function isDerefd(obj){return isAnnotated(obj)&&obj[__meta].derefd===true;}function getMeta(obj){if(!isAnnotated(obj)){throw new Error('Not annotated');}return obj[__meta];}function getKey(obj){const parent=getMeta(obj).parent;if(typeof parent==='undefined'){return undefined;}else if(Array.isArray(parent)){for(let i=0;i<parent.length;i++){if(parent[i]===obj){return i;}}return undefined;}else{return Object.keys(parent).find(k=>parent[k]===obj);}}function getById(obj,id){if(obj===null||typeof obj!=='object'){throw new TypeError('Invalid object');}const meta=getMeta(obj);return meta.registry[normalizeUri(id,meta.scope)];}function annotate(obj,options){if(obj===null||typeof obj!=='object'){throw new TypeError('Invalid object');}else if(isAnnotated(obj)){throw new Error('Already annotated');}obj[__meta]={registry:options.registry||{},refs:options.refs||new Set(),root:obj};obj[__meta].registry[normalizeUri(options.scope)]=obj;return function _annotate(obj,scope){if(isRef(obj)){const uri=new URL(obj.$ref,scope);uri.hash='';getMeta(obj).refs.add(uri.toString()+'#');obj[__meta].scope=normalizeUri(scope);}else{if(typeof obj.$id==='string'){if(!obj.$id||obj.$id==='#'){throw new SyntaxError(`Invalid identifier ${obj.$id}`);}const id=new URL(obj.$id,scope);if(id.hash&&!id.hash.substr(1).match(LII_RE)){throw new SyntaxError(`Invalid identifier ${obj.$id}`);}obj[__meta].scope=normalizeUri(obj.$id,scope);obj[__meta].registry[obj[__meta].scope]=obj;obj[__meta].root=obj;}else{obj[__meta].scope=normalizeUri(scope);}const keys=Object.keys(obj);for(let key of keys){const next=obj[key];if(next!==null&&typeof next==='object'&&!isAnnotated(next)){const meta=getMeta(obj);next[__meta]={registry:meta.registry,refs:meta.refs,parent:obj,root:meta.root};_annotate(next,`${meta.scope}/${escape(key)}`);}}}return obj;}(obj,options.scope);}function missingRefs(obj){const meta=getMeta(obj);const known=new Set(Object.keys(meta.registry));return[...meta.refs].filter(r=>!known.has(r));}const PREFIX_RE=/^(0|[1-9][0-9]*?)([#]?)$/;const INDEX_RE=/-|0|[1-9][0-9]*/;function resolve$1(obj,path){if(typeof obj==='undefined'){throw new TypeError('Bad object');}else if(typeof path!=='string'){throw new TypeError('Bad path');}else if(!path){return obj;}let current=obj;const parts=path.split('/');const prefix=parts.shift();if(prefix){if(prefix.match(LII_RE)){current=getById(current,`#${prefix}`);}else{const match=prefix.match(PREFIX_RE);if(!match){throw new SyntaxError(`Bad prefix ${prefix}`);}else{let levels=parseInt(match[1]);while(levels--){current=getMeta(current).parent;if(!current){throw new RangeError(`Invalid prefix "${match[1]}"`);}}if(match[2]){return getKey(current);}}}}while(parts.length){if(current===null||typeof current!=='object'){throw new TypeError(`Invalid type at path`);}const part=unescape(parts.shift());if(Array.isArray(current)){if(!part.match(INDEX_RE)){throw new SyntaxError(`Invalid array index "${part}"`);}else if(part==='-'){throw new RangeError(`Index out of bounds "${part}"`);}else{const index=parseInt(part);if(index>current.length){throw new RangeError(`Index out of bounds "${part}"`);}else{current=current[index];}}}else{current=current[part];if(typeof current==='undefined'){throw new RangeError(`Cannot find property "${part}"`);}}}return current;}const RELATIVE_RE=/^#(?:0|[1-9][0-9]*?)(?:$|\/)/;function deref(obj){let out;if(obj.$ref.match(RELATIVE_RE)){out=resolve$1(obj,obj.$ref.substr(1));}else{const scope=getMeta(obj).scope;const uri=new URL(obj.$ref,scope);const path=uri.hash?uri.hash.substr(1):undefined;uri.hash='';out=getMeta(obj).registry[uri.toString()+'#'];if(!out){throw new Error(`Reference not in registry (${uri.toString()})`);}else if(path){out=resolve$1(out,path);}}return out;}function resolve(obj,options){if(obj===null||typeof obj!=='object'){return obj;}return function _parse(obj){if(!isAnnotated(obj)){obj=annotate(obj,options);}if(isDerefd(obj)){return obj;}else if(isRef(obj)){return deref(obj);}else{const orig=Object.assign({},obj);Object.defineProperty(obj,'toJSON',{get:()=>()=>orig,enumerable:false,configurable:false});const keys=Object.keys(obj);for(let key of keys){const next=obj[key];if(next!==null&&typeof next==='object'){if(isRef(next)){Object.defineProperty(obj,key,{get:()=>{Object.defineProperty(obj,key,{value:deref(next),enumerable:true,configurable:true,writable:true});return obj[key];},enumerable:true,configurable:true});}else{obj[key]=_parse(next);}}else{obj[key]=next;}}getMeta(obj).derefd=true;return obj;}}(obj);}function parse$1(_x,_x2){return _parse$.apply(this,arguments);}/*! (c) Andrea Giammarchi - ISC */function _parse$(){_parse$=_asyncToGenerator(function*(dataOrUri,opts){let obj;if(!opts||!opts.scope){throw new Error('No scope');}if(typeof dataOrUri==='string'){if(!opts.retriever){throw new Error('No retriever');}const uri=new URL(dataOrUri).toString();obj=yield opts.retriever(uri);if(!opts.registry){opts.registry={};}if(uri!==opts.scope){opts.registry[normalizeUri(uri)]=obj;}}else if(dataOrUri===null||typeof dataOrUri!=='object'){throw new TypeError('Bad data');}else{obj=dataOrUri;}if(isAnnotated(obj)){return obj;}else{annotate(obj,opts);if(getMeta(obj).refs.size>0){const missingRefs$1=missingRefs(obj);if(missingRefs$1.length){if(!opts.retriever){throw new Error('No retriever');}const registry=getMeta(obj).registry;const errors=[];for(let r of missingRefs$1){try{registry[r]=yield opts.retriever(r);}catch(e){errors.push(new RetrieverError(r,e));}}if(errors.length){throw new ParserError(getMeta(obj).scope,'retriever',errors);}}return resolve(obj,opts);}else{return obj;}}});return _parse$.apply(this,arguments);}var self$1={};try{self$1.EventTarget=new EventTarget().constructor;}catch(EventTarget){(function(Object,wm){var create=Object.create;var defineProperty=Object.defineProperty;var proto=EventTarget.prototype;define(proto,'addEventListener',function(type,listener,options){for(var secret=wm.get(this),listeners=secret[type]||(secret[type]=[]),i=0,length=listeners.length;i<length;i++){if(listeners[i].listener===listener)return;}listeners.push({target:this,listener:listener,options:options});});define(proto,'dispatchEvent',function(event){var secret=wm.get(this);var listeners=secret[event.type];if(listeners){define(event,'target',this);define(event,'currentTarget',this);listeners.slice(0).some(dispatch,event);delete event.currentTarget;delete event.target;}return true;});define(proto,'removeEventListener',function(type,listener){for(var secret=wm.get(this),/* istanbul ignore next */listeners=secret[type]||(secret[type]=[]),i=0,length=listeners.length;i<length;i++){if(listeners[i].listener===listener){listeners.splice(i,1);return;}}});self$1.EventTarget=EventTarget;function EventTarget(){wm.set(this,create(null));}function define(target,name,value){defineProperty(target,name,{configurable:true,writable:true,value:value});}function dispatch(info){var options=info.options;if(options&&options.once)info.target.removeEventListener(this.type,info.listener);if(typeof info.listener==='function')info.listener.call(info.target,this);else info.listener.handleEvent(this);return this._stopImmediatePropagationFlag;}})(Object,new WeakMap());}var EventTarget$1=self$1.EventTarget;function $constructor(name,initializer){class _{constructor(def){var _a$deferred;var _a;const th=this;_.init(th,def);(_a$deferred=(_a=th._zod).deferred)!==null&&_a$deferred!==void 0?_a$deferred:_a.deferred=[];for(const fn of th._zod.deferred){fn();}}static init(inst,def){var _inst$_zod,_a$traits;var _a;(_inst$_zod=inst._zod)!==null&&_inst$_zod!==void 0?_inst$_zod:inst._zod={};(_a$traits=(_a=inst._zod).traits)!==null&&_a$traits!==void 0?_a$traits:_a.traits=new Set();// const seen = inst._zod.traits.has(name);
 inst._zod.traits.add(name);initializer(inst,def);// support prototype modifications
 for(const k in _.prototype){Object.defineProperty(inst,k,{value:_.prototype[k].bind(inst)});}inst._zod.constr=_;inst._zod.def=def;}static[Symbol.hasInstance](inst){var _inst$_zod2;return inst===null||inst===void 0||(_inst$_zod2=inst._zod)===null||_inst$_zod2===void 0||(_inst$_zod2=_inst$_zod2.traits)===null||_inst$_zod2===void 0?void 0:_inst$_zod2.has(name);}}Object.defineProperty(_,"name",{value:name});return _;}class $ZodAsyncError extends Error{constructor(){super(`Encountered Promise during synchronous parse. Use .parseAsync() instead.`);}}const globalConfig={};function config(newConfig){if(newConfig)Object.assign(globalConfig,newConfig);return globalConfig;}const _$ZodError=$constructor("$ZodError",(inst,def)=>{Object.defineProperties(inst,{issues:{value:def,enumerable:true},_zod:{value:inst._zod,enumerable:false}// message: {
@@ -4136,7 +4228,7 @@ const BaseParams=record(string(),any()).describe('Runtime parameters for an asse
 var RecipeTemplateSchema;(function(RecipeTemplateSchema){RecipeTemplateSchema.MediaTemplate=object({asset_id:uuid().describe('Asset ID'),params:BaseParams.optional().describe('Runtime parameters for the asset'),// WARNING: 86400 seconds is the maximum duration of a media template
 duration_seconds:number().min(1).max(86400).describe('Duration of the asset in seconds')}).describe('Media template');RecipeTemplateSchema.PlaylistTemplate=object({// WARNING: 1000 media templates is the maximum number of media templates that can be assigned to a playlist template
 media_templates:array(RecipeTemplateSchema.MediaTemplate).min(1).max(1000).describe('Array of media templates')}).describe('Playlist template');// e.g. MO for Monday, 2MO for the second Monday of the month.
-RecipeTemplateSchema.NDay=object({day:_enum(['mo','tu','we','th','fr','sa','su']).describe('Day of the week'),nthOfPeriod:number().int().optional().describe('Nth day of the period')}).describe('Nth day');RecipeTemplateSchema.RecurrenceRuleTemplate=object({frequency:_enum(['secondly','minutely','hourly','daily','weekly','monthly','yearly']).describe('Frequency of the recurrence rule'),interval:number().int().min(1).max(1000).optional().describe('Interval of the recurrence rule'),byDay:array(RecipeTemplateSchema.NDay).optional().describe('Array of Nth days'),byMonthDay:array(number().int().min(1).max(31)).optional().describe('Array of month days'),byMonth:array(number().int().min(1).max(12)).optional().describe('Array of months'),bySetPosition:array(number().int()).optional().describe('Array of set positions'),times:number().int().min(1).max(1000).optional().describe('Number of times the recurrence rule repeats'),until:datetime().optional().describe('DateTime until the recurrence rule repeats')}).describe('Recurrence rule template');RecipeTemplateSchema.EventTemplate=object({priority:number().int().min(0).max(10).describe('Priority of the event template'),start:datetime().describe('ISO datetime of the start of the event template'),timeZone:string().describe('Time zone of the event template'),duration:string().describe('Duration of the event template'),playlist:RecipeTemplateSchema.PlaylistTemplate,recurrenceRules:array(RecipeTemplateSchema.RecurrenceRuleTemplate).optional().describe('Array of recurrence rule templates')}).describe('Event template');RecipeTemplateSchema.RecipeTemplate=object({events:array(RecipeTemplateSchema.EventTemplate).min(1).max(1000).describe('Array of event templates')}).describe('Recipe template');})(RecipeTemplateSchema||(RecipeTemplateSchema={}));// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+RecipeTemplateSchema.NDay=object({day:_enum(['mo','tu','we','th','fr','sa','su']).describe('Day of the week'),nthOfPeriod:number().int().optional().describe('Nth day of the period')}).describe('Nth day');RecipeTemplateSchema.RecurrenceRuleTemplate=object({frequency:_enum(['secondly','minutely','hourly','daily','weekly','monthly','yearly']).describe('Frequency of the recurrence rule'),interval:number().int().min(1).max(1000).optional().describe('Interval of the recurrence rule'),byDay:array(RecipeTemplateSchema.NDay).optional().describe('Array of Nth days'),byMonthDay:array(number().int().min(1).max(31)).optional().describe('Array of month days'),byMonth:array(number().int().min(1).max(12)).optional().describe('Array of months'),bySetPosition:array(number().int()).optional().describe('Array of set positions'),times:number().int().min(1).max(1000).optional().describe('Number of times the recurrence rule repeats'),until:datetime().optional().describe('DateTime until the recurrence rule repeats')}).describe('Recurrence rule template');RecipeTemplateSchema.EventTemplate=object({priority:number().int().min(0).max(10).describe('Priority of the event template'),start:datetime().describe('ISO datetime of the start of the event template'),timeZone:string().describe('Time zone of the event template'),duration:string().describe('Duration of the event template'),playlist:RecipeTemplateSchema.PlaylistTemplate,recurrenceRules:array(RecipeTemplateSchema.RecurrenceRuleTemplate).optional().describe('Array of recurrence rule templates')}).describe('Event template');RecipeTemplateSchema.RecipeTemplate=object({name:string().min(1).max(100).describe('The name of the recipe template'),tags:array(string().max(64)).describe('The tags of the recipe template'),events:array(RecipeTemplateSchema.EventTemplate).min(1).max(1000).describe('Array of event templates')}).describe('Recipe template');})(RecipeTemplateSchema||(RecipeTemplateSchema={}));// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 const PublisherRequest=object({tenant_id:uuid().describe('Tenant ID'),reference_id:string().max(255).describe('Reference ID of the job'),recipe_template:RecipeTemplateSchema.RecipeTemplate,// WARNING: 1000 canvas is the maximum number that can be assigned to a job
 canvas_ids:array(uuid()).min(1).max(1000).describe('List of canvas IDs'),identity:string().describe('Identity of the author of the job')}).describe('Publish job');// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 const PublisherResponse=object({job_id:string().regex(/^\d+$/).describe('Unique identifier for this job, can be used to query the status of the job.'),reference_id:string().max(255).describe('User provided reference identifier.'),timestamp:datetime().describe('ISO datetime of the job.')}).describe('Publisher job output');// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
@@ -4157,11 +4249,11 @@ RecipeSchema.HTMLImageElement=object({"@type":literal("HTMLImageElement").descri
 .describe("MD5 hash value"),integrity:string().describe("Subresource Integrity (SRI) value")}).describe("HTML script element");RecipeSchema.CustomElement=object({"@type":literal("CustomElement").describe("Type of the custom element"),id:uuid().describe("ID of the custom element"),href:url().min(20).max(2048).describe("URL of the custom element"),expires:datetime().optional().describe("Optional expiration date of the custom element"),size:number().min(20).max(1073741824)// 1GB
 .describe("Size of the custom element in bytes"),hash:RecipeSchema.HashValue,md5:string().length(24)// Base64 encoded 16 bytes.
 .describe("MD5 hash value"),integrity:string().describe("Subresource Integrity (SRI) value"),duration:number().min(1).max(86400).describe("Duration of the custom element in seconds"),params:BaseParams.optional().describe("Optional parameters of the custom element"),sources:array(union([RecipeSchema.HTMLImageElement.omit({duration:true}),RecipeSchema.HTMLVideoElement.omit({duration:true}),RecipeSchema.HTMLScriptElement])).optional().describe("Array of sources, which can be HTMLImageElement, HTMLVideoElement, or HTMLScriptElement")}).describe("Custom element");// Define types for other components
-RecipeSchema.RecurrenceRule=object({"@type":literal("RecurrenceRule").describe("Type of the recurrence rule"),frequency:_enum(["secondly","minutely","hourly","daily","weekly","monthly","yearly"]).describe("Frequency of the recurrence rule"),interval:number().int().min(1).max(1000).optional().describe("Interval of the recurrence rule"),firstDayOfWeek:_enum(["mo","tu","we","th","fr","sa","su"]).optional().describe("First day of the week"),byDay:array(object({day:_enum(["mo","tu","we","th","fr","sa","su"]),nthOfPeriod:number().int().optional()})).optional().describe("Array of Nth days"),byMonthDay:array(number().int().min(1).max(31)).optional().describe("Array of month days"),byMonth:array(number().int().min(1).max(12)).optional().describe("Array of months"),byYearDay:array(number().int().min(1).max(366)).optional().describe("Array of year days"),byWeekNo:array(number().int().min(1).max(53)).optional().describe("Array of week numbers"),byHour:array(number().int().min(0).max(23)).optional().describe("Array of hours"),byMinute:array(number().int().min(0).max(59)).optional().describe("Array of minutes"),bySecond:array(number().int().min(0).max(59)).optional().describe("Array of seconds"),bySetPosition:array(number().int()).optional().describe("Array of set positions"),timeZone:string().optional().describe("Time zone"),times:number().int().min(1).max(1000).optional().describe("Number of times the recurrence rule repeats"),until:datetime().optional().describe("ISO datetime until the recurrence rule repeats")}).describe("Recurrence rule");RecipeSchema.MatchPattern=object({"@type":literal("MatchPattern").describe("Type of the match pattern"),code:string().describe("Code of the match pattern")}).describe("Match pattern");RecipeSchema.DOMEvent=object({"@type":literal("DOMEvent").describe("Type of the DOM event"),type:string().describe("Type of the DOM event"),match:RecipeSchema.MatchPattern}).describe("DOM event");RecipeSchema.Playlist=object({"@type":literal("Playlist").describe("Type of the playlist"),entries:array(union([RecipeSchema.HTMLImageElement,RecipeSchema.HTMLVideoElement,RecipeSchema.CustomElement])).describe("Array of entries")}).describe("Playlist");RecipeSchema.Event=object({"@type":literal("Event").describe("Type of the event"),id:uuid().describe("ID of the event"),priority:number().int().min(0).max(10).describe("Priority of the event"),start:datetime().describe("ISO datetime of the start of the event"),timeZone:string().describe("Time zone of the event"),duration:string().describe("Duration of the event"),playlist:RecipeSchema.Playlist,recurrenceRules:array(RecipeSchema.RecurrenceRule).optional().describe("Array of recurrence rules"),onceOn:RecipeSchema.DOMEvent.optional().describe("Once on DOM event"),enableOn:RecipeSchema.DOMEvent.optional().describe("Enable on DOM event"),disableOn:RecipeSchema.DOMEvent.optional().describe("Disable on DOM event")}).describe("Event");RecipeSchema.Transition=object({"@type":literal("Transition").describe("Type of the transition"),id:uuid().describe("ID of the transition"),href:url().min(20).max(2048).describe("URL of the transition"),expires:datetime().optional().describe("Optional expiration date of the transition"),size:number().min(20).max(1073741824)// 1GB
+RecipeSchema.RecurrenceRule=object({"@type":literal("RecurrenceRule").describe("Type of the recurrence rule"),frequency:_enum(["secondly","minutely","hourly","daily","weekly","monthly","yearly"]).describe("Frequency of the recurrence rule"),interval:number().int().min(1).max(1000).optional().describe("Interval of the recurrence rule"),firstDayOfWeek:_enum(["mo","tu","we","th","fr","sa","su"]).optional().describe("First day of the week"),byDay:array(object({day:_enum(["mo","tu","we","th","fr","sa","su"]),nthOfPeriod:number().int().optional()})).optional().describe("Array of Nth days"),byMonthDay:array(number().int().min(1).max(31)).optional().describe("Array of month days"),byMonth:array(number().int().min(1).max(12)).optional().describe("Array of months"),byYearDay:array(number().int().min(1).max(366)).optional().describe("Array of year days"),byWeekNo:array(number().int().min(1).max(53)).optional().describe("Array of week numbers"),byHour:array(number().int().min(0).max(23)).optional().describe("Array of hours"),byMinute:array(number().int().min(0).max(59)).optional().describe("Array of minutes"),bySecond:array(number().int().min(0).max(59)).optional().describe("Array of seconds"),bySetPosition:array(number().int()).optional().describe("Array of set positions"),timeZone:string().optional().describe("Time zone"),times:number().int().min(1).max(1000).optional().describe("Number of times the recurrence rule repeats"),until:datetime().optional().describe("ISO datetime until the recurrence rule repeats")}).describe("Recurrence rule");RecipeSchema.MatchPattern=object({"@type":literal("MatchPattern").describe("Type of the match pattern"),code:string().describe("Code of the match pattern")}).describe("Match pattern");RecipeSchema.DOMEvent=object({"@type":literal("DOMEvent").describe("Type of the DOM event"),type:string().describe("Type of the DOM event"),match:RecipeSchema.MatchPattern}).describe("DOM event");RecipeSchema.PlaylistEntry=union([RecipeSchema.HTMLImageElement,RecipeSchema.HTMLVideoElement,RecipeSchema.CustomElement]).describe("Playlist entry, which can be HTMLImageElement, HTMLVideoElement, or CustomElement");RecipeSchema.Playlist=object({"@type":literal("Playlist").describe("Type of the playlist"),entries:array(RecipeSchema.PlaylistEntry).describe("Array of entries")}).describe("Playlist");RecipeSchema.Event=object({"@type":literal("Event").describe("Type of the event"),id:uuid().describe("ID of the event"),priority:number().int().min(0).max(10).describe("Priority of the event"),start:datetime().describe("ISO datetime of the start of the event"),timeZone:string().describe("Time zone of the event"),duration:string().describe("Duration of the event"),playlist:RecipeSchema.Playlist,recurrenceRules:array(RecipeSchema.RecurrenceRule).optional().describe("Array of recurrence rules"),onceOn:RecipeSchema.DOMEvent.optional().describe("Once on DOM event"),enableOn:RecipeSchema.DOMEvent.optional().describe("Enable on DOM event"),disableOn:RecipeSchema.DOMEvent.optional().describe("Disable on DOM event")}).describe("Event");RecipeSchema.Transition=object({"@type":literal("Transition").describe("Type of the transition"),id:uuid().describe("ID of the transition"),href:url().min(20).max(2048).describe("URL of the transition"),expires:datetime().optional().describe("Optional expiration date of the transition"),size:number().min(20).max(1073741824)// 1GB
 .describe("Size of the transition in bytes"),hash:RecipeSchema.HashValue,md5:string().length(24)// Base64 encoded 16 bytes.
 .describe("MD5 hash value"),integrity:string().describe("Subresource Integrity (SRI) value"),duration:number().min(1).max(86400).describe("Duration of the transition in seconds"),params:BaseParams.optional().describe("Optional parameters of the transition"),sources:array(union([RecipeSchema.HTMLImageElement.omit({duration:true}),RecipeSchema.HTMLVideoElement.omit({duration:true}),RecipeSchema.HTMLScriptElement])).optional().describe("Array of sources, which can be HTMLImageElement, HTMLVideoElement, or HTMLScriptElement")}).describe("Transition");RecipeSchema.SignalingServer=object({url:url().min(20).max(2048).describe("URL of the signaling server")}).describe("Signaling server");// aka RTCIceServer in the DOM.
 RecipeSchema.IceServer=object({urls:union([string(),array(string())]).describe("URLs of the ICE server"),username:string().optional().describe("Username of the ICE server"),credential:string().optional().describe("Credential of the ICE server")}).describe("ICE server");RecipeSchema.Cluster=object({label:string().describe("Label of the cluster"),id:uuid().describe("ID of the cluster"),peers:array(uuid()).describe("Array of peer IDs"),iceServers:array(RecipeSchema.IceServer).describe("Array of ICE servers"),signalingServers:array(RecipeSchema.SignalingServer).describe("Array of signaling servers"),enableLoopback:boolean().optional().describe("Enable loopback")}).describe("Cluster");// Compose the final type
-RecipeSchema.Recipe=object({transition:RecipeSchema.Transition,schedule:array(RecipeSchema.Event).describe("Array of events"),$defs:record(string(),RecipeSchema.Playlist).optional().describe("Definitions of playlists"),cluster:RecipeSchema.Cluster.optional().describe("Cluster configuration")}).describe("Recipe");// Link to a recipe
+RecipeSchema.Recipe=object({name:string().min(1).max(100).describe('The name of the recipe'),tags:array(string().max(64)).describe('The tags of the recipe'),transition:RecipeSchema.Transition,schedule:array(RecipeSchema.Event).describe("Array of events"),$defs:record(string(),RecipeSchema.Playlist).optional().describe("Definitions of playlists"),cluster:RecipeSchema.Cluster.optional().describe("Cluster configuration")}).describe("Recipe");// Link to a recipe
 RecipeSchema.RecipeLink=object({"@type":literal("RecipeLink").describe("Type of the recipe link"),id:uuid().describe("ID of the recipe"),href:url().min(20).max(2048).describe("URL of the recipe"),expires:datetime().optional().describe("Optional expiration date of the recipe"),size:number().min(20).max(1073741824)// 1GB
 .describe("Size of the recipe in bytes"),hash:RecipeSchema.HashValue,md5:string().length(24)// Base64 encoded 16 bytes.
 .describe("MD5 hash value"),integrity:string().describe("Subresource Integrity (SRI) value")}).describe("Recipe link");})(RecipeSchema||(RecipeSchema={}));// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
@@ -4534,31 +4626,31 @@ this.origOptions=initializeOptions(options);const{parsedOptions}=parseOptions(op
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
 _RRule=RRule;// RRule class 'constants'
-_RRule.FREQUENCIES=['YEARLY','MONTHLY','WEEKLY','DAILY','HOURLY','MINUTELY','SECONDLY'];_RRule.YEARLY=Frequency.YEARLY;_RRule.MONTHLY=Frequency.MONTHLY;_RRule.WEEKLY=Frequency.WEEKLY;_RRule.DAILY=Frequency.DAILY;_RRule.HOURLY=Frequency.HOURLY;_RRule.MINUTELY=Frequency.MINUTELY;_RRule.SECONDLY=Frequency.SECONDLY;_RRule.MO=Days.MO;_RRule.TU=Days.TU;_RRule.WE=Days.WE;_RRule.TH=Days.TH;_RRule.FR=Days.FR;_RRule.SA=Days.SA;_RRule.SU=Days.SU;_RRule.parseString=parseString;_RRule.optionsToString=optionsToString;class CalendarEvent{constructor(id,parentId,data,startTime,endTime,priority){this.parentId=null;this.id=id;this.parentId=parentId;this.data=data;this.start=startTime;this.end=endTime;const interval=Interval.fromDateTimes(startTime,endTime);this.duration=interval.toDuration();this.priority=priority;this._interval=interval;}get shortId(){return this.id.substring(0,7);}setPriority(priority){this.priority=priority;return this;}contains(dateTime){return this._interval.contains(dateTime);}getEvents(startTime,endTime){const interval=Interval.fromDateTimes(startTime,endTime);return interval.overlaps(this._interval)?[this]:[];}getEventsForDay(date){const startTime=date.startOf('day');const endTime=date.endOf('day');const interval=Interval.fromDateTimes(startTime,endTime);return interval.overlaps(this._interval)?[this]:[];}get interval(){return this._interval;}toJSON(){return{id:this.id,parentId:this.parentId,start:this.start.toISO(),duration:this.duration.toISO(),priority:this.priority,data:this.data};}static fromJSON(json){const startTime=DateTime$1.fromISO(json.start);const endTime=startTime.plus(Duration.fromISO(json.duration));const event=new CalendarEvent(json.id,json.parentId,json.data,startTime,endTime,json.priority);return event;}}// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
+_RRule.FREQUENCIES=['YEARLY','MONTHLY','WEEKLY','DAILY','HOURLY','MINUTELY','SECONDLY'];_RRule.YEARLY=Frequency.YEARLY;_RRule.MONTHLY=Frequency.MONTHLY;_RRule.WEEKLY=Frequency.WEEKLY;_RRule.DAILY=Frequency.DAILY;_RRule.HOURLY=Frequency.HOURLY;_RRule.MINUTELY=Frequency.MINUTELY;_RRule.SECONDLY=Frequency.SECONDLY;_RRule.MO=Days.MO;_RRule.TU=Days.TU;_RRule.WE=Days.WE;_RRule.TH=Days.TH;_RRule.FR=Days.FR;_RRule.SA=Days.SA;_RRule.SU=Days.SU;_RRule.parseString=parseString;_RRule.optionsToString=optionsToString;class CalendarEvent{constructor(id,parentId,data,startTime,endTime,priority){this.parentId=null;this.id=id;this.parentId=parentId;this.data=data;this.start=startTime;this.end=endTime;const interval=luxonExports.Interval.fromDateTimes(startTime,endTime);this.duration=interval.toDuration();this.priority=priority;this._interval=interval;}get shortId(){return this.id.substring(0,7);}setPriority(priority){this.priority=priority;return this;}contains(dateTime){return this._interval.contains(dateTime);}getEvents(startTime,endTime){const interval=luxonExports.Interval.fromDateTimes(startTime,endTime);return interval.overlaps(this._interval)?[this]:[];}getEventsForDay(date){const startTime=date.startOf('day');const endTime=date.endOf('day');const interval=luxonExports.Interval.fromDateTimes(startTime,endTime);return interval.overlaps(this._interval)?[this]:[];}get interval(){return this._interval;}toJSON(){return{id:this.id,parentId:this.parentId,start:this.start.toISO(),duration:this.duration.toISO(),priority:this.priority,data:this.data};}static fromJSON(json){const startTime=luxonExports.DateTime.fromISO(json.start);const endTime=startTime.plus(luxonExports.Duration.fromISO(json.duration));const event=new CalendarEvent(json.id,json.parentId,json.data,startTime,endTime,json.priority);return event;}}// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-const MAX_DATE=DateTime$1.fromJSDate(new Date(8.64e15));const MAX_DURATION=Duration.fromMillis(8.64e15);// The base meta-data for scheduled events.
+const MAX_DATE=luxonExports.DateTime.fromJSDate(new Date(8.64e15));const MAX_DURATION=luxonExports.Duration.fromMillis(8.64e15);// The base meta-data for scheduled events.
 class ScheduleItem{// eventSeries: id of the scheduled event.
 constructor(eventSeries,decl,start_offset,end_offset){this.eventSeries=eventSeries;this.decl=decl;this.start_offset=start_offset;this.end_offset=end_offset;}get shortEventSeries(){return this.eventSeries.substring(0,7);}get id(){return this.decl.id;}get shortId(){return this.decl.id.substring(0,7);}get duration(){return this.decl.duration;}}// For a given time window.
-class ScheduleItemView{constructor(schedule_item,playlist_start){this.schedule_item=schedule_item;this._start_time=playlist_start.plus(schedule_item.start_offset);this._end_time=playlist_start.plus(schedule_item.end_offset);}get eventSeries(){return this.schedule_item.eventSeries;}get shortEventSeries(){return this.schedule_item.shortEventSeries;}get id(){return this.decl.id;}get shortId(){return this.decl.id.substring(0,7);}get currentSrc(){return this.decl.href;}get start_time(){return this._start_time;}get end_time(){return this._end_time;}get decl(){return this.schedule_item.decl;}get start_offset(){return this.schedule_item.start_offset;}get end_offset(){return this.schedule_item.end_offset;}_remainingTime(datetime){if(this._end_time.equals(MAX_DATE)){return"Infinity";}const interval=Interval.fromDateTimes(datetime,this._end_time);return interval.length('milliseconds');}summary(datetime){if(datetime<=this._end_time){return{decl:this.decl,remainingTimeMs:this._remainingTime(datetime),startTime:this._start_time.equals(MAX_DATE)?"Infinity":this._start_time.toISO(),endTime:this._end_time.equals(MAX_DATE)?"Infinity":this._end_time.toISO()};}return{decl:this.decl,remainingTimeMs:"Infinity",startTime:this._start_time.equals(MAX_DATE)?"Infinity":this._start_time.toISO(),endTime:this._end_time.equals(MAX_DATE)?"Infinity":this._end_time.toISO()};}}const DateTimeHandler={canHandle:val=>val instanceof DateTime$1,serialize:val=>{return[val.toMillis(),[]];},deserialize:num=>DateTime$1.fromMillis(num)};const CalendarEventHandler={canHandle:val=>val instanceof CalendarEvent,serialize:val=>{return[val.toJSON(),[]];},deserialize:obj=>CalendarEvent.fromJSON(obj)};const CalendarEventArrayHandler={canHandle:val=>Array.isArray(val)&&val.every(x=>x instanceof CalendarEvent),serialize:val=>{return[val.map(x=>x.toJSON()),[]];},deserialize:obj=>obj.map(x=>CalendarEvent.fromJSON(x))};transferHandlers.set("DATETIME",DateTimeHandler);transferHandlers.set("CALENDAREVENT",CalendarEventHandler);transferHandlers.set("CALENDAREVENTARRAY",CalendarEventArrayHandler);class CalendarSchedule{get _isDynamic(){return this._isOnce||this._isToggle;}constructor(decl,lowWatermark,highWatermark){this.decl=decl;this._queue=[];this._isOnce=false;this._isToggle=false;this._isReady=false;this._hasDeathNote=false;this._isActivated=false;this._isPulling=false;this._worker=this._workerFactory();this._calendar=wrap(this._worker);this._lowWatermark=Duration.fromDurationLike(lowWatermark);this._highWatermark=Duration.fromDurationLike(highWatermark);this._isOnce=this.decl.hasOwnProperty('onceOn');this._isToggle=this.decl.hasOwnProperty('enableOn')&&this.decl.hasOwnProperty('disableOn');if(this._isOnce){const match=this.decl.onceOn.match;console.log(`${this.shortId}: once schedule: ${JSON.stringify(match)}`);this._onceListener=event=>{console.log(`${this.shortId}: event ${JSON.stringify(event)}`);for(const prop in match){console.log('prop',prop);if(prop[0]==='@'){continue;}if(!event.detail.hasOwnProperty(prop)){console.log('no prop');continue;}if(event.detail[prop]===match[prop]){const datetime=DateTime$1.now();this._activate(datetime);}}};self.addEventListener(this.decl.onceOn.type,this._onceListener);}else if(this._isToggle){const matchOn=this.decl.enableOn.match;const matchOff=this.decl.disableOn.match;console.log(`${this.shortId}: toggle schedule: ${JSON.stringify(matchOn)}, ${JSON.stringify(matchOff)}`);this._enableListener=event=>{console.log(`${this.shortId}: event ${JSON.stringify(event)}`);for(const prop in matchOn){console.log('prop',prop);if(prop[0]==='@'){continue;}if(!event.detail.hasOwnProperty(prop)){console.log('no prop');continue;}if(event.detail[prop]===matchOn[prop]){const datetime=DateTime$1.now();this._activate(datetime);}}};this._disableListener=event=>{console.log(`${this.shortId}: event ${JSON.stringify(event)}`);for(const prop in matchOff){console.log('prop',prop);if(prop[0]==='@'){continue;}if(!event.detail.hasOwnProperty(prop)){console.log('no prop');continue;}if(event.detail[prop]===matchOff[prop]){const datetime=DateTime$1.now();this._deactivate(datetime);}}};self.addEventListener(this.decl.enableOn.type,this._enableListener);self.addEventListener(this.decl.disableOn.type,this._disableListener);}this._isActivated=!this._isDynamic;}// Use relative path on local file system due to LG WebOS security policy.
+class ScheduleItemView{constructor(schedule_item,playlist_start){this.schedule_item=schedule_item;this._start_time=playlist_start.plus(schedule_item.start_offset);this._end_time=playlist_start.plus(schedule_item.end_offset);}get eventSeries(){return this.schedule_item.eventSeries;}get shortEventSeries(){return this.schedule_item.shortEventSeries;}get id(){return this.decl.id;}get shortId(){return this.decl.id.substring(0,7);}get currentSrc(){return this.decl.href;}get start_time(){return this._start_time;}get end_time(){return this._end_time;}get decl(){return this.schedule_item.decl;}get start_offset(){return this.schedule_item.start_offset;}get end_offset(){return this.schedule_item.end_offset;}_remainingTime(datetime){if(this._end_time.equals(MAX_DATE)){return"Infinity";}const interval=luxonExports.Interval.fromDateTimes(datetime,this._end_time);return interval.length('milliseconds');}summary(datetime){if(datetime<=this._end_time){return{decl:this.decl,remainingTimeMs:this._remainingTime(datetime),startTime:this._start_time.equals(MAX_DATE)?"Infinity":this._start_time.toISO(),endTime:this._end_time.equals(MAX_DATE)?"Infinity":this._end_time.toISO()};}return{decl:this.decl,remainingTimeMs:"Infinity",startTime:this._start_time.equals(MAX_DATE)?"Infinity":this._start_time.toISO(),endTime:this._end_time.equals(MAX_DATE)?"Infinity":this._end_time.toISO()};}}const DateTimeHandler={canHandle:val=>val instanceof luxonExports.DateTime,serialize:val=>{return[val.toMillis(),[]];},deserialize:num=>luxonExports.DateTime.fromMillis(num)};const CalendarEventHandler={canHandle:val=>val instanceof CalendarEvent,serialize:val=>{return[val.toJSON(),[]];},deserialize:obj=>CalendarEvent.fromJSON(obj)};const CalendarEventArrayHandler={canHandle:val=>Array.isArray(val)&&val.every(x=>x instanceof CalendarEvent),serialize:val=>{return[val.map(x=>x.toJSON()),[]];},deserialize:obj=>obj.map(x=>CalendarEvent.fromJSON(x))};transferHandlers.set("DATETIME",DateTimeHandler);transferHandlers.set("CALENDAREVENT",CalendarEventHandler);transferHandlers.set("CALENDAREVENTARRAY",CalendarEventArrayHandler);class CalendarSchedule{get _isDynamic(){return this._isOnce||this._isToggle;}constructor(decl,lowWatermark,highWatermark){this.decl=decl;this._queue=[];this._isOnce=false;this._isToggle=false;this._isReady=false;this._hasDeathNote=false;this._isActivated=false;this._isPulling=false;this._worker=this._workerFactory();this._calendar=wrap(this._worker);this._lowWatermark=luxonExports.Duration.fromDurationLike(lowWatermark);this._highWatermark=luxonExports.Duration.fromDurationLike(highWatermark);this._isOnce=this.decl.hasOwnProperty('onceOn');this._isToggle=this.decl.hasOwnProperty('enableOn')&&this.decl.hasOwnProperty('disableOn');if(this._isOnce){const match=this.decl.onceOn.match;console.log(`${this.shortId}: once schedule: ${JSON.stringify(match)}`);this._onceListener=event=>{console.log(`${this.shortId}: event ${JSON.stringify(event)}`);for(const prop in match){console.log('prop',prop);if(prop[0]==='@'){continue;}if(!event.detail.hasOwnProperty(prop)){console.log('no prop');continue;}if(event.detail[prop]===match[prop]){const datetime=luxonExports.DateTime.now();this._activate(datetime);}}};self.addEventListener(this.decl.onceOn.type,this._onceListener);}else if(this._isToggle){const matchOn=this.decl.enableOn.match;const matchOff=this.decl.disableOn.match;console.log(`${this.shortId}: toggle schedule: ${JSON.stringify(matchOn)}, ${JSON.stringify(matchOff)}`);this._enableListener=event=>{console.log(`${this.shortId}: event ${JSON.stringify(event)}`);for(const prop in matchOn){console.log('prop',prop);if(prop[0]==='@'){continue;}if(!event.detail.hasOwnProperty(prop)){console.log('no prop');continue;}if(event.detail[prop]===matchOn[prop]){const datetime=luxonExports.DateTime.now();this._activate(datetime);}}};this._disableListener=event=>{console.log(`${this.shortId}: event ${JSON.stringify(event)}`);for(const prop in matchOff){console.log('prop',prop);if(prop[0]==='@'){continue;}if(!event.detail.hasOwnProperty(prop)){console.log('no prop');continue;}if(event.detail[prop]===matchOff[prop]){const datetime=luxonExports.DateTime.now();this._deactivate(datetime);}}};self.addEventListener(this.decl.enableOn.type,this._enableListener);self.addEventListener(this.decl.disableOn.type,this._disableListener);}this._isActivated=!this._isDynamic;}// Use relative path on local file system due to LG WebOS security policy.
 _workerFactory(){if(location.protocol==='file:'){return new Worker('../dist/calendar.bundle~chrome53.js',{type:'classic',credentials:'omit',name:`Calendar - ${this.shortId}`});}return new Worker(new URL('../dist/calendar.bundle.js',location.href).pathname,{type:'module',credentials:'omit',name:`Calendar - ${this.shortId}`});}_activate(datetime){var _this=this;return _asyncToGenerator(function*(){console.log(`${_this.shortId}: _activate(${datetime.toISO()})`);yield _this._calendar.parseSchedule(_this.id,_objectSpread(_objectSpread({},_this.decl),{},{start:datetime.toISO()}));_this._isActivated=true;})();}_deactivate(datetime){console.log(`${this.shortId}: _deactivate(${datetime.toISO()})`);this._isActivated=false;}get id(){return this.decl.id;}get shortId(){return this.id.substring(0,7);}set isReady(isReady){console.log(`${this.shortId}: isReady(${isReady})`);this._isReady=isReady;}get isReady(){return this._isReady;}get isActive(){return this._isReady&&this._isActivated;}// Forced re-interpretation of Recipe schema to wider type.
 get entries(){return this.decl.playlist.entries;}get sources(){const hrefs=new Set();for(const decl of this.entries){// Primary asset,
 hrefs.add({"@type":decl["@type"],id:decl.id,href:decl.href,size:decl.size,hash:decl.hash,integrity:decl.integrity,md5:decl.md5});// Dependent assets.
-if('sources'in decl&&Array.isArray(decl.sources)){for(const asset of decl.sources){hrefs.add(asset);}}}return Array.from(hrefs.values());}summary(datetime){let pct=0;if(typeof this.tail!=="undefined"){this.tail.end.toISO();const interval=Interval.fromDateTimes(datetime,this.tail.end);const duration=interval.toDuration('milliseconds');pct=100*Math.min(duration.toMillis(),this._highWatermark.toMillis())/this._highWatermark.toMillis();}const queue=this._queue.map(entry=>entry.interval.toISO());return{id:this.shortId,pct,queue};}parseSchedule(decl){var _this2=this;return _asyncToGenerator(function*(){console.log(`${_this2.shortId}: parseSchedule`);if(_this2._isDynamic){return;}yield _this2._calendar.parseSchedule(_this2.id,decl);})();}_getEvents(startTime,endTime){var _this3=this;return _asyncToGenerator(function*(){//		console.log(`${this.shortId}: getEvents ${startTime.toISO()} -> ${endTime.toISO()}.`);
-return yield _this3._calendar.getEvents(startTime,endTime);})();}setLowWatermark(durationLike){console.log(`${this.shortId}: setLowWatermark(${JSON.stringify(durationLike)})`);this._lowWatermark=Duration.fromDurationLike(durationLike);}setHighWatermark(durationLike){console.log(`${this.shortId}: setHighWatermark(${JSON.stringify(durationLike)})`);this._highWatermark=Duration.fromDurationLike(durationLike);}// Fill to high watermark when breaking low.
+if('sources'in decl&&Array.isArray(decl.sources)){for(const asset of decl.sources){hrefs.add(asset);}}}return Array.from(hrefs.values());}summary(datetime){let pct=0;if(typeof this.tail!=="undefined"){this.tail.end.toISO();const interval=luxonExports.Interval.fromDateTimes(datetime,this.tail.end);const duration=interval.toDuration('milliseconds');pct=100*Math.min(duration.toMillis(),this._highWatermark.toMillis())/this._highWatermark.toMillis();}const queue=this._queue.map(entry=>entry.interval.toISO());return{id:this.shortId,pct,queue};}parseSchedule(decl){var _this2=this;return _asyncToGenerator(function*(){console.log(`${_this2.shortId}: parseSchedule`);if(_this2._isDynamic){return;}yield _this2._calendar.parseSchedule(_this2.id,decl);})();}_getEvents(startTime,endTime){var _this3=this;return _asyncToGenerator(function*(){//		console.log(`${this.shortId}: getEvents ${startTime.toISO()} -> ${endTime.toISO()}.`);
+return yield _this3._calendar.getEvents(startTime,endTime);})();}setLowWatermark(durationLike){console.log(`${this.shortId}: setLowWatermark(${JSON.stringify(durationLike)})`);this._lowWatermark=luxonExports.Duration.fromDurationLike(durationLike);}setHighWatermark(durationLike){console.log(`${this.shortId}: setHighWatermark(${JSON.stringify(durationLike)})`);this._highWatermark=luxonExports.Duration.fromDurationLike(durationLike);}// Fill to high watermark when breaking low.
 pull(datetime){var _this4=this;return _asyncToGenerator(function*(){//console.log(`${this.shortId}: pull(${datetime.toISO()})`);
 if(!_this4._isActivated){return false;}if(_this4._aboveLowWatermark(datetime)){return false;}const headTime=typeof _this4.head==="undefined"?datetime:_this4.head.start;const endTime=headTime.plus(_this4._highWatermark);performance.now();const events=yield _this4._getEvents(datetime,endTime);//console.log(`${this.shortId}: getEvents ${Math.round(performance.now() - t0)}ms.`);
 _this4._queue=events;return true;})();}prefetch(datetime){const headTime=typeof this.head==="undefined"?datetime:this.head.start;const tailTime=typeof this.tail==="undefined"?datetime:this.tail.end;const endTime=headTime.plus(this._highWatermark).plus(this._lowWatermark);if(endTime>tailTime){this._calendar.prefetchEvents(headTime,endTime).catch(err=>{console.error(err);});}}// Destructive to queue.
 getCalendarEvent(datetime){//		console.log(`${this.shortId}: getCalendarEvent(${datetime.toISO()})`);
 if(!this.isActive){return null;}else if(this._isOnce){if(typeof this.head!=="undefined"&&datetime>this.head.end){this._deactivate(datetime);return null;}}if(!this._isPulling){this._isPulling=true;this.pull(datetime).then(()=>{this.prefetch(datetime);}).finally(()=>{this._isPulling=false;});}while(true){if(typeof this.head==="undefined"){return null;}if(datetime<this.head.end){break;}this._queue.shift();}return this.head;}peekCalendarEvent(datetime){//		console.log(`${this.shortId}: peekCalendarEvent(${datetime.toISO()})`);
 if(!this.isActive){return null;}else if(this._isOnce){if(typeof this.head!=="undefined"&&datetime>this.head.end){this._deactivate(datetime);return null;}}if(!this._isPulling){this._isPulling=true;this.pull(datetime).then(()=>{this.prefetch(datetime);}).finally(()=>{this._isPulling=false;});}for(const entry of this._queue){if(datetime<entry.end){return entry;}}return null;}get isEmpty(){return this._queue.length===0;}get head(){return this.isEmpty?undefined:this._queue[0];}get tail(){return this.isEmpty?undefined:this._queue[this._queue.length-1];}_aboveLowWatermark(datetime){//		console.log(`aboveLowWatermark(${datetime.toISO()})`);
-if(typeof this.tail==="undefined"){return false;}const interval=Interval.fromDateTimes(datetime,this.tail.end);const duration=interval.toDuration('seconds');return duration>this._lowWatermark;}close(){if(typeof this._onceListener!=="undefined"){self.removeEventListener(this.decl.onceOn.type,this._onceListener);}if(typeof this._enableListener!=="undefined"){self.removeEventListener(this.decl.enableOn.type,this._enableListener);}if(typeof this._disableListener!=="undefined"){self.removeEventListener(this.decl.disableOn.type,this._disableListener);}this._calendar[releaseProxy]();this._worker.terminate();this._isReady=false;}closeWhenHidden(){this._hasDeathNote=true;if(!this.isReady){console.log(`${this.shortId}: Closing.`);this.close();}}hidden(){if(this._hasDeathNote){console.log(`${this.shortId}: Closing when hidden.`);this.close();}}toJSON(){return{decl:this.decl,"_lowWatermark":this._lowWatermark.toISO(),"_highWatermark":this._highWatermark.toISO(),"_queue":this._queue.map(x=>x.toJSON())};}}class BasicScheduler extends EventTarget$1{constructor(){super();this.autoplay=true;this.mergePlaylist=true;this._src="";this._src_id="";this._src_size=0;this._src_hash=undefined;this._src_integrity="";this._src_md5="";this._currentTime=DateTime$1.fromMillis(0);// UNIX epoch.
-this._inTransition=false;this._transitionStartTime=DateTime$1.fromMillis(0);this._transitionEndTime=DateTime$1.fromMillis(0);this._transitionPercent=0;this._transitionPercentSpeed=0;this._play_resolve=null;this._play_reject=null;this._schedule_cluster=undefined;// Per HTMLMediaElement.
+if(typeof this.tail==="undefined"){return false;}const interval=luxonExports.Interval.fromDateTimes(datetime,this.tail.end);const duration=interval.toDuration('seconds');return duration>this._lowWatermark;}close(){if(typeof this._onceListener!=="undefined"){self.removeEventListener(this.decl.onceOn.type,this._onceListener);}if(typeof this._enableListener!=="undefined"){self.removeEventListener(this.decl.enableOn.type,this._enableListener);}if(typeof this._disableListener!=="undefined"){self.removeEventListener(this.decl.disableOn.type,this._disableListener);}this._calendar[releaseProxy]();this._worker.terminate();this._isReady=false;}closeWhenHidden(){this._hasDeathNote=true;if(!this.isReady){console.log(`${this.shortId}: Closing.`);this.close();}}hidden(){if(this._hasDeathNote){console.log(`${this.shortId}: Closing when hidden.`);this.close();}}toJSON(){return{decl:this.decl,"_lowWatermark":this._lowWatermark.toISO(),"_highWatermark":this._highWatermark.toISO(),"_queue":this._queue.map(x=>x.toJSON())};}}class BasicScheduler extends EventTarget$1{constructor(){super();this.autoplay=true;this.mergePlaylist=true;this._src="";this._src_id="";this._src_size=0;this._src_hash=undefined;this._src_integrity="";this._src_md5="";this._currentTime=luxonExports.DateTime.fromMillis(0);// UNIX epoch.
+this._inTransition=false;this._transitionStartTime=luxonExports.DateTime.fromMillis(0);this._transitionEndTime=luxonExports.DateTime.fromMillis(0);this._transitionPercent=0;this._transitionPercentSpeed=0;this._play_resolve=null;this._play_reject=null;this._schedule_cluster=undefined;// Per HTMLMediaElement.
 this._ended=false;this._error=null;this._networkState=Constants.NETWORK_NO_SOURCE;this._paused=true;this._readyState=Constants.HAVE_NOTHING;this._seeking=false;// Active MediaAssets.
-this._joined_cluster=undefined;this._active_media_assets=[];this._media_list_duration=Duration.fromMillis(0);this._media_list_current=null;this._media_current=null;this._media_next=null;this._transitionFrom=null;this._transitionTo=null;this._hasInterrupt=false;this._transitionSize=0;this._calendar_schedules=[];this.addEventListener('loadedmetadata',event=>this._onLoadedMetadata(event));}get debugInTransition(){return this._inTransition;}_schedulerFactory(decl,lowWatermark,highWatermark){return new CalendarSchedule(decl,lowWatermark,highWatermark);}close(){}get src(){return this._src;}set src(href){var _this5=this;if(!this.mergePlaylist||href.length===0){_asyncToGenerator(function*(){yield _this5._clear();})();}this._src=href;if(this.autoplay&&this.src.length!==0){console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_id})`);_asyncToGenerator(function*(){yield _this5.play();})();}}get src_id(){return this._src_id;}set src_id(src_id){this._src_id=src_id;}get src_size(){return this._src_size;}set src_size(size){this._src_size=size;}get src_hash(){return this._src_hash;}set src_hash(hash){this._src_hash=hash;}get src_integrity(){return this._src_integrity;}set src_integrity(integrity){this._src_integrity=integrity;}get src_md5(){return this._src_md5;}set src_md5(md5){this._src_md5=md5;}get currentTime(){return this._currentTime;}set currentTime(datetime){this._currentTime=datetime;}// Per HTMLMediaElement.
+this._joined_cluster=undefined;this._active_media_assets=[];this._media_list_duration=luxonExports.Duration.fromMillis(0);this._media_list_current=null;this._media_current=null;this._media_next=null;this._transitionFrom=null;this._transitionTo=null;this._hasInterrupt=false;this._transitionSize=0;this._calendar_schedules=[];this.addEventListener('loadedmetadata',event=>this._onLoadedMetadata(event));}get debugInTransition(){return this._inTransition;}_schedulerFactory(decl,lowWatermark,highWatermark){return new CalendarSchedule(decl,lowWatermark,highWatermark);}close(){}get src(){return this._src;}set src(href){var _this5=this;if(!this.mergePlaylist||href.length===0){_asyncToGenerator(function*(){yield _this5._clear();})();}this._src=href;if(this.autoplay&&this.src.length!==0){console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_id})`);_asyncToGenerator(function*(){yield _this5.play();})();}}get src_id(){return this._src_id;}set src_id(src_id){this._src_id=src_id;}get src_size(){return this._src_size;}set src_size(size){this._src_size=size;}get src_hash(){return this._src_hash;}set src_hash(hash){this._src_hash=hash;}get src_integrity(){return this._src_integrity;}set src_integrity(integrity){this._src_integrity=integrity;}get src_md5(){return this._src_md5;}set src_md5(md5){this._src_md5=md5;}get currentTime(){return this._currentTime;}set currentTime(datetime){this._currentTime=datetime;}// Per HTMLMediaElement.
 get ended(){return this._ended;}get error(){return this._error;}get networkState(){return this._networkState;}get paused(){return this._paused;}get readyState(){return this._readyState;}get seeking(){return this._seeking;}load(){var _this6=this;_asyncToGenerator(function*(){try{console.log("BASIC-SCHEDULER: load");_this6.dispatchEvent(new Event('loadstart'));_this6._networkState=Constants.NETWORK_LOADING;const schedule=yield _this6._fetch(_this6.src);_this6._networkState=Constants.NETWORK_IDLE;yield _this6._parseRecipe(schedule);_this6._readyState=Constants.HAVE_FUTURE_DATA;_this6.dispatchEvent(new Event('loadedmetadata'));_this6.dispatchEvent(new Event('loadeddata'));}catch(e){console.warn(e);_this6._networkState=Constants.NETWORK_IDLE;const event=new CustomEvent('error',{detail:e});_this6.dispatchEvent(event);}})();}pause(){if(this.paused){return;}console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_id})`);this._paused=true;this.dispatchEvent(new Event('pause'));}play(){var _this7=this;return _asyncToGenerator(function*(){console.log("BASIC-SCHEDULER: play");if(_this7._play_resolve!==null){_this7.removeEventListener('canplay',_this7._play_resolve);}if(_this7._play_reject!==null){_this7.removeEventListener('error',_this7._play_reject);}yield new Promise((resolve,reject)=>{_this7._play_resolve=_event=>{_this7._play_resolve=null;resolve();};_this7._play_reject=event=>{_this7._play_reject=null;console.warn(event);reject(event);};_this7.addEventListener('canplay',_this7._play_resolve,{once:true});_this7.addEventListener('error',_this7._play_reject,{once:true});try{_this7.load();}catch(ex){console.warn(ex);reject(ex);}});_this7._paused=false;_this7.dispatchEvent(new Event('play'));_this7.dispatchEvent(new Event('playing'));})();}update(datetime){var _this$_media_list_cur;//		console.log("BASIC-SCHEDULER: update", datetime.toISO());
-if(this.paused){return;}let need_seek=false;if(this._hasInterrupt){console.debug(`BASIC-SCHEDULER: Event playback, ${datetime.toISO()}.`);need_seek=true;}else if(datetime<this._currentTime){console.debug(`BASIC-SCHEDULER: Rewinding playback, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);need_seek=true;}else if(this._media_current===null){console.debug(`BASIC-SCHEDULER: Fast-seek forward, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);need_seek=true;}else if(datetime>=this._mediaCurrentEndTime){console.debug(`BASIC-SCHEDULER: Fast-forward playback, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);need_seek=true;}this._currentTime=datetime;if(need_seek){this._onSeekStarted();}const last_calendar_schedule_id=(_this$_media_list_cur=this._media_list_current)===null||_this$_media_list_cur===void 0?void 0:_this$_media_list_cur.parentId;this._media_list_current=this._getMediaListContains(datetime);this._updateMediaList(this._media_list_current);if(this._media_list_current!==null){this._media_current=this._seekMediaList(datetime,this._media_list_current);if(this._media_current!==null){const next_events=this._peekMediaListContains(this._media_current.end_time);if(next_events!==null){this._media_next=this._seekMediaList(this._media_current.end_time,next_events);}else{this._media_next=null;}}}else{this._media_current=null;}if(typeof last_calendar_schedule_id!=="undefined"){if(this._media_list_current===null||last_calendar_schedule_id!==this._media_list_current.parentId){const last_calendar_schedule=this._calendar_schedules.find(x=>x.id===last_calendar_schedule_id);if(typeof last_calendar_schedule!=="undefined"){last_calendar_schedule.hidden();}}}if(this._media_current===null){const next_events=this._peekMediaListAfter(datetime);if(next_events!==null){const next_datetime=DateTime$1.max(datetime,next_events.start);this._media_next=this._seekMediaList(next_datetime,next_events);}else{this._media_next=null;}}if(need_seek){this._onSeekEnded();}// [ intro ] -- content -- [ outro ] [ intro ] -- next content --
+if(this.paused){return;}let need_seek=false;if(this._hasInterrupt){console.debug(`BASIC-SCHEDULER: Event playback, ${datetime.toISO()}.`);need_seek=true;}else if(datetime<this._currentTime){console.debug(`BASIC-SCHEDULER: Rewinding playback, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);need_seek=true;}else if(this._media_current===null){console.debug(`BASIC-SCHEDULER: Fast-seek forward, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);need_seek=true;}else if(datetime>=this._mediaCurrentEndTime){console.debug(`BASIC-SCHEDULER: Fast-forward playback, ${this._currentTime.toISO()} -> ${datetime.toISO()}.`);need_seek=true;}this._currentTime=datetime;if(need_seek){this._onSeekStarted();}const last_calendar_schedule_id=(_this$_media_list_cur=this._media_list_current)===null||_this$_media_list_cur===void 0?void 0:_this$_media_list_cur.parentId;this._media_list_current=this._getMediaListContains(datetime);this._updateMediaList(this._media_list_current);if(this._media_list_current!==null){this._media_current=this._seekMediaList(datetime,this._media_list_current);if(this._media_current!==null){const next_events=this._peekMediaListContains(this._media_current.end_time);if(next_events!==null){this._media_next=this._seekMediaList(this._media_current.end_time,next_events);}else{this._media_next=null;}}}else{this._media_current=null;}if(typeof last_calendar_schedule_id!=="undefined"){if(this._media_list_current===null||last_calendar_schedule_id!==this._media_list_current.parentId){const last_calendar_schedule=this._calendar_schedules.find(x=>x.id===last_calendar_schedule_id);if(typeof last_calendar_schedule!=="undefined"){last_calendar_schedule.hidden();}}}if(this._media_current===null){const next_events=this._peekMediaListAfter(datetime);if(next_events!==null){const next_datetime=luxonExports.DateTime.max(datetime,next_events.start);this._media_next=this._seekMediaList(next_datetime,next_events);}else{this._media_next=null;}}if(need_seek){this._onSeekEnded();}// [ intro ] -- content -- [ outro ] [ intro ] -- next content --
 // Into and outro are scoped to the current media, thus after current media
 // end time, i.e. the intro of the next content, the values for both intro
 // and outro will have advanced in time.
@@ -4566,11 +4658,11 @@ if(!this._inTransition){if(datetime>=this._transitionOutroStartTime&&datetime<th
 if(datetime>=this._transitionEndTime){this._onTransitionEnded(this._transitionEndTime);}}if(this._inTransition){this._updateTransition(datetime);}//		console.info(this.state(datetime));
 }_onTransitionStart(datetime){console.debug(`BASIC-SCHEDULER: _onTransitionStart(${datetime.toISO()})`);if(this._media_current===null){throw new Error("current is null.");}this._transitionFrom=this._media_current.decl;// Schedule may have updated and next media has not been set.
 if(this._media_next===null){console.warn("next is null.");return;}if(typeof this._transitionTime==="undefined"){throw new Error("transition time is undefined.");}this._transitionTo=this._media_next.decl;this._inTransition=true;this._transitionStartTime=datetime;this._transitionEndTime=datetime.plus({seconds:this._transitionTime});console.debug(`BASIC-SCHEDULER: Transition end: ${this._transitionEndTime.toISO()}`);}_updateTransition(datetime){//		console.log("BASIC-SCHEDULER: _updateTransition");
-const interval=Interval.fromDateTimes(this._transitionStartTime,datetime);const elapsed=interval.length('seconds');if(typeof this._transitionTime==="undefined"){throw new Error("transition time is undefined.");}this._transitionPercent=Math.min(1.0,elapsed/this._transitionTime);this._transitionPercentSpeed=1/this._transitionTime;if(this._media_next===null){throw new Error("next is null.");}}_onTransitionEnded(datetime){console.debug(`BASIC-SCHEDULER: _onTransitionEnded(${datetime.toISO()}`);this._inTransition=false;this._transitionFrom=null;this._transitionTo=null;}_onSeekStarted(){//		console.log("BASIC-SCHEDULER: _onSeekStarted");
+const interval=luxonExports.Interval.fromDateTimes(this._transitionStartTime,datetime);const elapsed=interval.length('seconds');if(typeof this._transitionTime==="undefined"){throw new Error("transition time is undefined.");}this._transitionPercent=Math.min(1.0,elapsed/this._transitionTime);this._transitionPercentSpeed=1/this._transitionTime;if(this._media_next===null){throw new Error("next is null.");}}_onTransitionEnded(datetime){console.debug(`BASIC-SCHEDULER: _onTransitionEnded(${datetime.toISO()}`);this._inTransition=false;this._transitionFrom=null;this._transitionTo=null;}_onSeekStarted(){//		console.log("BASIC-SCHEDULER: _onSeekStarted");
 this._seeking=true;this.dispatchEvent(new Event('seeking'));}_onSeekEnded(){//		console.log("BASIC-SCHEDULER: _onSeekEnded");
 this._seeking=false;this.dispatchEvent(new Event('seeked'));this.dispatchEvent(new Event('playing'));}state(datetime){const currentTime=datetime.toISO();if(currentTime===null){throw new Error("Cannot convert datetime to ISO.");}const eventSeries=this._calendar_schedules.map(calendar=>calendar.summary(datetime));const mediaList=this._active_media_assets.map(asset=>{const start=asset.start_offset.equals(MAX_DURATION)?"Infinity":asset.start_offset.toISO();if(start===null){throw new Error("Cannot convert start offset to ISO.");}const end=asset.end_offset.equals(MAX_DURATION)?"Infinity":asset.end_offset.toISO();if(end===null){throw new Error("Cannot convert end offset to ISO.");}const media={id:asset.shortId,start,end};return media;});const mediaCurrent=this._media_current===null?null:this._media_current.summary(datetime);const mediaNext=this._media_next===null?null:this._media_next.summary(datetime);const transition=this._inTransition&&this._transitionFrom!==null&&this._transitionTo!==null&&typeof this._transitionUrl==="string"?{from:{decl:this._transitionFrom},to:{decl:this._transitionTo},url:this._transitionUrl,percent:this._transitionPercent,percentSpeed:this._transitionPercentSpeed}:null;return{currentTime,eventSeries,mediaList,mediaCurrent,mediaNext,transition};}_onLoadedMetadata(_event){var _this8=this;_asyncToGenerator(function*(){console.groupCollapsed("BASIC-SCHEDULER: _onLoadedMetadata");_this8._media_list_current=_this8._getMediaListContains(_this8._currentTime);_this8._updateMediaList(_this8._media_list_current);if(_this8._media_list_current!==null){_this8._media_current=_this8._seekMediaList(_this8._currentTime,_this8._media_list_current);}if(_this8._media_current!==null){const event=_this8._peekMediaListContains(_this8._mediaCurrentEndTime);_this8._media_next=null;if(event!==null&&event.data.entries.length!==0){_this8._media_next=_this8._seekMediaList(_this8._mediaCurrentEndTime,event);}}else if(_this8._media_next!==null){const event=_this8._peekMediaListAfter(_this8._currentTime);if(event!==null){_this8._media_next=_this8._seekMediaList(event.start,event);}}_this8.dispatchEvent(new Event('canplay'));console.groupEnd();})();}// 4xx, expired -> abort
 // 5xx, timeout -> retry
-_fetch(url){return _asyncToGenerator(function*(){console.log("BASIC-SCHEDULER: _fetch",url);const response=yield fetch(url);if(!response.ok){throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);}const referenced=yield response.json();const result=yield parse$1(referenced,{scope:self.location.href});return structuredClone(result);})();}_clear(){var _this9=this;return _asyncToGenerator(function*(){_this9._currentTime=DateTime$1.fromMillis(0);_this9._inTransition=false;_this9._transitionStartTime=DateTime$1.fromMillis(0);_this9._transitionEndTime=DateTime$1.fromMillis(0);_this9._transitionPercent=0;_this9._transitionPercentSpeed=0;_this9._ended=false;_this9._error=null;_this9._networkState=Constants.NETWORK_NO_SOURCE;_this9._paused=true;_this9._readyState=Constants.HAVE_NOTHING;_this9._seeking=false;if(typeof _this9._joined_cluster==="string"&&typeof _this9._leave==="function"){yield _this9._leave();_this9._joined_cluster=undefined;}_this9._active_media_assets=[];_this9._media_list_duration=Duration.fromMillis(0);_this9._media_list_current=null;_this9._media_current=null;_this9._media_next=null;_this9._transitionFrom=null;_this9._transitionTo=null;_this9._hasInterrupt=false;_this9._transitionId=undefined;_this9._transitionUrl=undefined;_this9._transitionSize=0;_this9._transitionHash=undefined;_this9._transitionIntegrity=undefined;_this9._transitionTime=undefined;for(const calendar of _this9._calendar_schedules){calendar.close();}_this9._calendar_schedules=[];})();}get currentSrc(){if(this._media_current===null){return this._media_current;}return this._media_current.currentSrc;}// All MediaDecl's for set of schedules.
+_fetch(url){return _asyncToGenerator(function*(){console.log("BASIC-SCHEDULER: _fetch",url);const response=yield fetch(url);if(!response.ok){throw new Error(`Failed to fetch ${url}: ${response.status} ${response.statusText}`);}const referenced=yield response.json();const result=yield parse$1(referenced,{scope:self.location.href});return structuredClone(result);})();}_clear(){var _this9=this;return _asyncToGenerator(function*(){_this9._currentTime=luxonExports.DateTime.fromMillis(0);_this9._inTransition=false;_this9._transitionStartTime=luxonExports.DateTime.fromMillis(0);_this9._transitionEndTime=luxonExports.DateTime.fromMillis(0);_this9._transitionPercent=0;_this9._transitionPercentSpeed=0;_this9._ended=false;_this9._error=null;_this9._networkState=Constants.NETWORK_NO_SOURCE;_this9._paused=true;_this9._readyState=Constants.HAVE_NOTHING;_this9._seeking=false;if(typeof _this9._joined_cluster==="string"&&typeof _this9._leave==="function"){yield _this9._leave();_this9._joined_cluster=undefined;}_this9._active_media_assets=[];_this9._media_list_duration=luxonExports.Duration.fromMillis(0);_this9._media_list_current=null;_this9._media_current=null;_this9._media_next=null;_this9._transitionFrom=null;_this9._transitionTo=null;_this9._hasInterrupt=false;_this9._transitionId=undefined;_this9._transitionUrl=undefined;_this9._transitionSize=0;_this9._transitionHash=undefined;_this9._transitionIntegrity=undefined;_this9._transitionTime=undefined;for(const calendar of _this9._calendar_schedules){calendar.close();}_this9._calendar_schedules=[];})();}get currentSrc(){if(this._media_current===null){return this._media_current;}return this._media_current.currentSrc;}// All MediaDecl's for set of schedules.
 get entries(){let entries=[];for(const schedule of this._calendar_schedules){entries=entries.concat(schedule.entries);}return entries;}// Unique media URLs for set of schedules.
 get sources(){const sources=[];if(this._src){sources.push({scope:'schedule',entries:[{'@type':'Text',id:this._src_id,href:this._src,size:this._src_size,hash:this._src_hash,integrity:this._src_integrity,md5:this._src_md5,duration:0}],isReady:true});}if(this._transitionId&&this._transitionUrl&&this._transitionSize&&this._transitionHash&&this._transitionIntegrity&&this._transitionMd5&&this._transitionTime){sources.push({scope:this._transitionId,entries:[{'@type':'HTMLImageElement',id:this._transitionId,href:this._transitionUrl,size:this._transitionSize,hash:this._transitionHash,integrity:this._transitionIntegrity,md5:this._transitionMd5,duration:this._transitionTime}],// TODO: enable transition once it is ready.
 isReady:false});}for(const schedule of this._calendar_schedules){sources.push({scope:schedule.id,entries:schedule.entries,// Forward getter/setter to calendar schedule.
@@ -4579,7 +4671,7 @@ get isReady(){return schedule.isReady;},set isReady(isReady){schedule.isReady=is
 _calculateMediaListIterationDuration(calendar_event){return calendar_event.data.entries.reduce((accumulator,currentValue)=>accumulator+currentValue.duration,0);}_calculateMediaListStart(datetime,duration){const start_time=datetime.minus({milliseconds:datetime.toMillis()%duration.toMillis()});//		console.log('list-start', datetime.toISO(), duration.toISO(), '->', start_time.toISO());
 return start_time;}// ScheduleItemView must be in respect to the media list boundary.
 _seekMediaList(datetime,calendar_event){//		console.log("BASIC-SCHEDULER: _seekMediaList", datetime.toISO());
-if(calendar_event.data.entries.length===0){return null;}const duration=Duration.fromMillis(1000*this._calculateMediaListIterationDuration(calendar_event));let media_list_start=this._calculateMediaListStart(datetime,duration);while(datetime>=media_list_start.plus(duration)){media_list_start=media_list_start.plus(duration);}let start_offset=Duration.fromMillis(0);for(let i=0;i<calendar_event.data.entries.length;i++){const end_offset=start_offset.plus({seconds:calendar_event.data.entries[i].duration});const entry=new ScheduleItem(calendar_event.id,calendar_event.data.entries[i],start_offset,end_offset);const view=new ScheduleItemView(entry,media_list_start);if(datetime>=view.start_time&&datetime<view.end_time){return view;}start_offset=end_offset;}return null;}_add(eventSeries,decl){//		console.log("BASIC-SCHEDULER: _add", decl.toString());
+if(calendar_event.data.entries.length===0){return null;}const duration=luxonExports.Duration.fromMillis(1000*this._calculateMediaListIterationDuration(calendar_event));let media_list_start=this._calculateMediaListStart(datetime,duration);while(datetime>=media_list_start.plus(duration)){media_list_start=media_list_start.plus(duration);}let start_offset=luxonExports.Duration.fromMillis(0);for(let i=0;i<calendar_event.data.entries.length;i++){const calendar_entry=calendar_event.data.entries[i];const end_offset=start_offset.plus({seconds:calendar_entry.duration});const schedule_entry=new ScheduleItem(calendar_event.id,calendar_entry,start_offset,end_offset);const view=new ScheduleItemView(schedule_entry,media_list_start);if(datetime>=view.start_time&&datetime<view.end_time){return view;}start_offset=end_offset;}return null;}_add(eventSeries,decl){//		console.log("BASIC-SCHEDULER: _add", decl.toString());
 const start_offset=this._media_list_duration;const end_offset=start_offset.plus({seconds:decl.duration});//console.log("BASIC-SCHEDULER: start", start_offset.toISO(), "end", end_offset.toISO());
 this._active_media_assets.push(new ScheduleItem(eventSeries,decl,start_offset,end_offset));this._media_list_duration=end_offset;}//	protected _has(id: string): boolean {
 //		const pos = this.values().findIndex(x => x.decl.id === id);
@@ -4588,7 +4680,7 @@ this._active_media_assets.push(new ScheduleItem(eventSeries,decl,start_offset,en
 _remove(id){//		console.log("BASIC-SCHEDULER: _remove", id);
 const pos=this._active_media_assets.findIndex(x=>x.decl.id===id);const media_asset=this._active_media_assets[pos];this._media_list_duration=this._media_list_duration.minus({seconds:media_asset.duration});this._active_media_assets.splice(pos,1);}exposeNetwork(join,leave){this._join=join;this._leave=leave;}_parseRecipe(json){var _this0=this;return _asyncToGenerator(function*(){console.groupCollapsed("BASIC-SCHEDULER: _parseRecipe");// Parse and validate through ZOD.
 const recipe=RecipeSchema.Recipe.parse(json);if('cluster'in recipe&&typeof recipe.cluster==='object'&&typeof _this0._join==='function'){const cluster_as_text=JSON.stringify(recipe.cluster);if(typeof _this0._joined_cluster==='string'&&_this0._joined_cluster===cluster_as_text){console.log("BASIC-SCHEDULER: Already joined cluster.");}else if(typeof _this0._leave==='function'){yield _this0._leave();}yield _this0._join(recipe.cluster);_this0._joined_cluster=cluster_as_text;}else if(typeof _this0._leave==='function'){yield _this0._leave();_this0._joined_cluster=undefined;}_this0._transitionId=recipe.transition.id;_this0._transitionUrl=recipe.transition.href;_this0._transitionSize=recipe.transition.size;_this0._transitionHash=recipe.transition.hash;_this0._transitionIntegrity=recipe.transition.integrity;_this0._transitionMd5=recipe.transition.md5;_this0._transitionTime=recipe.transition.duration;const calendar_schedules=[];let trash_stack=[];// Copy umodified calendar schedules from running state.
-const running_schedules_by_id=new Map();for(const schedule of _this0._calendar_schedules){running_schedules_by_id.set(schedule.id,schedule);}for(const decl of recipe.schedule){const calendar_schedule=running_schedules_by_id.get(decl.id);if(typeof calendar_schedule!=="undefined"){calendar_schedules.push(calendar_schedule);running_schedules_by_id.delete(decl.id);}}trash_stack=trash_stack.concat(Array.from(running_schedules_by_id.values()));let promises=[];const now=DateTime$1.local();const lowWatermark={'seconds':30};let highWatermark={'seconds':90};const t0=performance.now();for(const decl of recipe.schedule){const schedule=new CalendarSchedule(decl,lowWatermark,highWatermark);promises.push(schedule.parseSchedule(decl));calendar_schedules.push(schedule);}yield Promise.all(promises);// preload events, ensuring calculation time is less than 60% of playback time.
+const running_schedules_by_id=new Map();for(const schedule of _this0._calendar_schedules){running_schedules_by_id.set(schedule.id,schedule);}for(const decl of recipe.schedule){const calendar_schedule=running_schedules_by_id.get(decl.id);if(typeof calendar_schedule!=="undefined"){calendar_schedules.push(calendar_schedule);running_schedules_by_id.delete(decl.id);}}trash_stack=trash_stack.concat(Array.from(running_schedules_by_id.values()));let promises=[];const now=luxonExports.DateTime.local();const lowWatermark={'seconds':30};let highWatermark={'seconds':90};const t0=performance.now();for(const decl of recipe.schedule){const schedule=new CalendarSchedule(decl,lowWatermark,highWatermark);promises.push(schedule.parseSchedule(decl));calendar_schedules.push(schedule);}yield Promise.all(promises);// preload events, ensuring calculation time is less than 60% of playback time.
 let round=1;let t1=t0;while(true){promises=[];for(const schedule of calendar_schedules){schedule.setHighWatermark(highWatermark);promises.push(schedule.pull(now));}console.log(`Round ${round}: High watermark: ${highWatermark.seconds/60} minutes.`);yield Promise.all(promises);const t2=performance.now();const elapsed=(t2-t1)/1000;const limit=.1*highWatermark.seconds;console.log(`Round ${round}: ${elapsed}s, limit: ${limit}s.`);if(elapsed<limit){break;}t1=t2;highWatermark.seconds*=2;round++;if(round>=8){// 768 minutes.
 break;}}const t3=performance.now();console.log(`Schedule parsed after ${(t3-t0)/1000}s.`);console.groupEnd();for(const schedule of calendar_schedules){schedule.prefetch(now);}_this0._calendar_schedules=calendar_schedules;// FIXME: Needs a close on complete flag to prevent interruption
 // of playing content.
@@ -4642,7 +4734,7 @@ getScopedSources(){return scheduler.sources;},play(){return _asyncToGenerator(fu
 // instead of the performance counter as we need to refer to calendar
 // entries for starting and stopping schedules.
 function update(_timestamp){//	console.log("update", timestamp);
-_asyncToGenerator(function*(){try{const now=DateTime$1.local();scheduler.update(now);// Serialize the state to forward to the renderer.
+_asyncToGenerator(function*(){try{const now=luxonExports.DateTime.local();scheduler.update(now);// Serialize the state to forward to the renderer.
 if(typeof renderer!=='undefined'){const state=scheduler.state(now);yield renderer.setState(state);}prepareNextUpdate();}catch(ex){console.warn("SCHEDULER:",ex);}})();}function prepareNextUpdate(){//	console.log("prepareNextUpdate");
 update_id=requestUpdate(timestamp=>update());}
 //# sourceMappingURL=scheduler.bundle~chrome53.js.map

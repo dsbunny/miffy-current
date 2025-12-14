@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "19.5.17",
+	"version": "19.5.18",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
@@ -44,7 +44,8 @@
 		"rollup-plugin-includepaths": "^0.2.4",
 		"rollup-plugin-sourcemaps": "^0.6.3",
 		"rollup-plugin-summary": "^3.0.1",
-		"typescript": "^5.8.3"
+		"typescript": "^5.8.3",
+		"zod": "^4.1.12"
 	},
 	"scripts": {
 		"build": "npm run compile && npm run build:esm && npm run build:systemjs",
@@ -59,7 +60,7 @@
 	"private": false,
 	"dependencies": {
 		"@dsbunny/app": "github:dsbunny/app#ad9be66",
-		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#5789954",
+		"@dsbunny/publisher-schema": "github:dsbunny/publisher-schema#4c443de",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",
 		"@dsbunny/webossignage": "github:dsbunny/webossignage#8818d31",
@@ -74,7 +75,9 @@
 		"requestidlecallback-polyfill": "^1.0.2",
 		"subworkers": "^1.0.1",
 		"systemjs": "^6.15.1",
-		"three": "^0.176.0",
-		"zod": "^3.25.0-beta.20250515T215617"
+		"three": "^0.176.0"
+	},
+	"peerDependencies": {
+		"zod": "^4.0.0"
 	}
 }

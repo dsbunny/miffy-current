@@ -1,4 +1,7 @@
 # Changelog
+## v19.5.18
+- Promote `zod` as a _peer dependency_.
+
 ## v19.5.17
 - Move `lit` and `luxon` to _external_ modules.
 

@@ -1104,9 +1104,10 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		}
 		let start_offset = Duration.fromMillis(0);
 		for(let i = 0; i < calendar_event.data.entries.length; i++) {
-			const end_offset = start_offset.plus({ seconds: calendar_event.data.entries[i].duration });
-			const entry = new ScheduleItem(calendar_event.id, calendar_event.data.entries[i], start_offset, end_offset);
-			const view = new ScheduleItemView(entry, media_list_start);
+			const calendar_entry = calendar_event.data.entries[i];
+			const end_offset = start_offset.plus({ seconds: calendar_entry.duration });
+			const schedule_entry = new ScheduleItem(calendar_event.id, calendar_entry, start_offset, end_offset);
+			const view = new ScheduleItemView(schedule_entry, media_list_start);
 			if(datetime >= view.start_time
 				&& datetime < view.end_time)
 			{

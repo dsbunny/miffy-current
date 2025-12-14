@@ -45,7 +45,7 @@ export default [
 				"lit-element/lit-element.js": path.join(process.cwd(), "node_modules/lit-element/lit-element.js"),
 				"lit-html/is-server.js": path.join(process.cwd(), "node_modules/lit-html/is-server.js"),
 				"@msgpack/msgpack": path.join(process.cwd(), "build/third-party/@msgpack/msgpack/src/index.js"),
-				"luxon": path.join(process.cwd(), "node_modules/luxon/build/es6/luxon.js"),
+				"luxon": path.join(process.cwd(), "node_modules/luxon/build/node/luxon.js"),
 				"jsonref": path.join(process.cwd(), "node_modules/jsonref/dist/index.js"),
 				"rrule": path.join(process.cwd(), "build/third-party/rrule/index.js"),
 				"@ungap/event-target": path.join(process.cwd(), 'node_modules/@ungap/event-target/esm/index.js'),
@@ -104,7 +104,7 @@ export default [
 		includePaths({
 			include: {
 				'core-js/stable': path.join(process.cwd(), 'node_modules/core-js/stable/index.js'),
-				"luxon": path.join(process.cwd(), "node_modules/luxon/build/es6/luxon.js"),
+				"luxon": path.join(process.cwd(), "node_modules/luxon/build/node/luxon.js"),
 				"subworkers": path.join(process.cwd(), 'node_modules/subworkers/subworkers.js'),
 				"jsonref": path.join(process.cwd(), "node_modules/jsonref/dist/index.js"),
 				"@ungap/event-target": path.join(process.cwd(), 'node_modules/@ungap/event-target/esm/index.js'),
@@ -159,7 +159,7 @@ export default [
 		includePaths({
 			include: {
 				'core-js/stable': path.join(process.cwd(), 'node_modules/core-js/stable/index.js'),
-				"luxon": path.join(process.cwd(), "node_modules/luxon/build/es6/luxon.js"),
+				"luxon": path.join(process.cwd(), "node_modules/luxon/build/node/luxon.js"),
 				"rrule": path.join(process.cwd(), "build/third-party/rrule/index.js"),
 			},
 			paths: [

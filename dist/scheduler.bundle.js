@@ -551,10 +551,10 @@ function requireSharedStore () {
 	var store = sharedStore.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 	(store.versions || (store.versions = [])).push({
-	  version: '3.43.0',
+	  version: '3.47.0',
 	  mode: IS_PURE ? 'pure' : 'global',
-	  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru)',
-	  license: 'https://github.com/zloirock/core-js/blob/v3.43.0/LICENSE',
+	  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru), 2025 CoreJS Company (core-js.io)',
+	  license: 'https://github.com/zloirock/core-js/blob/v3.47.0/LICENSE',
 	  source: 'https://github.com/zloirock/core-js'
 	});
 	return sharedStore.exports;
@@ -1528,7 +1528,7 @@ function requireToStringTagSupport () {
 
 	var TO_STRING_TAG = wellKnownSymbol('toStringTag');
 	var test = {};
-
+	// eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	test[TO_STRING_TAG] = 'z';
 
 	toStringTagSupport = String(test) === '[object z]';
@@ -2357,7 +2357,7 @@ function requireEs_symbol_constructor () {
 	  };
 
 	  if (DESCRIPTORS) {
-	    // https://github.com/tc39/proposal-Symbol-description
+	    // https://tc39.es/ecma262/#sec-symbol.prototype.description
 	    defineBuiltInAccessor(SymbolPrototype, 'description', {
 	      configurable: true,
 	      get: function description() {
@@ -2509,21 +2509,183 @@ function requireFunctionApply () {
 	return functionApply;
 }
 
-var getJsonReplacerFunction;
-var hasRequiredGetJsonReplacerFunction;
+var isRawJson;
+var hasRequiredIsRawJson;
 
-function requireGetJsonReplacerFunction () {
-	if (hasRequiredGetJsonReplacerFunction) return getJsonReplacerFunction;
-	hasRequiredGetJsonReplacerFunction = 1;
+function requireIsRawJson () {
+	if (hasRequiredIsRawJson) return isRawJson;
+	hasRequiredIsRawJson = 1;
+	var isObject = requireIsObject();
+	var getInternalState = requireInternalState().get;
+
+	isRawJson = function isRawJSON(O) {
+	  if (!isObject(O)) return false;
+	  var state = getInternalState(O);
+	  return !!state && state.type === 'RawJSON';
+	};
+	return isRawJson;
+}
+
+var parseJsonString;
+var hasRequiredParseJsonString;
+
+function requireParseJsonString () {
+	if (hasRequiredParseJsonString) return parseJsonString;
+	hasRequiredParseJsonString = 1;
 	var uncurryThis = requireFunctionUncurryThis();
+	var hasOwn = requireHasOwnProperty();
+
+	var $SyntaxError = SyntaxError;
+	var $parseInt = parseInt;
+	var fromCharCode = String.fromCharCode;
+	var at = uncurryThis(''.charAt);
+	var slice = uncurryThis(''.slice);
+	var exec = uncurryThis(/./.exec);
+
+	var codePoints = {
+	  '\\"': '"',
+	  '\\\\': '\\',
+	  '\\/': '/',
+	  '\\b': '\b',
+	  '\\f': '\f',
+	  '\\n': '\n',
+	  '\\r': '\r',
+	  '\\t': '\t'
+	};
+
+	var IS_4_HEX_DIGITS = /^[\da-f]{4}$/i;
+	// eslint-disable-next-line regexp/no-control-character -- safe
+	var IS_C0_CONTROL_CODE = /^[\u0000-\u001F]$/;
+
+	parseJsonString = function (source, i) {
+	  var unterminated = true;
+	  var value = '';
+	  while (i < source.length) {
+	    var chr = at(source, i);
+	    if (chr === '\\') {
+	      var twoChars = slice(source, i, i + 2);
+	      if (hasOwn(codePoints, twoChars)) {
+	        value += codePoints[twoChars];
+	        i += 2;
+	      } else if (twoChars === '\\u') {
+	        i += 2;
+	        var fourHexDigits = slice(source, i, i + 4);
+	        if (!exec(IS_4_HEX_DIGITS, fourHexDigits)) throw new $SyntaxError('Bad Unicode escape at: ' + i);
+	        value += fromCharCode($parseInt(fourHexDigits, 16));
+	        i += 4;
+	      } else throw new $SyntaxError('Unknown escape sequence: "' + twoChars + '"');
+	    } else if (chr === '"') {
+	      unterminated = false;
+	      i++;
+	      break;
+	    } else {
+	      if (exec(IS_C0_CONTROL_CODE, chr)) throw new $SyntaxError('Bad control character in string literal at: ' + i);
+	      value += chr;
+	      i++;
+	    }
+	  }
+	  if (unterminated) throw new $SyntaxError('Unterminated string at: ' + i);
+	  return { value: value, end: i };
+	};
+	return parseJsonString;
+}
+
+var nativeRawJson;
+var hasRequiredNativeRawJson;
+
+function requireNativeRawJson () {
+	if (hasRequiredNativeRawJson) return nativeRawJson;
+	hasRequiredNativeRawJson = 1;
+	/* eslint-disable es/no-json -- safe */
+	var fails = requireFails();
+
+	nativeRawJson = !fails(function () {
+	  var unsafeInt = '9007199254740993';
+	  // eslint-disable-next-line es/no-nonstandard-json-properties -- feature detection
+	  var raw = JSON.rawJSON(unsafeInt);
+	  // eslint-disable-next-line es/no-nonstandard-json-properties -- feature detection
+	  return !JSON.isRawJSON(raw) || JSON.stringify(raw) !== unsafeInt;
+	});
+	return nativeRawJson;
+}
+
+var hasRequiredEs_json_stringify;
+
+function requireEs_json_stringify () {
+	if (hasRequiredEs_json_stringify) return es_json_stringify;
+	hasRequiredEs_json_stringify = 1;
+	var $ = require_export();
+	var getBuiltIn = requireGetBuiltIn();
+	var apply = requireFunctionApply();
+	var call = requireFunctionCall();
+	var uncurryThis = requireFunctionUncurryThis();
+	var fails = requireFails();
 	var isArray = requireIsArray();
 	var isCallable = requireIsCallable();
+	var isRawJSON = requireIsRawJson();
+	var isSymbol = requireIsSymbol();
 	var classof = requireClassofRaw();
 	var toString = requireToString();
+	var arraySlice = requireArraySlice();
+	var parseJSONString = requireParseJsonString();
+	var uid = requireUid();
+	var NATIVE_SYMBOL = requireSymbolConstructorDetection();
+	var NATIVE_RAW_JSON = requireNativeRawJson();
 
+	var $String = String;
+	var $stringify = getBuiltIn('JSON', 'stringify');
+	var exec = uncurryThis(/./.exec);
+	var charAt = uncurryThis(''.charAt);
+	var charCodeAt = uncurryThis(''.charCodeAt);
+	var replace = uncurryThis(''.replace);
+	var slice = uncurryThis(''.slice);
 	var push = uncurryThis([].push);
+	var numberToString = uncurryThis(1.1.toString);
 
-	getJsonReplacerFunction = function (replacer) {
+	var surrogates = /[\uD800-\uDFFF]/g;
+	var lowSurrogates = /^[\uD800-\uDBFF]$/;
+	var hiSurrogates = /^[\uDC00-\uDFFF]$/;
+
+	var MARK = uid();
+	var MARK_LENGTH = MARK.length;
+
+	var WRONG_SYMBOLS_CONVERSION = !NATIVE_SYMBOL || fails(function () {
+	  var symbol = getBuiltIn('Symbol')('stringify detection');
+	  // MS Edge converts symbol values to JSON as {}
+	  return $stringify([symbol]) !== '[null]'
+	    // WebKit converts symbol values to JSON as null
+	    || $stringify({ a: symbol }) !== '{}'
+	    // V8 throws on boxed symbols
+	    || $stringify(Object(symbol)) !== '{}';
+	});
+
+	// https://github.com/tc39/proposal-well-formed-stringify
+	var ILL_FORMED_UNICODE = fails(function () {
+	  return $stringify('\uDF06\uD834') !== '"\\udf06\\ud834"'
+	    || $stringify('\uDEAD') !== '"\\udead"';
+	});
+
+	var stringifyWithProperSymbolsConversion = WRONG_SYMBOLS_CONVERSION ? function (it, replacer) {
+	  var args = arraySlice(arguments);
+	  var $replacer = getReplacerFunction(replacer);
+	  if (!isCallable($replacer) && (it === undefined || isSymbol(it))) return; // IE8 returns string on undefined
+	  args[1] = function (key, value) {
+	    // some old implementations (like WebKit) could pass numbers as keys
+	    if (isCallable($replacer)) value = call($replacer, this, $String(key), value);
+	    if (!isSymbol(value)) return value;
+	  };
+	  return apply($stringify, null, args);
+	} : $stringify;
+
+	var fixIllFormedJSON = function (match, offset, string) {
+	  var prev = charAt(string, offset - 1);
+	  var next = charAt(string, offset + 1);
+	  if ((exec(lowSurrogates, match) && !exec(hiSurrogates, next)) || (exec(hiSurrogates, match) && !exec(lowSurrogates, prev))) {
+	    return '\\u' + numberToString(charCodeAt(match, 0), 16);
+	  } return match;
+	};
+
+	var getReplacerFunction = function (replacer) {
 	  if (isCallable(replacer)) return replacer;
 	  if (!isArray(replacer)) return;
 	  var rawLength = replacer.length;
@@ -2544,86 +2706,45 @@ function requireGetJsonReplacerFunction () {
 	    for (var j = 0; j < keysLength; j++) if (keys[j] === key) return value;
 	  };
 	};
-	return getJsonReplacerFunction;
-}
 
-var hasRequiredEs_json_stringify;
+	// `JSON.stringify` method
+	// https://tc39.es/ecma262/#sec-json.stringify
+	// https://github.com/tc39/proposal-json-parse-with-source
+	if ($stringify) $({ target: 'JSON', stat: true, arity: 3, forced: WRONG_SYMBOLS_CONVERSION || ILL_FORMED_UNICODE || !NATIVE_RAW_JSON }, {
+	  stringify: function stringify(text, replacer, space) {
+	    var replacerFunction = getReplacerFunction(replacer);
+	    var rawStrings = [];
 
-function requireEs_json_stringify () {
-	if (hasRequiredEs_json_stringify) return es_json_stringify;
-	hasRequiredEs_json_stringify = 1;
-	var $ = require_export();
-	var getBuiltIn = requireGetBuiltIn();
-	var apply = requireFunctionApply();
-	var call = requireFunctionCall();
-	var uncurryThis = requireFunctionUncurryThis();
-	var fails = requireFails();
-	var isCallable = requireIsCallable();
-	var isSymbol = requireIsSymbol();
-	var arraySlice = requireArraySlice();
-	var getReplacerFunction = requireGetJsonReplacerFunction();
-	var NATIVE_SYMBOL = requireSymbolConstructorDetection();
+	    var json = stringifyWithProperSymbolsConversion(text, function (key, value) {
+	      // some old implementations (like WebKit) could pass numbers as keys
+	      var v = isCallable(replacerFunction) ? call(replacerFunction, this, $String(key), value) : value;
+	      return !NATIVE_RAW_JSON && isRawJSON(v) ? MARK + (push(rawStrings, v.rawJSON) - 1) : v;
+	    }, space);
 
-	var $String = String;
-	var $stringify = getBuiltIn('JSON', 'stringify');
-	var exec = uncurryThis(/./.exec);
-	var charAt = uncurryThis(''.charAt);
-	var charCodeAt = uncurryThis(''.charCodeAt);
-	var replace = uncurryThis(''.replace);
-	var numberToString = uncurryThis(1.1.toString);
+	    if (typeof json != 'string') return json;
 
-	var tester = /[\uD800-\uDFFF]/g;
-	var low = /^[\uD800-\uDBFF]$/;
-	var hi = /^[\uDC00-\uDFFF]$/;
+	    if (ILL_FORMED_UNICODE) json = replace(json, surrogates, fixIllFormedJSON);
 
-	var WRONG_SYMBOLS_CONVERSION = !NATIVE_SYMBOL || fails(function () {
-	  var symbol = getBuiltIn('Symbol')('stringify detection');
-	  // MS Edge converts symbol values to JSON as {}
-	  return $stringify([symbol]) !== '[null]'
-	    // WebKit converts symbol values to JSON as null
-	    || $stringify({ a: symbol }) !== '{}'
-	    // V8 throws on boxed symbols
-	    || $stringify(Object(symbol)) !== '{}';
-	});
+	    if (NATIVE_RAW_JSON) return json;
 
-	// https://github.com/tc39/proposal-well-formed-stringify
-	var ILL_FORMED_UNICODE = fails(function () {
-	  return $stringify('\uDF06\uD834') !== '"\\udf06\\ud834"'
-	    || $stringify('\uDEAD') !== '"\\udead"';
-	});
+	    var result = '';
+	    var length = json.length;
 
-	var stringifyWithSymbolsFix = function (it, replacer) {
-	  var args = arraySlice(arguments);
-	  var $replacer = getReplacerFunction(replacer);
-	  if (!isCallable($replacer) && (it === undefined || isSymbol(it))) return; // IE8 returns string on undefined
-	  args[1] = function (key, value) {
-	    // some old implementations (like WebKit) could pass numbers as keys
-	    if (isCallable($replacer)) value = call($replacer, this, $String(key), value);
-	    if (!isSymbol(value)) return value;
-	  };
-	  return apply($stringify, null, args);
-	};
-
-	var fixIllFormed = function (match, offset, string) {
-	  var prev = charAt(string, offset - 1);
-	  var next = charAt(string, offset + 1);
-	  if ((exec(low, match) && !exec(hi, next)) || (exec(hi, match) && !exec(low, prev))) {
-	    return '\\u' + numberToString(charCodeAt(match, 0), 16);
-	  } return match;
-	};
-
-	if ($stringify) {
-	  // `JSON.stringify` method
-	  // https://tc39.es/ecma262/#sec-json.stringify
-	  $({ target: 'JSON', stat: true, arity: 3, forced: WRONG_SYMBOLS_CONVERSION || ILL_FORMED_UNICODE }, {
-	    // eslint-disable-next-line no-unused-vars -- required for `.length`
-	    stringify: function stringify(it, replacer, space) {
-	      var args = arraySlice(arguments);
-	      var result = apply(WRONG_SYMBOLS_CONVERSION ? stringifyWithSymbolsFix : $stringify, null, args);
-	      return ILL_FORMED_UNICODE && typeof result == 'string' ? replace(result, tester, fixIllFormed) : result;
+	    for (var i = 0; i < length; i++) {
+	      var chr = charAt(json, i);
+	      if (chr === '"') {
+	        var end = parseJSONString(json, ++i).end - 1;
+	        var string = slice(json, i, end);
+	        result += slice(string, 0, MARK_LENGTH) === MARK
+	          ? rawStrings[slice(string, MARK_LENGTH)]
+	          : '"' + string + '"';
+	        i = end;
+	      } else result += chr;
 	    }
-	  });
-	}
+
+	    return result;
+	  }
+	});
 	return es_json_stringify;
 }
 
@@ -3160,7 +3281,7 @@ function requireInstallErrorCause () {
 	var createNonEnumerableProperty = requireCreateNonEnumerableProperty();
 
 	// `InstallErrorCause` abstract operation
-	// https://tc39.es/proposal-error-cause/#sec-errorobjects-install-error-cause
+	// https://tc39.es/ecma262/#sec-installerrorcause
 	installErrorCause = function (O, options) {
 	  if (isObject(options) && 'cause' in options) {
 	    createNonEnumerableProperty(O, 'cause', options.cause);
@@ -3327,6 +3448,7 @@ function requireEs_error_cause () {
 
 	var exportGlobalErrorCauseWrapper = function (ERROR_NAME, wrapper) {
 	  var O = {};
+	  // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	  O[ERROR_NAME] = wrapErrorConstructorWithCause(ERROR_NAME, wrapper, FORCED);
 	  $({ global: true, constructor: true, arity: 1, forced: FORCED }, O);
 	};
@@ -3334,6 +3456,7 @@ function requireEs_error_cause () {
 	var exportWebAssemblyErrorCauseWrapper = function (ERROR_NAME, wrapper) {
 	  if (WebAssembly && WebAssembly[ERROR_NAME]) {
 	    var O = {};
+	    // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	    O[ERROR_NAME] = wrapErrorConstructorWithCause(WEB_ASSEMBLY + '.' + ERROR_NAME, wrapper, FORCED);
 	    $({ target: WEB_ASSEMBLY, stat: true, constructor: true, arity: 1, forced: FORCED }, O);
 	  }
@@ -3408,7 +3531,7 @@ function requireEs_error_isError () {
 	});
 
 	// `Error.isError` method
-	// https://github.com/tc39/proposal-is-error
+	// https://tc39.es/ecma262/#sec-error.iserror
 	$({ target: 'Error', stat: true, sham: true, forced: FORCED }, {
 	  isError: function isError(arg) {
 	    if (!isObject(arg)) return false;
@@ -4422,7 +4545,7 @@ function requireFlattenIntoArray () {
 	var bind = requireFunctionBindContext();
 
 	// `FlattenIntoArray` abstract operation
-	// https://tc39.github.io/proposal-flatMap/#sec-FlattenIntoArray
+	// https://tc39.es/ecma262/#sec-flattenintoarray
 	var flattenIntoArray = function (target, original, source, sourceLen, start, depth, mapper, thisArg) {
 	  var targetIndex = start;
 	  var sourceIndex = 0;
@@ -4645,6 +4768,7 @@ function requireCheckCorrectnessOfIteration () {
 	      SAFE_CLOSING = true;
 	    }
 	  };
+	  // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	  iteratorWithReturn[ITERATOR] = function () {
 	    return this;
 	  };
@@ -4659,6 +4783,7 @@ function requireCheckCorrectnessOfIteration () {
 	  var ITERATION_SUPPORT = false;
 	  try {
 	    var object = {};
+	    // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	    object[ITERATOR] = function () {
 	      return {
 	        next: function () {
@@ -5873,8 +5998,8 @@ function requireArrayToReversed () {
 	hasRequiredArrayToReversed = 1;
 	var lengthOfArrayLike = requireLengthOfArrayLike();
 
-	// https://tc39.es/proposal-change-array-by-copy/#sec-array.prototype.toReversed
-	// https://tc39.es/proposal-change-array-by-copy/#sec-%typedarray%.prototype.toReversed
+	// https://tc39.es/ecma262/#sec-array.prototype.toreversed
+	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.toreversed
 	arrayToReversed = function (O, C) {
 	  var len = lengthOfArrayLike(O);
 	  var A = new C(len);
@@ -6128,8 +6253,8 @@ function requireArrayWith () {
 
 	var $RangeError = RangeError;
 
-	// https://tc39.es/proposal-change-array-by-copy/#sec-array.prototype.with
-	// https://tc39.es/proposal-change-array-by-copy/#sec-%typedarray%.prototype.with
+	// https://tc39.es/ecma262/#sec-array.prototype.with
+	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.with
 	arrayWith = function (O, C, index, value) {
 	  var len = lengthOfArrayLike(O);
 	  var relativeIndex = toIntegerOrInfinity(index);
@@ -7411,7 +7536,7 @@ function requireEs_arrayBuffer_transfer () {
 	var $transfer = requireArrayBufferTransfer();
 
 	// `ArrayBuffer.prototype.transfer` method
-	// https://tc39.es/proposal-arraybuffer-transfer/#sec-arraybuffer.prototype.transfer
+	// https://tc39.es/ecma262/#sec-arraybuffer.prototype.transfer
 	if ($transfer) $({ target: 'ArrayBuffer', proto: true }, {
 	  transfer: function transfer() {
 	    return $transfer(this, arguments.length ? arguments[0] : undefined, true);
@@ -7431,7 +7556,7 @@ function requireEs_arrayBuffer_transferToFixedLength () {
 	var $transfer = requireArrayBufferTransfer();
 
 	// `ArrayBuffer.prototype.transferToFixedLength` method
-	// https://tc39.es/proposal-arraybuffer-transfer/#sec-arraybuffer.prototype.transfertofixedlength
+	// https://tc39.es/ecma262/#sec-arraybuffer.prototype.transfertofixedlength
 	if ($transfer) $({ target: 'ArrayBuffer', proto: true }, {
 	  transferToFixedLength: function transferToFixedLength() {
 	    return $transfer(this, arguments.length ? arguments[0] : undefined, false);
@@ -7572,7 +7697,6 @@ var hasRequiredStringPad;
 function requireStringPad () {
 	if (hasRequiredStringPad) return stringPad;
 	hasRequiredStringPad = 1;
-	// https://github.com/tc39/proposal-string-pad-start-end
 	var uncurryThis = requireFunctionUncurryThis();
 	var toLength = requireToLength();
 	var toString = requireToString();
@@ -8245,85 +8369,7 @@ function requireEs_iterator_constructor () {
 	return es_iterator_constructor;
 }
 
-var es_iterator_dispose = {};
-
-var hasRequiredEs_iterator_dispose;
-
-function requireEs_iterator_dispose () {
-	if (hasRequiredEs_iterator_dispose) return es_iterator_dispose;
-	hasRequiredEs_iterator_dispose = 1;
-	// https://github.com/tc39/proposal-explicit-resource-management
-	var call = requireFunctionCall();
-	var defineBuiltIn = requireDefineBuiltIn();
-	var getMethod = requireGetMethod();
-	var hasOwn = requireHasOwnProperty();
-	var wellKnownSymbol = requireWellKnownSymbol();
-	var IteratorPrototype = requireIteratorsCore().IteratorPrototype;
-
-	var DISPOSE = wellKnownSymbol('dispose');
-
-	if (!hasOwn(IteratorPrototype, DISPOSE)) {
-	  defineBuiltIn(IteratorPrototype, DISPOSE, function () {
-	    var $return = getMethod(this, 'return');
-	    if ($return) call($return, this);
-	  });
-	}
-	return es_iterator_dispose;
-}
-
-var es_iterator_drop = {};
-
-var getIteratorDirect;
-var hasRequiredGetIteratorDirect;
-
-function requireGetIteratorDirect () {
-	if (hasRequiredGetIteratorDirect) return getIteratorDirect;
-	hasRequiredGetIteratorDirect = 1;
-	// `GetIteratorDirect(obj)` abstract operation
-	// https://tc39.es/proposal-iterator-helpers/#sec-getiteratordirect
-	getIteratorDirect = function (obj) {
-	  return {
-	    iterator: obj,
-	    next: obj.next,
-	    done: false
-	  };
-	};
-	return getIteratorDirect;
-}
-
-var notANan;
-var hasRequiredNotANan;
-
-function requireNotANan () {
-	if (hasRequiredNotANan) return notANan;
-	hasRequiredNotANan = 1;
-	var $RangeError = RangeError;
-
-	notANan = function (it) {
-	  // eslint-disable-next-line no-self-compare -- NaN check
-	  if (it === it) return it;
-	  throw new $RangeError('NaN is not allowed');
-	};
-	return notANan;
-}
-
-var toPositiveInteger;
-var hasRequiredToPositiveInteger;
-
-function requireToPositiveInteger () {
-	if (hasRequiredToPositiveInteger) return toPositiveInteger;
-	hasRequiredToPositiveInteger = 1;
-	var toIntegerOrInfinity = requireToIntegerOrInfinity();
-
-	var $RangeError = RangeError;
-
-	toPositiveInteger = function (it) {
-	  var result = toIntegerOrInfinity(it);
-	  if (result < 0) throw new $RangeError("The argument can't be less than 0");
-	  return result;
-	};
-	return toPositiveInteger;
-}
+var es_iterator_concat = {};
 
 var iteratorCloseAll;
 var hasRequiredIteratorCloseAll;
@@ -8441,6 +8487,149 @@ function requireIteratorCreateProxy () {
 	  return IteratorProxy;
 	};
 	return iteratorCreateProxy;
+}
+
+var hasRequiredEs_iterator_concat;
+
+function requireEs_iterator_concat () {
+	if (hasRequiredEs_iterator_concat) return es_iterator_concat;
+	hasRequiredEs_iterator_concat = 1;
+	var $ = require_export();
+	var call = requireFunctionCall();
+	var aCallable = requireACallable();
+	var anObject = requireAnObject();
+	var getIteratorMethod = requireGetIteratorMethod();
+	var createIteratorProxy = requireIteratorCreateProxy();
+
+	var $Array = Array;
+
+	var IteratorProxy = createIteratorProxy(function () {
+	  while (true) {
+	    var iterator = this.iterator;
+	    if (!iterator) {
+	      var iterableIndex = this.nextIterableIndex++;
+	      var iterables = this.iterables;
+	      if (iterableIndex >= iterables.length) {
+	        this.done = true;
+	        return;
+	      }
+	      var entry = iterables[iterableIndex];
+	      this.iterables[iterableIndex] = null;
+	      iterator = this.iterator = call(entry.method, entry.iterable);
+	      this.next = iterator.next;
+	    }
+	    var result = anObject(call(this.next, iterator));
+	    if (result.done) {
+	      this.iterator = null;
+	      this.next = null;
+	      continue;
+	    }
+	    return result.value;
+	  }
+	});
+
+	// `Iterator.concat` method
+	// https://github.com/tc39/proposal-iterator-sequencing
+	$({ target: 'Iterator', stat: true }, {
+	  concat: function concat() {
+	    var length = arguments.length;
+	    var iterables = $Array(length);
+	    for (var index = 0; index < length; index++) {
+	      var item = anObject(arguments[index]);
+	      iterables[index] = {
+	        iterable: item,
+	        method: aCallable(getIteratorMethod(item))
+	      };
+	    }
+	    return new IteratorProxy({
+	      iterables: iterables,
+	      nextIterableIndex: 0,
+	      iterator: null,
+	      next: null
+	    });
+	  }
+	});
+	return es_iterator_concat;
+}
+
+var es_iterator_dispose = {};
+
+var hasRequiredEs_iterator_dispose;
+
+function requireEs_iterator_dispose () {
+	if (hasRequiredEs_iterator_dispose) return es_iterator_dispose;
+	hasRequiredEs_iterator_dispose = 1;
+	// https://github.com/tc39/proposal-explicit-resource-management
+	var call = requireFunctionCall();
+	var defineBuiltIn = requireDefineBuiltIn();
+	var getMethod = requireGetMethod();
+	var hasOwn = requireHasOwnProperty();
+	var wellKnownSymbol = requireWellKnownSymbol();
+	var IteratorPrototype = requireIteratorsCore().IteratorPrototype;
+
+	var DISPOSE = wellKnownSymbol('dispose');
+
+	if (!hasOwn(IteratorPrototype, DISPOSE)) {
+	  defineBuiltIn(IteratorPrototype, DISPOSE, function () {
+	    var $return = getMethod(this, 'return');
+	    if ($return) call($return, this);
+	  });
+	}
+	return es_iterator_dispose;
+}
+
+var es_iterator_drop = {};
+
+var getIteratorDirect;
+var hasRequiredGetIteratorDirect;
+
+function requireGetIteratorDirect () {
+	if (hasRequiredGetIteratorDirect) return getIteratorDirect;
+	hasRequiredGetIteratorDirect = 1;
+	// `GetIteratorDirect(obj)` abstract operation
+	// https://tc39.es/ecma262/#sec-getiteratordirect
+	getIteratorDirect = function (obj) {
+	  return {
+	    iterator: obj,
+	    next: obj.next,
+	    done: false
+	  };
+	};
+	return getIteratorDirect;
+}
+
+var notANan;
+var hasRequiredNotANan;
+
+function requireNotANan () {
+	if (hasRequiredNotANan) return notANan;
+	hasRequiredNotANan = 1;
+	var $RangeError = RangeError;
+
+	notANan = function (it) {
+	  // eslint-disable-next-line no-self-compare -- NaN check
+	  if (it === it) return it;
+	  throw new $RangeError('NaN is not allowed');
+	};
+	return notANan;
+}
+
+var toPositiveInteger;
+var hasRequiredToPositiveInteger;
+
+function requireToPositiveInteger () {
+	if (hasRequiredToPositiveInteger) return toPositiveInteger;
+	hasRequiredToPositiveInteger = 1;
+	var toIntegerOrInfinity = requireToIntegerOrInfinity();
+
+	var $RangeError = RangeError;
+
+	toPositiveInteger = function (it) {
+	  var result = toIntegerOrInfinity(it);
+	  if (result < 0) throw new $RangeError("The argument can't be less than 0");
+	  return result;
+	};
+	return toPositiveInteger;
 }
 
 var iteratorHelperThrowsOnInvalidIterator;
@@ -9104,6 +9293,349 @@ function requireEs_iterator_toArray () {
 	return es_iterator_toArray;
 }
 
+var es_json_isRawJson = {};
+
+var hasRequiredEs_json_isRawJson;
+
+function requireEs_json_isRawJson () {
+	if (hasRequiredEs_json_isRawJson) return es_json_isRawJson;
+	hasRequiredEs_json_isRawJson = 1;
+	var $ = require_export();
+	var NATIVE_RAW_JSON = requireNativeRawJson();
+	var isRawJSON = requireIsRawJson();
+
+	// `JSON.isRawJSON` method
+	// https://tc39.es/proposal-json-parse-with-source/#sec-json.israwjson
+	// https://github.com/tc39/proposal-json-parse-with-source
+	$({ target: 'JSON', stat: true, forced: !NATIVE_RAW_JSON }, {
+	  isRawJSON: isRawJSON
+	});
+	return es_json_isRawJson;
+}
+
+var es_json_parse = {};
+
+var hasRequiredEs_json_parse;
+
+function requireEs_json_parse () {
+	if (hasRequiredEs_json_parse) return es_json_parse;
+	hasRequiredEs_json_parse = 1;
+	var $ = require_export();
+	var DESCRIPTORS = requireDescriptors();
+	var globalThis = requireGlobalThis();
+	var getBuiltIn = requireGetBuiltIn();
+	var uncurryThis = requireFunctionUncurryThis();
+	var call = requireFunctionCall();
+	var isCallable = requireIsCallable();
+	var isObject = requireIsObject();
+	var isArray = requireIsArray();
+	var hasOwn = requireHasOwnProperty();
+	var toString = requireToString();
+	var lengthOfArrayLike = requireLengthOfArrayLike();
+	var createProperty = requireCreateProperty();
+	var fails = requireFails();
+	var parseJSONString = requireParseJsonString();
+	var NATIVE_SYMBOL = requireSymbolConstructorDetection();
+
+	var JSON = globalThis.JSON;
+	var Number = globalThis.Number;
+	var SyntaxError = globalThis.SyntaxError;
+	var nativeParse = JSON && JSON.parse;
+	var enumerableOwnProperties = getBuiltIn('Object', 'keys');
+	// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
+	var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+	var at = uncurryThis(''.charAt);
+	var slice = uncurryThis(''.slice);
+	var exec = uncurryThis(/./.exec);
+	var push = uncurryThis([].push);
+
+	var IS_DIGIT = /^\d$/;
+	var IS_NON_ZERO_DIGIT = /^[1-9]$/;
+	var IS_NUMBER_START = /^[\d-]$/;
+	var IS_WHITESPACE = /^[\t\n\r ]$/;
+
+	var PRIMITIVE = 0;
+	var OBJECT = 1;
+
+	var $parse = function (source, reviver) {
+	  source = toString(source);
+	  var context = new Context(source, 0);
+	  var root = context.parse();
+	  var value = root.value;
+	  var endIndex = context.skip(IS_WHITESPACE, root.end);
+	  if (endIndex < source.length) {
+	    throw new SyntaxError('Unexpected extra character: "' + at(source, endIndex) + '" after the parsed data at: ' + endIndex);
+	  }
+	  return isCallable(reviver) ? internalize({ '': value }, '', reviver, root) : value;
+	};
+
+	var internalize = function (holder, name, reviver, node) {
+	  var val = holder[name];
+	  var unmodified = node && val === node.value;
+	  var context = unmodified && typeof node.source == 'string' ? { source: node.source } : {};
+	  var elementRecordsLen, keys, len, i, P;
+	  if (isObject(val)) {
+	    var nodeIsArray = isArray(val);
+	    var nodes = unmodified ? node.nodes : nodeIsArray ? [] : {};
+	    if (nodeIsArray) {
+	      elementRecordsLen = nodes.length;
+	      len = lengthOfArrayLike(val);
+	      for (i = 0; i < len; i++) {
+	        internalizeProperty(val, i, internalize(val, '' + i, reviver, i < elementRecordsLen ? nodes[i] : undefined));
+	      }
+	    } else {
+	      keys = enumerableOwnProperties(val);
+	      len = lengthOfArrayLike(keys);
+	      for (i = 0; i < len; i++) {
+	        P = keys[i];
+	        internalizeProperty(val, P, internalize(val, P, reviver, hasOwn(nodes, P) ? nodes[P] : undefined));
+	      }
+	    }
+	  }
+	  return call(reviver, holder, name, val, context);
+	};
+
+	var internalizeProperty = function (object, key, value) {
+	  if (DESCRIPTORS) {
+	    var descriptor = getOwnPropertyDescriptor(object, key);
+	    if (descriptor && !descriptor.configurable) return;
+	  }
+	  if (value === undefined) delete object[key];
+	  else createProperty(object, key, value);
+	};
+
+	var Node = function (value, end, source, nodes) {
+	  this.value = value;
+	  this.end = end;
+	  this.source = source;
+	  this.nodes = nodes;
+	};
+
+	var Context = function (source, index) {
+	  this.source = source;
+	  this.index = index;
+	};
+
+	// https://www.json.org/json-en.html
+	Context.prototype = {
+	  fork: function (nextIndex) {
+	    return new Context(this.source, nextIndex);
+	  },
+	  parse: function () {
+	    var source = this.source;
+	    var i = this.skip(IS_WHITESPACE, this.index);
+	    var fork = this.fork(i);
+	    var chr = at(source, i);
+	    if (exec(IS_NUMBER_START, chr)) return fork.number();
+	    switch (chr) {
+	      case '{':
+	        return fork.object();
+	      case '[':
+	        return fork.array();
+	      case '"':
+	        return fork.string();
+	      case 't':
+	        return fork.keyword(true);
+	      case 'f':
+	        return fork.keyword(false);
+	      case 'n':
+	        return fork.keyword(null);
+	    } throw new SyntaxError('Unexpected character: "' + chr + '" at: ' + i);
+	  },
+	  node: function (type, value, start, end, nodes) {
+	    return new Node(value, end, type ? null : slice(this.source, start, end), nodes);
+	  },
+	  object: function () {
+	    var source = this.source;
+	    var i = this.index + 1;
+	    var expectKeypair = false;
+	    var object = {};
+	    var nodes = {};
+	    while (i < source.length) {
+	      i = this.until(['"', '}'], i);
+	      if (at(source, i) === '}' && !expectKeypair) {
+	        i++;
+	        break;
+	      }
+	      // Parsing the key
+	      var result = this.fork(i).string();
+	      var key = result.value;
+	      i = result.end;
+	      i = this.until([':'], i) + 1;
+	      // Parsing value
+	      i = this.skip(IS_WHITESPACE, i);
+	      result = this.fork(i).parse();
+	      createProperty(nodes, key, result);
+	      createProperty(object, key, result.value);
+	      i = this.until([',', '}'], result.end);
+	      var chr = at(source, i);
+	      if (chr === ',') {
+	        expectKeypair = true;
+	        i++;
+	      } else if (chr === '}') {
+	        i++;
+	        break;
+	      }
+	    }
+	    return this.node(OBJECT, object, this.index, i, nodes);
+	  },
+	  array: function () {
+	    var source = this.source;
+	    var i = this.index + 1;
+	    var expectElement = false;
+	    var array = [];
+	    var nodes = [];
+	    while (i < source.length) {
+	      i = this.skip(IS_WHITESPACE, i);
+	      if (at(source, i) === ']' && !expectElement) {
+	        i++;
+	        break;
+	      }
+	      var result = this.fork(i).parse();
+	      push(nodes, result);
+	      push(array, result.value);
+	      i = this.until([',', ']'], result.end);
+	      if (at(source, i) === ',') {
+	        expectElement = true;
+	        i++;
+	      } else if (at(source, i) === ']') {
+	        i++;
+	        break;
+	      }
+	    }
+	    return this.node(OBJECT, array, this.index, i, nodes);
+	  },
+	  string: function () {
+	    var index = this.index;
+	    var parsed = parseJSONString(this.source, this.index + 1);
+	    return this.node(PRIMITIVE, parsed.value, index, parsed.end);
+	  },
+	  number: function () {
+	    var source = this.source;
+	    var startIndex = this.index;
+	    var i = startIndex;
+	    if (at(source, i) === '-') i++;
+	    if (at(source, i) === '0') i++;
+	    else if (exec(IS_NON_ZERO_DIGIT, at(source, i))) i = this.skip(IS_DIGIT, i + 1);
+	    else throw new SyntaxError('Failed to parse number at: ' + i);
+	    if (at(source, i) === '.') i = this.skip(IS_DIGIT, i + 1);
+	    if (at(source, i) === 'e' || at(source, i) === 'E') {
+	      i++;
+	      if (at(source, i) === '+' || at(source, i) === '-') i++;
+	      var exponentStartIndex = i;
+	      i = this.skip(IS_DIGIT, i);
+	      if (exponentStartIndex === i) throw new SyntaxError("Failed to parse number's exponent value at: " + i);
+	    }
+	    return this.node(PRIMITIVE, Number(slice(source, startIndex, i)), startIndex, i);
+	  },
+	  keyword: function (value) {
+	    var keyword = '' + value;
+	    var index = this.index;
+	    var endIndex = index + keyword.length;
+	    if (slice(this.source, index, endIndex) !== keyword) throw new SyntaxError('Failed to parse value at: ' + index);
+	    return this.node(PRIMITIVE, value, index, endIndex);
+	  },
+	  skip: function (regex, i) {
+	    var source = this.source;
+	    for (; i < source.length; i++) if (!exec(regex, at(source, i))) break;
+	    return i;
+	  },
+	  until: function (array, i) {
+	    i = this.skip(IS_WHITESPACE, i);
+	    var chr = at(this.source, i);
+	    for (var j = 0; j < array.length; j++) if (array[j] === chr) return i;
+	    throw new SyntaxError('Unexpected character: "' + chr + '" at: ' + i);
+	  }
+	};
+
+	var NO_SOURCE_SUPPORT = fails(function () {
+	  var unsafeInt = '9007199254740993';
+	  var source;
+	  nativeParse(unsafeInt, function (key, value, context) {
+	    source = context.source;
+	  });
+	  return source !== unsafeInt;
+	});
+
+	var PROPER_BASE_PARSE = NATIVE_SYMBOL && !fails(function () {
+	  // Safari 9 bug
+	  return 1 / nativeParse('-0 \t') !== -Infinity;
+	});
+
+	// `JSON.parse` method
+	// https://tc39.es/ecma262/#sec-json.parse
+	// https://github.com/tc39/proposal-json-parse-with-source
+	$({ target: 'JSON', stat: true, forced: NO_SOURCE_SUPPORT }, {
+	  parse: function parse(text, reviver) {
+	    return PROPER_BASE_PARSE && !isCallable(reviver) ? nativeParse(text) : $parse(text, reviver);
+	  }
+	});
+	return es_json_parse;
+}
+
+var es_json_rawJson = {};
+
+var freezing;
+var hasRequiredFreezing;
+
+function requireFreezing () {
+	if (hasRequiredFreezing) return freezing;
+	hasRequiredFreezing = 1;
+	var fails = requireFails();
+
+	freezing = !fails(function () {
+	  // eslint-disable-next-line es/no-object-isextensible, es/no-object-preventextensions -- required for testing
+	  return Object.isExtensible(Object.preventExtensions({}));
+	});
+	return freezing;
+}
+
+var hasRequiredEs_json_rawJson;
+
+function requireEs_json_rawJson () {
+	if (hasRequiredEs_json_rawJson) return es_json_rawJson;
+	hasRequiredEs_json_rawJson = 1;
+	var $ = require_export();
+	var FREEZING = requireFreezing();
+	var NATIVE_RAW_JSON = requireNativeRawJson();
+	var getBuiltIn = requireGetBuiltIn();
+	var uncurryThis = requireFunctionUncurryThis();
+	var toString = requireToString();
+	var createProperty = requireCreateProperty();
+	var setInternalState = requireInternalState().set;
+
+	var $SyntaxError = SyntaxError;
+	var parse = getBuiltIn('JSON', 'parse');
+	var create = getBuiltIn('Object', 'create');
+	var freeze = getBuiltIn('Object', 'freeze');
+	var at = uncurryThis(''.charAt);
+
+	var ERROR_MESSAGE = 'Unacceptable as raw JSON';
+
+	var isWhitespace = function (it) {
+	  return it === ' ' || it === '\t' || it === '\n' || it === '\r';
+	};
+
+	// `JSON.rawJSON` method
+	// https://tc39.es/proposal-json-parse-with-source/#sec-json.rawjson
+	// https://github.com/tc39/proposal-json-parse-with-source
+	$({ target: 'JSON', stat: true, forced: !NATIVE_RAW_JSON }, {
+	  rawJSON: function rawJSON(text) {
+	    var jsonString = toString(text);
+	    if (jsonString === '' || isWhitespace(at(jsonString, 0)) || isWhitespace(at(jsonString, jsonString.length - 1))) {
+	      throw new $SyntaxError(ERROR_MESSAGE);
+	    }
+	    var parsed = parse(jsonString);
+	    if (typeof parsed == 'object' && parsed !== null) throw new $SyntaxError(ERROR_MESSAGE);
+	    var obj = create(null);
+	    setInternalState(obj, { type: 'RawJSON' });
+	    createProperty(obj, 'rawJSON', jsonString);
+	    return FREEZING ? freeze(obj) : obj;
+	  }
+	});
+	return es_json_rawJson;
+}
+
 var es_json_toStringTag = {};
 
 var hasRequiredEs_json_toStringTag;
@@ -9168,21 +9700,6 @@ function requireObjectIsExtensible () {
 	  return $isExtensible ? $isExtensible(it) : true;
 	} : $isExtensible;
 	return objectIsExtensible;
-}
-
-var freezing;
-var hasRequiredFreezing;
-
-function requireFreezing () {
-	if (hasRequiredFreezing) return freezing;
-	hasRequiredFreezing = 1;
-	var fails = requireFails();
-
-	freezing = !fails(function () {
-	  // eslint-disable-next-line es/no-object-isextensible, es/no-object-preventextensions -- required for testing
-	  return Object.isExtensible(Object.preventExtensions({}));
-	});
-	return freezing;
 }
 
 var hasRequiredInternalMetadata;
@@ -9251,6 +9768,7 @@ function requireInternalMetadata () {
 	  var getOwnPropertyNames = getOwnPropertyNamesModule.f;
 	  var splice = uncurryThis([].splice);
 	  var test = {};
+	  // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	  test[METADATA] = 1;
 
 	  // prevent exposing of metadata key
@@ -10169,6 +10687,166 @@ function requireEs_math_sinh () {
 	  }
 	});
 	return es_math_sinh;
+}
+
+var es_math_sumPrecise = {};
+
+var hasRequiredEs_math_sumPrecise;
+
+function requireEs_math_sumPrecise () {
+	if (hasRequiredEs_math_sumPrecise) return es_math_sumPrecise;
+	hasRequiredEs_math_sumPrecise = 1;
+	// based on Shewchuk's algorithm for exactly floating point addition
+	// adapted from https://github.com/tc39/proposal-math-sum/blob/3513d58323a1ae25560e8700aa5294500c6c9287/polyfill/polyfill.mjs
+	var $ = require_export();
+	var uncurryThis = requireFunctionUncurryThis();
+	var iterate = requireIterate();
+
+	var $RangeError = RangeError;
+	var $TypeError = TypeError;
+	var $Infinity = Infinity;
+	var $NaN = NaN;
+	var abs = Math.abs;
+	var pow = Math.pow;
+	var push = uncurryThis([].push);
+
+	var POW_2_1023 = pow(2, 1023);
+	var MAX_SAFE_INTEGER = pow(2, 53) - 1; // 2 ** 53 - 1 === 9007199254740992
+	var MAX_DOUBLE = Number.MAX_VALUE; // 2 ** 1024 - 2 ** (1023 - 52) === 1.79769313486231570815e+308
+	var MAX_ULP = pow(2, 971); // 2 ** (1023 - 52) === 1.99584030953471981166e+292
+
+	var NOT_A_NUMBER = {};
+	var MINUS_INFINITY = {};
+	var PLUS_INFINITY = {};
+	var MINUS_ZERO = {};
+	var FINITE = {};
+
+	// prerequisite: abs(x) >= abs(y)
+	var twosum = function (x, y) {
+	  var hi = x + y;
+	  var lo = y - (hi - x);
+	  return { hi: hi, lo: lo };
+	};
+
+	// `Math.sumPrecise` method
+	// https://github.com/tc39/proposal-math-sum
+	$({ target: 'Math', stat: true }, {
+	  // eslint-disable-next-line max-statements -- ok
+	  sumPrecise: function sumPrecise(items) {
+	    var numbers = [];
+	    var count = 0;
+	    var state = MINUS_ZERO;
+
+	    iterate(items, function (n) {
+	      if (++count >= MAX_SAFE_INTEGER) throw new $RangeError('Maximum allowed index exceeded');
+	      if (typeof n != 'number') throw new $TypeError('Value is not a number');
+	      if (state !== NOT_A_NUMBER) {
+	        // eslint-disable-next-line no-self-compare -- NaN check
+	        if (n !== n) state = NOT_A_NUMBER;
+	        else if (n === $Infinity) state = state === MINUS_INFINITY ? NOT_A_NUMBER : PLUS_INFINITY;
+	        else if (n === -$Infinity) state = state === PLUS_INFINITY ? NOT_A_NUMBER : MINUS_INFINITY;
+	        else if ((n !== 0 || (1 / n) === $Infinity) && (state === MINUS_ZERO || state === FINITE)) {
+	          state = FINITE;
+	          push(numbers, n);
+	        }
+	      }
+	    });
+
+	    switch (state) {
+	      case NOT_A_NUMBER: return $NaN;
+	      case MINUS_INFINITY: return -$Infinity;
+	      case PLUS_INFINITY: return $Infinity;
+	      case MINUS_ZERO: return -0;
+	    }
+
+	    var partials = [];
+	    var overflow = 0; // conceptually 2 ** 1024 times this value; the final partial is biased by this amount
+	    var x, y, sum, hi, lo, tmp;
+
+	    for (var i = 0; i < numbers.length; i++) {
+	      x = numbers[i];
+	      var actuallyUsedPartials = 0;
+	      for (var j = 0; j < partials.length; j++) {
+	        y = partials[j];
+	        if (abs(x) < abs(y)) {
+	          tmp = x;
+	          x = y;
+	          y = tmp;
+	        }
+	        sum = twosum(x, y);
+	        hi = sum.hi;
+	        lo = sum.lo;
+	        if (abs(hi) === $Infinity) {
+	          var sign = hi === $Infinity ? 1 : -1;
+	          overflow += sign;
+
+	          x = (x - (sign * POW_2_1023)) - (sign * POW_2_1023);
+	          if (abs(x) < abs(y)) {
+	            tmp = x;
+	            x = y;
+	            y = tmp;
+	          }
+	          sum = twosum(x, y);
+	          hi = sum.hi;
+	          lo = sum.lo;
+	        }
+	        if (lo !== 0) partials[actuallyUsedPartials++] = lo;
+	        x = hi;
+	      }
+	      partials.length = actuallyUsedPartials;
+	      if (x !== 0) push(partials, x);
+	    }
+
+	    // compute the exact sum of partials, stopping once we lose precision
+	    var n = partials.length - 1;
+	    hi = 0;
+	    lo = 0;
+
+	    if (overflow !== 0) {
+	      var next = n >= 0 ? partials[n] : 0;
+	      n--;
+	      if (abs(overflow) > 1 || (overflow > 0 && next > 0) || (overflow < 0 && next < 0)) {
+	        return overflow > 0 ? $Infinity : -$Infinity;
+	      }
+	      // here we actually have to do the arithmetic
+	      // drop a factor of 2 so we can do it without overflow
+	      // assert(abs(overflow) === 1)
+	      sum = twosum(overflow * POW_2_1023, next / 2);
+	      hi = sum.hi;
+	      lo = sum.lo;
+	      lo *= 2;
+	      if (abs(2 * hi) === $Infinity) {
+	        // rounding to the maximum value
+	        if (hi > 0) {
+	          return (hi === POW_2_1023 && lo === -(MAX_ULP / 2) && n >= 0 && partials[n] < 0) ? MAX_DOUBLE : $Infinity;
+	        } return (hi === -POW_2_1023 && lo === (MAX_ULP / 2) && n >= 0 && partials[n] > 0) ? -MAX_DOUBLE : -$Infinity;
+	      }
+
+	      if (lo !== 0) {
+	        partials[++n] = lo;
+	        lo = 0;
+	      }
+
+	      hi *= 2;
+	    }
+
+	    while (n >= 0) {
+	      sum = twosum(hi, partials[n--]);
+	      hi = sum.hi;
+	      lo = sum.lo;
+	      if (lo !== 0) break;
+	    }
+
+	    if (n >= 0 && ((lo < 0 && partials[n] < 0) || (lo > 0 && partials[n] > 0))) {
+	      y = lo * 2;
+	      x = hi + y;
+	      if (y === x - hi) hi = x;
+	    }
+
+	    return hi;
+	  }
+	});
+	return es_math_sumPrecise;
 }
 
 var es_math_tanh = {};
@@ -11430,6 +12108,7 @@ function requireEs_object_groupBy () {
 	if (hasRequiredEs_object_groupBy) return es_object_groupBy;
 	hasRequiredEs_object_groupBy = 1;
 	var $ = require_export();
+	var createProperty = requireCreateProperty();
 	var getBuiltIn = requireGetBuiltIn();
 	var uncurryThis = requireFunctionUncurryThis();
 	var aCallable = requireACallable();
@@ -11463,7 +12142,7 @@ function requireEs_object_groupBy () {
 	      // in some IE versions, `hasOwnProperty` returns incorrect result on integer keys
 	      // but since it's a `null` prototype object, we can safely use `in`
 	      if (key in obj) push(obj[key], value);
-	      else obj[key] = [value];
+	      else createProperty(obj, key, [value]);
 	    });
 	    return obj;
 	  }
@@ -13308,7 +13987,7 @@ var hasRequiredAsyncIteratorIteration;
 function requireAsyncIteratorIteration () {
 	if (hasRequiredAsyncIteratorIteration) return asyncIteratorIteration;
 	hasRequiredAsyncIteratorIteration = 1;
-	// https://github.com/tc39/proposal-iterator-helpers
+	// https://github.com/tc39/proposal-async-iterator-helpers
 	// https://github.com/tc39/proposal-array-from-async
 	var call = requireFunctionCall();
 	var aCallable = requireACallable();
@@ -13391,10 +14070,15 @@ function requireAsyncIteratorIteration () {
 	};
 
 	asyncIteratorIteration = {
+	  // `AsyncIterator.prototype.toArray` / `Array.fromAsync` methods
 	  toArray: createMethod(0),
+	  // `AsyncIterator.prototype.forEach` method
 	  forEach: createMethod(1),
+	  // `AsyncIterator.prototype.every` method
 	  every: createMethod(2),
+	  // `AsyncIterator.prototype.some` method
 	  some: createMethod(3),
+	  // `AsyncIterator.prototype.find` method
 	  find: createMethod(4)
 	};
 	return asyncIteratorIteration;
@@ -15145,7 +15829,7 @@ function requireSetDifference () {
 	var remove = SetHelpers.remove;
 
 	// `Set.prototype.difference` method
-	// https://github.com/tc39/proposal-set-methods
+	// https://tc39.es/ecma262/#sec-set.prototype.difference
 	setDifference = function difference(other) {
 	  var O = aSet(this);
 	  var otherRec = getSetRecord(other);
@@ -15216,9 +15900,7 @@ function requireSetMethodAcceptSetLike () {
 	        new Set()[name](createSetLikeWithInfinitySize(-Infinity));
 	        return false;
 	      } catch (error) {
-	        var set = new Set();
-	        set.add(1);
-	        set.add(2);
+	        var set = new Set([1, 2]);
 	        return callback(set[name](createSetLikeWithInfinitySize(Infinity)));
 	      }
 	    }
@@ -15293,7 +15975,7 @@ function requireSetIntersection () {
 	var has = SetHelpers.has;
 
 	// `Set.prototype.intersection` method
-	// https://github.com/tc39/proposal-set-methods
+	// https://tc39.es/ecma262/#sec-set.prototype.intersection
 	setIntersection = function intersection(other) {
 	  var O = aSet(this);
 	  var otherRec = getSetRecord(other);
@@ -15356,7 +16038,7 @@ function requireSetIsDisjointFrom () {
 	var iteratorClose = requireIteratorClose();
 
 	// `Set.prototype.isDisjointFrom` method
-	// https://tc39.github.io/proposal-set-methods/#Set.prototype.isDisjointFrom
+	// https://tc39.es/ecma262/#sec-set.prototype.isdisjointfrom
 	setIsDisjointFrom = function isDisjointFrom(other) {
 	  var O = aSet(this);
 	  var otherRec = getSetRecord(other);
@@ -15406,7 +16088,7 @@ function requireSetIsSubsetOf () {
 	var getSetRecord = requireGetSetRecord();
 
 	// `Set.prototype.isSubsetOf` method
-	// https://tc39.github.io/proposal-set-methods/#Set.prototype.isSubsetOf
+	// https://tc39.es/ecma262/#sec-set.prototype.issubsetof
 	setIsSubsetOf = function isSubsetOf(other) {
 	  var O = aSet(this);
 	  var otherRec = getSetRecord(other);
@@ -15455,7 +16137,7 @@ function requireSetIsSupersetOf () {
 	var iteratorClose = requireIteratorClose();
 
 	// `Set.prototype.isSupersetOf` method
-	// https://tc39.github.io/proposal-set-methods/#Set.prototype.isSupersetOf
+	// https://tc39.es/ecma262/#sec-set.prototype.issupersetof
 	setIsSupersetOf = function isSupersetOf(other) {
 	  var O = aSet(this);
 	  var otherRec = getSetRecord(other);
@@ -15508,7 +16190,7 @@ function requireSetSymmetricDifference () {
 	var remove = SetHelpers.remove;
 
 	// `Set.prototype.symmetricDifference` method
-	// https://github.com/tc39/proposal-set-methods
+	// https://tc39.es/ecma262/#sec-set.prototype.symmetricdifference
 	setSymmetricDifference = function symmetricDifference(other) {
 	  var O = aSet(this);
 	  var keysIter = getSetRecord(other).getIterator();
@@ -15552,7 +16234,7 @@ function requireSetMethodGetKeysBeforeCloningDetection () {
 	    };
 	    var result = baseSet[METHOD_NAME](setLike);
 
-	    return result.size !== 1 || result.values().next().value !== 4;
+	    return result.size === 1 && result.values().next().value === 4;
 	  } catch (error) {
 	    return false;
 	  }
@@ -15595,7 +16277,7 @@ function requireSetUnion () {
 	var iterateSimple = requireIterateSimple();
 
 	// `Set.prototype.union` method
-	// https://github.com/tc39/proposal-set-methods
+	// https://tc39.es/ecma262/#sec-set.prototype.union
 	setUnion = function union(other) {
 	  var O = aSet(this);
 	  var keysIter = getSetRecord(other).getIterator();
@@ -15982,6 +16664,7 @@ function requireFixRegexpWellKnownSymbolLogic () {
 	  var DELEGATES_TO_SYMBOL = !fails(function () {
 	    // String methods call symbol-named RegExp methods
 	    var O = {};
+	    // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	    O[SYMBOL] = function () { return 7; };
 	    return ''[KEY](O) !== 7;
 	  });
@@ -15995,12 +16678,13 @@ function requireFixRegexpWellKnownSymbolLogic () {
 	      // We can't use real regex here since it causes deoptimization
 	      // and serious performance degradation in V8
 	      // https://github.com/zloirock/core-js/issues/306
-	      re = {};
 	      // RegExp[@@split] doesn't call the regex's exec method, but first creates
 	      // a new one. We need to return the patched regex when creating the new one.
-	      re.constructor = {};
-	      re.constructor[SPECIES] = function () { return re; };
-	      re.flags = '';
+	      var constructor = {};
+	      // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
+	      constructor[SPECIES] = function () { return re; };
+	      re = { constructor: constructor, flags: '' };
+	      // eslint-disable-next-line unicorn/no-immediate-mutation -- ES3 syntax limitation
 	      re[SYMBOL] = /./[SYMBOL];
 	    }
 
@@ -18912,6 +19596,531 @@ function requireEs_typedArray_with () {
 	return es_typedArray_with;
 }
 
+var es_uint8Array_fromBase64 = {};
+
+var anObjectOrUndefined;
+var hasRequiredAnObjectOrUndefined;
+
+function requireAnObjectOrUndefined () {
+	if (hasRequiredAnObjectOrUndefined) return anObjectOrUndefined;
+	hasRequiredAnObjectOrUndefined = 1;
+	var isObject = requireIsObject();
+
+	var $String = String;
+	var $TypeError = TypeError;
+
+	anObjectOrUndefined = function (argument) {
+	  if (argument === undefined || isObject(argument)) return argument;
+	  throw new $TypeError($String(argument) + ' is not an object or undefined');
+	};
+	return anObjectOrUndefined;
+}
+
+var base64Map;
+var hasRequiredBase64Map;
+
+function requireBase64Map () {
+	if (hasRequiredBase64Map) return base64Map;
+	hasRequiredBase64Map = 1;
+	var commonAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var base64Alphabet = commonAlphabet + '+/';
+	var base64UrlAlphabet = commonAlphabet + '-_';
+
+	var inverse = function (characters) {
+	  // TODO: use `Object.create(null)` in `core-js@4`
+	  var result = {};
+	  var index = 0;
+	  for (; index < 64; index++) result[characters.charAt(index)] = index;
+	  return result;
+	};
+
+	base64Map = {
+	  i2c: base64Alphabet,
+	  c2i: inverse(base64Alphabet),
+	  i2cUrl: base64UrlAlphabet,
+	  c2iUrl: inverse(base64UrlAlphabet)
+	};
+	return base64Map;
+}
+
+var getAlphabetOption;
+var hasRequiredGetAlphabetOption;
+
+function requireGetAlphabetOption () {
+	if (hasRequiredGetAlphabetOption) return getAlphabetOption;
+	hasRequiredGetAlphabetOption = 1;
+	var $TypeError = TypeError;
+
+	getAlphabetOption = function (options) {
+	  var alphabet = options && options.alphabet;
+	  if (alphabet === undefined || alphabet === 'base64' || alphabet === 'base64url') return alphabet || 'base64';
+	  throw new $TypeError('Incorrect `alphabet` option');
+	};
+	return getAlphabetOption;
+}
+
+var uint8FromBase64;
+var hasRequiredUint8FromBase64;
+
+function requireUint8FromBase64 () {
+	if (hasRequiredUint8FromBase64) return uint8FromBase64;
+	hasRequiredUint8FromBase64 = 1;
+	var globalThis = requireGlobalThis();
+	var uncurryThis = requireFunctionUncurryThis();
+	var anObjectOrUndefined = requireAnObjectOrUndefined();
+	var aString = requireAString();
+	var hasOwn = requireHasOwnProperty();
+	var base64Map = requireBase64Map();
+	var getAlphabetOption = requireGetAlphabetOption();
+	var notDetached = requireArrayBufferNotDetached();
+
+	var base64Alphabet = base64Map.c2i;
+	var base64UrlAlphabet = base64Map.c2iUrl;
+
+	var SyntaxError = globalThis.SyntaxError;
+	var TypeError = globalThis.TypeError;
+	var at = uncurryThis(''.charAt);
+
+	var skipAsciiWhitespace = function (string, index) {
+	  var length = string.length;
+	  for (;index < length; index++) {
+	    var chr = at(string, index);
+	    if (chr !== ' ' && chr !== '\t' && chr !== '\n' && chr !== '\f' && chr !== '\r') break;
+	  } return index;
+	};
+
+	var decodeBase64Chunk = function (chunk, alphabet, throwOnExtraBits) {
+	  var chunkLength = chunk.length;
+
+	  if (chunkLength < 4) {
+	    chunk += chunkLength === 2 ? 'AA' : 'A';
+	  }
+
+	  var triplet = (alphabet[at(chunk, 0)] << 18)
+	    + (alphabet[at(chunk, 1)] << 12)
+	    + (alphabet[at(chunk, 2)] << 6)
+	    + alphabet[at(chunk, 3)];
+
+	  var chunkBytes = [
+	    (triplet >> 16) & 255,
+	    (triplet >> 8) & 255,
+	    triplet & 255
+	  ];
+
+	  if (chunkLength === 2) {
+	    if (throwOnExtraBits && chunkBytes[1] !== 0) {
+	      throw new SyntaxError('Extra bits');
+	    }
+	    return [chunkBytes[0]];
+	  }
+
+	  if (chunkLength === 3) {
+	    if (throwOnExtraBits && chunkBytes[2] !== 0) {
+	      throw new SyntaxError('Extra bits');
+	    }
+	    return [chunkBytes[0], chunkBytes[1]];
+	  }
+
+	  return chunkBytes;
+	};
+
+	var writeBytes = function (bytes, elements, written) {
+	  var elementsLength = elements.length;
+	  for (var index = 0; index < elementsLength; index++) {
+	    bytes[written + index] = elements[index];
+	  }
+	  return written + elementsLength;
+	};
+
+	/* eslint-disable max-statements, max-depth -- TODO */
+	uint8FromBase64 = function (string, options, into, maxLength) {
+	  aString(string);
+	  anObjectOrUndefined(options);
+	  var alphabet = getAlphabetOption(options) === 'base64' ? base64Alphabet : base64UrlAlphabet;
+	  var lastChunkHandling = options ? options.lastChunkHandling : undefined;
+
+	  if (lastChunkHandling === undefined) lastChunkHandling = 'loose';
+
+	  if (lastChunkHandling !== 'loose' && lastChunkHandling !== 'strict' && lastChunkHandling !== 'stop-before-partial') {
+	    throw new TypeError('Incorrect `lastChunkHandling` option');
+	  }
+
+	  if (into) notDetached(into.buffer);
+
+	  var stringLength = string.length;
+	  var bytes = into || [];
+	  var written = 0;
+	  var read = 0;
+	  var chunk = '';
+	  var index = 0;
+
+	  if (maxLength) while (true) {
+	    index = skipAsciiWhitespace(string, index);
+	    if (index === stringLength) {
+	      if (chunk.length > 0) {
+	        if (lastChunkHandling === 'stop-before-partial') {
+	          break;
+	        }
+	        if (lastChunkHandling === 'loose') {
+	          if (chunk.length === 1) {
+	            throw new SyntaxError('Malformed padding: exactly one additional character');
+	          }
+	          written = writeBytes(bytes, decodeBase64Chunk(chunk, alphabet, false), written);
+	        } else {
+	          throw new SyntaxError('Missing padding');
+	        }
+	      }
+	      read = stringLength;
+	      break;
+	    }
+	    var chr = at(string, index);
+	    ++index;
+	    if (chr === '=') {
+	      if (chunk.length < 2) {
+	        throw new SyntaxError('Padding is too early');
+	      }
+	      index = skipAsciiWhitespace(string, index);
+	      if (chunk.length === 2) {
+	        if (index === stringLength) {
+	          if (lastChunkHandling === 'stop-before-partial') {
+	            break;
+	          }
+	          throw new SyntaxError('Malformed padding: only one =');
+	        }
+	        if (at(string, index) === '=') {
+	          ++index;
+	          index = skipAsciiWhitespace(string, index);
+	        }
+	      }
+	      if (index < stringLength) {
+	        throw new SyntaxError('Unexpected character after padding');
+	      }
+	      written = writeBytes(bytes, decodeBase64Chunk(chunk, alphabet, lastChunkHandling === 'strict'), written);
+	      read = stringLength;
+	      break;
+	    }
+	    if (!hasOwn(alphabet, chr)) {
+	      throw new SyntaxError('Unexpected character');
+	    }
+	    var remainingBytes = maxLength - written;
+	    if (remainingBytes === 1 && chunk.length === 2 || remainingBytes === 2 && chunk.length === 3) {
+	      // special case: we can fit exactly the number of bytes currently represented by chunk, so we were just checking for `=`
+	      break;
+	    }
+
+	    chunk += chr;
+	    if (chunk.length === 4) {
+	      written = writeBytes(bytes, decodeBase64Chunk(chunk, alphabet, false), written);
+	      chunk = '';
+	      read = index;
+	      if (written === maxLength) {
+	        break;
+	      }
+	    }
+	  }
+
+	  return { bytes: bytes, read: read, written: written };
+	};
+	return uint8FromBase64;
+}
+
+var hasRequiredEs_uint8Array_fromBase64;
+
+function requireEs_uint8Array_fromBase64 () {
+	if (hasRequiredEs_uint8Array_fromBase64) return es_uint8Array_fromBase64;
+	hasRequiredEs_uint8Array_fromBase64 = 1;
+	var $ = require_export();
+	var globalThis = requireGlobalThis();
+	var arrayFromConstructorAndList = requireArrayFromConstructorAndList();
+	var $fromBase64 = requireUint8FromBase64();
+
+	var Uint8Array = globalThis.Uint8Array;
+
+	var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS = !Uint8Array || !Uint8Array.fromBase64 || !function () {
+	  // Webkit not throw an error on odd length string
+	  try {
+	    Uint8Array.fromBase64('a');
+	    return;
+	  } catch (error) { /* empty */ }
+	  try {
+	    Uint8Array.fromBase64('', null);
+	  } catch (error) {
+	    return true;
+	  }
+	}();
+
+	// `Uint8Array.fromBase64` method
+	// https://github.com/tc39/proposal-arraybuffer-base64
+	if (Uint8Array) $({ target: 'Uint8Array', stat: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
+	  fromBase64: function fromBase64(string /* , options */) {
+	    var result = $fromBase64(string, arguments.length > 1 ? arguments[1] : undefined, null, 0x1FFFFFFFFFFFFF);
+	    return arrayFromConstructorAndList(Uint8Array, result.bytes);
+	  }
+	});
+	return es_uint8Array_fromBase64;
+}
+
+var es_uint8Array_fromHex = {};
+
+var uint8FromHex;
+var hasRequiredUint8FromHex;
+
+function requireUint8FromHex () {
+	if (hasRequiredUint8FromHex) return uint8FromHex;
+	hasRequiredUint8FromHex = 1;
+	var globalThis = requireGlobalThis();
+	var uncurryThis = requireFunctionUncurryThis();
+
+	var Uint8Array = globalThis.Uint8Array;
+	var SyntaxError = globalThis.SyntaxError;
+	var parseInt = globalThis.parseInt;
+	var min = Math.min;
+	var NOT_HEX = /[^\da-f]/i;
+	var exec = uncurryThis(NOT_HEX.exec);
+	var stringSlice = uncurryThis(''.slice);
+
+	uint8FromHex = function (string, into) {
+	  var stringLength = string.length;
+	  if (stringLength % 2 !== 0) throw new SyntaxError('String should be an even number of characters');
+	  var maxLength = into ? min(into.length, stringLength / 2) : stringLength / 2;
+	  var bytes = into || new Uint8Array(maxLength);
+	  var read = 0;
+	  var written = 0;
+	  while (written < maxLength) {
+	    var hexits = stringSlice(string, read, read += 2);
+	    if (exec(NOT_HEX, hexits)) throw new SyntaxError('String should only contain hex characters');
+	    bytes[written++] = parseInt(hexits, 16);
+	  }
+	  return { bytes: bytes, read: read };
+	};
+	return uint8FromHex;
+}
+
+var hasRequiredEs_uint8Array_fromHex;
+
+function requireEs_uint8Array_fromHex () {
+	if (hasRequiredEs_uint8Array_fromHex) return es_uint8Array_fromHex;
+	hasRequiredEs_uint8Array_fromHex = 1;
+	var $ = require_export();
+	var globalThis = requireGlobalThis();
+	var aString = requireAString();
+	var $fromHex = requireUint8FromHex();
+
+	// `Uint8Array.fromHex` method
+	// https://github.com/tc39/proposal-arraybuffer-base64
+	if (globalThis.Uint8Array) $({ target: 'Uint8Array', stat: true }, {
+	  fromHex: function fromHex(string) {
+	    return $fromHex(aString(string)).bytes;
+	  }
+	});
+	return es_uint8Array_fromHex;
+}
+
+var es_uint8Array_setFromBase64 = {};
+
+var anUint8Array;
+var hasRequiredAnUint8Array;
+
+function requireAnUint8Array () {
+	if (hasRequiredAnUint8Array) return anUint8Array;
+	hasRequiredAnUint8Array = 1;
+	var classof = requireClassof();
+
+	var $TypeError = TypeError;
+
+	// Perform ? RequireInternalSlot(argument, [[TypedArrayName]])
+	// If argument.[[TypedArrayName]] is not "Uint8Array", throw a TypeError exception
+	anUint8Array = function (argument) {
+	  if (classof(argument) === 'Uint8Array') return argument;
+	  throw new $TypeError('Argument is not an Uint8Array');
+	};
+	return anUint8Array;
+}
+
+var hasRequiredEs_uint8Array_setFromBase64;
+
+function requireEs_uint8Array_setFromBase64 () {
+	if (hasRequiredEs_uint8Array_setFromBase64) return es_uint8Array_setFromBase64;
+	hasRequiredEs_uint8Array_setFromBase64 = 1;
+	var $ = require_export();
+	var globalThis = requireGlobalThis();
+	var $fromBase64 = requireUint8FromBase64();
+	var anUint8Array = requireAnUint8Array();
+
+	var Uint8Array = globalThis.Uint8Array;
+
+	var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS = !Uint8Array || !Uint8Array.prototype.setFromBase64 || !function () {
+	  var target = new Uint8Array([255, 255, 255, 255, 255]);
+	  try {
+	    target.setFromBase64('', null);
+	    return;
+	  } catch (error) { /* empty */ }
+	  // Webkit not throw an error on odd length string
+	  try {
+	    target.setFromBase64('a');
+	    return;
+	  } catch (error) { /* empty */ }
+	  try {
+	    target.setFromBase64('MjYyZg===');
+	  } catch (error) {
+	    return target[0] === 50 && target[1] === 54 && target[2] === 50 && target[3] === 255 && target[4] === 255;
+	  }
+	}();
+
+	// `Uint8Array.prototype.setFromBase64` method
+	// https://github.com/tc39/proposal-arraybuffer-base64
+	if (Uint8Array) $({ target: 'Uint8Array', proto: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
+	  setFromBase64: function setFromBase64(string /* , options */) {
+	    anUint8Array(this);
+
+	    var result = $fromBase64(string, arguments.length > 1 ? arguments[1] : undefined, this, this.length);
+
+	    return { read: result.read, written: result.written };
+	  }
+	});
+	return es_uint8Array_setFromBase64;
+}
+
+var es_uint8Array_setFromHex = {};
+
+var hasRequiredEs_uint8Array_setFromHex;
+
+function requireEs_uint8Array_setFromHex () {
+	if (hasRequiredEs_uint8Array_setFromHex) return es_uint8Array_setFromHex;
+	hasRequiredEs_uint8Array_setFromHex = 1;
+	var $ = require_export();
+	var globalThis = requireGlobalThis();
+	var aString = requireAString();
+	var anUint8Array = requireAnUint8Array();
+	var notDetached = requireArrayBufferNotDetached();
+	var $fromHex = requireUint8FromHex();
+
+	// `Uint8Array.prototype.setFromHex` method
+	// https://github.com/tc39/proposal-arraybuffer-base64
+	if (globalThis.Uint8Array) $({ target: 'Uint8Array', proto: true }, {
+	  setFromHex: function setFromHex(string) {
+	    anUint8Array(this);
+	    aString(string);
+	    notDetached(this.buffer);
+	    var read = $fromHex(string, this).read;
+	    return { read: read, written: read / 2 };
+	  }
+	});
+	return es_uint8Array_setFromHex;
+}
+
+var es_uint8Array_toBase64 = {};
+
+var hasRequiredEs_uint8Array_toBase64;
+
+function requireEs_uint8Array_toBase64 () {
+	if (hasRequiredEs_uint8Array_toBase64) return es_uint8Array_toBase64;
+	hasRequiredEs_uint8Array_toBase64 = 1;
+	var $ = require_export();
+	var globalThis = requireGlobalThis();
+	var uncurryThis = requireFunctionUncurryThis();
+	var anObjectOrUndefined = requireAnObjectOrUndefined();
+	var anUint8Array = requireAnUint8Array();
+	var notDetached = requireArrayBufferNotDetached();
+	var base64Map = requireBase64Map();
+	var getAlphabetOption = requireGetAlphabetOption();
+
+	var base64Alphabet = base64Map.i2c;
+	var base64UrlAlphabet = base64Map.i2cUrl;
+
+	var charAt = uncurryThis(''.charAt);
+
+	var Uint8Array = globalThis.Uint8Array;
+
+	var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS = !Uint8Array || !Uint8Array.prototype.toBase64 || !function () {
+	  try {
+	    var target = new Uint8Array();
+	    target.toBase64(null);
+	  } catch (error) {
+	    return true;
+	  }
+	}();
+
+	// `Uint8Array.prototype.toBase64` method
+	// https://github.com/tc39/proposal-arraybuffer-base64
+	if (Uint8Array) $({ target: 'Uint8Array', proto: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
+	  toBase64: function toBase64(/* options */) {
+	    var array = anUint8Array(this);
+	    var options = arguments.length ? anObjectOrUndefined(arguments[0]) : undefined;
+	    var alphabet = getAlphabetOption(options) === 'base64' ? base64Alphabet : base64UrlAlphabet;
+	    var omitPadding = !!options && !!options.omitPadding;
+	    notDetached(this.buffer);
+
+	    var result = '';
+	    var i = 0;
+	    var length = array.length;
+	    var triplet;
+
+	    var at = function (shift) {
+	      return charAt(alphabet, (triplet >> (6 * shift)) & 63);
+	    };
+
+	    for (; i + 2 < length; i += 3) {
+	      triplet = (array[i] << 16) + (array[i + 1] << 8) + array[i + 2];
+	      result += at(3) + at(2) + at(1) + at(0);
+	    }
+	    if (i + 2 === length) {
+	      triplet = (array[i] << 16) + (array[i + 1] << 8);
+	      result += at(3) + at(2) + at(1) + (omitPadding ? '' : '=');
+	    } else if (i + 1 === length) {
+	      triplet = array[i] << 16;
+	      result += at(3) + at(2) + (omitPadding ? '' : '==');
+	    }
+
+	    return result;
+	  }
+	});
+	return es_uint8Array_toBase64;
+}
+
+var es_uint8Array_toHex = {};
+
+var hasRequiredEs_uint8Array_toHex;
+
+function requireEs_uint8Array_toHex () {
+	if (hasRequiredEs_uint8Array_toHex) return es_uint8Array_toHex;
+	hasRequiredEs_uint8Array_toHex = 1;
+	var $ = require_export();
+	var globalThis = requireGlobalThis();
+	var uncurryThis = requireFunctionUncurryThis();
+	var anUint8Array = requireAnUint8Array();
+	var notDetached = requireArrayBufferNotDetached();
+
+	var numberToString = uncurryThis(1.1.toString);
+
+	var Uint8Array = globalThis.Uint8Array;
+
+	var INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS = !Uint8Array || !Uint8Array.prototype.toHex || !(function () {
+	  try {
+	    var target = new Uint8Array([255, 255, 255, 255, 255, 255, 255, 255]);
+	    return target.toHex() === 'ffffffffffffffff';
+	  } catch (error) {
+	    return false;
+	  }
+	})();
+
+	// `Uint8Array.prototype.toHex` method
+	// https://github.com/tc39/proposal-arraybuffer-base64
+	if (Uint8Array) $({ target: 'Uint8Array', proto: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
+	  toHex: function toHex() {
+	    anUint8Array(this);
+	    notDetached(this.buffer);
+	    var result = '';
+	    for (var i = 0, length = this.length; i < length; i++) {
+	      var hex = numberToString(this[i], 16);
+	      result += hex.length === 1 ? '0' + hex : hex;
+	    }
+	    return result;
+	  }
+	});
+	return es_uint8Array_toHex;
+}
+
 var es_unescape = {};
 
 var hasRequiredEs_unescape;
@@ -19263,33 +20472,6 @@ function requireEs_weakSet () {
 }
 
 var web_atob = {};
-
-var base64Map;
-var hasRequiredBase64Map;
-
-function requireBase64Map () {
-	if (hasRequiredBase64Map) return base64Map;
-	hasRequiredBase64Map = 1;
-	var commonAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	var base64Alphabet = commonAlphabet + '+/';
-	var base64UrlAlphabet = commonAlphabet + '-_';
-
-	var inverse = function (characters) {
-	  // TODO: use `Object.create(null)` in `core-js@4`
-	  var result = {};
-	  var index = 0;
-	  for (; index < 64; index++) result[characters.charAt(index)] = index;
-	  return result;
-	};
-
-	base64Map = {
-	  i2c: base64Alphabet,
-	  c2i: inverse(base64Alphabet),
-	  i2cUrl: base64UrlAlphabet,
-	  c2iUrl: inverse(base64UrlAlphabet)
-	};
-	return base64Map;
-}
 
 var hasRequiredWeb_atob;
 
@@ -21187,7 +22369,7 @@ function requireWeb_urlSearchParams_constructor () {
 	    var state = getInternalParamsState(this);
 	    validateArgumentsLength(arguments.length, 2);
 	    push(state.entries, { key: $toString(name), value: $toString(value) });
-	    if (!DESCRIPTORS) this.length++;
+	    if (!DESCRIPTORS) this.size++;
 	    state.updateURL();
 	  },
 	  // `URLSearchParams.prototype.delete` method
@@ -22779,6 +23961,7 @@ function requireStable () {
 	requireEs_function_name();
 	requireEs_globalThis();
 	requireEs_iterator_constructor();
+	requireEs_iterator_concat();
 	requireEs_iterator_dispose();
 	requireEs_iterator_drop();
 	requireEs_iterator_every();
@@ -22792,6 +23975,9 @@ function requireStable () {
 	requireEs_iterator_some();
 	requireEs_iterator_take();
 	requireEs_iterator_toArray();
+	requireEs_json_isRawJson();
+	requireEs_json_parse();
+	requireEs_json_rawJson();
 	requireEs_json_stringify();
 	requireEs_json_toStringTag();
 	requireEs_map();
@@ -22812,6 +23998,7 @@ function requireStable () {
 	requireEs_math_log2();
 	requireEs_math_sign();
 	requireEs_math_sinh();
+	requireEs_math_sumPrecise();
 	requireEs_math_tanh();
 	requireEs_math_toStringTag();
 	requireEs_math_trunc();
@@ -22973,6 +24160,12 @@ function requireStable () {
 	requireEs_typedArray_toSorted();
 	requireEs_typedArray_toString();
 	requireEs_typedArray_with();
+	requireEs_uint8Array_fromBase64();
+	requireEs_uint8Array_fromHex();
+	requireEs_uint8Array_setFromBase64();
+	requireEs_uint8Array_setFromHex();
+	requireEs_uint8Array_toBase64();
+	requireEs_uint8Array_toHex();
 	requireEs_unescape();
 	requireEs_weakMap();
 	requireEs_weakSet();
@@ -24407,10 +25600,18 @@ class Locale {
 
   months(length, format = false) {
     return listStuff(this, length, months, () => {
+      // Workaround for "ja" locale: formatToParts does not label all parts of the month
+      // as "month" and for this locale there is no difference between "format" and "non-format".
+      // As such, just use format() instead of formatToParts() and take the whole string
+      const monthSpecialCase = this.intl === "ja" || this.intl.startsWith("ja-");
+      format &= !monthSpecialCase;
       const intl = format ? { month: length, day: "numeric" } : { month: length },
         formatStr = format ? "format" : "standalone";
       if (!this.monthsCache[formatStr][length]) {
-        this.monthsCache[formatStr][length] = mapMonths((dt) => this.extract(dt, intl, "month"));
+        const mapper = !monthSpecialCase
+          ? (dt) => this.extract(dt, intl, "month")
+          : (dt) => this.dtFormatter(dt, intl).format();
+        this.monthsCache[formatStr][length] = mapMonths(mapper);
       }
       return this.monthsCache[formatStr][length];
     });
@@ -24738,7 +25939,6 @@ class InvalidZone extends Zone {
 /**
  * @private
  */
-
 
 function normalizeZone(input, defaultZone) {
   if (isUndefined(input) || input === null) {
@@ -25244,7 +26444,6 @@ function hasInvalidTimeData(obj) {
   it up into, say, parsingUtil.js and basicUtil.js and so on. But they are divided up by feature area.
 */
 
-
 /**
  * @private
  */
@@ -25396,10 +26595,24 @@ function parseMillis(fraction) {
   }
 }
 
-function roundTo(number, digits, towardZero = false) {
-  const factor = 10 ** digits,
-    rounder = towardZero ? Math.trunc : Math.round;
-  return rounder(number * factor) / factor;
+function roundTo(number, digits, rounding = "round") {
+  const factor = 10 ** digits;
+  switch (rounding) {
+    case "expand":
+      return number > 0
+        ? Math.ceil(number * factor) / factor
+        : Math.floor(number * factor) / factor;
+    case "trunc":
+      return Math.trunc(number * factor) / factor;
+    case "round":
+      return Math.round(number * factor) / factor;
+    case "floor":
+      return Math.floor(number * factor) / factor;
+    case "ceil":
+      return Math.ceil(number * factor) / factor;
+    default:
+      throw new RangeError(`Value rounding ${rounding} is out of range`);
+  }
 }
 
 // DATE BASICS
@@ -25507,7 +26720,7 @@ function signedOffset(offHourStr, offMinuteStr) {
 
 function asNumber(value) {
   const numericValue = Number(value);
-  if (typeof value === "boolean" || value === "" || Number.isNaN(numericValue))
+  if (typeof value === "boolean" || value === "" || !Number.isFinite(numericValue))
     throw new InvalidArgumentError(`Invalid unit value ${value}`);
   return numericValue;
 }
@@ -25766,8 +26979,12 @@ class Formatter {
     for (let i = 0; i < fmt.length; i++) {
       const c = fmt.charAt(i);
       if (c === "'") {
-        if (currentFull.length > 0) {
-          splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
+        // turn '' into a literal signal quote instead of just skipping the empty literal
+        if (currentFull.length > 0 || bracketed) {
+          splits.push({
+            literal: bracketed || /^\s+$/.test(currentFull),
+            val: currentFull === "" ? "'" : currentFull,
+          });
         }
         current = null;
         currentFull = "";
@@ -25831,7 +27048,7 @@ class Formatter {
     return this.dtFormatter(dt, opts).resolvedOptions();
   }
 
-  num(n, p = 0) {
+  num(n, p = 0, signDisplay = undefined) {
     // we get some perf out of doing this here, annoyingly
     if (this.opts.forceSimple) {
       return padStart$1(n, p);
@@ -25841,6 +27058,9 @@ class Formatter {
 
     if (p > 0) {
       opts.padTo = p;
+    }
+    if (signDisplay) {
+      opts.signDisplay = signDisplay;
     }
 
     return this.loc.numberFormatter(opts).format(n);
@@ -26077,32 +27297,44 @@ class Formatter {
   }
 
   formatDurationFromString(dur, fmt) {
+    const invertLargest = this.opts.signMode === "negativeLargestOnly" ? -1 : 1;
     const tokenToField = (token) => {
         switch (token[0]) {
           case "S":
-            return "millisecond";
+            return "milliseconds";
           case "s":
-            return "second";
+            return "seconds";
           case "m":
-            return "minute";
+            return "minutes";
           case "h":
-            return "hour";
+            return "hours";
           case "d":
-            return "day";
+            return "days";
           case "w":
-            return "week";
+            return "weeks";
           case "M":
-            return "month";
+            return "months";
           case "y":
-            return "year";
+            return "years";
           default:
             return null;
         }
       },
-      tokenToString = (lildur) => (token) => {
+      tokenToString = (lildur, info) => (token) => {
         const mapped = tokenToField(token);
         if (mapped) {
-          return this.num(lildur.get(mapped), token.length);
+          const inversionFactor =
+            info.isNegativeDuration && mapped !== info.largestUnit ? invertLargest : 1;
+          let signDisplay;
+          if (this.opts.signMode === "negativeLargestOnly" && mapped !== info.largestUnit) {
+            signDisplay = "never";
+          } else if (this.opts.signMode === "all") {
+            signDisplay = "always";
+          } else {
+            // "auto" and "negative" are the same, but "auto" has better support
+            signDisplay = "auto";
+          }
+          return this.num(lildur.get(mapped) * inversionFactor, token.length, signDisplay);
         } else {
           return token;
         }
@@ -26112,8 +27344,14 @@ class Formatter {
         (found, { literal, val }) => (literal ? found : found.concat(val)),
         []
       ),
-      collapsed = dur.shiftTo(...realTokens.map(tokenToField).filter((t) => t));
-    return stringifyTokens(tokens, tokenToString(collapsed));
+      collapsed = dur.shiftTo(...realTokens.map(tokenToField).filter((t) => t)),
+      durationInfo = {
+        isNegativeDuration: collapsed < 0,
+        // this relies on "collapsed" being based on "shiftTo", which builds up the object
+        // in order
+        largestUnit: Object.keys(collapsed.values)[0],
+      };
+    return stringifyTokens(tokens, tokenToString(collapsed, durationInfo));
   }
 }
 
@@ -26174,11 +27412,11 @@ function simpleParse(...keys) {
 }
 
 // ISO and SQL parsing
-const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/;
+const offsetRegex = /(?:([Zz])|([+-]\d\d)(?::?(\d\d))?)/;
 const isoExtendedZone = `(?:${offsetRegex.source}?(?:\\[(${ianaRegex.source})\\])?)?`;
 const isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;
 const isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${isoExtendedZone}`);
-const isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`);
+const isoTimeExtensionRegex = RegExp(`(?:[Tt]${isoTimeRegex.source})?`);
 const isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/;
 const isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/;
 const isoOrdinalRegex = /(\d{4})-?(\d{3})/;
@@ -26542,7 +27780,7 @@ const orderedUnits$1 = [
 const reverseUnits = orderedUnits$1.slice(0).reverse();
 
 // clone really means "create another instance just like this one, but with these changes"
-function clone$2(dur, alts, clear = false) {
+function clone$1(dur, alts, clear = false) {
   // deep merge for vals
   const conf = {
     values: clear ? alts.values : { ...dur.values, ...(alts.values || {}) },
@@ -26893,9 +28131,13 @@ class Duration {
    * @param {string} fmt - the format string
    * @param {Object} opts - options
    * @param {boolean} [opts.floor=true] - floor numerical values
+   * @param {'negative'|'all'|'negativeLargestOnly'} [opts.signMode=negative] - How to handle signs
    * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("y d s") //=> "1 6 2"
    * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("yy dd sss") //=> "01 06 002"
    * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("M S") //=> "12 518402000"
+   * @example Duration.fromObject({ days: 6, seconds: 2 }).toFormat("d s", { signMode: "all" }) //=> "+6 +2"
+   * @example Duration.fromObject({ days: -6, seconds: -2 }).toFormat("d s", { signMode: "all" }) //=> "-6 -2"
+   * @example Duration.fromObject({ days: -6, seconds: -2 }).toFormat("d s", { signMode: "negativeLargestOnly" }) //=> "-6 2"
    * @return {string}
    */
   toFormat(fmt, opts = {}) {
@@ -26915,21 +28157,25 @@ class Duration {
    * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat/NumberFormat#options
    * @param {Object} opts - Formatting options. Accepts the same keys as the options parameter of the native `Intl.NumberFormat` constructor, as well as `listStyle`.
    * @param {string} [opts.listStyle='narrow'] - How to format the merged list. Corresponds to the `style` property of the options parameter of the native `Intl.ListFormat` constructor.
+   * @param {boolean} [opts.showZeros=true] - Show all units previously used by the duration even if they are zero
    * @example
    * ```js
-   * var dur = Duration.fromObject({ days: 1, hours: 5, minutes: 6 })
-   * dur.toHuman() //=> '1 day, 5 hours, 6 minutes'
-   * dur.toHuman({ listStyle: "long" }) //=> '1 day, 5 hours, and 6 minutes'
-   * dur.toHuman({ unitDisplay: "short" }) //=> '1 day, 5 hr, 6 min'
+   * var dur = Duration.fromObject({ months: 1, weeks: 0, hours: 5, minutes: 6 })
+   * dur.toHuman() //=> '1 month, 0 weeks, 5 hours, 6 minutes'
+   * dur.toHuman({ listStyle: "long" }) //=> '1 month, 0 weeks, 5 hours, and 6 minutes'
+   * dur.toHuman({ unitDisplay: "short" }) //=> '1 mth, 0 wks, 5 hr, 6 min'
+   * dur.toHuman({ showZeros: false }) //=> '1 month, 5 hours, 6 minutes'
    * ```
    */
   toHuman(opts = {}) {
     if (!this.isValid) return INVALID$2;
 
+    const showZeros = opts.showZeros !== false;
+
     const l = orderedUnits$1
       .map((unit) => {
         const val = this.values[unit];
-        if (isUndefined(val)) {
+        if (isUndefined(val) || (val === 0 && !showZeros)) {
           return null;
         }
         return this.loc
@@ -27082,7 +28328,7 @@ class Duration {
       }
     }
 
-    return clone$2(this, { values: result }, true);
+    return clone$1(this, { values: result }, true);
   }
 
   /**
@@ -27110,7 +28356,7 @@ class Duration {
     for (const k of Object.keys(this.values)) {
       result[k] = asNumber(fn(this.values[k], k));
     }
-    return clone$2(this, { values: result }, true);
+    return clone$1(this, { values: result }, true);
   }
 
   /**
@@ -27136,7 +28382,7 @@ class Duration {
     if (!this.isValid) return this;
 
     const mixed = { ...this.values, ...normalizeObject(values, Duration.normalizeUnit) };
-    return clone$2(this, { values: mixed });
+    return clone$1(this, { values: mixed });
   }
 
   /**
@@ -27147,7 +28393,7 @@ class Duration {
   reconfigure({ locale, numberingSystem, conversionAccuracy, matrix } = {}) {
     const loc = this.loc.clone({ locale, numberingSystem });
     const opts = { loc, matrix, conversionAccuracy };
-    return clone$2(this, opts);
+    return clone$1(this, opts);
   }
 
   /**
@@ -27181,7 +28427,7 @@ class Duration {
     if (!this.isValid) return this;
     const vals = this.toObject();
     normalizeValues(this.matrix, vals);
-    return clone$2(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
 
   /**
@@ -27192,7 +28438,7 @@ class Duration {
   rescale() {
     if (!this.isValid) return this;
     const vals = removeZeroes(this.normalize().shiftToAll().toObject());
-    return clone$2(this, { values: vals }, true);
+    return clone$1(this, { values: vals }, true);
   }
 
   /**
@@ -27253,7 +28499,7 @@ class Duration {
     }
 
     normalizeValues(this.matrix, built);
-    return clone$2(this, { values: built }, true);
+    return clone$1(this, { values: built }, true);
   }
 
   /**
@@ -27286,7 +28532,18 @@ class Duration {
     for (const k of Object.keys(this.values)) {
       negated[k] = this.values[k] === 0 ? 0 : -this.values[k];
     }
-    return clone$2(this, { values: negated }, true);
+    return clone$1(this, { values: negated }, true);
+  }
+
+  /**
+   * Removes all units with values equal to 0 from this Duration.
+   * @example Duration.fromObject({ years: 2, days: 0, hours: 0, minutes: 0 }).removeZeros().toObject() //=> { years: 2 }
+   * @return {Duration}
+   */
+  removeZeros() {
+    if (!this.isValid) return this;
+    const vals = removeZeroes(this.values);
+    return clone$1(this, { values: vals }, true);
   }
 
   /**
@@ -27599,7 +28856,8 @@ class Interval {
   }
 
   /**
-   * Returns the end of the Interval
+   * Returns the end of the Interval. This is the first instant which is not part of the interval
+   * (Interval is half-open).
    * @type {DateTime}
    */
   get end() {
@@ -28901,7 +30159,7 @@ function possiblyCachedLocalWeekData(dt) {
 
 // clone really means, "make a new object with these modifications". all "setters" really use this
 // to create a new object while only changing some of the properties
-function clone$1(inst, alts) {
+function clone$2(inst, alts) {
   const current = {
     ts: inst.ts,
     zone: inst.zone,
@@ -29030,21 +30288,22 @@ function toTechFormat(dt, format, allowZ = true) {
     : null;
 }
 
-function toISODate(o, extended) {
+function toISODate(o, extended, precision) {
   const longFormat = o.c.year > 9999 || o.c.year < 0;
   let c = "";
   if (longFormat && o.c.year >= 0) c += "+";
   c += padStart$1(o.c.year, longFormat ? 6 : 4);
-
+  if (precision === "year") return c;
   if (extended) {
     c += "-";
     c += padStart$1(o.c.month);
+    if (precision === "month") return c;
     c += "-";
-    c += padStart$1(o.c.day);
   } else {
     c += padStart$1(o.c.month);
-    c += padStart$1(o.c.day);
+    if (precision === "month") return c;
   }
+  c += padStart$1(o.c.day);
   return c;
 }
 
@@ -29054,26 +30313,39 @@ function toISOTime(
   suppressSeconds,
   suppressMilliseconds,
   includeOffset,
-  extendedZone
+  extendedZone,
+  precision
 ) {
-  let c = padStart$1(o.c.hour);
-  if (extended) {
-    c += ":";
-    c += padStart$1(o.c.minute);
-    if (o.c.millisecond !== 0 || o.c.second !== 0 || !suppressSeconds) {
-      c += ":";
-    }
-  } else {
-    c += padStart$1(o.c.minute);
-  }
-
-  if (o.c.millisecond !== 0 || o.c.second !== 0 || !suppressSeconds) {
-    c += padStart$1(o.c.second);
-
-    if (o.c.millisecond !== 0 || !suppressMilliseconds) {
-      c += ".";
-      c += padStart$1(o.c.millisecond, 3);
-    }
+  let showSeconds = !suppressSeconds || o.c.millisecond !== 0 || o.c.second !== 0,
+    c = "";
+  switch (precision) {
+    case "day":
+    case "month":
+    case "year":
+      break;
+    default:
+      c += padStart$1(o.c.hour);
+      if (precision === "hour") break;
+      if (extended) {
+        c += ":";
+        c += padStart$1(o.c.minute);
+        if (precision === "minute") break;
+        if (showSeconds) {
+          c += ":";
+          c += padStart$1(o.c.second);
+        }
+      } else {
+        c += padStart$1(o.c.minute);
+        if (precision === "minute") break;
+        if (showSeconds) {
+          c += padStart$1(o.c.second);
+        }
+      }
+      if (precision === "second") break;
+      if (showSeconds && (!suppressMilliseconds || o.c.millisecond !== 0)) {
+        c += ".";
+        c += padStart$1(o.c.millisecond, 3);
+      }
   }
 
   if (includeOffset) {
@@ -29265,8 +30537,9 @@ function quickDT(obj, opts) {
 
 function diffRelative(start, end, opts) {
   const round = isUndefined(opts.round) ? true : opts.round,
+    rounding = isUndefined(opts.rounding) ? "trunc" : opts.rounding,
     format = (c, unit) => {
-      c = roundTo(c, round || opts.calendary ? 0 : 2, true);
+      c = roundTo(c, round || opts.calendary ? 0 : 2, opts.calendary ? "round" : rounding);
       const formatter = end.loc.clone(opts).relFormatter(opts);
       return formatter.format(c, unit);
     },
@@ -30251,7 +31524,7 @@ let DateTime$1 = class DateTime {
       c1.second === c2.second &&
       c1.millisecond === c2.millisecond
     ) {
-      return [clone$1(this, { ts: ts1 }), clone$1(this, { ts: ts2 })];
+      return [clone$2(this, { ts: ts1 }), clone$2(this, { ts: ts2 })];
     }
     return [this];
   }
@@ -30373,7 +31646,7 @@ let DateTime$1 = class DateTime {
         const asObj = this.toObject();
         [newTS] = objToTS(asObj, offsetGuess, zone);
       }
-      return clone$1(this, { ts: newTS, zone });
+      return clone$2(this, { ts: newTS, zone });
     }
   }
 
@@ -30385,7 +31658,7 @@ let DateTime$1 = class DateTime {
    */
   reconfigure({ locale, numberingSystem, outputCalendar } = {}) {
     const loc = this.loc.clone({ locale, numberingSystem, outputCalendar });
-    return clone$1(this, { loc });
+    return clone$2(this, { loc });
   }
 
   /**
@@ -30457,7 +31730,7 @@ let DateTime$1 = class DateTime {
     }
 
     const [ts, o] = objToTS(mixed, this.o, this.zone);
-    return clone$1(this, { ts, o });
+    return clone$2(this, { ts, o });
   }
 
   /**
@@ -30476,7 +31749,7 @@ let DateTime$1 = class DateTime {
   plus(duration) {
     if (!this.isValid) return this;
     const dur = Duration.fromDurationLike(duration);
-    return clone$1(this, adjustTime(this, dur));
+    return clone$2(this, adjustTime(this, dur));
   }
 
   /**
@@ -30488,7 +31761,7 @@ let DateTime$1 = class DateTime {
   minus(duration) {
     if (!this.isValid) return this;
     const dur = Duration.fromDurationLike(duration).negate();
-    return clone$1(this, adjustTime(this, dur));
+    return clone$2(this, adjustTime(this, dur));
   }
 
   /**
@@ -30645,10 +31918,13 @@ let DateTime$1 = class DateTime {
    * @param {boolean} [opts.includeOffset=true] - include the offset, such as 'Z' or '-04:00'
    * @param {boolean} [opts.extendedZone=false] - add the time zone format extension
    * @param {string} [opts.format='extended'] - choose between the basic and extended format
+   * @param {string} [opts.precision='milliseconds'] - truncate output to desired presicion: 'years', 'months', 'days', 'hours', 'minutes', 'seconds' or 'milliseconds'. When precision and suppressSeconds or suppressMilliseconds are used together, precision sets the maximum unit shown in the output, however seconds or milliseconds will still be suppressed if they are 0.
    * @example DateTime.utc(1983, 5, 25).toISO() //=> '1982-05-25T00:00:00.000Z'
    * @example DateTime.now().toISO() //=> '2017-04-22T20:47:05.335-04:00'
    * @example DateTime.now().toISO({ includeOffset: false }) //=> '2017-04-22T20:47:05.335'
    * @example DateTime.now().toISO({ format: 'basic' }) //=> '20170422T204705.335-0400'
+   * @example DateTime.now().toISO({ precision: 'day' }) //=> '2017-04-22Z'
+   * @example DateTime.now().toISO({ precision: 'minute' }) //=> '2017-04-22T20:47Z'
    * @return {string|null}
    */
   toISO({
@@ -30657,16 +31933,26 @@ let DateTime$1 = class DateTime {
     suppressMilliseconds = false,
     includeOffset = true,
     extendedZone = false,
+    precision = "milliseconds",
   } = {}) {
     if (!this.isValid) {
       return null;
     }
 
+    precision = normalizeUnit(precision);
     const ext = format === "extended";
 
-    let c = toISODate(this, ext);
-    c += "T";
-    c += toISOTime(this, ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone);
+    let c = toISODate(this, ext, precision);
+    if (orderedUnits.indexOf(precision) >= 3) c += "T";
+    c += toISOTime(
+      this,
+      ext,
+      suppressSeconds,
+      suppressMilliseconds,
+      includeOffset,
+      extendedZone,
+      precision
+    );
     return c;
   }
 
@@ -30674,16 +31960,17 @@ let DateTime$1 = class DateTime {
    * Returns an ISO 8601-compliant string representation of this DateTime's date component
    * @param {Object} opts - options
    * @param {string} [opts.format='extended'] - choose between the basic and extended format
+   * @param {string} [opts.precision='day'] - truncate output to desired precision: 'years', 'months', or 'days'.
    * @example DateTime.utc(1982, 5, 25).toISODate() //=> '1982-05-25'
    * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
+   * @example DateTime.utc(1982, 5, 25).toISODate({ precision: 'month' }) //=> '1982-05'
    * @return {string|null}
    */
-  toISODate({ format = "extended" } = {}) {
+  toISODate({ format = "extended", precision = "day" } = {}) {
     if (!this.isValid) {
       return null;
     }
-
-    return toISODate(this, format === "extended");
+    return toISODate(this, format === "extended", normalizeUnit(precision));
   }
 
   /**
@@ -30704,10 +31991,12 @@ let DateTime$1 = class DateTime {
    * @param {boolean} [opts.extendedZone=true] - add the time zone format extension
    * @param {boolean} [opts.includePrefix=false] - include the `T` prefix
    * @param {string} [opts.format='extended'] - choose between the basic and extended format
+   * @param {string} [opts.precision='milliseconds'] - truncate output to desired presicion: 'hours', 'minutes', 'seconds' or 'milliseconds'. When precision and suppressSeconds or suppressMilliseconds are used together, precision sets the maximum unit shown in the output, however seconds or milliseconds will still be suppressed if they are 0.
    * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime() //=> '07:34:19.361Z'
    * @example DateTime.utc().set({ hour: 7, minute: 34, seconds: 0, milliseconds: 0 }).toISOTime({ suppressSeconds: true }) //=> '07:34Z'
    * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ format: 'basic' }) //=> '073419.361Z'
    * @example DateTime.utc().set({ hour: 7, minute: 34 }).toISOTime({ includePrefix: true }) //=> 'T07:34:19.361Z'
+   * @example DateTime.utc().set({ hour: 7, minute: 34, second: 56 }).toISOTime({ precision: 'minute' }) //=> '07:34Z'
    * @return {string}
    */
   toISOTime({
@@ -30717,12 +32006,14 @@ let DateTime$1 = class DateTime {
     includePrefix = false,
     extendedZone = false,
     format = "extended",
+    precision = "milliseconds",
   } = {}) {
     if (!this.isValid) {
       return null;
     }
 
-    let c = includePrefix ? "T" : "";
+    precision = normalizeUnit(precision);
+    let c = includePrefix && orderedUnits.indexOf(precision) >= 3 ? "T" : "";
     return (
       c +
       toISOTime(
@@ -30731,7 +32022,8 @@ let DateTime$1 = class DateTime {
         suppressSeconds,
         suppressMilliseconds,
         includeOffset,
-        extendedZone
+        extendedZone,
+        precision
       )
     );
   }
@@ -31009,12 +32301,13 @@ let DateTime$1 = class DateTime {
 
   /**
    * Returns a string representation of a this time relative to now, such as "in two days". Can only internationalize if your
-   * platform supports Intl.RelativeTimeFormat. Rounds down by default.
+   * platform supports Intl.RelativeTimeFormat. Rounds towards zero by default.
    * @param {Object} options - options that affect the output
    * @param {DateTime} [options.base=DateTime.now()] - the DateTime to use as the basis to which this time is compared. Defaults to now.
    * @param {string} [options.style="long"] - the style of units, must be "long", "short", or "narrow"
    * @param {string|string[]} options.unit - use a specific unit or array of units; if omitted, or an array, the method will pick the best unit. Use an array or one of "years", "quarters", "months", "weeks", "days", "hours", "minutes", or "seconds"
    * @param {boolean} [options.round=true] - whether to round the numbers in the output.
+   * @param {string} [options.rounding="trunc"] - rounding method to use when rounding the numbers in the output. Can be "trunc" (toward zero), "expand" (away from zero), "round", "floor", or "ceil".
    * @param {number} [options.padding=0] - padding in milliseconds. This allows you to round up the result if it fits inside the threshold. Don't use in combination with {round: false} because the decimal output will include the padding.
    * @param {string} options.locale - override the locale of this DateTime
    * @param {string} options.numberingSystem - override the numberingSystem of this DateTime. The Intl system may choose not to honor this
@@ -33454,9 +34747,9 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
             const id = ids[key];
             doc.write(`const ${id} = ${parseStr(key)};`);
             doc.write(`
-          if (${id}.issues.length) payload.issues = payload.issues.concat(${id}.issues.map(iss => ({
-            ...iss,
-            path: iss.path ? [${esc(key)}, ...iss.path] : [${esc(key)}]
+          if (${id}.issues.length) payload.issues = payload.issues.concat(${id}.issues.map(iss => Object.assign({},
+            iss, {
+              path: iss.path ? [${esc(key)}, ...iss.path] : [${esc(key)}]
           })));`);
         }
         doc.write(`payload.value = {`);
@@ -33485,8 +34778,8 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
             }
           } else {
             payload.issues = payload.issues.concat(
-              ${id}.issues.map((iss) => ({
-                ...iss,
+              ${id}.issues.map((iss) => Object.assign({},
+                iss, {
                 path: iss.path ? [${k}, ...iss.path] : [${k}],
               }))
             );
@@ -33495,7 +34788,7 @@ const $ZodObject = /*@__PURE__*/ $constructor("$ZodObject", (inst, def) => {
           if (${k} in input) payload.value[${k}] = undefined;
         } else {
           payload.value[${k}] = ${id}.value;
-        }  
+        }
         `);
         }
         doc.write(`return payload;`);
@@ -35327,6 +36620,10 @@ var RecipeTemplateSchema;
     })
         .describe('Event template');
     RecipeTemplateSchema.RecipeTemplate = object({
+        name: string().min(1).max(100)
+            .describe('The name of the recipe template'),
+        tags: array(string().max(64))
+            .describe('The tags of the recipe template'),
         events: array(RecipeTemplateSchema.EventTemplate).min(1).max(1000)
             .describe('Array of event templates'),
     })
@@ -35575,10 +36872,12 @@ var RecipeSchema;
         match: RecipeSchema.MatchPattern,
     })
         .describe("DOM event");
+    RecipeSchema.PlaylistEntry = union([RecipeSchema.HTMLImageElement, RecipeSchema.HTMLVideoElement, RecipeSchema.CustomElement])
+        .describe("Playlist entry, which can be HTMLImageElement, HTMLVideoElement, or CustomElement");
     RecipeSchema.Playlist = object({
         "@type": literal("Playlist")
             .describe("Type of the playlist"),
-        entries: array(union([RecipeSchema.HTMLImageElement, RecipeSchema.HTMLVideoElement, RecipeSchema.CustomElement]))
+        entries: array(RecipeSchema.PlaylistEntry)
             .describe("Array of entries"),
     })
         .describe("Playlist");
@@ -35666,6 +36965,10 @@ var RecipeSchema;
         .describe("Cluster");
     // Compose the final type
     RecipeSchema.Recipe = object({
+        name: string().min(1).max(100)
+            .describe('The name of the recipe'),
+        tags: array(string().max(64))
+            .describe('The tags of the recipe'),
         transition: RecipeSchema.Transition,
         schedule: array(RecipeSchema.Event)
             .describe("Array of events"),
@@ -39594,9 +40897,10 @@ class BasicScheduler extends EventTarget$1 {
         }
         let start_offset = Duration.fromMillis(0);
         for (let i = 0; i < calendar_event.data.entries.length; i++) {
-            const end_offset = start_offset.plus({ seconds: calendar_event.data.entries[i].duration });
-            const entry = new ScheduleItem(calendar_event.id, calendar_event.data.entries[i], start_offset, end_offset);
-            const view = new ScheduleItemView(entry, media_list_start);
+            const calendar_entry = calendar_event.data.entries[i];
+            const end_offset = start_offset.plus({ seconds: calendar_entry.duration });
+            const schedule_entry = new ScheduleItem(calendar_event.id, calendar_entry, start_offset, end_offset);
+            const view = new ScheduleItemView(schedule_entry, media_list_start);
             if (datetime >= view.start_time
                 && datetime < view.end_time) {
                 return view;
