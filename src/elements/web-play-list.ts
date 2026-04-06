@@ -68,8 +68,9 @@ export class WebPlaylistElement extends LitElement {
 			display: none;
 		}
 		:host > main {
-			position: relative;
-			margin-left: 600px;
+			position: absolute;
+			width: inherit;
+			height: inherit;
 		}
 		:host > main > * {
 			visibility: hidden;
@@ -77,6 +78,10 @@ export class WebPlaylistElement extends LitElement {
 			position: absolute;
 			top: 0;
 			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			object-position: center;
 		}
 		:host > main > .map1 {
 			visibility: visible;

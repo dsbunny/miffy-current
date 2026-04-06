@@ -9,7 +9,7 @@ import { MediaDecl } from './media.js';
 import "./htmlimageelement-decode-polyfill.js";
 
 export abstract class AbstractWebAsset extends EventTarget {
-	element: HTMLElement | null = document.createElement('div');
+	element: HTMLElement | null = null;
 
 	protected _src: string;
 	protected _opacity = 1;

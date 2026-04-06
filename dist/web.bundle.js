@@ -590,7 +590,7 @@ class AbstractWebAsset extends EventTarget$1 {
     constructor(src, params, duration, collection) {
         super();
         this.collection = collection;
-        this.element = document.createElement('div');
+        this.element = null;
         this._opacity = 1;
         this._ended = false;
         this._error = null;
@@ -4720,8 +4720,9 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
 			display: none;
 		}
 		:host > main {
-			position: relative;
-			margin-left: 600px;
+			position: absolute;
+			width: inherit;
+			height: inherit;
 		}
 		:host > main > * {
 			visibility: hidden;
@@ -4729,6 +4730,10 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
 			position: absolute;
 			top: 0;
 			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			object-position: center;
 		}
 		:host > main > .map1 {
 			visibility: visible;
@@ -5903,7 +5908,7 @@ class WebGLRenderer extends EventTarget {
         const near = 0.1;
         const far = 10000;
         const z = 2000;
-        this._camera = this._createThreeJSCamera(width, height, near, far, z);
+        this._camera = this._createThreeJSCamera(1, 1, near, far, z);
     }
     setViews(views) {
         console.log("WEBGL-RENDERER: setViews", views);
@@ -5915,10 +5920,7 @@ class WebGLRenderer extends EventTarget {
     }
     _createMesh(material, displacement_texture) {
         console.log("WEBGL-RENDERER: _createMesh", material, displacement_texture);
-        // FIXME: Tied to image resolution.
-        const media_width = 1000;
-        const media_height = 1000;
-        const mesh = this._meshFrom(material, 0, media_width, 0, media_height, media_width, media_height);
+        const mesh = this._meshFrom(material, 0, 1, 0, 1, 1, 1);
         this._shader.uniforms.displacement.value = displacement_texture;
         console.log('WEBGL-RENDERER: Created new mesh', mesh);
         return mesh;
@@ -6450,8 +6452,9 @@ let WebGLPlaylistElement = class WebGLPlaylistElement extends WebPlaylistElement
 			display: none;
 		}
 		:host > main {
-			position: relative;
-			margin-left: 600px;
+			position: absolute;
+			width: inherit;
+			height: inherit;
 		}
 		:host > main > * {
 			display: block;

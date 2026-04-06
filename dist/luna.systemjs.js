@@ -436,7 +436,7 @@ idle(){}};// vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 // Copyright 2025 Digital Signage Bunny Corp. Use of this source code is
 // governed by an MIT-style license that can be found in the LICENSE file or at
 // https://opensource.org/licenses/MIT.
-AbstractWebAsset=class AbstractWebAsset extends EventTarget$1{constructor(src,params,duration,collection){super();this.collection=collection;this.element=document.createElement('div');this._opacity=1;this._ended=false;this._error=null;this._networkState=HTMLMediaElement.NETWORK_NO_SOURCE;this._paused=true;this._readyState=HTMLMediaElement.HAVE_NOTHING;const url=new URL(src,self.location.href);this._src=url.href;if(this._src.length!==0){this._networkState=HTMLMediaElement.NETWORK_EMPTY;}this._params=params;this._duration=duration;}get params(){return this._params;}// Per `HTMLElement`.
+AbstractWebAsset=class AbstractWebAsset extends EventTarget$1{constructor(src,params,duration,collection){super();this.collection=collection;this.element=null;this._opacity=1;this._ended=false;this._error=null;this._networkState=HTMLMediaElement.NETWORK_NO_SOURCE;this._paused=true;this._readyState=HTMLMediaElement.HAVE_NOTHING;const url=new URL(src,self.location.href);this._src=url.href;if(this._src.length!==0){this._networkState=HTMLMediaElement.NETWORK_EMPTY;}this._params=params;this._duration=duration;}get params(){return this._params;}// Per `HTMLElement`.
 get className(){return this.element.className;}set className(_value){this.element.className=_value;}get classList(){return this.element.classList;}get style(){return this.element.style;}// Per `HTMLMediaElement`.
 get currentSrc(){return this._src;}get currentTime(){return 0;}get duration(){return this._duration;}get ended(){return this._ended;}get error(){return this._error;}get networkState(){return this._networkState;}get paused(){return this._paused;}get readyState(){return this._readyState;}get src(){return this._src;}get srcObject(){return null;}// Per `HTMLVideoElement`.
 get height(){return 0;}get width(){return 0;}};// super must be used to call functions only, operation is undefined when
@@ -724,8 +724,9 @@ _prepareIdleCallback(){if(typeof this._ric_id!=="undefined"){window.cancelIdleCa
 			display: none;
 		}
 		:host > main {
-			position: relative;
-			margin-left: 600px;
+			position: absolute;
+			width: inherit;
+			height: inherit;
 		}
 		:host > main > * {
 			visibility: hidden;
@@ -733,6 +734,10 @@ _prepareIdleCallback(){if(typeof this._ric_id!=="undefined"){window.cancelIdleCa
 			position: absolute;
 			top: 0;
 			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+			object-position: center;
 		}
 		:host > main > .map1 {
 			visibility: visible;

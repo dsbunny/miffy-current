@@ -263,7 +263,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		const near = 0.1;
 		const far = 10000;
 		const z = 2000;
-		this._camera = this._createThreeJSCamera(width, height, near, far, z);
+		this._camera = this._createThreeJSCamera(1, 1, near, far, z);
 	}
 
 	setViews(views: View[]): void {
@@ -276,16 +276,16 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 		await this._asset_prefetch.acquireSources(scope, sources);
 	}
 
-	protected _createMesh(material: THREE.Material, displacement_texture: THREE.Texture): THREE.Mesh {
+	protected _createMesh(
+		material: THREE.Material,
+		displacement_texture: THREE.Texture,
+	): THREE.Mesh {
 		console.log("WEBGL-RENDERER: _createMesh", material, displacement_texture);
-		// FIXME: Tied to image resolution.
-		const media_width = 1000;
-		const media_height = 1000;
 		const mesh = this._meshFrom(
 			material,
-			0, media_width,
-			0, media_height,
-			media_width, media_height
+			0, 1,
+			0, 1,
+			1, 1,
 		);
 		this._shader.uniforms.displacement.value = displacement_texture;
 		console.log('WEBGL-RENDERER: Created new mesh', mesh);

@@ -29,8 +29,9 @@ export class WebGLPlaylistElement extends WebPlaylistElement {
 			display: none;
 		}
 		:host > main {
-			position: relative;
-			margin-left: 600px;
+			position: absolute;
+			width: inherit;
+			height: inherit;
 		}
 		:host > main > * {
 			display: block;

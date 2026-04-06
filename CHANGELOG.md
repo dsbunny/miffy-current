@@ -1,4 +1,9 @@
 # Changelog
+## v19.5.19
+- `WebMedia.element` must start as `null` to avoid `pause()` on non-existent videos.
+- Resize `WebGLRenderer` to fullscreen via normalized sizing (0,0) to (1,1).
+- Resize `WebRenderer` to fullscreen via CSS, and set `object-fit`.
+
 ## v19.5.18
 - Promote `zod` as a _peer dependency_.
 
