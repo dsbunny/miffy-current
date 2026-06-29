@@ -7,26 +7,32 @@ import 'three';
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t$1=t=>(e,o)=>{ void 0!==o?o.addInitializer((()=>{customElements.define(t,e);})):customElements.define(t,e);};
+const t$1=t=>(e,o)=>{ void 0!==o?o.addInitializer(()=>{customElements.define(t,e);}):customElements.define(t,e);};
 
 /**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t=globalThis,e$3=t.ShadowRoot&&(void 0===t.ShadyCSS||t.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),o$2=new WeakMap;let n$2 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$3&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}};const r$2=t=>new n$2("string"==typeof t?t:t+"",void 0,s),S=(s,o)=>{if(e$3)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$1=e$3?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$2(e)})(t):t;
+const t=globalThis,e$3=t.ShadowRoot&&(void 0===t.ShadyCSS||t.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),o$2=new WeakMap;let n$2 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$3&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}};const r$3=t=>new n$2("string"==typeof t?t:t+"",void 0,s),S=(s,o)=>{if(e$3)s.adoptedStyleSheets=o.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const e of o){const o=document.createElement("style"),n=t.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$1=e$3?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const{is:i,defineProperty:e$2,getOwnPropertyDescriptor:h,getOwnPropertyNames:r$1,getOwnPropertySymbols:o$1,getPrototypeOf:n$1}=Object,a=globalThis,c=a.trustedTypes,l=c?c.emptyScript:"",p=a.reactiveElementPolyfillSupport,d=(t,s)=>t,u={toAttribute(t,s){switch(s){case Boolean:t=t?l:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f=(t,s)=>!i(t,s),b={attribute:true,type:String,converter:u,reflect:false,useDefault:false,hasChanged:f};Symbol.metadata??=Symbol("metadata"),a.litPropertyMetadata??=new WeakMap;class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$2(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b}static _$Ei(){if(this.hasOwnProperty(d("elementProperties")))return;const t=n$1(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d("properties"))){const t=this.properties,s=[...r$1(t),...o$1(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$1(s));}else void 0!==s&&i.push(c$1(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach((t=>t(this)));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach((t=>t.hostConnected?.()));}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach((t=>t.hostDisconnected?.()));}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u;this._$Em=e;const r=h.fromAttribute(s,t.type);this[e]=r??this._$Ej?.get(e)??r,this._$Em=null;}}requestUpdate(t,s,i){if(void 0!==t){const e=this.constructor,h=this[t];if(i??=e.getPropertyOptions(t),!((i.hasChanged??f)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(e._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach((t=>t.hostUpdate?.())),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach((t=>t.hostUpdated?.())),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach((t=>this._$ET(t,this[t]))),this._$EM();}updated(t){}firstUpdated(t){}}y.elementStyles=[],y.shadowRootOptions={mode:"open"},y[d("elementProperties")]=new Map,y[d("finalized")]=new Map,p?.({ReactiveElement:y}),(a.reactiveElementVersions??=[]).push("2.1.1");
+ */const{is:i,defineProperty:e$2,getOwnPropertyDescriptor:h,getOwnPropertyNames:r$2,getOwnPropertySymbols:o$1,getPrototypeOf:n$1}=Object,a=globalThis,c=a.trustedTypes,l=c?c.emptyScript:"",p=a.reactiveElementPolyfillSupport,d=(t,s)=>t,u={toAttribute(t,s){switch(s){case Boolean:t=t?l:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f=(t,s)=>!i(t,s),b={attribute:true,type:String,converter:u,reflect:false,useDefault:false,hasChanged:f};Symbol.metadata??=Symbol("metadata"),a.litPropertyMetadata??=new WeakMap;class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$2(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b}static _$Ei(){if(this.hasOwnProperty(d("elementProperties")))return;const t=n$1(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d("properties"))){const t=this.properties,s=[...r$2(t),...o$1(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$1(s));}else void 0!==s&&i.push(c$1(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach(t=>t.hostConnected?.());}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.());}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u;this._$Em=e;const r=h.fromAttribute(s,t.type);this[e]=r??this._$Ej?.get(e)??r,this._$Em=null;}}requestUpdate(t,s,i,e=false,h){if(void 0!==t){const r=this.constructor;if(false===e&&(h=this[t]),i??=r.getPropertyOptions(t),!((i.hasChanged??f)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(r._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM();}updated(t){}firstUpdated(t){}}y.elementStyles=[],y.shadowRootOptions={mode:"open"},y[d("elementProperties")]=new Map,y[d("finalized")]=new Map,p?.({ReactiveElement:y}),(a.reactiveElementVersions??=[]).push("2.1.2");
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const o={attribute:true,type:String,converter:u,reflect:false,hasChanged:f},r=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+ */const o={attribute:true,type:String,converter:u,reflect:false,hasChanged:f},r$1=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t,true,r);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t,true,r);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r$1(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */function r(r){return n({...r,state:true,attribute:false})}
 
 /**
  * @license
@@ -1182,8 +1188,8 @@ class LunaAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class LunaRendererAsset {
-    constructor(id, luna_asset) {
-        this.id = id;
+    constructor(asset_id, luna_asset) {
+        this.asset_id = asset_id;
         this.luna_asset = luna_asset;
         this.is_loading = false;
         this.has_element = false;
@@ -1346,7 +1352,7 @@ class LunaRenderer extends EventTarget$1 {
                 return await this.setSources(scope, decls.map(decl => {
                     return {
                         '@type': decl['@type'],
-                        id: decl.id,
+                        asset_id: decl.asset_id,
                         href: decl.href,
                         size: decl.size,
                         hash: decl.hash,
@@ -1505,11 +1511,11 @@ class LunaRenderer extends EventTarget$1 {
                 this._current_renderer_asset.ref();
                 console.log("LUNA-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (current.decl.id !== this._current_renderer_asset.id) {
+            else if (current.decl.asset_id !== this._current_renderer_asset.asset_id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
                 if (this._next_renderer_asset !== null
-                    && current.decl.id === this._next_renderer_asset.id) {
+                    && current.decl.asset_id === this._next_renderer_asset.asset_id) {
                     console.log("LUNA-RENDERER: current <- next");
                     this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
@@ -1548,7 +1554,7 @@ class LunaRenderer extends EventTarget$1 {
                 this._next_renderer_asset.ref();
                 console.log("LUNA-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (next.decl.id !== this._next_renderer_asset.id) {
+            else if (next.decl.asset_id !== this._next_renderer_asset.asset_id) {
                 this._closeNext();
                 this._next_renderer_asset = this._updateNext(next.decl);
                 this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
@@ -1574,20 +1580,20 @@ class LunaRenderer extends EventTarget$1 {
         // Resources for transitions, explicitly details textures to
         // avoid confusion when crossing boundary between two assets.
         if (transition !== null) {
-            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.asset_id);
             if (typeof from_asset !== "undefined"
                 && from_asset.element !== null
-                && from_asset.id !== this._map1_renderer_asset?.id) {
+                && from_asset.asset_id !== this._map1_renderer_asset?.asset_id) {
                 if (this._map1_renderer_asset !== null) {
                     this._map1_renderer_asset.unref();
                 }
                 from_asset.ref();
                 this._setMap1Asset(from_asset);
             }
-            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.asset_id);
             if (typeof to_asset !== "undefined"
                 && to_asset.element !== null
-                && to_asset.id !== this._map2_renderer_asset?.id) {
+                && to_asset.asset_id !== this._map2_renderer_asset?.asset_id) {
                 if (this._map2_renderer_asset !== null) {
                     this._map2_renderer_asset.unref();
                 }
@@ -1609,7 +1615,7 @@ class LunaRenderer extends EventTarget$1 {
                 }
             }
             else if (this._current_renderer_asset.element !== null
-                && this._current_renderer_asset.id !== this._map1_renderer_asset?.id) {
+                && this._current_renderer_asset.asset_id !== this._map1_renderer_asset?.asset_id) {
                 if (this._map1_renderer_asset !== null) {
                     this._map1_renderer_asset.unref();
                 }
@@ -1752,7 +1758,7 @@ class LunaRenderer extends EventTarget$1 {
         }
         this._current_renderer_asset.pause();
         this._current_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._renderer_asset_trash.set(this._current_renderer_asset.asset_id, this._current_renderer_asset);
         this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
@@ -1776,10 +1782,10 @@ class LunaRenderer extends EventTarget$1 {
         return path !== null;
     }
     _resolveMediaAsset(decl) {
-        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        const existing_asset = this._renderer_asset_cache.get(decl.asset_id);
         if (typeof existing_asset !== "undefined") {
-            if (this._renderer_asset_trash.has(decl.id)) {
-                this._renderer_asset_trash.delete(decl.id);
+            if (this._renderer_asset_trash.has(decl.asset_id)) {
+                this._renderer_asset_trash.delete(decl.asset_id);
             }
             if (existing_asset.is_loading
                 && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
@@ -1797,8 +1803,8 @@ class LunaRenderer extends EventTarget$1 {
             href: cached_path,
         };
         const luna_asset = this._asset_manager.createLunaAsset(resolved_decl);
-        const renderer_asset = new LunaRendererAsset(decl.id, luna_asset);
-        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        const renderer_asset = new LunaRendererAsset(decl.asset_id, luna_asset);
+        this._renderer_asset_cache.set(renderer_asset.asset_id, renderer_asset);
         this._networkLoadingRef();
         renderer_asset.is_loading = true;
         renderer_asset.load();
@@ -1819,7 +1825,7 @@ class LunaRenderer extends EventTarget$1 {
             throw new Error("undefined next asset.");
         }
         this._next_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._renderer_asset_trash.set(this._next_renderer_asset.asset_id, this._next_renderer_asset);
         this._next_renderer_asset = null;
     }
 }
@@ -2523,8 +2529,8 @@ class WebAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class WebRendererAsset {
-    constructor(id, web_asset) {
-        this.id = id;
+    constructor(asset_id, web_asset) {
+        this.asset_id = asset_id;
         this.web_asset = web_asset;
         this.is_loading = false;
         this.has_element = false;
@@ -2687,7 +2693,7 @@ class WebRenderer extends EventTarget$1 {
                 return await this.setSources(scope, decls.map(decl => {
                     return {
                         '@type': decl['@type'],
-                        id: decl.id,
+                        asset_id: decl.asset_id,
                         href: decl.href,
                         size: decl.size,
                         hash: decl.hash,
@@ -2846,11 +2852,11 @@ class WebRenderer extends EventTarget$1 {
                 this._current_renderer_asset.ref();
                 console.log("WEB-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (current.decl.id !== this._current_renderer_asset.id) {
+            else if (current.decl.asset_id !== this._current_renderer_asset.asset_id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
                 if (this._next_renderer_asset !== null
-                    && current.decl.id === this._next_renderer_asset.id) {
+                    && current.decl.asset_id === this._next_renderer_asset.asset_id) {
                     console.log("WEB-RENDERER: current <- next");
                     this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
@@ -2889,7 +2895,7 @@ class WebRenderer extends EventTarget$1 {
                 this._next_renderer_asset.ref();
                 console.log("WEB-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (next.decl.id !== this._next_renderer_asset.id) {
+            else if (next.decl.asset_id !== this._next_renderer_asset.asset_id) {
                 this._closeNext();
                 this._next_renderer_asset = this._updateNext(next.decl);
                 this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
@@ -2915,20 +2921,20 @@ class WebRenderer extends EventTarget$1 {
         // Resources for transitions, explicitly details textures to
         // avoid confusion when crossing boundary between two assets.
         if (transition !== null) {
-            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.asset_id);
             if (typeof from_asset !== "undefined"
                 && from_asset.element !== null
-                && from_asset.id !== this._map1_renderer_asset?.id) {
+                && from_asset.asset_id !== this._map1_renderer_asset?.asset_id) {
                 if (this._map1_renderer_asset !== null) {
                     this._map1_renderer_asset.unref();
                 }
                 from_asset.ref();
                 this._setMap1Asset(from_asset);
             }
-            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.asset_id);
             if (typeof to_asset !== "undefined"
                 && to_asset.element !== null
-                && to_asset.id !== this._map2_renderer_asset?.id) {
+                && to_asset.asset_id !== this._map2_renderer_asset?.asset_id) {
                 if (this._map2_renderer_asset !== null) {
                     this._map2_renderer_asset.unref();
                 }
@@ -2950,7 +2956,7 @@ class WebRenderer extends EventTarget$1 {
                 }
             }
             else if (this._current_renderer_asset.element !== null
-                && this._current_renderer_asset.id !== this._map1_renderer_asset?.id) {
+                && this._current_renderer_asset.asset_id !== this._map1_renderer_asset?.asset_id) {
                 if (this._map1_renderer_asset !== null) {
                     this._map1_renderer_asset.unref();
                 }
@@ -3093,7 +3099,7 @@ class WebRenderer extends EventTarget$1 {
         }
         this._current_renderer_asset.pause();
         this._current_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._renderer_asset_trash.set(this._current_renderer_asset.asset_id, this._current_renderer_asset);
         this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
@@ -3117,10 +3123,10 @@ class WebRenderer extends EventTarget$1 {
         return path !== null;
     }
     _resolveMediaAsset(decl) {
-        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        const existing_asset = this._renderer_asset_cache.get(decl.asset_id);
         if (typeof existing_asset !== "undefined") {
-            if (this._renderer_asset_trash.has(decl.id)) {
-                this._renderer_asset_trash.delete(decl.id);
+            if (this._renderer_asset_trash.has(decl.asset_id)) {
+                this._renderer_asset_trash.delete(decl.asset_id);
             }
             if (existing_asset.is_loading
                 && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
@@ -3138,8 +3144,8 @@ class WebRenderer extends EventTarget$1 {
             href: cached_path,
         };
         const web_asset = this._asset_manager.createWebAsset(resolved_decl);
-        const renderer_asset = new WebRendererAsset(decl.id, web_asset);
-        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        const renderer_asset = new WebRendererAsset(decl.asset_id, web_asset);
+        this._renderer_asset_cache.set(renderer_asset.asset_id, renderer_asset);
         this._networkLoadingRef();
         renderer_asset.is_loading = true;
         renderer_asset.load();
@@ -3160,7 +3166,7 @@ class WebRenderer extends EventTarget$1 {
             throw new Error("undefined next asset.");
         }
         this._next_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._renderer_asset_trash.set(this._next_renderer_asset.asset_id, this._next_renderer_asset);
         this._next_renderer_asset = null;
     }
 }
@@ -6060,7 +6066,8 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
     constructor() {
         super();
         this.src = "";
-        this.src_id = "";
+        this.src_recipe_id = "";
+        this.src_asset_id = "";
         this.src_size = 0;
         this.src_hash = undefined;
         this.src_integrity = "";
@@ -6069,6 +6076,7 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
         this.width = 0;
         this.height = 0;
         this.autoplay = false;
+        this.playing = false;
         this._worker = this._createWorker();
         this._scheduler = wrap(this._worker);
         this._renderer = new NullRenderer();
@@ -6154,16 +6162,17 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
         console.log(changedProperties);
         if (changedProperties.has('src')) {
             if (this.src.length !== 0
-                && this.src_id.length !== 0
+                && this.src_asset_id.length !== 0
                 && this.src_size !== 0
                 && typeof this.src_hash !== "undefined"
                 && this.src_integrity.length !== 0
                 && this.src_md5.length !== 0) {
-                this._onSrc(this.src, this.src_id, this.src_size, this.src_hash, this.src_integrity, this.src_md5);
+                this._onSrc(this.src, this.src_asset_id, this.src_size, this.src_hash, this.src_integrity, this.src_md5);
                 if (this.autoplay
+                    && !this.playing
                     && this.width !== 0
                     && this.height !== 0) {
-                    console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_id})`);
+                    console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_asset_id})`);
                     this.play();
                 }
             }
@@ -6176,11 +6185,11 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
             this._onSize(this.width, this.height);
         }
     }
-    _onSrc(src, id, size, hash, integrity, md5) {
-        console.log(`PLAYLIST: onSrc: ${src} (${id})`);
+    _onSrc(src, asset_id, size, hash, integrity, md5) {
+        console.log(`PLAYLIST: onSrc: ${src} (${asset_id})`);
         (async () => {
             const url = new URL(this.src, window.location.href);
-            await this._scheduler.setSource(url.toString(), id, size, hash, integrity, md5);
+            await this._scheduler.setSource(url.toString(), asset_id, size, hash, integrity, md5);
         })();
     }
     _onViews(views) {
@@ -6193,9 +6202,13 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
     }
     // Explicitly start playback if autoplay is false.
     async play() {
+        if (this.playing) {
+            return;
+        }
         this._prepareNextFrame();
         this._prepareIdleCallback();
         await this._scheduler.play();
+        this.playing = true;
     }
     // Connect the scheduler to the renderer.
     _connectSchedulerToRenderer(scheduler, renderer) {
@@ -6282,8 +6295,11 @@ __decorate$1([
     n({ type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src", void 0);
 __decorate$1([
-    n({ attribute: 'src-id', type: String, reflect: true })
-], WebPlaylistElement.prototype, "src_id", void 0);
+    n({ attribute: 'src-recipe-id', type: String, reflect: true })
+], WebPlaylistElement.prototype, "src_recipe_id", void 0);
+__decorate$1([
+    n({ attribute: 'src-asset-id', type: String, reflect: true })
+], WebPlaylistElement.prototype, "src_asset_id", void 0);
 __decorate$1([
     n({ attribute: 'src-size', type: Number, reflect: true })
 ], WebPlaylistElement.prototype, "src_size", void 0);
@@ -6314,6 +6330,9 @@ __decorate$1([
 __decorate$1([
     e('section')
 ], WebPlaylistElement.prototype, "_section", void 0);
+__decorate$1([
+    r()
+], WebPlaylistElement.prototype, "playing", void 0);
 WebPlaylistElement = __decorate$1([
     t$1('web-play-list')
 ], WebPlaylistElement);
@@ -6412,6 +6431,13 @@ function filenameFromIdAndHref(id, href) {
     const ext = url.pathname.split('.').pop();
     return `${id}.${ext}`;
 }
+function idFromFilename(filename) {
+    const dot_index = filename.lastIndexOf('.');
+    if (dot_index === -1) {
+        return filename;
+    }
+    return filename.substr(0, dot_index);
+}
 // Convert a hex string to base64.
 function hexToBase64(hex) {
     //        return Buffer.from(hex, 'hex').toString('base64');
@@ -6422,21 +6448,21 @@ function hexToBase64(hex) {
     return btoa(base64);
 }
 class EvictionEntry {
-    constructor(id, date) {
-        this.id = id;
+    constructor(asset_id, date) {
+        this.asset_id = asset_id;
         this.date = date;
     }
 }
 class LunaPool {
     constructor(base_path, http_path) {
-        this._url_to_id_map = new Map();
-        this._id_to_asset_map = new Map();
-        this._id_to_file_map = new Map();
+        this._url_to_asset_id_map = new Map();
+        this._asset_id_to_asset_map = new Map();
+        this._asset_id_to_file_map = new Map();
         // LRU queue of all assets in the pool, oldest to newest.
         this._eviction_queue = [];
         // Asset scopes that are protected from eviction.
         this._protected_scopes = new Map();
-        this._protected_ids = new Set();
+        this._protected_asset_ids = new Set();
         this._has_loaded_from_disk = false;
         // Configured maximum size of the pool.
         this._max_size = 0;
@@ -6451,8 +6477,8 @@ class LunaPool {
         this._max_size = size;
         await this.reserve(0);
     }
-    has(id) {
-        const asset = this._id_to_asset_map.get(id);
+    has(asset_id) {
+        const asset = this._asset_id_to_asset_map.get(asset_id);
         return asset && asset.href.length !== 0;
     }
     // Mark existing or upcoming assets to be protected from eviction, the
@@ -6463,28 +6489,28 @@ class LunaPool {
         let total_size = 0;
         for (const asset of assets) {
             // The asset behind any id is idempotent.
-            if (this.has(asset.id)) {
-                console.info(`PREFETCH: asset #${asset.id} already in pool`);
-                const index = this._eviction_queue.findIndex((x) => x.id === asset.id);
+            if (this.has(asset.asset_id)) {
+                console.info(`PREFETCH: asset #${asset.asset_id} already in pool`);
+                const index = this._eviction_queue.findIndex((x) => x.asset_id === asset.asset_id);
                 if (index !== -1) {
-                    console.info(`PREFETCH: removing asset #${asset.id} from eviction queue ...`);
+                    console.info(`PREFETCH: removing asset #${asset.asset_id} from eviction queue ...`);
                     this._eviction_queue.splice(index, 1);
                 }
                 continue;
             }
-            console.info(`PREFETCH: asset #${asset.id} adding to pool ...`);
+            console.info(`PREFETCH: asset #${asset.asset_id} adding to pool ...`);
             if (typeof asset.size === "number") {
                 total_size += asset.size;
             }
-            const filename = filenameFromIdAndHref(asset.id, asset.href);
+            const filename = filenameFromIdAndHref(asset.asset_id, asset.href);
             const filepath = `${this._base_path}/${filename}`;
-            this._url_to_id_map.set(asset.href, asset.id);
-            this._id_to_asset_map.set(asset.id, asset);
-            this._id_to_file_map.set(asset.id, filepath);
-            console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
-            this._eviction_queue.push(new EvictionEntry(asset.id, now));
-            this._protected_ids.add(asset.id);
-            ids.add(asset.id);
+            this._url_to_asset_id_map.set(asset.href, asset.asset_id);
+            this._asset_id_to_asset_map.set(asset.asset_id, asset);
+            this._asset_id_to_file_map.set(asset.asset_id, filepath);
+            console.info(`PREFETCH: asset #${asset.asset_id} added to pool: ${filepath}`);
+            this._eviction_queue.push(new EvictionEntry(asset.asset_id, now));
+            this._protected_asset_ids.add(asset.asset_id);
+            ids.add(asset.asset_id);
         }
         this._protected_scopes.set(scope, ids);
         if (total_size > 0) {
@@ -6499,14 +6525,14 @@ class LunaPool {
         const ids = this._protected_scopes.get(scope);
         if (Array.isArray(ids)) {
             for (const id of ids) {
-                this._protected_ids.delete(id);
+                this._protected_asset_ids.delete(id);
             }
         }
         this._protected_scopes.delete(scope);
     }
     // Return native path to asset from external URI.
     getFilePath(url) {
-        const id = this._url_to_id_map.get(url);
+        const id = this._url_to_asset_id_map.get(url);
         if (typeof id === "undefined") {
             return null;
         }
@@ -6516,7 +6542,7 @@ class LunaPool {
     }
     // Return a path usable in the DOM.
     getHttpPath(url) {
-        const id = this._url_to_id_map.get(url);
+        const id = this._url_to_asset_id_map.get(url);
         if (typeof id === "undefined") {
             return "";
         }
@@ -6537,23 +6563,23 @@ class LunaPool {
                 return;
             }
             const entry = this._eviction_queue[index];
-            if (this._protected_ids.has(entry.id)) {
+            if (this._protected_asset_ids.has(entry.asset_id)) {
                 index++;
                 continue;
             }
-            const asset = this._id_to_asset_map.get(entry.id);
+            const asset = this._asset_id_to_asset_map.get(entry.asset_id);
             if (typeof asset !== "undefined") {
-                const filename = filenameFromIdAndHref(entry.id, asset.href);
+                const filename = filenameFromIdAndHref(entry.asset_id, asset.href);
                 const filepath = `${this._base_path}/${filename}`;
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
-                this._url_to_id_map.delete(asset.href);
+                this._url_to_asset_id_map.delete(asset.href);
             }
-            this._id_to_asset_map.delete(entry.id);
-            this._id_to_file_map.delete(entry.id);
+            this._asset_id_to_asset_map.delete(entry.asset_id);
+            this._asset_id_to_file_map.delete(entry.asset_id);
             this._eviction_queue.splice(index, 1);
             index++;
         }
@@ -6581,15 +6607,15 @@ class LunaPool {
         for (const file of data.files) {
             if (!file.name)
                 continue;
-            const id = file.name.substr(0, file.name.lastIndexOf('.'));
+            const asset_id = idFromFilename(file.name);
             const placeholder = {
                 '@type': 'unknown',
-                id,
+                asset_id,
                 href: '',
             };
-            this._id_to_asset_map.set(id, placeholder);
+            this._asset_id_to_asset_map.set(asset_id, placeholder);
             const file_url = `${this._base_path}/${file.name}`;
-            this._id_to_file_map.set(id, file_url);
+            this._asset_id_to_file_map.set(asset_id, file_url);
             this._size += file.size || 0;
             const statOptions = {
                 path: file_url,
@@ -6597,7 +6623,7 @@ class LunaPool {
             const statData = await statFile(statOptions);
             const file_date = new Date(statData.atime);
             const index = this._sortedIndex(this._eviction_queue, file_date.getTime());
-            this._eviction_queue.splice(index, 0, new EvictionEntry(id, file_date));
+            this._eviction_queue.splice(index, 0, new EvictionEntry(asset_id, file_date));
         }
         this._has_loaded_from_disk = true;
     }
@@ -6637,7 +6663,7 @@ class LunaPrefetch extends EventTarget$1 {
         for (const asset of assets) {
             const filepath = pool.getFilePath(asset.href);
             if (!filepath) {
-                console.warn(`PREFETCH: ${asset.id}: Asset not in pool.`);
+                console.warn(`PREFETCH: ${asset.asset_id}: Asset not in pool.`);
                 continue;
             }
             if (asset.size) {
@@ -6647,14 +6673,14 @@ class LunaPrefetch extends EventTarget$1 {
                     };
                     const fileInfo = await statFile(statOptions);
                     if (fileInfo.size !== asset.size) {
-                        console.info(`PREFETCH: ${asset.id}: File size mismatch, removing file ...`);
+                        console.info(`PREFETCH: ${asset.asset_id}: File size mismatch, removing file ...`);
                         const removeOptions = {
                             file: filepath,
                             recursive: false,
                         };
                         await removeFile(removeOptions);
                         change_count++;
-                        console.info(`PREFETCH: ${asset.id}: Removed, expected size: ${asset.size}, actual size: ${fileInfo.size}`);
+                        console.info(`PREFETCH: ${asset.asset_id}: Removed, expected size: ${asset.size}, actual size: ${fileInfo.size}`);
                     }
                 }
                 catch (err) {
@@ -6662,7 +6688,7 @@ class LunaPrefetch extends EventTarget$1 {
                 }
             }
             if (asset.md5) {
-                console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
+                console.info(`PREFETCH: ${asset.asset_id}: Calculating MD5 ...`);
                 const md5Options = {
                     filePath: filepath,
                 };
@@ -6671,7 +6697,7 @@ class LunaPrefetch extends EventTarget$1 {
                     md5Result = await getMD5Hash(md5Options);
                     const md5hash = hexToBase64(md5Result.md5hash);
                     if (md5hash === asset.md5) {
-                        console.log(`PREFETCH: ${asset.id}: MD5 matches, skipping download.`);
+                        console.log(`PREFETCH: ${asset.asset_id}: MD5 matches, skipping download.`);
                         continue;
                     }
                 }
@@ -6681,26 +6707,26 @@ class LunaPrefetch extends EventTarget$1 {
                         && err !== null
                         && 'errorText' in err
                         && err['errorText'] === 'No such file') {
-                        console.warn(`PREFETCH: ${asset.id}: File not found: ${filepath}`);
+                        console.warn(`PREFETCH: ${asset.asset_id}: File not found: ${filepath}`);
                         continue;
                     }
                     console.warn(err);
                 }
-                console.info(`PREFETCH: ${asset.id}: MD5 mismatch, removing file ...`);
+                console.info(`PREFETCH: ${asset.asset_id}: MD5 mismatch, removing file ...`);
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
                 change_count++;
-                console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5Result?.md5hash}`);
+                console.info(`PREFETCH: ${asset.asset_id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5Result?.md5hash}`);
             }
             if (!asset.size && !asset.md5) {
-                console.warn(`PREFETCH: ${asset.id}: No size or md5, assuming valid asset.`);
+                console.warn(`PREFETCH: ${asset.asset_id}: No size or md5, assuming valid asset.`);
                 continue;
             }
             try {
-                console.info(`PREFETCH: ${asset.id}: Downloading ...`);
+                console.info(`PREFETCH: ${asset.asset_id}: Downloading ...`);
                 const downloadOptions = {
                     action: 'start',
                     source: asset.href,
@@ -6716,28 +6742,28 @@ class LunaPrefetch extends EventTarget$1 {
                 // REF: https://webossignage.developer.lge.com/api/scap-api/scap18/storage/
                 await downloadFile(downloadOptions);
                 change_count++;
-                console.info(`PREFETCH: ${asset.id}: Downloaded to ${filepath}`);
+                console.info(`PREFETCH: ${asset.asset_id}: Downloaded to ${filepath}`);
             }
             catch (e) {
                 console.log(`PREFETCH: Fetcher failed: ${e.message}`);
                 throw (e);
             }
-            console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
+            console.info(`PREFETCH: ${asset.asset_id}: Calculating MD5 ...`);
             const md5Options = {
                 filePath: filepath,
             };
             const md5Result = await getMD5Hash(md5Options);
             const md5hash = hexToBase64(md5Result.md5hash);
-            console.info(`PREFETCH: ${asset.id}: MD5: ${md5hash}`);
+            console.info(`PREFETCH: ${asset.asset_id}: MD5: ${md5hash}`);
             if (md5hash !== asset.md5) {
-                console.info(`PREFETCH: ${asset.id}: Checksum mismatch, removing file ...`);
+                console.info(`PREFETCH: ${asset.asset_id}: Checksum mismatch, removing file ...`);
                 const removeOptions = {
                     file: filepath,
                     recursive: false,
                 };
                 await removeFile(removeOptions);
                 change_count++;
-                console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5hash}`);
+                console.info(`PREFETCH: ${asset.asset_id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5hash}`);
             }
         }
         if (change_count > 0) {

@@ -27,7 +27,7 @@ describe('ScheduleItem', () => {
 		const eventSeries = "a8d1b7c3-f8ba-482e-9eb1-c034504be17f";
 		const decl = {
 			"@type": "HTMLImageElement",
-			id: "2701cb89-6740-41cf-9865-da17fac65259",
+			asset_id: "2701cb89-6740-41cf-9865-da17fac65259",
 			href: "https://miffy.dsbunny.com/media/椎名林檎台壓封面.jpg",
 			size: 1572783,
 			hash: {
@@ -48,7 +48,7 @@ describe('ScheduleItemView', () => {
 	const eventSeries = "a8d1b7c3-f8ba-482e-9eb1-c034504be17f";
 	const decl = {
 		"@type": "HTMLImageElement",
-		id: "2701cb89-6740-41cf-9865-da17fac65259",
+		asset_id: "2701cb89-6740-41cf-9865-da17fac65259",
 		href: "https://miffy.dsbunny.com/media/椎名林檎台壓封面.jpg",
 		size: 1572783,
 		hash: {
@@ -88,7 +88,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 			body: `{
 	"transition": {
 		"@type": "Transition",
-		"id": "dc094fbd-20b9-417b-8dce-ce75cb97cac7",
+		"asset_id": "dc094fbd-20b9-417b-8dce-ce75cb97cac7",
 		"href": "https://miffy.dsbunny.com/media/displacement-map.jpg",
 		"size": 143244,
                 "hash": {
@@ -101,7 +101,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 	"schedule": [
 		{
 			"@type": "Event",
-			"id": "63526a9e-4949-4f2a-a653-79383c1d5d98",
+			"asset_id": "63526a9e-4949-4f2a-a653-79383c1d5d98",
 			"priority": 1,
 			"start": "2020-07-04T17:00:00",
 			"timeZone": "America/New_York",
@@ -114,7 +114,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 			}]
 		}, {
 			"@type": "Event",
-			"id": "a8d1b7c3-f8ba-482e-9eb1-c034504be17f",
+			"asset_id": "a8d1b7c3-f8ba-482e-9eb1-c034504be17f",
 			"priority": 9,
 			"start": "1900-01-01T00:00:00",
 			"duration": "P1D",
@@ -130,7 +130,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 			"@type": "Playlist",
 			"entries": [{
 				"@type": "HTMLImageElement",
-				"id": "2701cb89-6740-41cf-9865-da17fac65259",
+				"asset_id": "2701cb89-6740-41cf-9865-da17fac65259",
 				"href": "https://miffy.dsbunny.com/media/椎名林檎台壓封面.jpg",
 				"size": 1572783,
                                 "hash": {
@@ -141,7 +141,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 				"duration": 5
 			},{
 				"@type": "HTMLImageElement",
-				"id": "b49a5647-3806-42de-9e34-01be1f6851a2",
+				"asset_id": "b49a5647-3806-42de-9e34-01be1f6851a2",
 				"href": "https://miffy.dsbunny.com/media/三毒史.jpg",
 				"size": 159786,
                                 "hash": {
@@ -156,7 +156,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 			"@type": "Playlist",
 			"entries": [{
 				"@type": "HTMLImageElement",
-				"id": "91a25e27-af63-46e0-81a4-95869e5b6486",
+				"asset_id": "91a25e27-af63-46e0-81a4-95869e5b6486",
 				"href": "https://miffy.dsbunny.com/media/color%20the%20cover.jpg",
 				"size": 66917,
                                 "hash": {
@@ -167,7 +167,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 				"duration": 5
 			}, {
 				"@type": "CustomElement",
-				"id": "0c8f3cc3-7d9f-41e4-abf3-fc23a1b25728",
+				"asset_id": "0c8f3cc3-7d9f-41e4-abf3-fc23a1b25728",
 				"href": "https://miffy.dsbunny.com/app/dist/bundle.js",
 				"size": 2280,
                                 "hash": {
@@ -178,7 +178,7 @@ async function mockScheduleJson(request: Request): Promise<MockResponseInit> {
 				"duration": 5
 			}, {
 				"@type": "HTMLVideoElement",
-				"id": "7adc9b4f-1173-4076-9dc7-4284a691aa26",
+				"asset_id": "7adc9b4f-1173-4076-9dc7-4284a691aa26",
 				"href": "https://miffy.dsbunny.com/media/Bold.%20Beautiful.%20Sustainable.%20%23POPsurf-i3JqnlOu5wo.mp4",
 				"size": 3705200,
                                 "hash": {

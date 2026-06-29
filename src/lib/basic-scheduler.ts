@@ -46,8 +46,8 @@ export class ScheduleItem {
 		public readonly end_offset: Duration,
 	) {}
 	get shortEventSeries() { return this.eventSeries.substring(0, 7); }
-	get id() { return this.decl.id; }
-	get shortId() { return this.decl.id.substring(0, 7); }
+	get assetId() { return this.decl.asset_id; }
+	get shortAssetId() { return this.decl.asset_id.substring(0, 7); }
 	get duration() { return this.decl.duration; }
 }
 
@@ -64,8 +64,8 @@ export class ScheduleItemView {
 	}
 	get eventSeries() { return this.schedule_item.eventSeries; }
 	get shortEventSeries() { return this.schedule_item.shortEventSeries; }
-	get id() { return this.decl.id; }
-	get shortId() { return this.decl.id.substring(0, 7); }
+	get assetId() { return this.decl.asset_id; }
+	get shortAssetId() { return this.decl.asset_id.substring(0, 7); }
 	get currentSrc() { return this.decl.href; }
 	get start_time() { return this._start_time; }
 	get end_time() { return this._end_time; }
@@ -283,7 +283,7 @@ export class CalendarSchedule {
 			// Primary asset,
 			hrefs.add({
 				"@type": decl["@type"],
-				id: decl.id,
+				asset_id: decl.asset_id,
 				href: decl.href,
 				size: decl.size,
 				hash: decl.hash,
@@ -516,21 +516,23 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	mergePlaylist = true;
 
 	protected _src = "";
-	protected _src_id = "";
+	protected _src_asset_id = "";
 	protected _src_size = 0;
 	protected _src_hash: HashDecl | undefined = undefined;
 	protected _src_integrity = "";
 	protected _src_md5 = "";
-	protected _currentTime = DateTime.fromMillis(0);	// UNIX epoch.
+	protected _currentTime: DateTime = DateTime.fromMillis(0);	// UNIX epoch.
 	protected _inTransition = false;
-	protected _transitionStartTime = DateTime.fromMillis(0);
-	protected _transitionEndTime = DateTime.fromMillis(0);
+	protected _transitionStartTime: DateTime = DateTime.fromMillis(0);
+	protected _transitionEndTime: DateTime = DateTime.fromMillis(0);
 	protected _transitionPercent = 0;
 	protected _transitionPercentSpeed = 0;
 
 	protected _play_resolve: EventListenerOrEventListenerObject | null = null;
 	protected _play_reject: EventListenerOrEventListenerObject | null = null;
 	protected _schedule_cluster: any = undefined;
+
+	protected _playing = false;
 
 	// Per HTMLMediaElement.
 	protected _ended = false;
@@ -565,19 +567,22 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			})();
 		}
 		this._src = href;
+		if(this.src.length === 0) {
+			return;
+		}
 		if(this.autoplay
-			&& this.src.length !== 0)
+			&& !this._playing)
 		{
-			console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_id})`);
+			console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_asset_id})`);
 			(async () => {
 				await this.play();
 			})();
 		}
 	}
 
-	get src_id() { return this._src_id; }
-	set src_id(src_id: string) {
-		this._src_id = src_id;
+	get src_asset_id() { return this._src_asset_id; }
+	set src_asset_id(src_asset_id: string) {
+		this._src_asset_id = src_asset_id;
 	}
 
 	get src_size() { return this._src_size; }
@@ -604,6 +609,8 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	set currentTime(datetime: DateTime) {
 		this._currentTime = datetime;
 	}
+
+	get playing() { return this._playing; }
 
 	// Per HTMLMediaElement.
 	get ended() { return this._ended; }
@@ -638,12 +645,16 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		if(this.paused) {
 			return;
 		}
-		console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_id})`);
+		console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_asset_id})`);
 		this._paused = true;
 		this.dispatchEvent(new Event('pause'));
+		this._playing = false;
 	}
 
 	async play(): Promise<void> {
+		if(this._playing) {
+			return;
+		}
 		console.log("BASIC-SCHEDULER: play");
 		if(this._play_resolve !== null) {
 			this.removeEventListener('canplay', this._play_resolve);
@@ -671,6 +682,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			}
 		});
 		this._paused = false;
+		this._playing = true;
 		this.dispatchEvent(new Event('play'));
 		this.dispatchEvent(new Event('playing'));
 	}
@@ -855,7 +867,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				throw new Error("Cannot convert end offset to ISO.");
 			}
 			const media: MediaListSummary = {
-				id: asset.shortId,
+				id: asset.shortAssetId,
 				start,
 				end,
 			};
@@ -943,7 +955,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	protected _transitionFrom: MediaDecl | null = null;
 	protected _transitionTo: MediaDecl | null = null;
 	protected _hasInterrupt = false;
-	protected _transitionId: string | undefined;
+	protected _transitionAssetId: string | undefined;
 	protected _transitionUrl: string | undefined;
 	protected _transitionSize = 0;
 	protected _transitionHash: HashDecl | undefined;
@@ -959,6 +971,8 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		this._transitionEndTime = DateTime.fromMillis(0);
 		this._transitionPercent = 0;
 		this._transitionPercentSpeed = 0;
+
+		this._playing = false;
 
 		this._ended = false;
 		this._error = null;
@@ -982,7 +996,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		this._transitionFrom = null;
 		this._transitionTo = null;
 		this._hasInterrupt = false;
-		this._transitionId = undefined;
+		this._transitionAssetId = undefined;
 		this._transitionUrl = undefined;
 		this._transitionSize = 0;
 		this._transitionHash = undefined;
@@ -1019,7 +1033,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				scope: 'schedule',
 				entries: [{
 					'@type': 'Text',
-					id: this._src_id,
+					asset_id: this._src_asset_id,
 					href: this._src,
 					size: this._src_size,
 					hash: this._src_hash,
@@ -1030,7 +1044,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				isReady: true,
 			});
 		}
-		if(this._transitionId
+		if(this._transitionAssetId
 			&& this._transitionUrl
 			&& this._transitionSize
 			&& this._transitionHash
@@ -1039,10 +1053,10 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			&& this._transitionTime)
 		{
 			sources.push({
-				scope: this._transitionId,
+				scope: this._transitionAssetId,
 				entries: [{
 					'@type': 'HTMLImageElement',
-					id: this._transitionId,
+					asset_id: this._transitionAssetId,
 					href: this._transitionUrl,
 					size: this._transitionSize,
 					hash: this._transitionHash,
@@ -1118,7 +1132,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		return null;
 	}
 
-	protected _add(
+	protected _addAsset(
 		eventSeries: string,
 		decl: MediaDecl,
 	): void {
@@ -1135,11 +1149,11 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 //		return pos !== -1;
 //	}
 
-	protected _remove(
-		id: string,
+	protected _removeAsset(
+		asset_id: string,
 	): void {
-//		console.log("BASIC-SCHEDULER: _remove", id);
-		const pos = this._active_media_assets.findIndex(x => x.decl.id === id);
+//		console.log("BASIC-SCHEDULER: _remove", asset_id);
+		const pos = this._active_media_assets.findIndex(x => x.decl.asset_id === asset_id);
 		const media_asset = this._active_media_assets[pos];
 		this._media_list_duration = this._media_list_duration.minus({ seconds: media_asset.duration });
 		this._active_media_assets.splice(pos, 1);
@@ -1187,7 +1201,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			this._joined_cluster = undefined;
 		}
 
-		this._transitionId = recipe.transition.id;
+		this._transitionAssetId = recipe.transition.asset_id;
 		this._transitionUrl = recipe.transition.href;
 		this._transitionSize = recipe.transition.size;
 		this._transitionHash = recipe.transition.hash;
@@ -1274,7 +1288,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		if(calendar_event === null)
 		{
 			for(const entry of this._active_media_assets) {
-				this._remove(entry.decl.id);
+				this._removeAsset(entry.decl.asset_id);
 			}
 		}
 		else
@@ -1283,14 +1297,14 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			const new_list = this._createMediaListFromCalendarEvent(calendar_event);
 			// dirty playlist needs evaluation.
 			const additions = (x: MediaDecl[], y: ScheduleItem[]): MediaDecl[] =>
-				x.filter(z => y.findIndex(w => w.decl.id === z.id) === -1);
+				x.filter(z => y.findIndex(w => w.decl.asset_id === z.asset_id) === -1);
 			const deletions = (x: ScheduleItem[], y: MediaDecl[]): ScheduleItem[] =>
-				x.filter(z => y.findIndex(w => w.id === z.decl.id) === -1);
+				x.filter(z => y.findIndex(w => w.asset_id === z.decl.asset_id) === -1);
 			for(const entry of additions(new_list, old_list)) {
-				this._add(calendar_event.id, entry);
+				this._addAsset(calendar_event.id, entry);
 			}
 			for(const entry of deletions(old_list, new_list)) {
-				this._remove(entry.decl.id);
+				this._removeAsset(entry.decl.asset_id);
 			}
 		}
 	}
@@ -1408,16 +1422,16 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 			case "HTMLImageElement":
 			case "HTMLVideoElement": {
 				const {
-					'@type': type, id, href, size, hash, md5, integrity, params, duration
+					'@type': type, asset_id, href, size, hash, md5, integrity, params, duration
 				} = entry;
-				media_list.push({ '@type': type, id, href, size, hash, md5, integrity, params, duration });
+				media_list.push({ '@type': type, asset_id, href, size, hash, md5, integrity, params, duration });
 				break;
 			}
 			case 'CustomElement': {
 				const {
-					'@type': type, id, href, size, hash, md5, integrity, params, duration, sources = undefined
+					'@type': type, asset_id, href, size, hash, md5, integrity, params, duration, sources = undefined
 				} = entry;
-				media_list.push({ '@type': type, id, href, size, hash, md5, integrity, params, duration, sources });
+				media_list.push({ '@type': type, asset_id, href, size, hash, md5, integrity, params, duration, sources });
 				break;
 			}
 			default:

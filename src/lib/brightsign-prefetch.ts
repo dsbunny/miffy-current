@@ -101,7 +101,7 @@ export class BrightSignPrefetch extends EventTarget implements Prefetch {
 		}
 		const assets = sources.map(source => {
 			return {
-				name: source.id,
+				name: source.asset_id,
 				size: source.size,
 				hash: source.hash,
 				link: source.href,

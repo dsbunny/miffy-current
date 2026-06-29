@@ -9,7 +9,7 @@ export class LunaRendererAsset {
 	protected _ref_count = 0;
 
 	constructor(
-		readonly id: string,
+		readonly asset_id: string,
 		public luna_asset: AbstractLunaAsset,
 	) {}
 

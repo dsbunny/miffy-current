@@ -9,7 +9,7 @@ export class WebRendererAsset {
 	protected _ref_count = 0;
 
 	constructor(
-		readonly id: string,
+		readonly asset_id: string,
 		public web_asset: AbstractWebAsset,
 	) {}
 

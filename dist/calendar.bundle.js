@@ -72,7 +72,7 @@ function requireFunctionBindNative () {
 
 	functionBindNative = !fails(function () {
 	  // eslint-disable-next-line es/no-function-prototype-bind -- safe
-	  var test = (function () { /* empty */ }).bind();
+	  var test = function () { /* empty */ }.bind();
 	  // eslint-disable-next-line no-prototype-builtins -- safe
 	  return typeof test != 'function' || test.hasOwnProperty('prototype');
 	});
@@ -551,10 +551,10 @@ function requireSharedStore () {
 	var store = sharedStore.exports = globalThis[SHARED] || defineGlobalProperty(SHARED, {});
 
 	(store.versions || (store.versions = [])).push({
-	  version: '3.47.0',
+	  version: '3.49.0',
 	  mode: IS_PURE ? 'pure' : 'global',
-	  copyright: '© 2014-2025 Denis Pushkarev (zloirock.ru), 2025 CoreJS Company (core-js.io)',
-	  license: 'https://github.com/zloirock/core-js/blob/v3.47.0/LICENSE',
+	  copyright: '© 2013–2025 Denis Pushkarev (zloirock.ru), 2025–2026 CoreJS Company (core-js.io). All rights reserved.',
+	  license: 'https://github.com/zloirock/core-js/blob/v3.49.0/LICENSE',
 	  source: 'https://github.com/zloirock/core-js'
 	});
 	return sharedStore.exports;
@@ -907,7 +907,7 @@ function requireFunctionName () {
 
 	var EXISTS = hasOwn(FunctionPrototype, 'name');
 	// additional protection from minified / mangled / dropped function names
-	var PROPER = EXISTS && (function something() { /* empty */ }).name === 'something';
+	var PROPER = EXISTS && function something() { /* empty */ }.name === 'something';
 	var CONFIGURABLE = EXISTS && (!DESCRIPTORS || (DESCRIPTORS && getDescriptor(FunctionPrototype, 'name').configurable));
 
 	functionName = {
@@ -2064,6 +2064,23 @@ function requireArraySpeciesCreate () {
 	return arraySpeciesCreate;
 }
 
+var createProperty;
+var hasRequiredCreateProperty;
+
+function requireCreateProperty () {
+	if (hasRequiredCreateProperty) return createProperty;
+	hasRequiredCreateProperty = 1;
+	var DESCRIPTORS = requireDescriptors();
+	var definePropertyModule = requireObjectDefineProperty();
+	var createPropertyDescriptor = requireCreatePropertyDescriptor();
+
+	createProperty = function (object, key, value) {
+	  if (DESCRIPTORS) definePropertyModule.f(object, key, createPropertyDescriptor(0, value));
+	  else object[key] = value;
+	};
+	return createProperty;
+}
+
 var arrayIteration;
 var hasRequiredArrayIteration;
 
@@ -2071,13 +2088,11 @@ function requireArrayIteration () {
 	if (hasRequiredArrayIteration) return arrayIteration;
 	hasRequiredArrayIteration = 1;
 	var bind = requireFunctionBindContext();
-	var uncurryThis = requireFunctionUncurryThis();
 	var IndexedObject = requireIndexedObject();
 	var toObject = requireToObject();
 	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var arraySpeciesCreate = requireArraySpeciesCreate();
-
-	var push = uncurryThis([].push);
+	var createProperty = requireCreateProperty();
 
 	// `Array.prototype.{ forEach, map, filter, some, every, find, findIndex, filterReject }` methods implementation
 	var createMethod = function (TYPE) {
@@ -2088,28 +2103,28 @@ function requireArrayIteration () {
 	  var IS_FIND_INDEX = TYPE === 6;
 	  var IS_FILTER_REJECT = TYPE === 7;
 	  var NO_HOLES = TYPE === 5 || IS_FIND_INDEX;
-	  return function ($this, callbackfn, that, specificCreate) {
+	  return function ($this, callbackfn, that) {
 	    var O = toObject($this);
 	    var self = IndexedObject(O);
 	    var length = lengthOfArrayLike(self);
 	    var boundFunction = bind(callbackfn, that);
 	    var index = 0;
-	    var create = specificCreate || arraySpeciesCreate;
-	    var target = IS_MAP ? create($this, length) : IS_FILTER || IS_FILTER_REJECT ? create($this, 0) : undefined;
+	    var resIndex = 0;
+	    var target = IS_MAP ? arraySpeciesCreate($this, length) : IS_FILTER || IS_FILTER_REJECT ? arraySpeciesCreate($this, 0) : undefined;
 	    var value, result;
 	    for (;length > index; index++) if (NO_HOLES || index in self) {
 	      value = self[index];
 	      result = boundFunction(value, index, O);
 	      if (TYPE) {
-	        if (IS_MAP) target[index] = result; // map
+	        if (IS_MAP) createProperty(target, index, result);    // map
 	        else if (result) switch (TYPE) {
-	          case 3: return true;              // some
-	          case 5: return value;             // find
-	          case 6: return index;             // findIndex
-	          case 2: push(target, value);      // filter
+	          case 3: return true;                                // some
+	          case 5: return value;                               // find
+	          case 6: return index;                               // findIndex
+	          case 2: createProperty(target, resIndex++, value);  // filter
 	        } else switch (TYPE) {
-	          case 4: return false;             // every
-	          case 7: push(target, value);      // filterReject
+	          case 4: return false;                               // every
+	          case 7: createProperty(target, resIndex++, value);  // filterReject
 	        }
 	      }
 	    }
@@ -2222,7 +2237,7 @@ function requireEs_symbol_constructor () {
 	  nativeDefineProperty(O, P, Attributes);
 	  if (ObjectPrototypeDescriptor && O !== ObjectPrototype) {
 	    nativeDefineProperty(ObjectPrototype, P, ObjectPrototypeDescriptor);
-	  }
+	  } return O;
 	};
 
 	var setSymbolDescriptor = DESCRIPTORS && fails(function () {
@@ -2248,7 +2263,8 @@ function requireEs_symbol_constructor () {
 	  var key = toPropertyKey(P);
 	  anObject(Attributes);
 	  if (hasOwn(AllSymbols, key)) {
-	    if (!Attributes.enumerable) {
+	    // first definition - default non-enumerable; redefinition - preserve existing state
+	    if (!('enumerable' in Attributes) ? !hasOwn(O, key) || (hasOwn(O, HIDDEN) && O[HIDDEN][key]) : !Attributes.enumerable) {
 	      if (!hasOwn(O, HIDDEN)) nativeDefineProperty(O, HIDDEN, createPropertyDescriptor(1, nativeObjectCreate(null)));
 	      O[HIDDEN][key] = true;
 	    } else {
@@ -2601,9 +2617,9 @@ function requireNativeRawJson () {
 
 	nativeRawJson = !fails(function () {
 	  var unsafeInt = '9007199254740993';
-	  // eslint-disable-next-line es/no-nonstandard-json-properties -- feature detection
+	  // eslint-disable-next-line es/no-json-rawjson -- feature detection
 	  var raw = JSON.rawJSON(unsafeInt);
-	  // eslint-disable-next-line es/no-nonstandard-json-properties -- feature detection
+	  // eslint-disable-next-line es/no-json-israwjson -- feature detection
 	  return !JSON.isRawJSON(raw) || JSON.stringify(raw) !== unsafeInt;
 	});
 	return nativeRawJson;
@@ -2643,8 +2659,8 @@ function requireEs_json_stringify () {
 	var numberToString = uncurryThis(1.1.toString);
 
 	var surrogates = /[\uD800-\uDFFF]/g;
-	var lowSurrogates = /^[\uD800-\uDBFF]$/;
-	var hiSurrogates = /^[\uDC00-\uDFFF]$/;
+	var leadingSurrogates = /^[\uD800-\uDBFF]$/;
+	var trailingSurrogates = /^[\uDC00-\uDFFF]$/;
 
 	var MARK = uid();
 	var MARK_LENGTH = MARK.length;
@@ -2680,7 +2696,10 @@ function requireEs_json_stringify () {
 	var fixIllFormedJSON = function (match, offset, string) {
 	  var prev = charAt(string, offset - 1);
 	  var next = charAt(string, offset + 1);
-	  if ((exec(lowSurrogates, match) && !exec(hiSurrogates, next)) || (exec(hiSurrogates, match) && !exec(lowSurrogates, prev))) {
+	  if (
+	    (exec(leadingSurrogates, match) && !exec(trailingSurrogates, next)) ||
+	    (exec(trailingSurrogates, match) && !exec(leadingSurrogates, prev))
+	  ) {
 	    return '\\u' + numberToString(charCodeAt(match, 0), 16);
 	  } return match;
 	};
@@ -2800,6 +2819,7 @@ function requireEs_symbol_description () {
 	var $ = require_export();
 	var DESCRIPTORS = requireDescriptors();
 	var globalThis = requireGlobalThis();
+	var call = requireFunctionCall();
 	var uncurryThis = requireFunctionUncurryThis();
 	var hasOwn = requireHasOwnProperty();
 	var isCallable = requireIsCallable();
@@ -2829,6 +2849,14 @@ function requireEs_symbol_description () {
 	  };
 
 	  copyConstructorProperties(SymbolWrapper, NativeSymbol);
+	  // wrap Symbol.for for correct handling of empty string descriptions
+	  var nativeFor = SymbolWrapper['for'];
+	  SymbolWrapper['for'] = { 'for': function (key) {
+	    var stringKey = toString(key);
+	    var symbol = call(nativeFor, this, stringKey);
+	    if (stringKey === '') EmptyStringDescriptionStore[symbol] = true;
+	    return symbol;
+	  } }['for'];
 	  SymbolWrapper.prototype = SymbolPrototype;
 	  SymbolPrototype.constructor = SymbolWrapper;
 
@@ -3512,7 +3540,7 @@ function requireEs_error_isError () {
 	var ERROR = 'Error';
 	var DOM_EXCEPTION = 'DOMException';
 	// eslint-disable-next-line es/no-object-setprototypeof, no-proto -- safe
-	var PROTOTYPE_SETTING_AVAILABLE = Object.setPrototypeOf || ({}).__proto__;
+	var PROTOTYPE_SETTING_AVAILABLE = Object.setPrototypeOf || {}.__proto__;
 
 	var DOMException = getBuiltIn(DOM_EXCEPTION);
 	var $Error = Error;
@@ -3791,7 +3819,9 @@ function requireIterate () {
 	  var iterator, iterFn, index, length, result, next, step;
 
 	  var stop = function (condition) {
-	    if (iterator) iteratorClose(iterator, 'normal');
+	    var $iterator = iterator;
+	    iterator = undefined;
+	    if ($iterator) iteratorClose($iterator, 'normal');
 	    return new Result(true, condition);
 	  };
 
@@ -3821,10 +3851,13 @@ function requireIterate () {
 
 	  next = IS_RECORD ? iterable.next : iterator.next;
 	  while (!(step = call(next, iterator)).done) {
+	    // `IteratorValue` errors should propagate without closing the iterator
+	    var value = step.value;
 	    try {
-	      result = callFn(step.value);
+	      result = callFn(value);
 	    } catch (error) {
-	      iteratorClose(iterator, 'throw', error);
+	      if (iterator) iteratorClose(iterator, 'throw', error);
+	      else throw error;
 	    }
 	    if (typeof result == 'object' && result && isPrototypeOf(ResultPrototype, result)) return result;
 	  } return new Result(false);
@@ -4075,27 +4108,45 @@ function requireDoesNotExceedSafeInteger () {
 	var MAX_SAFE_INTEGER = 0x1FFFFFFFFFFFFF; // 2 ** 53 - 1 == 9007199254740991
 
 	doesNotExceedSafeInteger = function (it) {
-	  if (it > MAX_SAFE_INTEGER) throw $TypeError('Maximum allowed index exceeded');
+	  if (it > MAX_SAFE_INTEGER) throw new $TypeError('Maximum allowed index exceeded');
 	  return it;
 	};
 	return doesNotExceedSafeInteger;
 }
 
-var createProperty;
-var hasRequiredCreateProperty;
+var arraySetLength;
+var hasRequiredArraySetLength;
 
-function requireCreateProperty () {
-	if (hasRequiredCreateProperty) return createProperty;
-	hasRequiredCreateProperty = 1;
+function requireArraySetLength () {
+	if (hasRequiredArraySetLength) return arraySetLength;
+	hasRequiredArraySetLength = 1;
 	var DESCRIPTORS = requireDescriptors();
-	var definePropertyModule = requireObjectDefineProperty();
-	var createPropertyDescriptor = requireCreatePropertyDescriptor();
+	var isArray = requireIsArray();
 
-	createProperty = function (object, key, value) {
-	  if (DESCRIPTORS) definePropertyModule.f(object, key, createPropertyDescriptor(0, value));
-	  else object[key] = value;
+	var $TypeError = TypeError;
+	// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
+	var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+
+	// Safari < 13 does not throw an error in this case
+	var SILENT_ON_NON_WRITABLE_LENGTH_SET = DESCRIPTORS && !function () {
+	  // makes no sense without proper strict mode support
+	  if (this !== undefined) return true;
+	  try {
+	    // eslint-disable-next-line es/no-object-defineproperty -- safe
+	    Object.defineProperty([], 'length', { writable: false }).length = 1;
+	  } catch (error) {
+	    return error instanceof TypeError;
+	  }
+	}();
+
+	arraySetLength = SILENT_ON_NON_WRITABLE_LENGTH_SET ? function (O, length) {
+	  if (isArray(O) && !getOwnPropertyDescriptor(O, 'length').writable) {
+	    throw new $TypeError('Cannot set read only .length');
+	  } return O.length = length;
+	} : function (O, length) {
+	  return O.length = length;
 	};
-	return createProperty;
+	return arraySetLength;
 }
 
 var arrayMethodHasSpeciesSupport;
@@ -4139,6 +4190,7 @@ function requireEs_array_concat () {
 	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var doesNotExceedSafeInteger = requireDoesNotExceedSafeInteger();
 	var createProperty = requireCreateProperty();
+	var setArrayLength = requireArraySetLength();
 	var arraySpeciesCreate = requireArraySpeciesCreate();
 	var arrayMethodHasSpeciesSupport = requireArrayMethodHasSpeciesSupport();
 	var wellKnownSymbol = requireWellKnownSymbol();
@@ -4184,7 +4236,7 @@ function requireEs_array_concat () {
 	        createProperty(A, n++, E);
 	      }
 	    }
-	    A.length = n;
+	    setArrayLength(A, n);
 	    return A;
 	  }
 	});
@@ -4543,6 +4595,7 @@ function requireFlattenIntoArray () {
 	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var doesNotExceedSafeInteger = requireDoesNotExceedSafeInteger();
 	var bind = requireFunctionBindContext();
+	var createProperty = requireCreateProperty();
 
 	// `FlattenIntoArray` abstract operation
 	// https://tc39.es/ecma262/#sec-flattenintoarray
@@ -4561,7 +4614,7 @@ function requireFlattenIntoArray () {
 	        targetIndex = flattenIntoArray(target, original, element, elementLen, targetIndex, depth - 1) - 1;
 	      } else {
 	        doesNotExceedSafeInteger(targetIndex + 1);
-	        target[targetIndex] = element;
+	        createProperty(target, targetIndex, element);
 	      }
 
 	      targetIndex++;
@@ -4594,8 +4647,9 @@ function requireEs_array_flat () {
 	    var depthArg = arguments.length ? arguments[0] : undefined;
 	    var O = toObject(this);
 	    var sourceLen = lengthOfArrayLike(O);
+	    var depthNum = depthArg === undefined ? 1 : toIntegerOrInfinity(depthArg);
 	    var A = arraySpeciesCreate(O, 0);
-	    A.length = flattenIntoArray(A, O, O, sourceLen, 0, depthArg === undefined ? 1 : toIntegerOrInfinity(depthArg));
+	    flattenIntoArray(A, O, O, sourceLen, 0, depthNum);
 	    return A;
 	  }
 	});
@@ -4625,7 +4679,7 @@ function requireEs_array_flatMap () {
 	    var A;
 	    aCallable(callbackfn);
 	    A = arraySpeciesCreate(O, 0);
-	    A.length = flattenIntoArray(A, O, O, sourceLen, 0, 1, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
+	    flattenIntoArray(A, O, O, sourceLen, 0, 1, callbackfn, arguments.length > 1 ? arguments[1] : undefined);
 	    return A;
 	  }
 	});
@@ -4707,20 +4761,22 @@ function requireArrayFrom () {
 	var isConstructor = requireIsConstructor();
 	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var createProperty = requireCreateProperty();
+	var setArrayLength = requireArraySetLength();
 	var getIterator = requireGetIterator();
 	var getIteratorMethod = requireGetIteratorMethod();
+	var iteratorClose = requireIteratorClose();
 
 	var $Array = Array;
 
 	// `Array.from` method implementation
 	// https://tc39.es/ecma262/#sec-array.from
 	arrayFrom = function from(arrayLike /* , mapfn = undefined, thisArg = undefined */) {
-	  var O = toObject(arrayLike);
 	  var IS_CONSTRUCTOR = isConstructor(this);
 	  var argumentsLength = arguments.length;
 	  var mapfn = argumentsLength > 1 ? arguments[1] : undefined;
 	  var mapping = mapfn !== undefined;
 	  if (mapping) mapfn = bind(mapfn, argumentsLength > 2 ? arguments[2] : undefined);
+	  var O = toObject(arrayLike);
 	  var iteratorMethod = getIteratorMethod(O);
 	  var index = 0;
 	  var length, result, step, iterator, next, value;
@@ -4731,7 +4787,11 @@ function requireArrayFrom () {
 	    next = iterator.next;
 	    for (;!(step = call(next, iterator)).done; index++) {
 	      value = mapping ? callWithSafeIterationClosing(iterator, mapfn, [step.value, index], true) : step.value;
-	      createProperty(result, index, value);
+	      try {
+	        createProperty(result, index, value);
+	      } catch (error) {
+	        iteratorClose(iterator, 'throw', error);
+	      }
 	    }
 	  } else {
 	    length = lengthOfArrayLike(O);
@@ -4741,7 +4801,7 @@ function requireArrayFrom () {
 	      createProperty(result, index, value);
 	    }
 	  }
-	  result.length = index;
+	  setArrayLength(result, index);
 	  return result;
 	};
 	return arrayFrom;
@@ -4838,9 +4898,15 @@ function requireEs_array_includes () {
 	  return !Array(1).includes();
 	});
 
+	// Safari 26.4- bug
+	var BROKEN_ON_SPARSE_WITH_FROM_INDEX = fails(function () {
+	  // eslint-disable-next-line no-sparse-arrays, es/no-array-prototype-includes -- detection
+	  return [, 1].includes(undefined, 1);
+	});
+
 	// `Array.prototype.includes` method
 	// https://tc39.es/ecma262/#sec-array.prototype.includes
-	$({ target: 'Array', proto: true, forced: BROKEN_ON_SPARSE }, {
+	$({ target: 'Array', proto: true, forced: BROKEN_ON_SPARSE || BROKEN_ON_SPARSE_WITH_FROM_INDEX }, {
 	  includes: function includes(el /* , fromIndex = 0 */) {
 	    return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
 	  }
@@ -5294,6 +5360,7 @@ function requireEs_array_of () {
 	var fails = requireFails();
 	var isConstructor = requireIsConstructor();
 	var createProperty = requireCreateProperty();
+	var setArrayLength = requireArraySetLength();
 
 	var $Array = Array;
 
@@ -5312,7 +5379,7 @@ function requireEs_array_of () {
 	    var argumentsLength = arguments.length;
 	    var result = new (isConstructor(this) ? this : $Array)(argumentsLength);
 	    while (argumentsLength > index) createProperty(result, index, arguments[index++]);
-	    result.length = argumentsLength;
+	    setArrayLength(result, argumentsLength);
 	    return result;
 	  }
 	});
@@ -5320,41 +5387,6 @@ function requireEs_array_of () {
 }
 
 var es_array_push = {};
-
-var arraySetLength;
-var hasRequiredArraySetLength;
-
-function requireArraySetLength () {
-	if (hasRequiredArraySetLength) return arraySetLength;
-	hasRequiredArraySetLength = 1;
-	var DESCRIPTORS = requireDescriptors();
-	var isArray = requireIsArray();
-
-	var $TypeError = TypeError;
-	// eslint-disable-next-line es/no-object-getownpropertydescriptor -- safe
-	var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-
-	// Safari < 13 does not throw an error in this case
-	var SILENT_ON_NON_WRITABLE_LENGTH_SET = DESCRIPTORS && !function () {
-	  // makes no sense without proper strict mode support
-	  if (this !== undefined) return true;
-	  try {
-	    // eslint-disable-next-line es/no-object-defineproperty -- safe
-	    Object.defineProperty([], 'length', { writable: false }).length = 1;
-	  } catch (error) {
-	    return error instanceof TypeError;
-	  }
-	}();
-
-	arraySetLength = SILENT_ON_NON_WRITABLE_LENGTH_SET ? function (O, length) {
-	  if (isArray(O) && !getOwnPropertyDescriptor(O, 'length').writable) {
-	    throw new $TypeError('Cannot set read only .length');
-	  } return O.length = length;
-	} : function (O, length) {
-	  return O.length = length;
-	};
-	return arraySetLength;
-}
 
 var hasRequiredEs_array_push;
 
@@ -5600,6 +5632,7 @@ function requireEs_array_slice () {
 	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var toIndexedObject = requireToIndexedObject();
 	var createProperty = requireCreateProperty();
+	var setArrayLength = requireArraySetLength();
 	var wellKnownSymbol = requireWellKnownSymbol();
 	var arrayMethodHasSpeciesSupport = requireArrayMethodHasSpeciesSupport();
 	var nativeSlice = requireArraySlice();
@@ -5636,7 +5669,7 @@ function requireEs_array_slice () {
 	    }
 	    result = new (Constructor === undefined ? $Array : Constructor)(max(fin - k, 0));
 	    for (n = 0; k < fin; k++, n++) if (k in O) createProperty(result, n, O[k]);
-	    result.length = n;
+	    setArrayLength(result, n);
 	    return result;
 	  }
 	});
@@ -5835,7 +5868,9 @@ function requireEs_array_sort () {
 	    if (y === undefined) return -1;
 	    if (x === undefined) return 1;
 	    if (comparefn !== undefined) return +comparefn(x, y) || 0;
-	    return toString(x) > toString(y) ? 1 : -1;
+	    var xString = toString(x);
+	    var yString = toString(y);
+	    return xString === yString ? 0 : xString > yString ? 1 : -1;
 	  };
 	};
 
@@ -5961,7 +5996,7 @@ function requireEs_array_splice () {
 	      from = actualStart + k;
 	      if (from in O) createProperty(A, k, O[from]);
 	    }
-	    A.length = actualDeleteCount;
+	    setArrayLength(A, actualDeleteCount);
 	    if (insertCount < actualDeleteCount) {
 	      for (k = actualStart; k < len - actualDeleteCount; k++) {
 	        from = k + actualDeleteCount;
@@ -5990,34 +6025,15 @@ function requireEs_array_splice () {
 
 var es_array_toReversed = {};
 
-var arrayToReversed;
-var hasRequiredArrayToReversed;
-
-function requireArrayToReversed () {
-	if (hasRequiredArrayToReversed) return arrayToReversed;
-	hasRequiredArrayToReversed = 1;
-	var lengthOfArrayLike = requireLengthOfArrayLike();
-
-	// https://tc39.es/ecma262/#sec-array.prototype.toreversed
-	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.toreversed
-	arrayToReversed = function (O, C) {
-	  var len = lengthOfArrayLike(O);
-	  var A = new C(len);
-	  var k = 0;
-	  for (; k < len; k++) A[k] = O[len - k - 1];
-	  return A;
-	};
-	return arrayToReversed;
-}
-
 var hasRequiredEs_array_toReversed;
 
 function requireEs_array_toReversed () {
 	if (hasRequiredEs_array_toReversed) return es_array_toReversed;
 	hasRequiredEs_array_toReversed = 1;
 	var $ = require_export();
-	var arrayToReversed = requireArrayToReversed();
+	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var toIndexedObject = requireToIndexedObject();
+	var createProperty = requireCreateProperty();
 	var addToUnscopables = requireAddToUnscopables();
 
 	var $Array = Array;
@@ -6026,7 +6042,12 @@ function requireEs_array_toReversed () {
 	// https://tc39.es/ecma262/#sec-array.prototype.toreversed
 	$({ target: 'Array', proto: true }, {
 	  toReversed: function toReversed() {
-	    return arrayToReversed(toIndexedObject(this), $Array);
+	    var O = toIndexedObject(this);
+	    var len = lengthOfArrayLike(O);
+	    var A = new $Array(len);
+	    var k = 0;
+	    for (; k < len; k++) createProperty(A, k, O[len - k - 1]);
+	    return A;
 	  }
 	});
 
@@ -6115,6 +6136,7 @@ function requireEs_array_toSpliced () {
 	var toAbsoluteIndex = requireToAbsoluteIndex();
 	var toIndexedObject = requireToIndexedObject();
 	var toIntegerOrInfinity = requireToIntegerOrInfinity();
+	var createProperty = requireCreateProperty();
 
 	var $Array = Array;
 	var max = Math.max;
@@ -6142,9 +6164,9 @@ function requireEs_array_toSpliced () {
 	    newLen = doesNotExceedSafeInteger(len + insertCount - actualDeleteCount);
 	    A = $Array(newLen);
 
-	    for (; k < actualStart; k++) A[k] = O[k];
-	    for (; k < actualStart + insertCount; k++) A[k] = arguments[k - actualStart + 2];
-	    for (; k < newLen; k++) A[k] = O[k + actualDeleteCount - insertCount];
+	    for (; k < actualStart; k++) createProperty(A, k, O[k]);
+	    for (; k < actualStart + insertCount; k++) createProperty(A, k, arguments[k - actualStart + 2]);
+	    for (; k < newLen; k++) createProperty(A, k, O[k + actualDeleteCount - insertCount]);
 
 	    return A;
 	  }
@@ -6242,42 +6264,19 @@ function requireEs_array_unshift () {
 
 var es_array_with = {};
 
-var arrayWith;
-var hasRequiredArrayWith;
-
-function requireArrayWith () {
-	if (hasRequiredArrayWith) return arrayWith;
-	hasRequiredArrayWith = 1;
-	var lengthOfArrayLike = requireLengthOfArrayLike();
-	var toIntegerOrInfinity = requireToIntegerOrInfinity();
-
-	var $RangeError = RangeError;
-
-	// https://tc39.es/ecma262/#sec-array.prototype.with
-	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.with
-	arrayWith = function (O, C, index, value) {
-	  var len = lengthOfArrayLike(O);
-	  var relativeIndex = toIntegerOrInfinity(index);
-	  var actualIndex = relativeIndex < 0 ? len + relativeIndex : relativeIndex;
-	  if (actualIndex >= len || actualIndex < 0) throw new $RangeError('Incorrect index');
-	  var A = new C(len);
-	  var k = 0;
-	  for (; k < len; k++) A[k] = k === actualIndex ? value : O[k];
-	  return A;
-	};
-	return arrayWith;
-}
-
 var hasRequiredEs_array_with;
 
 function requireEs_array_with () {
 	if (hasRequiredEs_array_with) return es_array_with;
 	hasRequiredEs_array_with = 1;
 	var $ = require_export();
-	var arrayWith = requireArrayWith();
+	var lengthOfArrayLike = requireLengthOfArrayLike();
+	var toIntegerOrInfinity = requireToIntegerOrInfinity();
 	var toIndexedObject = requireToIndexedObject();
+	var createProperty = requireCreateProperty();
 
 	var $Array = Array;
+	var $RangeError = RangeError;
 
 	// Firefox bug
 	var INCORRECT_EXCEPTION_ON_COERCION_FAIL = (function () {
@@ -6293,7 +6292,15 @@ function requireEs_array_with () {
 	// https://tc39.es/ecma262/#sec-array.prototype.with
 	$({ target: 'Array', proto: true, forced: INCORRECT_EXCEPTION_ON_COERCION_FAIL }, {
 	  'with': function (index, value) {
-	    return arrayWith(toIndexedObject(this), $Array, index, value);
+	    var O = toIndexedObject(this);
+	    var len = lengthOfArrayLike(O);
+	    var relativeIndex = toIntegerOrInfinity(index);
+	    var actualIndex = relativeIndex < 0 ? len + relativeIndex : relativeIndex;
+	    if (actualIndex >= len || actualIndex < 0) throw new $RangeError('Incorrect index');
+	    var A = new $Array(len);
+	    var k = 0;
+	    for (; k < len; k++) createProperty(A, k, k === actualIndex ? value : O[k]);
+	    return A;
 	  }
 	});
 	return es_array_with;
@@ -6575,7 +6582,6 @@ function requireArrayBuffer () {
 	var fails = requireFails();
 	var anInstance = requireAnInstance();
 	var toIntegerOrInfinity = requireToIntegerOrInfinity();
-	var toLength = requireToLength();
 	var toIndex = requireToIndex();
 	var fround = requireMathFround();
 	var IEEE754 = requireIeee754();
@@ -6691,7 +6697,7 @@ function requireArrayBuffer () {
 	    var bufferLength = bufferState.byteLength;
 	    var offset = toIntegerOrInfinity(byteOffset);
 	    if (offset < 0 || offset > bufferLength) throw new RangeError('Wrong offset');
-	    byteLength = byteLength === undefined ? bufferLength - offset : toLength(byteLength);
+	    byteLength = byteLength === undefined ? bufferLength - offset : toIndex(byteLength);
 	    if (offset + byteLength > bufferLength) throw new RangeError(WRONG_LENGTH);
 	    setInternalState(this, {
 	      type: DATA_VIEW,
@@ -7033,7 +7039,7 @@ function requireArrayBufferViewCore () {
 	    }
 	  });
 	  for (NAME in TypedArrayConstructorsList) if (globalThis[NAME]) {
-	    createNonEnumerableProperty(globalThis[NAME], TYPED_ARRAY_TAG, NAME);
+	    createNonEnumerableProperty(globalThis[NAME].prototype, TYPED_ARRAY_TAG, NAME);
 	  }
 	}
 
@@ -7171,7 +7177,7 @@ function requireEs_dataView_getFloat16 () {
 	  var sign = bytes >>> 15;
 	  var exponent = bytes >>> 10 & EXP_MASK16;
 	  var significand = bytes & SIGNIFICAND_MASK16;
-	  if (exponent === EXP_MASK16) return significand === 0 ? (sign === 0 ? Infinity : -Infinity) : NaN;
+	  if (exponent === EXP_MASK16) return significand === 0 ? sign === 0 ? Infinity : -Infinity : NaN;
 	  if (exponent === 0) return significand * (sign === 0 ? MIN_SUBNORMAL16 : -MIN_SUBNORMAL16);
 	  return pow(2, exponent - 15) * (sign === 0 ? 1 + significand * SIGNIFICAND_DENOM16 : -1 - significand * SIGNIFICAND_DENOM16);
 	};
@@ -7239,6 +7245,7 @@ function requireEs_dataView_setFloat16 () {
 	var log2 = requireMathLog2();
 	var roundTiesToEven = requireMathRoundTiesToEven();
 
+	var floor = Math.floor;
 	var pow = Math.pow;
 
 	var MIN_INFINITY16 = 65520; // (2 - 2 ** -11) * 2 ** 15
@@ -7257,7 +7264,7 @@ function requireEs_dataView_setFloat16 () {
 	  if (value < MIN_NORMAL16) return neg << 15 | roundTiesToEven(value * REC_MIN_SUBNORMAL16); // subnormal
 
 	  // normal
-	  var exponent = log2(value) | 0;
+	  var exponent = floor(log2(value));
 	  if (exponent === -15) {
 	    // we round from a value between 2 ** -15 * (1 + 1022/1024) (the largest subnormal) and 2 ** -14 * (1 + 0/1024) (the smallest normal)
 	    // to the latter (former impossible because of the subnormal check above)
@@ -7492,6 +7499,7 @@ function requireArrayBufferTransfer () {
 	var structuredClone = globalThis.structuredClone;
 	var ArrayBuffer = globalThis.ArrayBuffer;
 	var DataView = globalThis.DataView;
+	var max = Math.max;
 	var min = Math.min;
 	var ArrayBufferPrototype = ArrayBuffer.prototype;
 	var DataViewPrototype = DataView.prototype;
@@ -7514,7 +7522,9 @@ function requireArrayBufferTransfer () {
 	  if (byteLength >= newByteLength && (!preserveResizability || fixedLength)) {
 	    newBuffer = slice(arrayBuffer, 0, newByteLength);
 	  } else {
-	    var options = preserveResizability && !fixedLength && maxByteLength ? { maxByteLength: maxByteLength(arrayBuffer) } : undefined;
+	    var options = preserveResizability && !fixedLength && maxByteLength
+	      ? { maxByteLength: max(newByteLength, maxByteLength(arrayBuffer)) }
+	      : undefined;
 	    newBuffer = new ArrayBuffer(newByteLength, options);
 	    var a = new DataView(arrayBuffer);
 	    var b = new DataView(newBuffer);
@@ -7639,7 +7649,10 @@ function requireEs_date_setYear () {
 	  setYear: function setYear(year) {
 	    // validate
 	    thisTimeValue(this);
-	    var yi = toIntegerOrInfinity(year);
+	    var y = +year;
+	    // eslint-disable-next-line no-self-compare -- NaN check
+	    if (y !== y) return setFullYear(this, y);
+	    var yi = toIntegerOrInfinity(y);
 	    var yyyy = yi >= 0 && yi <= 99 ? yi + 1900 : yi;
 	    return setFullYear(this, yyyy);
 	  }
@@ -7677,6 +7690,7 @@ function requireStringRepeat () {
 	var requireObjectCoercible = requireRequireObjectCoercible();
 
 	var $RangeError = RangeError;
+	var floor = Math.floor;
 
 	// `String.prototype.repeat` method implementation
 	// https://tc39.es/ecma262/#sec-string.prototype.repeat
@@ -7685,7 +7699,7 @@ function requireStringRepeat () {
 	  var result = '';
 	  var n = toIntegerOrInfinity(count);
 	  if (n < 0 || n === Infinity) throw new $RangeError('Wrong number of repetitions');
-	  for (;n > 0; (n >>>= 1) && (str += str)) if (n & 1) result += str;
+	  for (;n > 0; (n = floor(n / 2)) && (str += str)) if (n % 2) result += str;
 	  return result;
 	};
 	return stringRepeat;
@@ -7713,9 +7727,10 @@ function requireStringPad () {
 	    var S = toString(requireObjectCoercible($this));
 	    var intMaxLength = toLength(maxLength);
 	    var stringLength = S.length;
+	    if (intMaxLength <= stringLength) return S;
 	    var fillStr = fillString === undefined ? ' ' : toString(fillString);
 	    var fillLen, stringFiller;
-	    if (intMaxLength <= stringLength || fillStr === '') return S;
+	    if (fillStr === '') return S;
 	    fillLen = intMaxLength - stringLength;
 	    stringFiller = repeat(fillStr, ceil(fillLen / fillStr.length));
 	    if (stringFiller.length > fillLen) stringFiller = stringSlice(stringFiller, 0, fillLen);
@@ -8138,7 +8153,7 @@ function requireEs_escape () {
 	      } else {
 	        code = charCodeAt(chr, 0);
 	        if (code < 256) {
-	          result += '%' + hex(code, 2);
+	          result += '%' + toUpperCase(hex(code, 2));
 	        } else {
 	          result += '%u' + toUpperCase(hex(code, 4));
 	        }
@@ -8442,11 +8457,13 @@ function requireIteratorCreateProxy () {
 	    'return': function () {
 	      var state = getInternalState(this);
 	      var iterator = state.iterator;
+	      var done = state.done;
 	      state.done = true;
 	      if (IS_ITERATOR) {
 	        var returnMethod = getMethod(iterator, 'return');
 	        return returnMethod ? call(returnMethod, iterator) : createIterResultObject(undefined, true);
 	      }
+	      if (done) return createIterResultObject(undefined, true);
 	      if (state.inner) try {
 	        iteratorClose(state.inner.iterator, NORMAL);
 	      } catch (error) {
@@ -8455,7 +8472,8 @@ function requireIteratorCreateProxy () {
 	      if (state.openIters) try {
 	        iteratorCloseAll(state.openIters, NORMAL);
 	      } catch (error) {
-	        return iteratorClose(iterator, THROW, error);
+	        if (iterator) return iteratorClose(iterator, THROW, error);
+	        throw error;
 	      }
 	      if (iterator) iteratorClose(iterator, NORMAL);
 	      return createIterResultObject(undefined, true);
@@ -8500,6 +8518,7 @@ function requireEs_iterator_concat () {
 	var anObject = requireAnObject();
 	var getIteratorMethod = requireGetIteratorMethod();
 	var createIteratorProxy = requireIteratorCreateProxy();
+	var IS_PURE = requireIsPure();
 
 	var $Array = Array;
 
@@ -8515,7 +8534,7 @@ function requireEs_iterator_concat () {
 	      }
 	      var entry = iterables[iterableIndex];
 	      this.iterables[iterableIndex] = null;
-	      iterator = this.iterator = call(entry.method, entry.iterable);
+	      iterator = this.iterator = anObject(call(entry.method, entry.iterable));
 	      this.next = iterator.next;
 	    }
 	    var result = anObject(call(this.next, iterator));
@@ -8529,8 +8548,8 @@ function requireEs_iterator_concat () {
 	});
 
 	// `Iterator.concat` method
-	// https://github.com/tc39/proposal-iterator-sequencing
-	$({ target: 'Iterator', stat: true }, {
+	// https://tc39.es/ecma262/#sec-iterator.concat
+	$({ target: 'Iterator', stat: true, forced: IS_PURE }, {
 	  concat: function concat() {
 	    var length = arguments.length;
 	    var iterables = $Array(length);
@@ -8923,12 +8942,26 @@ function requireEs_iterator_flatMap () {
 	var iteratorHelperThrowsOnInvalidIterator = requireIteratorHelperThrowsOnInvalidIterator();
 	var iteratorHelperWithoutClosingOnEarlyError = requireIteratorHelperWithoutClosingOnEarlyError();
 
+	// Should not throw an error for an iterator without `return` method. Fixed in Safari 26.2
+	// https://bugs.webkit.org/show_bug.cgi?id=297532
+	function throwsOnIteratorWithoutReturn() {
+	  try {
+	    // eslint-disable-next-line es/no-map, es/no-iterator, es/no-iterator-prototype-flatmap -- required for testing
+	    var it = Iterator.prototype.flatMap.call(new Map([[4, 5]]).entries(), function (v) { return v; });
+	    it.next();
+	    it['return']();
+	  } catch (error) {
+	    return true;
+	  }
+	}
+
 	var FLAT_MAP_WITHOUT_THROWING_ON_INVALID_ITERATOR = !IS_PURE
 	  && !iteratorHelperThrowsOnInvalidIterator('flatMap', function () { /* empty */ });
 	var flatMapWithoutClosingOnEarlyError = !IS_PURE && !FLAT_MAP_WITHOUT_THROWING_ON_INVALID_ITERATOR
 	  && iteratorHelperWithoutClosingOnEarlyError('flatMap', TypeError);
 
-	var FORCED = IS_PURE || FLAT_MAP_WITHOUT_THROWING_ON_INVALID_ITERATOR || flatMapWithoutClosingOnEarlyError;
+	var FORCED = IS_PURE || FLAT_MAP_WITHOUT_THROWING_ON_INVALID_ITERATOR || flatMapWithoutClosingOnEarlyError
+	  || throwsOnIteratorWithoutReturn();
 
 	var IteratorProxy = createIteratorProxy(function () {
 	  var iterator = this.iterator;
@@ -9229,10 +9262,15 @@ function requireEs_iterator_take () {
 	var toPositiveInteger = requireToPositiveInteger();
 	var createIteratorProxy = requireIteratorCreateProxy();
 	var iteratorClose = requireIteratorClose();
+	var iteratorHelperThrowsOnInvalidIterator = requireIteratorHelperThrowsOnInvalidIterator();
 	var iteratorHelperWithoutClosingOnEarlyError = requireIteratorHelperWithoutClosingOnEarlyError();
 	var IS_PURE = requireIsPure();
 
-	var takeWithoutClosingOnEarlyError = !IS_PURE && iteratorHelperWithoutClosingOnEarlyError('take', RangeError);
+	var TAKE_WITHOUT_THROWING_ON_INVALID_ITERATOR = !IS_PURE && !iteratorHelperThrowsOnInvalidIterator('take', 1);
+	var takeWithoutClosingOnEarlyError = !IS_PURE && !TAKE_WITHOUT_THROWING_ON_INVALID_ITERATOR
+	  && iteratorHelperWithoutClosingOnEarlyError('take', RangeError);
+
+	var FORCED = IS_PURE || TAKE_WITHOUT_THROWING_ON_INVALID_ITERATOR || takeWithoutClosingOnEarlyError;
 
 	var IteratorProxy = createIteratorProxy(function () {
 	  var iterator = this.iterator;
@@ -9247,7 +9285,7 @@ function requireEs_iterator_take () {
 
 	// `Iterator.prototype.take` method
 	// https://tc39.es/ecma262/#sec-iterator.prototype.take
-	$({ target: 'Iterator', proto: true, real: true, forced: IS_PURE || takeWithoutClosingOnEarlyError }, {
+	$({ target: 'Iterator', proto: true, real: true, forced: FORCED }, {
 	  take: function take(limit) {
 	    anObject(this);
 	    var remaining;
@@ -9276,17 +9314,19 @@ function requireEs_iterator_toArray () {
 	hasRequiredEs_iterator_toArray = 1;
 	var $ = require_export();
 	var anObject = requireAnObject();
+	var createProperty = requireCreateProperty();
 	var iterate = requireIterate();
 	var getIteratorDirect = requireGetIteratorDirect();
-
-	var push = [].push;
 
 	// `Iterator.prototype.toArray` method
 	// https://tc39.es/ecma262/#sec-iterator.prototype.toarray
 	$({ target: 'Iterator', proto: true, real: true }, {
 	  toArray: function toArray() {
 	    var result = [];
-	    iterate(getIteratorDirect(anObject(this)), push, { that: result, IS_RECORD: true });
+	    var index = 0;
+	    iterate(getIteratorDirect(anObject(this)), function (element) {
+	      createProperty(result, index++, element);
+	    }, { IS_RECORD: true });
 	    return result;
 	  }
 	});
@@ -9451,10 +9491,12 @@ function requireEs_json_parse () {
 	    var expectKeypair = false;
 	    var object = {};
 	    var nodes = {};
+	    var closed = false;
 	    while (i < source.length) {
 	      i = this.until(['"', '}'], i);
 	      if (at(source, i) === '}' && !expectKeypair) {
 	        i++;
+	        closed = true;
 	        break;
 	      }
 	      // Parsing the key
@@ -9474,9 +9516,11 @@ function requireEs_json_parse () {
 	        i++;
 	      } else if (chr === '}') {
 	        i++;
+	        closed = true;
 	        break;
 	      }
 	    }
+	    if (!closed) throw new SyntaxError('Unterminated object at: ' + i);
 	    return this.node(OBJECT, object, this.index, i, nodes);
 	  },
 	  array: function () {
@@ -9485,10 +9529,12 @@ function requireEs_json_parse () {
 	    var expectElement = false;
 	    var array = [];
 	    var nodes = [];
+	    var closed = false;
 	    while (i < source.length) {
 	      i = this.skip(IS_WHITESPACE, i);
 	      if (at(source, i) === ']' && !expectElement) {
 	        i++;
+	        closed = true;
 	        break;
 	      }
 	      var result = this.fork(i).parse();
@@ -9500,9 +9546,11 @@ function requireEs_json_parse () {
 	        i++;
 	      } else if (at(source, i) === ']') {
 	        i++;
+	        closed = true;
 	        break;
 	      }
 	    }
+	    if (!closed) throw new SyntaxError('Unterminated array at: ' + i);
 	    return this.node(OBJECT, array, this.index, i, nodes);
 	  },
 	  string: function () {
@@ -9518,7 +9566,11 @@ function requireEs_json_parse () {
 	    if (at(source, i) === '0') i++;
 	    else if (exec(IS_NON_ZERO_DIGIT, at(source, i))) i = this.skip(IS_DIGIT, i + 1);
 	    else throw new SyntaxError('Failed to parse number at: ' + i);
-	    if (at(source, i) === '.') i = this.skip(IS_DIGIT, i + 1);
+	    if (at(source, i) === '.') {
+	      var fractionStartIndex = i + 1;
+	      i = this.skip(IS_DIGIT, fractionStartIndex);
+	      if (fractionStartIndex === i) throw new SyntaxError("Failed to parse number's fraction at: " + i);
+	    }
 	    if (at(source, i) === 'e' || at(source, i) === 'E') {
 	      i++;
 	      if (at(source, i) === '+' || at(source, i) === '-') i++;
@@ -10225,6 +10277,66 @@ function requireEs_map_groupBy () {
 	return es_map_groupBy;
 }
 
+var es_map_getOrInsert = {};
+
+var hasRequiredEs_map_getOrInsert;
+
+function requireEs_map_getOrInsert () {
+	if (hasRequiredEs_map_getOrInsert) return es_map_getOrInsert;
+	hasRequiredEs_map_getOrInsert = 1;
+	var $ = require_export();
+	var MapHelpers = requireMapHelpers();
+	var IS_PURE = requireIsPure();
+
+	var get = MapHelpers.get;
+	var has = MapHelpers.has;
+	var set = MapHelpers.set;
+
+	// `Map.prototype.getOrInsert` method
+	// https://tc39.es/ecma262/#sec-map.prototype.getorinsert
+	$({ target: 'Map', proto: true, real: true, forced: IS_PURE }, {
+	  getOrInsert: function getOrInsert(key, value) {
+	    if (has(this, key)) return get(this, key);
+	    set(this, key, value);
+	    return value;
+	  }
+	});
+	return es_map_getOrInsert;
+}
+
+var es_map_getOrInsertComputed = {};
+
+var hasRequiredEs_map_getOrInsertComputed;
+
+function requireEs_map_getOrInsertComputed () {
+	if (hasRequiredEs_map_getOrInsertComputed) return es_map_getOrInsertComputed;
+	hasRequiredEs_map_getOrInsertComputed = 1;
+	var $ = require_export();
+	var aCallable = requireACallable();
+	var MapHelpers = requireMapHelpers();
+	var IS_PURE = requireIsPure();
+
+	var get = MapHelpers.get;
+	var has = MapHelpers.has;
+	var set = MapHelpers.set;
+
+	// `Map.prototype.getOrInsertComputed` method
+	// https://tc39.es/ecma262/#sec-map.prototype.getorinsertcomputed
+	$({ target: 'Map', proto: true, real: true, forced: IS_PURE }, {
+	  getOrInsertComputed: function getOrInsertComputed(key, callbackfn) {
+	    var hasKey = has(this, key);
+	    aCallable(callbackfn);
+	    if (hasKey) return get(this, key);
+	    // CanonicalizeKeyedCollectionKey
+	    if (key === 0 && 1 / key === -Infinity) key = 0;
+	    var value = callbackfn(key);
+	    set(this, key, value);
+	    return value;
+	  }
+	});
+	return es_map_getOrInsertComputed;
+}
+
 var es_math_acosh = {};
 
 var mathLog1p;
@@ -10291,10 +10403,13 @@ function requireEs_math_asinh () {
 	var $asinh = Math.asinh;
 	var log = Math.log;
 	var sqrt = Math.sqrt;
+	var LN2 = Math.LN2;
+	// sqrt(2 ** 53) - prevent n * n overflow
+	var SQRT_2_POW_53 = 94906265.62425156;
 
 	function asinh(x) {
 	  var n = +x;
-	  return !isFinite(n) || n === 0 ? n : n < 0 ? -asinh(-n) : log(n + sqrt(n * n + 1));
+	  return !isFinite(n) || n === 0 ? n : n < 0 ? -asinh(-n) : n > SQRT_2_POW_53 ? log(n) + LN2 : log(n + sqrt(n * n + 1));
 	}
 
 	var FORCED = !($asinh && 1 / $asinh(0) > 0);
@@ -10316,10 +10431,10 @@ function requireEs_math_atanh () {
 	if (hasRequiredEs_math_atanh) return es_math_atanh;
 	hasRequiredEs_math_atanh = 1;
 	var $ = require_export();
+	var log1p = requireMathLog1p();
 
 	// eslint-disable-next-line es/no-math-atanh -- required for testing
 	var $atanh = Math.atanh;
-	var log = Math.log;
 
 	var FORCED = !($atanh && 1 / $atanh(-0) < 0);
 
@@ -10329,7 +10444,7 @@ function requireEs_math_atanh () {
 	$({ target: 'Math', stat: true, forced: FORCED }, {
 	  atanh: function atanh(x) {
 	    var n = +x;
-	    return n === 0 ? n : log((1 + n) / (1 - n)) / 2;
+	    return n === 0 ? n : log1p(2 * n / (1 - n)) / 2;
 	  }
 	});
 	return es_math_atanh;
@@ -10711,7 +10826,7 @@ function requireEs_math_sumPrecise () {
 	var push = uncurryThis([].push);
 
 	var POW_2_1023 = pow(2, 1023);
-	var MAX_SAFE_INTEGER = pow(2, 53) - 1; // 2 ** 53 - 1 === 9007199254740992
+	var MAX_SAFE_INTEGER = pow(2, 53) - 1; // 2 ** 53 - 1 === 9007199254740991
 	var MAX_DOUBLE = Number.MAX_VALUE; // 2 ** 1024 - 2 ** (1023 - 52) === 1.79769313486231570815e+308
 	var MAX_ULP = pow(2, 971); // 2 ** (1023 - 52) === 1.99584030953471981166e+292
 
@@ -10729,7 +10844,7 @@ function requireEs_math_sumPrecise () {
 	};
 
 	// `Math.sumPrecise` method
-	// https://github.com/tc39/proposal-math-sum
+	// https://tc39.es/ecma262/#sec-math.sumprecise
 	$({ target: 'Math', stat: true }, {
 	  // eslint-disable-next-line max-statements -- ok
 	  sumPrecise: function sumPrecise(items) {
@@ -10738,7 +10853,7 @@ function requireEs_math_sumPrecise () {
 	    var state = MINUS_ZERO;
 
 	    iterate(items, function (n) {
-	      if (++count >= MAX_SAFE_INTEGER) throw new $RangeError('Maximum allowed index exceeded');
+	      if (++count > MAX_SAFE_INTEGER) throw new $RangeError('Maximum allowed index exceeded');
 	      if (typeof n != 'number') throw new $TypeError('Value is not a number');
 	      if (state !== NOT_A_NUMBER) {
 	        // eslint-disable-next-line no-self-compare -- NaN check
@@ -11387,6 +11502,8 @@ function requireEs_number_toExponential () {
 	var repeat = uncurryThis($repeat);
 	var stringSlice = uncurryThis(''.slice);
 
+	var POW_10_308 = pow(10, 308);
+
 	// Edge 17-
 	var ROUNDS_PROPERLY = nativeToExponential(-69e-12, 4) === '-6.9000e-11'
 	  // IE11- && Edge 14-
@@ -11427,7 +11544,7 @@ function requireEs_number_toExponential () {
 	    if (f < 0 || f > 20) throw new $RangeError('Incorrect fraction digits');
 	    if (ROUNDS_PROPERLY) return nativeToExponential(x, f);
 	    var s = '';
-	    var m, e, c, d;
+	    var m, e, c, d, l, n, xScaled;
 	    if (x < 0) {
 	      s = '-';
 	      x = -x;
@@ -11436,13 +11553,20 @@ function requireEs_number_toExponential () {
 	      e = 0;
 	      m = repeat('0', f + 1);
 	    } else {
-	      // this block is based on https://gist.github.com/SheetJSDev/1100ad56b9f856c95299ed0e068eea08
 	      // TODO: improve accuracy with big fraction digits
-	      var l = log10(x);
+	      l = log10(x);
 	      e = floor(l);
-	      var w = pow(10, e - f);
-	      var n = round(x / w);
-	      if (2 * x >= (2 * n + 1) * w) {
+	      // compute x / pow(10, e - f) and round, avoiding underflow/overflow
+	      if (f - e >= 308) {
+	        // pow(10, e - f) would underflow to a subnormal or zero; split computation
+	        xScaled = x * POW_10_308 * pow(10, f - e - 308);
+	      } else {
+	        xScaled = x / pow(10, e - f);
+	      }
+	      n = round(xScaled);
+	      // correct tie-breaking: round half up
+	      // avoids `2 * x` overflow for values near MAX_VALUE
+	      if (xScaled - n >= 0.5) {
 	        n += 1;
 	      }
 	      if (n >= pow(10, f + 1)) {
@@ -12642,8 +12766,7 @@ function requireEnvironmentIsIos () {
 	hasRequiredEnvironmentIsIos = 1;
 	var userAgent = requireEnvironmentUserAgent();
 
-	// eslint-disable-next-line redos/no-vulnerable -- safe
-	environmentIsIos = /(?:ipad|iphone|ipod).*applewebkit/i.test(userAgent);
+	environmentIsIos = /ipad|iphone|ipod/i.test(userAgent) && /applewebkit/i.test(userAgent);
 	return environmentIsIos;
 }
 
@@ -13911,18 +14034,42 @@ function requireAsyncFromSyncIterator () {
 	AsyncFromSyncIterator.prototype = defineBuiltIns(create(AsyncIteratorPrototype), {
 	  next: function next() {
 	    var state = getInternalState(this);
+	    var hasValue = arguments.length > 0;
+	    var value = hasValue ? arguments[0] : undefined;
 	    return new Promise(function (resolve, reject) {
-	      var result = anObject(call(state.next, state.iterator));
+	      var result = anObject(hasValue ? call(state.next, state.iterator, value) : call(state.next, state.iterator));
 	      asyncFromSyncIteratorContinuation(result, resolve, reject, state.iterator, true);
 	    });
 	  },
 	  'return': function () {
-	    var iterator = getInternalState(this).iterator;
+	    var state = getInternalState(this);
+	    var iterator = state.iterator;
+	    var hasValue = arguments.length > 0;
+	    var value = hasValue ? arguments[0] : undefined;
 	    return new Promise(function (resolve, reject) {
 	      var $return = getMethod(iterator, 'return');
-	      if ($return === undefined) return resolve(createIterResultObject(undefined, true));
-	      var result = anObject(call($return, iterator));
+	      if ($return === undefined) return resolve(createIterResultObject(value, true));
+	      var result = anObject(hasValue ? call($return, iterator, value) : call($return, iterator));
 	      asyncFromSyncIteratorContinuation(result, resolve, reject, iterator);
+	    });
+	  },
+	  'throw': function () {
+	    var state = getInternalState(this);
+	    var iterator = state.iterator;
+	    var hasValue = arguments.length > 0;
+	    var value = hasValue ? arguments[0] : undefined;
+	    return new Promise(function (resolve, reject) {
+	      var $throw = getMethod(iterator, 'throw');
+	      if ($throw === undefined) {
+	        try {
+	          iteratorClose(iterator, 'normal');
+	        } catch (error) {
+	          return reject(error);
+	        }
+	        return reject(new TypeError('The iterator does not provide a throw method'));
+	      }
+	      var result = anObject(hasValue ? call($throw, iterator, value) : call($throw, iterator));
+	      asyncFromSyncIteratorContinuation(result, resolve, reject, iterator, true);
 	    });
 	  }
 	});
@@ -13961,6 +14108,7 @@ function requireAsyncIteratorClose () {
 	if (hasRequiredAsyncIteratorClose) return asyncIteratorClose;
 	hasRequiredAsyncIteratorClose = 1;
 	var call = requireFunctionCall();
+	var anObject = requireAnObject();
 	var getBuiltIn = requireGetBuiltIn();
 	var getMethod = requireGetMethod();
 
@@ -13968,14 +14116,21 @@ function requireAsyncIteratorClose () {
 	  try {
 	    var returnMethod = getMethod(iterator, 'return');
 	    if (returnMethod) {
-	      return getBuiltIn('Promise').resolve(call(returnMethod, iterator)).then(function () {
+	      return getBuiltIn('Promise').resolve(call(returnMethod, iterator)).then(function (result) {
+	        try {
+	          if (method !== reject) anObject(result);
+	        } catch (error3) {
+	          reject(error3);
+	          return;
+	        }
 	        method(argument);
 	      }, function (error) {
-	        reject(error);
+	        method === reject ? method(argument) : reject(error);
 	      });
 	    }
 	  } catch (error2) {
-	    return reject(error2);
+	    // the original error (`argument`) takes priority over `return()` errors
+	    return method === reject ? reject(argument) : reject(error2);
 	  } method(argument);
 	};
 	return asyncIteratorClose;
@@ -13995,6 +14150,8 @@ function requireAsyncIteratorIteration () {
 	var isObject = requireIsObject();
 	var doesNotExceedSafeInteger = requireDoesNotExceedSafeInteger();
 	var getBuiltIn = requireGetBuiltIn();
+	var createProperty = requireCreateProperty();
+	var setArrayLength = requireArraySetLength();
 	var getIteratorDirect = requireGetIteratorDirect();
 	var closeAsyncIteration = requireAsyncIteratorClose();
 
@@ -14020,21 +14177,24 @@ function requireAsyncIteratorIteration () {
 
 	      var loop = function () {
 	        try {
-	          if (MAPPING) try {
+	          try {
 	            doesNotExceedSafeInteger(counter);
-	          } catch (error5) { ifAbruptCloseAsyncIterator(error5); }
+	          } catch (error5) {
+	            return ifAbruptCloseAsyncIterator(error5);
+	          }
 	          Promise.resolve(anObject(call(next, iterator))).then(function (step) {
 	            try {
 	              if (anObject(step).done) {
 	                if (IS_TO_ARRAY) {
-	                  target.length = counter;
+	                  setArrayLength(target, counter);
 	                  resolve(target);
 	                } else resolve(IS_SOME ? false : IS_EVERY || undefined);
 	              } else {
 	                var value = step.value;
 	                try {
 	                  if (MAPPING) {
-	                    var result = fn(value, counter);
+	                    var index = counter++;
+	                    var result = fn(value, index);
 
 	                    var handler = function ($result) {
 	                      if (IS_FOR_EACH) {
@@ -14043,7 +14203,7 @@ function requireAsyncIteratorIteration () {
 	                        $result ? loop() : closeAsyncIteration(iterator, resolve, false, reject);
 	                      } else if (IS_TO_ARRAY) {
 	                        try {
-	                          target[counter++] = $result;
+	                          createProperty(target, index, $result);
 	                          loop();
 	                        } catch (error4) { ifAbruptCloseAsyncIterator(error4); }
 	                      } else {
@@ -14054,7 +14214,7 @@ function requireAsyncIteratorIteration () {
 	                    if (isObject(result)) Promise.resolve(result).then(handler, ifAbruptCloseAsyncIterator);
 	                    else handler(result);
 	                  } else {
-	                    target[counter++] = value;
+	                    createProperty(target, counter++, value);
 	                    loop();
 	                  }
 	                } catch (error3) { ifAbruptCloseAsyncIterator(error3); }
@@ -14092,7 +14252,6 @@ function requireArrayFromAsync () {
 	hasRequiredArrayFromAsync = 1;
 	var bind = requireFunctionBindContext();
 	var uncurryThis = requireFunctionUncurryThis();
-	var toObject = requireToObject();
 	var isConstructor = requireIsConstructor();
 	var getAsyncIterator = requireGetAsyncIterator();
 	var getIterator = requireGetIterator();
@@ -14123,20 +14282,19 @@ function requireArrayFromAsync () {
 
 	// `Array.fromAsync` method implementation
 	// https://github.com/tc39/proposal-array-from-async
-	arrayFromAsync = function fromAsync(asyncItems /* , mapfn = undefined, thisArg = undefined */) {
+	arrayFromAsync = function fromAsync(items /* , mapfn = undefined, thisArg = undefined */) {
 	  var C = this;
 	  var argumentsLength = arguments.length;
 	  var mapfn = argumentsLength > 1 ? arguments[1] : undefined;
 	  var thisArg = argumentsLength > 2 ? arguments[2] : undefined;
 	  return new (getBuiltIn('Promise'))(function (resolve) {
-	    var O = toObject(asyncItems);
 	    if (mapfn !== undefined) mapfn = bind(mapfn, thisArg);
-	    var usingAsyncIterator = getMethod(O, ASYNC_ITERATOR);
-	    var usingSyncIterator = usingAsyncIterator ? undefined : getIteratorMethod(O) || safeArrayIterator;
+	    var usingAsyncIterator = getMethod(items, ASYNC_ITERATOR);
+	    var usingSyncIterator = usingAsyncIterator ? undefined : getIteratorMethod(items) || safeArrayIterator;
 	    var A = isConstructor(C) ? new C() : [];
 	    var iterator = usingAsyncIterator
-	      ? getAsyncIterator(O, usingAsyncIterator)
-	      : new AsyncFromSyncIterator(getIteratorDirect(getIterator(O, usingSyncIterator)));
+	      ? getAsyncIterator(items, usingAsyncIterator)
+	      : new AsyncFromSyncIterator(getIteratorDirect(getIterator(items, usingSyncIterator)));
 	    resolve(toArray(iterator, mapfn, A));
 	  });
 	};
@@ -14165,7 +14323,7 @@ function requireEs_array_fromAsync () {
 	});
 
 	// `Array.fromAsync` method
-	// https://github.com/tc39/proposal-array-from-async
+	// https://tc39.es/ecma262/#sec-array.fromasync
 	$({ target: 'Array', stat: true, forced: INCORRECT_CONSTRUCTURING }, {
 	  fromAsync: fromAsync
 	});
@@ -14419,8 +14577,8 @@ function requireEs_reflect_construct () {
 	$({ target: 'Reflect', stat: true, forced: FORCED, sham: FORCED }, {
 	  construct: function construct(Target, args /* , newTarget */) {
 	    aConstructor(Target);
-	    anObject(args);
 	    var newTarget = arguments.length < 3 ? Target : aConstructor(arguments[2]);
+	    anObject(args);
 	    if (ARGS_BUG && !NEW_TARGET_BUG) return nativeConstruct(Target, args, newTarget);
 	    if (Target === newTarget) {
 	      // w/o altered newTarget, optimization for 0-4 arguments
@@ -14458,7 +14616,10 @@ function requireEs_reflect_defineProperty () {
 	var anObject = requireAnObject();
 	var toPropertyKey = requireToPropertyKey();
 	var definePropertyModule = requireObjectDefineProperty();
+	var isCallable = requireIsCallable();
 	var fails = requireFails();
+
+	var $TypeError = TypeError;
 
 	// MS Edge has broken Reflect.defineProperty - throwing instead of returning false
 	var ERROR_INSTEAD_OF_FALSE = fails(function () {
@@ -14472,7 +14633,14 @@ function requireEs_reflect_defineProperty () {
 	  defineProperty: function defineProperty(target, propertyKey, attributes) {
 	    anObject(target);
 	    var key = toPropertyKey(propertyKey);
+	    var get, set;
 	    anObject(attributes);
+	    // propagate `ToPropertyDescriptor` errors instead of catching them
+	    if (('get' in attributes || 'set' in attributes) && (
+	      ('get' in attributes && !isCallable(get = attributes.get) && get !== undefined) ||
+	      ('set' in attributes && !isCallable(set = attributes.set) && set !== undefined) ||
+	      ('value' in attributes || 'writable' in attributes)
+	    )) throw new $TypeError('Invalid property descriptor');
 	    try {
 	      definePropertyModule.f(target, key, attributes);
 	      return true;
@@ -14494,13 +14662,16 @@ function requireEs_reflect_deleteProperty () {
 	var $ = require_export();
 	var anObject = requireAnObject();
 	var getOwnPropertyDescriptor = requireObjectGetOwnPropertyDescriptor().f;
+	var toPropertyKey = requireToPropertyKey();
 
 	// `Reflect.deleteProperty` method
 	// https://tc39.es/ecma262/#sec-reflect.deleteproperty
 	$({ target: 'Reflect', stat: true }, {
 	  deleteProperty: function deleteProperty(target, propertyKey) {
-	    var descriptor = getOwnPropertyDescriptor(anObject(target), propertyKey);
-	    return descriptor && !descriptor.configurable ? false : delete target[propertyKey];
+	    anObject(target);
+	    var key = toPropertyKey(propertyKey);
+	    var descriptor = getOwnPropertyDescriptor(target, key);
+	    return descriptor && !descriptor.configurable ? false : delete target[key];
 	  }
 	});
 	return es_reflect_deleteProperty;
@@ -14534,22 +14705,24 @@ function requireEs_reflect_get () {
 	var isDataDescriptor = requireIsDataDescriptor();
 	var getOwnPropertyDescriptorModule = requireObjectGetOwnPropertyDescriptor();
 	var getPrototypeOf = requireObjectGetPrototypeOf();
+	var toPropertyKey = requireToPropertyKey();
 
 	// `Reflect.get` method
 	// https://tc39.es/ecma262/#sec-reflect.get
-	function get(target, propertyKey /* , receiver */) {
-	  var receiver = arguments.length < 3 ? target : arguments[2];
-	  var descriptor, prototype;
+	var $get = function (target, propertyKey, receiver) {
 	  if (anObject(target) === receiver) return target[propertyKey];
-	  descriptor = getOwnPropertyDescriptorModule.f(target, propertyKey);
+	  var descriptor = getOwnPropertyDescriptorModule.f(target, propertyKey);
 	  if (descriptor) return isDataDescriptor(descriptor)
 	    ? descriptor.value
 	    : descriptor.get === undefined ? undefined : call(descriptor.get, receiver);
-	  if (isObject(prototype = getPrototypeOf(target))) return get(prototype, propertyKey, receiver);
-	}
+	  var prototype = getPrototypeOf(target);
+	  if (isObject(prototype)) return $get(prototype, propertyKey, receiver);
+	};
 
 	$({ target: 'Reflect', stat: true }, {
-	  get: get
+	  get: function get(target, propertyKey /* , receiver */) {
+	    return $get(anObject(target), toPropertyKey(propertyKey), arguments.length < 3 ? target : arguments[2]);
+	  }
 	});
 	return es_reflect_get;
 }
@@ -14703,32 +14876,35 @@ function requireEs_reflect_set () {
 	var getOwnPropertyDescriptorModule = requireObjectGetOwnPropertyDescriptor();
 	var getPrototypeOf = requireObjectGetPrototypeOf();
 	var createPropertyDescriptor = requireCreatePropertyDescriptor();
+	var toPropertyKey = requireToPropertyKey();
 
 	// `Reflect.set` method
 	// https://tc39.es/ecma262/#sec-reflect.set
-	function set(target, propertyKey, V /* , receiver */) {
-	  var receiver = arguments.length < 4 ? target : arguments[3];
+	var $set = function (target, propertyKey, V, receiver) {
 	  var ownDescriptor = getOwnPropertyDescriptorModule.f(anObject(target), propertyKey);
 	  var existingDescriptor, prototype, setter;
 	  if (!ownDescriptor) {
 	    if (isObject(prototype = getPrototypeOf(target))) {
-	      return set(prototype, propertyKey, V, receiver);
+	      return $set(prototype, propertyKey, V, receiver);
 	    }
 	    ownDescriptor = createPropertyDescriptor(0);
 	  }
 	  if (isDataDescriptor(ownDescriptor)) {
 	    if (ownDescriptor.writable === false || !isObject(receiver)) return false;
 	    if (existingDescriptor = getOwnPropertyDescriptorModule.f(receiver, propertyKey)) {
-	      if (existingDescriptor.get || existingDescriptor.set || existingDescriptor.writable === false) return false;
-	      existingDescriptor.value = V;
-	      definePropertyModule.f(receiver, propertyKey, existingDescriptor);
-	    } else definePropertyModule.f(receiver, propertyKey, createPropertyDescriptor(0, V));
+	      if (!isDataDescriptor(existingDescriptor) || existingDescriptor.writable === false) return false;
+	      definePropertyModule.f(receiver, propertyKey, { value: V });
+	    } else try {
+	      definePropertyModule.f(receiver, propertyKey, createPropertyDescriptor(0, V));
+	    } catch (error) {
+	      return false;
+	    }
 	  } else {
 	    setter = ownDescriptor.set;
 	    if (setter === undefined) return false;
 	    call(setter, receiver, V);
 	  } return true;
-	}
+	};
 
 	// MS Edge 17-18 Reflect.set allows setting the property to object
 	// with non-writable property on the prototype
@@ -14740,7 +14916,9 @@ function requireEs_reflect_set () {
 	});
 
 	$({ target: 'Reflect', stat: true, forced: MS_EDGE_BUG }, {
-	  set: set
+	  set: function set(target, propertyKey, V /* , receiver */) {
+	    return $set(anObject(target), toPropertyKey(propertyKey), V, arguments.length < 4 ? target : arguments[3]);
+	  }
 	});
 	return es_reflect_set;
 }
@@ -15061,7 +15239,7 @@ function requireEs_regexp_constructor () {
 	  var result = '';
 	  var brackets = false;
 	  var chr;
-	  for (; index <= length; index++) {
+	  for (; index < length; index++) {
 	    chr = charAt(string, index);
 	    if (chr === '\\') {
 	      result += chr + charAt(string, ++index);
@@ -15090,10 +15268,15 @@ function requireEs_regexp_constructor () {
 	  var groupid = 0;
 	  var groupname = '';
 	  var chr;
-	  for (; index <= length; index++) {
+	  for (; index < length; index++) {
 	    chr = charAt(string, index);
 	    if (chr === '\\') {
 	      chr += charAt(string, ++index);
+	      // use `\x5c` for escaped backslash to avoid corruption by `\k<name>` to `\N` replacement below
+	      if (!ncg && charAt(chr, 1) === '\\') {
+	        result += '\\x5c';
+	        continue;
+	      }
 	    } else if (chr === ']') {
 	      brackets = false;
 	    } else if (!brackets) switch (true) {
@@ -15102,15 +15285,13 @@ function requireEs_regexp_constructor () {
 	        break;
 	      case chr === '(':
 	        result += chr;
-	        // ignore non-capturing groups
-	        if (stringSlice(string, index + 1, index + 3) === '?:') {
-	          continue;
-	        }
 	        if (exec(IS_NCG, stringSlice(string, index + 1))) {
 	          index += 2;
 	          ncg = true;
+	          groupid++;
+	        } else if (charAt(string, index + 1) !== '?') {
+	          groupid++;
 	        }
-	        groupid++;
 	        continue;
 	      case chr === '>' && ncg:
 	        if (groupname === '' || hasOwn(names, groupname)) {
@@ -15124,6 +15305,14 @@ function requireEs_regexp_constructor () {
 	    }
 	    if (ncg) groupname += chr;
 	    else result += chr;
+	  }
+	  // convert `\k<name>` backreferences to numbered backreferences
+	  for (var ni = 0; ni < named.length; ni++) {
+	    var backref = '\\k<' + named[ni][0] + '>';
+	    var numRef = '\\' + named[ni][1];
+	    while (stringIndexOf(result, backref) > -1) {
+	      result = replace(result, backref, numRef);
+	    }
 	  } return [result, named];
 	};
 
@@ -15376,18 +15565,29 @@ function requireRegexpExec () {
 
 	var PATCH = UPDATES_LAST_INDEX_WRONG || NPCG_INCLUDED || UNSUPPORTED_Y || UNSUPPORTED_DOT_ALL || UNSUPPORTED_NCG;
 
+	var setGroups = function (re, groups) {
+	  var object = re.groups = create(null);
+	  for (var i = 0; i < groups.length; i++) {
+	    var group = groups[i];
+	    object[group[0]] = re[group[1]];
+	  }
+	};
+
 	if (PATCH) {
 	  patchedExec = function exec(string) {
 	    var re = this;
 	    var state = getInternalState(re);
 	    var str = toString(string);
 	    var raw = state.raw;
-	    var result, reCopy, lastIndex, match, i, object, group;
+	    var result, reCopy, lastIndex;
 
 	    if (raw) {
 	      raw.lastIndex = re.lastIndex;
 	      result = call(patchedExec, raw, str);
 	      re.lastIndex = raw.lastIndex;
+
+	      if (result && state.groups) setGroups(result, state.groups);
+
 	      return result;
 	    }
 
@@ -15406,8 +15606,10 @@ function requireRegexpExec () {
 
 	      strCopy = stringSlice(str, re.lastIndex);
 	      // Support anchored sticky behavior.
-	      if (re.lastIndex > 0 && (!re.multiline || re.multiline && charAt(str, re.lastIndex - 1) !== '\n')) {
-	        source = '(?: ' + source + ')';
+	      var prevChar = re.lastIndex > 0 && charAt(str, re.lastIndex - 1);
+	      if (re.lastIndex > 0 &&
+	        (!re.multiline || re.multiline && prevChar !== '\n' && prevChar !== '\r' && prevChar !== '\u2028' && prevChar !== '\u2029')) {
+	        source = '(?: (?:' + source + '))';
 	        strCopy = ' ' + strCopy;
 	        charsAdded++;
 	      }
@@ -15421,11 +15623,11 @@ function requireRegexpExec () {
 	    }
 	    if (UPDATES_LAST_INDEX_WRONG) lastIndex = re.lastIndex;
 
-	    match = call(nativeExec, sticky ? reCopy : re, strCopy);
+	    var match = call(nativeExec, sticky ? reCopy : re, strCopy);
 
 	    if (sticky) {
 	      if (match) {
-	        match.input = stringSlice(match.input, charsAdded);
+	        match.input = str;
 	        match[0] = stringSlice(match[0], charsAdded);
 	        match.index = re.lastIndex;
 	        re.lastIndex += match[0].length;
@@ -15437,19 +15639,13 @@ function requireRegexpExec () {
 	      // Fix browsers whose `exec` methods don't consistently return `undefined`
 	      // for NPCG, like IE8. NOTE: This doesn't work for /(.?)?/
 	      call(nativeReplace, match[0], reCopy, function () {
-	        for (i = 1; i < arguments.length - 2; i++) {
+	        for (var i = 1; i < arguments.length - 2; i++) {
 	          if (arguments[i] === undefined) match[i] = undefined;
 	        }
 	      });
 	    }
 
-	    if (match && groups) {
-	      match.groups = object = create(null);
-	      for (i = 0; i < groups.length; i++) {
-	        group = groups[i];
-	        object[group[0]] = match[group[1]];
-	      }
-	    }
+	    if (match && groups) setGroups(match, groups);
 
 	    return match;
 	  };
@@ -15834,7 +16030,7 @@ function requireSetDifference () {
 	  var O = aSet(this);
 	  var otherRec = getSetRecord(other);
 	  var result = clone(O);
-	  if (size(O) <= otherRec.size) iterateSet(O, function (e) {
+	  if (size(result) <= otherRec.size) iterateSet(result, function (e) {
 	    if (otherRec.includes(e)) remove(result, e);
 	  });
 	  else iterateSimple(otherRec.getIterator(), function (e) {
@@ -16047,7 +16243,7 @@ function requireSetIsDisjointFrom () {
 	  }, true) !== false;
 	  var iterator = otherRec.getIterator();
 	  return iterateSimple(iterator, function (e) {
-	    if (has(O, e)) return iteratorClose(iterator, 'normal', false);
+	    if (has(O, e)) return iteratorClose(iterator.iterator, 'normal', false);
 	  }) !== false;
 	};
 	return setIsDisjointFrom;
@@ -16144,7 +16340,7 @@ function requireSetIsSupersetOf () {
 	  if (size(O) < otherRec.size) return false;
 	  var iterator = otherRec.getIterator();
 	  return iterateSimple(iterator, function (e) {
-	    if (!has(O, e)) return iteratorClose(iterator, 'normal', false);
+	    if (!has(O, e)) return iteratorClose(iterator.iterator, 'normal', false);
 	  }) !== false;
 	};
 	return setIsSupersetOf;
@@ -16485,10 +16681,10 @@ function requireEs_string_endsWith () {
 	  endsWith: function endsWith(searchString /* , endPosition = @length */) {
 	    var that = toString(requireObjectCoercible(this));
 	    notARegExp(searchString);
+	    var search = toString(searchString);
 	    var endPosition = arguments.length > 1 ? arguments[1] : undefined;
 	    var len = that.length;
 	    var end = endPosition === undefined ? len : min(toLength(endPosition), len);
-	    var search = toString(searchString);
 	    return slice(that, end - search.length, end) === search;
 	  }
 	});
@@ -16525,9 +16721,9 @@ function requireEs_string_fromCodePoint () {
 	    var i = 0;
 	    var code;
 	    while (length > i) {
-	      code = +arguments[i++];
+	      code = +arguments[i];
 	      if (toAbsoluteIndex(code, 0x10FFFF) !== code) throw new $RangeError(code + ' is not a valid code point');
-	      elements[i] = code < 0x10000
+	      elements[i++] = code < 0x10000
 	        ? fromCharCode(code)
 	        : fromCharCode(((code -= 0x10000) >> 10) + 0xD800, code % 0x400 + 0xDC00);
 	    } return join(elements, '');
@@ -16737,7 +16933,7 @@ function requireAdvanceStringIndex () {
 	// `AdvanceStringIndex` abstract operation
 	// https://tc39.es/ecma262/#sec-advancestringindex
 	advanceStringIndex = function (S, index, unicode) {
-	  return index + (unicode ? charAt(S, index).length : 1);
+	  return index + (unicode ? charAt(S, index).length || 1 : 1);
 	};
 	return advanceStringIndex;
 }
@@ -16812,9 +17008,9 @@ function requireEs_string_match () {
 
 	      var flags = toString(getRegExpFlags(rx));
 
-	      if (stringIndexOf(flags, 'g') === -1) return regExpExec(rx, S);
+	      if (!~stringIndexOf(flags, 'g')) return regExpExec(rx, S);
 
-	      var fullUnicode = stringIndexOf(flags, 'u') !== -1;
+	      var fullUnicode = !!~stringIndexOf(flags, 'u') || !!~stringIndexOf(flags, 'v');
 	      rx.lastIndex = 0;
 	      var A = [];
 	      var n = 0;
@@ -16912,7 +17108,7 @@ function requireEs_string_matchAll () {
 	  var matcher, $global, fullUnicode;
 	  matcher = new C(C === RegExp ? R.source : R, flags);
 	  $global = !!~stringIndexOf(flags, 'g');
-	  fullUnicode = !!~stringIndexOf(flags, 'u');
+	  fullUnicode = !!~stringIndexOf(flags, 'u') || !!~stringIndexOf(flags, 'v');
 	  matcher.lastIndex = toLength(R.lastIndex);
 	  return new $RegExpStringIterator(matcher, S, $global, fullUnicode);
 	};
@@ -17191,23 +17387,24 @@ function requireEs_string_replace () {
 	      var rx = anObject(this);
 	      var S = toString(string);
 
+	      var functionalReplace = isCallable(replaceValue);
+	      if (!functionalReplace) replaceValue = toString(replaceValue);
+	      var flags = toString(getRegExpFlags(rx));
+
 	      if (
 	        typeof replaceValue == 'string' &&
-	        stringIndexOf(replaceValue, UNSAFE_SUBSTITUTE) === -1 &&
-	        stringIndexOf(replaceValue, '$<') === -1
+	        !~stringIndexOf(replaceValue, UNSAFE_SUBSTITUTE) &&
+	        !~stringIndexOf(replaceValue, '$<') &&
+	        !~stringIndexOf(flags, 'y')
 	      ) {
 	        var res = maybeCallNative(nativeReplace, rx, S, replaceValue);
 	        if (res.done) return res.value;
 	      }
 
-	      var functionalReplace = isCallable(replaceValue);
-	      if (!functionalReplace) replaceValue = toString(replaceValue);
-
-	      var flags = toString(getRegExpFlags(rx));
-	      var global = stringIndexOf(flags, 'g') !== -1;
+	      var global = !!~stringIndexOf(flags, 'g');
 	      var fullUnicode;
 	      if (global) {
-	        fullUnicode = stringIndexOf(flags, 'u') !== -1;
+	        fullUnicode = !!~stringIndexOf(flags, 'u') || !!~stringIndexOf(flags, 'v');
 	        rx.lastIndex = 0;
 	      }
 
@@ -17395,6 +17592,7 @@ function requireEs_string_split () {
 	var toLength = requireToLength();
 	var toString = requireToString();
 	var getMethod = requireGetMethod();
+	var getRegExpFlags = requireRegexpGetFlags();
 	var regExpExec = requireRegexpExecAbstract();
 	var stickyHelpers = requireRegexpStickyHelpers();
 	var fails = requireFails();
@@ -17404,6 +17602,7 @@ function requireEs_string_split () {
 	var min = Math.min;
 	var push = uncurryThis([].push);
 	var stringSlice = uncurryThis(''.slice);
+	var stringIndexOf = uncurryThis(''.indexOf);
 
 	// Chrome 51 has a buggy "split" implementation when RegExp#exec !== nativeExec
 	// Weex JS has frozen built-in prototypes, so use try / catch wrapper
@@ -17456,11 +17655,11 @@ function requireEs_string_split () {
 	      }
 
 	      var C = speciesConstructor(rx, RegExp);
-	      var unicodeMatching = rx.unicode;
-	      var flags = (rx.ignoreCase ? 'i' : '') +
-	                  (rx.multiline ? 'm' : '') +
-	                  (rx.unicode ? 'u' : '') +
-	                  (UNSUPPORTED_Y ? 'g' : 'y');
+	      var flags = toString(getRegExpFlags(rx));
+	      var unicodeMatching = !!~stringIndexOf(flags, 'u') || !!~stringIndexOf(flags, 'v');
+	      if (UNSUPPORTED_Y) {
+	        if (!~stringIndexOf(flags, 'g')) flags += 'g';
+	      } else if (!~stringIndexOf(flags, 'y')) flags += 'y';
 	      // ^(? + rx + ) is needed, in combination with some S slicing, to
 	      // simulate the 'y' flag.
 	      var splitter = new C(UNSUPPORTED_Y ? '^(?:' + rx.source + ')' : rx, flags);
@@ -17530,8 +17729,8 @@ function requireEs_string_startsWith () {
 	  startsWith: function startsWith(searchString /* , position = 0 */) {
 	    var that = toString(requireObjectCoercible(this));
 	    notARegExp(searchString);
-	    var index = toLength(min(arguments.length > 1 ? arguments[1] : undefined, that.length));
 	    var search = toString(searchString);
+	    var index = toLength(min(arguments.length > 1 ? arguments[1] : undefined, that.length));
 	    return stringSlice(that, index, index + search.length) === search;
 	  }
 	});
@@ -17565,13 +17764,11 @@ function requireEs_string_substr () {
 	    var that = toString(requireObjectCoercible(this));
 	    var size = that.length;
 	    var intStart = toIntegerOrInfinity(start);
-	    var intLength, intEnd;
-	    if (intStart === Infinity) intStart = 0;
-	    if (intStart < 0) intStart = max(size + intStart, 0);
-	    intLength = length === undefined ? size : toIntegerOrInfinity(length);
-	    if (intLength <= 0 || intLength === Infinity) return '';
-	    intEnd = min(intStart + intLength, size);
-	    return intStart >= intEnd ? '' : stringSlice(that, intStart, intEnd);
+	    var finalStart = intStart < 0 ? max(size + intStart, 0) : min(intStart, size);
+	    var intLength = length === undefined ? size : toIntegerOrInfinity(length);
+	    if (intLength <= 0) return '';
+	    var intEnd = min(finalStart + intLength, size);
+	    return finalStart >= intEnd ? '' : stringSlice(that, finalStart, intEnd);
 	  }
 	});
 	return es_string_substr;
@@ -18167,11 +18364,19 @@ var hasRequiredToUint8Clamped;
 function requireToUint8Clamped () {
 	if (hasRequiredToUint8Clamped) return toUint8Clamped;
 	hasRequiredToUint8Clamped = 1;
-	var round = Math.round;
+	var floor = Math.floor;
 
+	// https://tc39.es/ecma262/#sec-touint8clamp
 	toUint8Clamped = function (it) {
-	  var value = round(it);
-	  return value < 0 ? 0 : value > 0xFF ? 0xFF : value & 0xFF;
+	  var number = +it;
+	  // eslint-disable-next-line no-self-compare -- NaN check
+	  if (number !== number || number <= 0) return 0;
+	  if (number >= 0xFF) return 0xFF;
+	  var f = floor(number);
+	  if (f + 0.5 < number) return f + 1;
+	  if (number < f + 0.5) return f;
+	  // round-half-to-even (banker's rounding)
+	  return f % 2 === 0 ? f : f + 1;
 	};
 	return toUint8Clamped;
 }
@@ -18220,6 +18425,7 @@ function requireTypedArrayFrom () {
 	hasRequiredTypedArrayFrom = 1;
 	var bind = requireFunctionBindContext();
 	var call = requireFunctionCall();
+	var aCallable = requireACallable();
 	var aConstructor = requireAConstructor();
 	var toObject = requireToObject();
 	var lengthOfArrayLike = requireLengthOfArrayLike();
@@ -18232,10 +18438,11 @@ function requireTypedArrayFrom () {
 
 	typedArrayFrom = function from(source /* , mapfn, thisArg */) {
 	  var C = aConstructor(this);
-	  var O = toObject(source);
 	  var argumentsLength = arguments.length;
 	  var mapfn = argumentsLength > 1 ? arguments[1] : undefined;
 	  var mapping = mapfn !== undefined;
+	  if (mapping) aCallable(mapfn);
+	  var O = toObject(source);
 	  var iteratorMethod = getIteratorMethod(O);
 	  var i, length, result, thisIsBigIntArray, value, step, iterator, next;
 	  if (iteratorMethod && !isArrayIteratorMethod(iteratorMethod)) {
@@ -18278,7 +18485,6 @@ function requireTypedArrayConstructor () {
 	var createPropertyDescriptor = requireCreatePropertyDescriptor();
 	var createNonEnumerableProperty = requireCreateNonEnumerableProperty();
 	var isIntegralNumber = requireIsIntegralNumber();
-	var toLength = requireToLength();
 	var toIndex = requireToIndex();
 	var toOffset = requireToOffset();
 	var toUint8Clamped = requireToUint8Clamped();
@@ -18430,7 +18636,7 @@ function requireTypedArrayConstructor () {
 	            byteLength = $len - byteOffset;
 	            if (byteLength < 0) throw new RangeError(WRONG_LENGTH);
 	          } else {
-	            byteLength = toLength($length) * BYTES;
+	            byteLength = toIndex($length) * BYTES;
 	            if (byteLength + byteOffset > $len) throw new RangeError(WRONG_LENGTH);
 	          }
 	          length = byteLength / BYTES;
@@ -19093,17 +19299,16 @@ function requireEs_typedArray_map () {
 	hasRequiredEs_typedArray_map = 1;
 	var ArrayBufferViewCore = requireArrayBufferViewCore();
 	var $map = requireArrayIteration().map;
+	var fromSameTypeAndList = requireTypedArrayFromSameTypeAndList();
 
 	var aTypedArray = ArrayBufferViewCore.aTypedArray;
-	var getTypedArrayConstructor = ArrayBufferViewCore.getTypedArrayConstructor;
 	var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
 
 	// `%TypedArray%.prototype.map` method
 	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.map
 	exportTypedArrayMethod('map', function map(mapfn /* , thisArg */) {
-	  return $map(aTypedArray(this), mapfn, arguments.length > 1 ? arguments[1] : undefined, function (O, length) {
-	    return new (getTypedArrayConstructor(O))(length);
-	  });
+	  var list = $map(aTypedArray(this), mapfn, arguments.length > 1 ? arguments[1] : undefined);
+	  return fromSameTypeAndList(this, list);
 	});
 	return es_typedArray_map;
 }
@@ -19375,11 +19580,11 @@ function requireEs_typedArray_sort () {
 	  return function (x, y) {
 	    if (comparefn !== undefined) return +comparefn(x, y) || 0;
 	    // eslint-disable-next-line no-self-compare -- NaN check
-	    if (y !== y) return -1;
+	    if (y !== y) return x !== x ? 0 : -1;
 	    // eslint-disable-next-line no-self-compare -- NaN check
 	    if (x !== x) return 1;
-	    if (x === 0 && y === 0) return 1 / x > 0 && 1 / y < 0 ? 1 : -1;
-	    return x > y;
+	    if (x === 0 && y === 0) return 1 / x > 0 ? (1 / y > 0 ? 0 : 1) : (1 / y > 0 ? -1 : 0);
+	    return x > y ? 1 : x < y ? -1 : 0;
 	  };
 	};
 
@@ -19473,7 +19678,7 @@ var hasRequiredEs_typedArray_toReversed;
 function requireEs_typedArray_toReversed () {
 	if (hasRequiredEs_typedArray_toReversed) return es_typedArray_toReversed;
 	hasRequiredEs_typedArray_toReversed = 1;
-	var arrayToReversed = requireArrayToReversed();
+	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var ArrayBufferViewCore = requireArrayBufferViewCore();
 
 	var aTypedArray = ArrayBufferViewCore.aTypedArray;
@@ -19483,7 +19688,12 @@ function requireEs_typedArray_toReversed () {
 	// `%TypedArray%.prototype.toReversed` method
 	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.toreversed
 	exportTypedArrayMethod('toReversed', function toReversed() {
-	  return arrayToReversed(aTypedArray(this), getTypedArrayConstructor(this));
+	  var O = aTypedArray(this);
+	  var len = lengthOfArrayLike(O);
+	  var A = new (getTypedArrayConstructor(O))(len);
+	  var k = 0;
+	  for (; k < len; k++) A[k] = O[len - k - 1];
+	  return A;
 	});
 	return es_typedArray_toReversed;
 }
@@ -19554,15 +19764,17 @@ var hasRequiredEs_typedArray_with;
 function requireEs_typedArray_with () {
 	if (hasRequiredEs_typedArray_with) return es_typedArray_with;
 	hasRequiredEs_typedArray_with = 1;
-	var arrayWith = requireArrayWith();
 	var ArrayBufferViewCore = requireArrayBufferViewCore();
 	var isBigIntArray = requireIsBigIntArray();
+	var lengthOfArrayLike = requireLengthOfArrayLike();
 	var toIntegerOrInfinity = requireToIntegerOrInfinity();
 	var toBigInt = requireToBigInt();
 
 	var aTypedArray = ArrayBufferViewCore.aTypedArray;
 	var getTypedArrayConstructor = ArrayBufferViewCore.getTypedArrayConstructor;
 	var exportTypedArrayMethod = ArrayBufferViewCore.exportTypedArrayMethod;
+
+	var $RangeError = RangeError;
 
 	var PROPER_ORDER = function () {
 	  try {
@@ -19589,9 +19801,15 @@ function requireEs_typedArray_with () {
 	// https://tc39.es/ecma262/#sec-%typedarray%.prototype.with
 	exportTypedArrayMethod('with', { 'with': function (index, value) {
 	  var O = aTypedArray(this);
+	  var len = lengthOfArrayLike(O);
 	  var relativeIndex = toIntegerOrInfinity(index);
-	  var actualValue = isBigIntArray(O) ? toBigInt(value) : +value;
-	  return arrayWith(O, getTypedArrayConstructor(O), relativeIndex, actualValue);
+	  var actualIndex = relativeIndex < 0 ? len + relativeIndex : relativeIndex;
+	  var numericValue = isBigIntArray(O) ? toBigInt(value) : +value;
+	  if (actualIndex >= len || actualIndex < 0) throw new $RangeError('Incorrect index');
+	  var A = new (getTypedArrayConstructor(O))(len);
+	  var k = 0;
+	  for (; k < len; k++) A[k] = k === actualIndex ? numericValue : O[k];
+	  return A;
 	} }['with'], !PROPER_ORDER || THROW_ON_NEGATIVE_FRACTIONAL_INDEX);
 	return es_typedArray_with;
 }
@@ -19850,7 +20068,7 @@ function requireEs_uint8Array_fromBase64 () {
 	}();
 
 	// `Uint8Array.fromBase64` method
-	// https://github.com/tc39/proposal-arraybuffer-base64
+	// https://tc39.es/ecma262/#sec-uint8array.frombase64
 	if (Uint8Array) $({ target: 'Uint8Array', stat: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
 	  fromBase64: function fromBase64(string /* , options */) {
 	    var result = $fromBase64(string, arguments.length > 1 ? arguments[1] : undefined, null, 0x1FFFFFFFFFFFFF);
@@ -19873,25 +20091,25 @@ function requireUint8FromHex () {
 
 	var Uint8Array = globalThis.Uint8Array;
 	var SyntaxError = globalThis.SyntaxError;
-	var parseInt = globalThis.parseInt;
 	var min = Math.min;
-	var NOT_HEX = /[^\da-f]/i;
-	var exec = uncurryThis(NOT_HEX.exec);
-	var stringSlice = uncurryThis(''.slice);
+	var stringMatch = uncurryThis(''.match);
 
 	uint8FromHex = function (string, into) {
 	  var stringLength = string.length;
 	  if (stringLength % 2 !== 0) throw new SyntaxError('String should be an even number of characters');
 	  var maxLength = into ? min(into.length, stringLength / 2) : stringLength / 2;
 	  var bytes = into || new Uint8Array(maxLength);
-	  var read = 0;
+	  var segments = stringMatch(string, /.{2}/g);
 	  var written = 0;
-	  while (written < maxLength) {
-	    var hexits = stringSlice(string, read, read += 2);
-	    if (exec(NOT_HEX, hexits)) throw new SyntaxError('String should only contain hex characters');
-	    bytes[written++] = parseInt(hexits, 16);
+	  for (; written < maxLength; written++) {
+	    var result = +('0x' + segments[written] + '0');
+	    // eslint-disable-next-line no-self-compare -- NaN check
+	    if (result !== result) {
+	      throw new SyntaxError('String should only contain hex characters');
+	    }
+	    bytes[written] = result >> 4;
 	  }
-	  return { bytes: bytes, read: read };
+	  return { bytes: bytes, read: written << 1 };
 	};
 	return uint8FromHex;
 }
@@ -19907,7 +20125,7 @@ function requireEs_uint8Array_fromHex () {
 	var $fromHex = requireUint8FromHex();
 
 	// `Uint8Array.fromHex` method
-	// https://github.com/tc39/proposal-arraybuffer-base64
+	// https://tc39.es/ecma262/#sec-uint8array.fromhex
 	if (globalThis.Uint8Array) $({ target: 'Uint8Array', stat: true }, {
 	  fromHex: function fromHex(string) {
 	    return $fromHex(aString(string)).bytes;
@@ -19968,7 +20186,7 @@ function requireEs_uint8Array_setFromBase64 () {
 	}();
 
 	// `Uint8Array.prototype.setFromBase64` method
-	// https://github.com/tc39/proposal-arraybuffer-base64
+	// https://tc39.es/ecma262/#sec-uint8array.prototype.setfrombase64
 	if (Uint8Array) $({ target: 'Uint8Array', proto: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
 	  setFromBase64: function setFromBase64(string /* , options */) {
 	    anUint8Array(this);
@@ -19995,9 +20213,22 @@ function requireEs_uint8Array_setFromHex () {
 	var notDetached = requireArrayBufferNotDetached();
 	var $fromHex = requireUint8FromHex();
 
+	// Should not throw an error on length-tracking views over ResizableArrayBuffer
+	// https://issues.chromium.org/issues/454630441
+	function throwsOnLengthTrackingView() {
+	  try {
+	    // eslint-disable-next-line es/no-resizable-and-growable-arraybuffers -- required for testing
+	    var rab = new ArrayBuffer(16, { maxByteLength: 1024 });
+	    // eslint-disable-next-line es/no-uint8array-prototype-setfromhex, es/no-typed-arrays -- required for testing
+	    new Uint8Array(rab).setFromHex('cafed00d');
+	  } catch (error) {
+	    return true;
+	  }
+	}
+
 	// `Uint8Array.prototype.setFromHex` method
-	// https://github.com/tc39/proposal-arraybuffer-base64
-	if (globalThis.Uint8Array) $({ target: 'Uint8Array', proto: true }, {
+	// https://tc39.es/ecma262/#sec-uint8array.prototype.setfromhex
+	if (globalThis.Uint8Array) $({ target: 'Uint8Array', proto: true, forced: throwsOnLengthTrackingView() }, {
 	  setFromHex: function setFromHex(string) {
 	    anUint8Array(this);
 	    aString(string);
@@ -20042,7 +20273,7 @@ function requireEs_uint8Array_toBase64 () {
 	}();
 
 	// `Uint8Array.prototype.toBase64` method
-	// https://github.com/tc39/proposal-arraybuffer-base64
+	// https://tc39.es/ecma262/#sec-uint8array.prototype.tobase64
 	if (Uint8Array) $({ target: 'Uint8Array', proto: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
 	  toBase64: function toBase64(/* options */) {
 	    var array = anUint8Array(this);
@@ -20092,6 +20323,8 @@ function requireEs_uint8Array_toHex () {
 	var notDetached = requireArrayBufferNotDetached();
 
 	var numberToString = uncurryThis(1.1.toString);
+	var join = uncurryThis([].join);
+	var $Array = Array;
 
 	var Uint8Array = globalThis.Uint8Array;
 
@@ -20105,17 +20338,17 @@ function requireEs_uint8Array_toHex () {
 	})();
 
 	// `Uint8Array.prototype.toHex` method
-	// https://github.com/tc39/proposal-arraybuffer-base64
+	// https://tc39.es/ecma262/#sec-uint8array.prototype.tohex
 	if (Uint8Array) $({ target: 'Uint8Array', proto: true, forced: INCORRECT_BEHAVIOR_OR_DOESNT_EXISTS }, {
 	  toHex: function toHex() {
 	    anUint8Array(this);
 	    notDetached(this.buffer);
-	    var result = '';
+	    var result = $Array(this.length);
 	    for (var i = 0, length = this.length; i < length; i++) {
 	      var hex = numberToString(this[i], 16);
-	      result += hex.length === 1 ? '0' + hex : hex;
+	      result[i] = hex.length === 1 ? '0' + hex : hex;
 	    }
-	    return result;
+	    return join(result, '');
 	  }
 	});
 	return es_uint8Array_toHex;
@@ -20441,6 +20674,136 @@ function requireEs_weakMap () {
 	return es_weakMap;
 }
 
+var es_weakMap_getOrInsert = {};
+
+var weakMapHelpers;
+var hasRequiredWeakMapHelpers;
+
+function requireWeakMapHelpers () {
+	if (hasRequiredWeakMapHelpers) return weakMapHelpers;
+	hasRequiredWeakMapHelpers = 1;
+	var uncurryThis = requireFunctionUncurryThis();
+
+	// eslint-disable-next-line es/no-weak-map -- safe
+	var WeakMapPrototype = WeakMap.prototype;
+
+	weakMapHelpers = {
+	  // eslint-disable-next-line es/no-weak-map -- safe
+	  WeakMap: WeakMap,
+	  set: uncurryThis(WeakMapPrototype.set),
+	  get: uncurryThis(WeakMapPrototype.get),
+	  has: uncurryThis(WeakMapPrototype.has),
+	  remove: uncurryThis(WeakMapPrototype['delete'])
+	};
+	return weakMapHelpers;
+}
+
+var hasRequiredEs_weakMap_getOrInsert;
+
+function requireEs_weakMap_getOrInsert () {
+	if (hasRequiredEs_weakMap_getOrInsert) return es_weakMap_getOrInsert;
+	hasRequiredEs_weakMap_getOrInsert = 1;
+	var $ = require_export();
+	var WeakMapHelpers = requireWeakMapHelpers();
+	var IS_PURE = requireIsPure();
+
+	var get = WeakMapHelpers.get;
+	var has = WeakMapHelpers.has;
+	var set = WeakMapHelpers.set;
+
+	// `WeakMap.prototype.getOrInsert` method
+	// https://tc39.es/ecma262/#sec-weakmap.prototype.getorinsert
+	$({ target: 'WeakMap', proto: true, real: true, forced: IS_PURE }, {
+	  getOrInsert: function getOrInsert(key, value) {
+	    if (has(this, key)) return get(this, key);
+	    set(this, key, value);
+	    return value;
+	  }
+	});
+	return es_weakMap_getOrInsert;
+}
+
+var es_weakMap_getOrInsertComputed = {};
+
+var aWeakMap;
+var hasRequiredAWeakMap;
+
+function requireAWeakMap () {
+	if (hasRequiredAWeakMap) return aWeakMap;
+	hasRequiredAWeakMap = 1;
+	var has = requireWeakMapHelpers().has;
+
+	// Perform ? RequireInternalSlot(M, [[WeakMapData]])
+	aWeakMap = function (it) {
+	  has(it);
+	  return it;
+	};
+	return aWeakMap;
+}
+
+var aWeakKey;
+var hasRequiredAWeakKey;
+
+function requireAWeakKey () {
+	if (hasRequiredAWeakKey) return aWeakKey;
+	hasRequiredAWeakKey = 1;
+	var WeakMapHelpers = requireWeakMapHelpers();
+
+	var weakmap = new WeakMapHelpers.WeakMap();
+	var set = WeakMapHelpers.set;
+	var remove = WeakMapHelpers.remove;
+
+	aWeakKey = function (key) {
+	  set(weakmap, key, 1);
+	  remove(weakmap, key);
+	  return key;
+	};
+	return aWeakKey;
+}
+
+var hasRequiredEs_weakMap_getOrInsertComputed;
+
+function requireEs_weakMap_getOrInsertComputed () {
+	if (hasRequiredEs_weakMap_getOrInsertComputed) return es_weakMap_getOrInsertComputed;
+	hasRequiredEs_weakMap_getOrInsertComputed = 1;
+	var $ = require_export();
+	var aCallable = requireACallable();
+	var aWeakMap = requireAWeakMap();
+	var aWeakKey = requireAWeakKey();
+	var WeakMapHelpers = requireWeakMapHelpers();
+	var IS_PURE = requireIsPure();
+
+	var get = WeakMapHelpers.get;
+	var has = WeakMapHelpers.has;
+	var set = WeakMapHelpers.set;
+
+	var FORCED = IS_PURE || !function () {
+	  try {
+	    // eslint-disable-next-line es/no-weak-map, no-throw-literal -- testing
+	    if (WeakMap.prototype.getOrInsertComputed) new WeakMap().getOrInsertComputed(1, function () { throw 1; });
+	  } catch (error) {
+	    // FF144 Nightly - Beta 3 bug
+	    // https://bugzilla.mozilla.org/show_bug.cgi?id=1988369
+	    return error instanceof TypeError;
+	  }
+	}();
+
+	// `WeakMap.prototype.getOrInsertComputed` method
+	// https://tc39.es/ecma262/#sec-weakmap.prototype.getorinsertcomputed
+	$({ target: 'WeakMap', proto: true, real: true, forced: FORCED }, {
+	  getOrInsertComputed: function getOrInsertComputed(key, callbackfn) {
+	    if (!IS_PURE) aWeakMap(this);
+	    aWeakKey(key);
+	    aCallable(callbackfn);
+	    if (has(this, key)) return get(this, key);
+	    var value = callbackfn(key);
+	    set(this, key, value);
+	    return value;
+	  }
+	});
+	return es_weakMap_getOrInsertComputed;
+}
+
 var es_weakSet = {};
 
 var es_weakSet_constructor = {};
@@ -20493,9 +20856,11 @@ function requireWeb_atob () {
 	var finalEq = /[=]{1,2}$/;
 
 	var $atob = getBuiltIn('atob');
+	var $Array = Array;
 	var fromCharCode = String.fromCharCode;
 	var charAt = uncurryThis(''.charAt);
 	var replace = uncurryThis(''.replace);
+	var join = uncurryThis([].join);
 	var exec = uncurryThis(disallowed.exec);
 
 	var BASIC = !!$atob && !fails(function () {
@@ -20526,22 +20891,29 @@ function requireWeb_atob () {
 	    // `webpack` dev server bug on IE global methods - use call(fn, global, ...)
 	    if (BASIC && !NO_SPACES_IGNORE && !NO_ENCODING_CHECK) return call($atob, globalThis, data);
 	    var string = replace(toString(data), whitespaces, '');
-	    var output = '';
 	    var position = 0;
 	    var bc = 0;
 	    var length, chr, bs;
-	    if (string.length % 4 === 0) {
+	    if (!(string.length & 3)) {
 	      string = replace(string, finalEq, '');
 	    }
 	    length = string.length;
-	    if (length % 4 === 1 || exec(disallowed, string)) {
+	    var lenmod = length & 3;
+	    if (lenmod === 1 || exec(disallowed, string)) {
 	      throw new (getBuiltIn('DOMException'))('The string is not correctly encoded', 'InvalidCharacterError');
 	    }
+	    // (length >> 2) is equivalent for length / 4 floored; * 3 then multiplies the
+	    // number of bytes for full quanta
+	    // lenmod is length % 4; if there's 2 or 3 bytes it's 1 or 2 bytes of extra output
+	    // respectively, so -1, however use a ternary to ensure 0 does not get -1 onto length
+	    var output = new $Array((length >> 2) * 3 + (lenmod ? lenmod - 1 : 0));
+	    var outputIndex = 0;
 	    while (position < length) {
 	      chr = charAt(string, position++);
-	      bs = bc % 4 ? bs * 64 + c2i[chr] : c2i[chr];
-	      if (bc++ % 4) output += fromCharCode(255 & bs >> (-2 * bc & 6));
-	    } return output;
+	      bs = bc & 3 ? (bs << 6) + c2i[chr] : c2i[chr];
+	      if (bc++ & 3) output[outputIndex++] = fromCharCode(255 & bs >> (-2 * bc & 6));
+	    }
+	    return join(output, '');
 	  }
 	});
 	return web_atob;
@@ -20565,6 +20937,8 @@ function requireWeb_btoa () {
 	var i2c = requireBase64Map().i2c;
 
 	var $btoa = getBuiltIn('btoa');
+	var $Array = Array;
+	var join = uncurryThis([].join);
 	var charAt = uncurryThis(''.charAt);
 	var charCodeAt = uncurryThis(''.charCodeAt);
 
@@ -20590,7 +20964,12 @@ function requireWeb_btoa () {
 	    // `webpack` dev server bug on IE global methods - use call(fn, global, ...)
 	    if (BASIC) return call($btoa, globalThis, toString(data));
 	    var string = toString(data);
-	    var output = '';
+	    // (string.length + 2) / 3) and then truncating to integer
+	    // does the ceil automatically.  << 2 will truncate the integer
+	    // while also doing *4.  ceil(length / 3) quanta, 4 bytes output
+	    // per quanta for base64.
+	    var output = new $Array((string.length + 2) / 3 << 2);
+	    var outputIndex = 0;
 	    var position = 0;
 	    var map = i2c;
 	    var block, charCode;
@@ -20600,8 +20979,8 @@ function requireWeb_btoa () {
 	        throw new (getBuiltIn('DOMException'))('The string contains characters outside of the Latin1 range', 'InvalidCharacterError');
 	      }
 	      block = block << 8 | charCode;
-	      output += charAt(map, 63 & block >> 8 - position % 1 * 8);
-	    } return output;
+	      output[outputIndex++] = charAt(map, 63 & block >> 8 - position % 1 * 8);
+	    } return join(output, '');
 	  }
 	});
 	return web_btoa;
@@ -21658,8 +22037,8 @@ function requireWeb_structuredClone () {
 
 	  while (i < length) {
 	    value = transfer[i++];
-
 	    type = classof(value);
+	    transferred = undefined;
 
 	    if (type === 'ArrayBuffer' ? setHas(buffers, value) : mapHas(map, value)) {
 	      throw new DOMException('Duplicate transferable', DATA_CLONE_ERROR);
@@ -21715,7 +22094,7 @@ function requireWeb_structuredClone () {
 	var detachBuffers = function (buffers) {
 	  setIterate(buffers, function (buffer) {
 	    if (PROPER_STRUCTURED_CLONE_TRANSFER) {
-	      nativeRestrictedStructuredClone(buffer, { transfer: [buffer] });
+	      nativeStructuredClone(buffer, { transfer: [buffer] });
 	    } else if (isCallable(buffer.transfer)) {
 	      buffer.transfer();
 	    } else if (detachTransferable) {
@@ -22137,8 +22516,9 @@ function requireWeb_urlSearchParams_constructor () {
 
 	var utf8Decode = function (octets) {
 	  var codePoint = null;
+	  var length = octets.length;
 
-	  switch (octets.length) {
+	  switch (length) {
 	    case 1:
 	      codePoint = octets[0];
 	      break;
@@ -22153,9 +22533,17 @@ function requireWeb_urlSearchParams_constructor () {
 	      break;
 	  }
 
-	  return codePoint > 0x10FFFF ? null : codePoint;
+	  // reject surrogates, overlong encodings, and out-of-range codepoints
+	  if (codePoint === null
+	    || codePoint > 0x10FFFF
+	    || (codePoint >= 0xD800 && codePoint <= 0xDFFF)
+	    || codePoint < (length > 3 ? 0x10000 : length > 2 ? 0x800 : length > 1 ? 0x80 : 0)
+	  ) return null;
+
+	  return codePoint;
 	};
 
+	/* eslint-disable max-statements, max-depth -- ok */
 	var decode = function (input) {
 	  input = replace(input, plus, ' ');
 	  var length = input.length;
@@ -22203,11 +22591,15 @@ function requireWeb_urlSearchParams_constructor () {
 	          var nextByte = parseHexOctet(input, i + 1);
 
 	          // eslint-disable-next-line no-self-compare -- NaN check
-	          if (nextByte !== nextByte) {
-	            i += 3;
-	            break;
+	          if (nextByte !== nextByte || nextByte > 191 || nextByte < 128) break;
+
+	          // https://encoding.spec.whatwg.org/#utf-8-decoder - position-specific byte ranges
+	          if (sequenceIndex === 1) {
+	            if (octet === 0xE0 && nextByte < 0xA0) break;
+	            if (octet === 0xED && nextByte > 0x9F) break;
+	            if (octet === 0xF0 && nextByte < 0x90) break;
+	            if (octet === 0xF4 && nextByte > 0x8F) break;
 	          }
-	          if (nextByte > 191 || nextByte < 128) break;
 
 	          push(octets, nextByte);
 	          i += 2;
@@ -22221,7 +22613,9 @@ function requireWeb_urlSearchParams_constructor () {
 
 	        var codePoint = utf8Decode(octets);
 	        if (codePoint === null) {
-	          result += FALLBACK_REPLACER;
+	          for (var replacement = 0; replacement < byteSequenceLength; replacement++) result += FALLBACK_REPLACER;
+	          i++;
+	          continue;
 	        } else {
 	          decodedChar = fromCodePoint(codePoint);
 	        }
@@ -22234,6 +22628,7 @@ function requireWeb_urlSearchParams_constructor () {
 
 	  return result;
 	};
+	/* eslint-enable max-statements, max-depth -- ok */
 
 	var find = /[!'()~]|%20/g;
 
@@ -22386,7 +22781,6 @@ function requireWeb_urlSearchParams_constructor () {
 	      var entry = entries[index];
 	      if (entry.key === key && (value === undefined || entry.value === value)) {
 	        splice(entries, index, 1);
-	        if (value !== undefined) break;
 	      } else index++;
 	    }
 	    if (!DESCRIPTORS) this.size = entries.length;
@@ -22436,7 +22830,7 @@ function requireWeb_urlSearchParams_constructor () {
 	  // https://url.spec.whatwg.org/#dom-urlsearchparams-set
 	  set: function set(name, value) {
 	    var state = getInternalParamsState(this);
-	    validateArgumentsLength(arguments.length, 1);
+	    validateArgumentsLength(arguments.length, 2);
 	    var entries = state.entries;
 	    var found = false;
 	    var key = $toString(name);
@@ -22501,7 +22895,7 @@ function requireWeb_urlSearchParams_constructor () {
 	}, { enumerable: true });
 
 	// `URLSearchParams.prototype.size` getter
-	// https://github.com/whatwg/url/pull/734
+	// https://url.spec.whatwg.org/#dom-urlsearchparams-size
 	if (DESCRIPTORS) defineBuiltInAccessor(URLSearchParamsPrototype, 'size', {
 	  get: function size() {
 	    return getInternalParamsState(this).entries.length;
@@ -22603,6 +22997,7 @@ function requireWeb_url_constructor () {
 
 	var NativeURL = globalThis.URL;
 	var TypeError = globalThis.TypeError;
+	var encodeURIComponent = globalThis.encodeURIComponent;
 	var parseInt = globalThis.parseInt;
 	var floor = Math.floor;
 	var pow = Math.pow;
@@ -22625,8 +23020,7 @@ function requireWeb_url_constructor () {
 	var INVALID_PORT = 'Invalid port';
 
 	var ALPHA = /[a-z]/i;
-	// eslint-disable-next-line regexp/no-obscure-range -- safe
-	var ALPHANUMERIC = /[\d+-.a-z]/i;
+	var ALPHANUMERIC_PLUS_MINUS_DOT = /[\d+\-.a-z]/i;
 	var DIGIT = /\d/;
 	var HEX_START = /^0x/i;
 	var OCT = /^[0-7]+$/;
@@ -22642,7 +23036,24 @@ function requireWeb_url_constructor () {
 	// eslint-disable-next-line no-unassigned-vars -- expected `undefined` value
 	var EOF;
 
-	// https://url.spec.whatwg.org/#ipv4-number-parser
+	// https://url.spec.whatwg.org/#ends-in-a-number-checker
+	var endsInNumber = function (input) {
+	  var parts = split(input, '.');
+	  var last, hexPart;
+	  if (parts[parts.length - 1] === '') {
+	    if (parts.length === 1) return false;
+	    parts.length--;
+	  }
+	  last = parts[parts.length - 1];
+	  if (exec(DEC, last)) return true;
+	  if (exec(HEX_START, last)) {
+	    hexPart = stringSlice(last, 2);
+	    return hexPart === '' || !!exec(HEX, hexPart);
+	  }
+	  return false;
+	};
+
+	// https://url.spec.whatwg.org/#concept-ipv4-parser
 	var parseIPv4 = function (input) {
 	  var parts = split(input, '.');
 	  var partsLength, numbers, index, part, radix, number, ipv4;
@@ -22650,11 +23061,11 @@ function requireWeb_url_constructor () {
 	    parts.length--;
 	  }
 	  partsLength = parts.length;
-	  if (partsLength > 4) return input;
+	  if (partsLength > 4) return null;
 	  numbers = [];
 	  for (index = 0; index < partsLength; index++) {
 	    part = parts[index];
-	    if (part === '') return input;
+	    if (part === '') return null;
 	    radix = 10;
 	    if (part.length > 1 && charAt(part, 0) === '0') {
 	      radix = exec(HEX_START, part) ? 16 : 8;
@@ -22663,7 +23074,7 @@ function requireWeb_url_constructor () {
 	    if (part === '') {
 	      number = 0;
 	    } else {
-	      if (!exec(radix === 10 ? DEC : radix === 8 ? OCT : HEX, part)) return input;
+	      if (!exec(radix === 10 ? DEC : radix === 8 ? OCT : HEX, part)) return null;
 	      number = parseInt(part, radix);
 	    }
 	    push(numbers, number);
@@ -22817,11 +23228,17 @@ function requireWeb_url_constructor () {
 	};
 
 	var C0ControlPercentEncodeSet = {};
+	var queryPercentEncodeSet = assign({}, C0ControlPercentEncodeSet, {
+	  ' ': 1, '"': 1, '#': 1, '<': 1, '>': 1
+	});
+	var specialQueryPercentEncodeSet = assign({}, queryPercentEncodeSet, {
+	  "'": 1
+	});
 	var fragmentPercentEncodeSet = assign({}, C0ControlPercentEncodeSet, {
 	  ' ': 1, '"': 1, '<': 1, '>': 1, '`': 1
 	});
 	var pathPercentEncodeSet = assign({}, fragmentPercentEncodeSet, {
-	  '#': 1, '?': 1, '{': 1, '}': 1
+	  '#': 1, '?': 1, '{': 1, '}': 1, '^': 1
 	});
 	var userinfoPercentEncodeSet = assign({}, pathPercentEncodeSet, {
 	  '/': 1, ':': 1, ';': 1, '=': 1, '@': 1, '[': 1, '\\': 1, ']': 1, '^': 1, '|': 1
@@ -22829,7 +23246,8 @@ function requireWeb_url_constructor () {
 
 	var percentEncode = function (chr, set) {
 	  var code = codeAt(chr, 0);
-	  return code > 0x20 && code < 0x7F && !hasOwn(set, chr) ? chr : encodeURIComponent(chr);
+	  // encodeURIComponent does not encode ', which is in the special-query percent-encode set
+	  return code >= 0x20 && code < 0x7F && !hasOwn(set, chr) ? chr : chr === "'" && hasOwn(set, chr) ? '%27' : encodeURIComponent(chr);
 	};
 
 	// https://url.spec.whatwg.org/#special-scheme
@@ -22957,13 +23375,13 @@ function requireWeb_url_constructor () {
 	          break;
 
 	        case SCHEME:
-	          if (chr && (exec(ALPHANUMERIC, chr) || chr === '+' || chr === '-' || chr === '.')) {
+	          if (chr && exec(ALPHANUMERIC_PLUS_MINUS_DOT, chr)) {
 	            buffer += toLowerCase(chr);
 	          } else if (chr === ':') {
 	            if (stateOverride && (
 	              (url.isSpecial() !== hasOwn(specialSchemes, buffer)) ||
 	              (buffer === 'file' && (url.includesCredentials() || url.port !== null)) ||
-	              (url.scheme === 'file' && !url.host)
+	              (url.scheme === 'file' && url.host === '')
 	            )) return;
 	            url.scheme = buffer;
 	            if (stateOverride) {
@@ -23059,7 +23477,7 @@ function requireWeb_url_constructor () {
 	            url.host = base.host;
 	            url.port = base.port;
 	            url.path = arraySlice(base.path);
-	            url.path.length--;
+	            if (url.path.length) url.path.length--;
 	            state = PATH;
 	            continue;
 	          } break;
@@ -23080,7 +23498,7 @@ function requireWeb_url_constructor () {
 
 	        case SPECIAL_AUTHORITY_SLASHES:
 	          state = SPECIAL_AUTHORITY_IGNORE_SLASHES;
-	          if (chr !== '/' || charAt(buffer, pointer + 1) !== '/') continue;
+	          if (chr !== '/' || codePoints[pointer + 1] !== '/') continue;
 	          pointer++;
 	          break;
 
@@ -23124,11 +23542,11 @@ function requireWeb_url_constructor () {
 	            continue;
 	          } else if (chr === ':' && !seenBracket) {
 	            if (buffer === '') return INVALID_HOST;
+	            if (stateOverride === HOSTNAME) return;
 	            failure = url.parseHost(buffer);
 	            if (failure) return failure;
 	            buffer = '';
 	            state = PORT;
-	            if (stateOverride === HOSTNAME) return;
 	          } else if (
 	            chr === EOF || chr === '/' || chr === '?' || chr === '#' ||
 	            (chr === '\\' && url.isSpecial())
@@ -23169,6 +23587,7 @@ function requireWeb_url_constructor () {
 
 	        case FILE:
 	          url.scheme = 'file';
+	          url.host = '';
 	          if (chr === '/' || chr === '\\') state = FILE_SLASH;
 	          else if (base && base.scheme === 'file') {
 	            switch (chr) {
@@ -23191,8 +23610,8 @@ function requireWeb_url_constructor () {
 	                state = FRAGMENT;
 	                break;
 	              default:
+	                url.host = base.host;
 	                if (!startsWithWindowsDriveLetter(join(arraySlice(codePoints, pointer), ''))) {
-	                  url.host = base.host;
 	                  url.path = arraySlice(base.path);
 	                  url.shortenPath();
 	                }
@@ -23209,9 +23628,10 @@ function requireWeb_url_constructor () {
 	            state = FILE_HOST;
 	            break;
 	          }
-	          if (base && base.scheme === 'file' && !startsWithWindowsDriveLetter(join(arraySlice(codePoints, pointer), ''))) {
-	            if (isWindowsDriveLetter(base.path[0], true)) push(url.path, base.path[0]);
-	            else url.host = base.host;
+	          if (base && base.scheme === 'file') {
+	            url.host = base.host;
+	            if (!startsWithWindowsDriveLetter(join(arraySlice(codePoints, pointer), ''))
+	              && isWindowsDriveLetter(base.path[0], true)) push(url.path, base.path[0]);
 	          }
 	          state = PATH;
 	          continue;
@@ -23267,7 +23687,7 @@ function requireWeb_url_constructor () {
 	              }
 	            } else {
 	              if (url.scheme === 'file' && !url.path.length && isWindowsDriveLetter(buffer)) {
-	                if (url.host) url.host = '';
+	                if (url.host !== null && url.host !== '') url.host = '';
 	                buffer = charAt(buffer, 0) + ':'; // normalize windows drive letter
 	              }
 	              push(url.path, buffer);
@@ -23305,9 +23725,7 @@ function requireWeb_url_constructor () {
 	            url.fragment = '';
 	            state = FRAGMENT;
 	          } else if (chr !== EOF) {
-	            if (chr === "'" && url.isSpecial()) url.query += '%27';
-	            else if (chr === '#') url.query += '%23';
-	            else url.query += percentEncode(chr, C0ControlPercentEncodeSet);
+	            url.query += percentEncode(chr, url.isSpecial() ? specialQueryPercentEncodeSet : queryPercentEncodeSet);
 	          } break;
 
 	        case FRAGMENT:
@@ -23338,14 +23756,18 @@ function requireWeb_url_constructor () {
 	    } else {
 	      input = toASCII(input);
 	      if (exec(FORBIDDEN_HOST_CODE_POINT, input)) return INVALID_HOST;
-	      result = parseIPv4(input);
-	      if (result === null) return INVALID_HOST;
-	      this.host = result;
+	      if (endsInNumber(input)) {
+	        result = parseIPv4(input);
+	        if (result === null) return INVALID_HOST;
+	        this.host = result;
+	      } else {
+	        this.host = input;
+	      }
 	    }
 	  },
 	  // https://url.spec.whatwg.org/#cannot-have-a-username-password-port
 	  cannotHaveUsernamePasswordPort: function () {
-	    return !this.host || this.cannotBeABaseURL || this.scheme === 'file';
+	    return this.host === null || this.host === '' || this.cannotBeABaseURL || this.scheme === 'file';
 	  },
 	  // https://url.spec.whatwg.org/#include-credentials
 	  includesCredentials: function () {
@@ -23383,6 +23805,7 @@ function requireWeb_url_constructor () {
 	      output += serializeHost(host);
 	      if (port !== null) output += ':' + port;
 	    } else if (scheme === 'file') output += '//';
+	    if (host === null && !url.cannotBeABaseURL && path.length > 1 && path[0] === '') output += '/.';
 	    output += url.cannotBeABaseURL ? path[0] : path.length ? '/' + join(path, '/') : '';
 	    if (query !== null) output += '?' + query;
 	    if (fragment !== null) output += '#' + fragment;
@@ -23399,7 +23822,7 @@ function requireWeb_url_constructor () {
 	    var scheme = this.scheme;
 	    var port = this.port;
 	    if (scheme === 'blob') try {
-	      return new URLConstructor(scheme.path[0]).origin;
+	      return new URLConstructor(this.path[0]).origin;
 	    } catch (error) {
 	      return 'null';
 	    }
@@ -23697,7 +24120,7 @@ function requireWeb_url_parse () {
 	var URL = getBuiltIn('URL');
 
 	// `URL.parse` method
-	// https://url.spec.whatwg.org/#dom-url-canparse
+	// https://url.spec.whatwg.org/#dom-url-parse
 	$({ target: 'URL', stat: true, forced: !USE_NATIVE_URL }, {
 	  parse: function parse(url) {
 	    var length = validateArgumentsLength(arguments.length, 1);
@@ -23783,19 +24206,16 @@ function requireWeb_urlSearchParams_delete () {
 	    var key = toString(name);
 	    var value = toString($value);
 	    var index = 0;
-	    var dindex = 0;
-	    var found = false;
 	    var entriesLength = entries.length;
 	    var entry;
 	    while (index < entriesLength) {
-	      entry = entries[index++];
-	      if (found || entry.key === key) {
-	        found = true;
-	        $delete(this, entry.key);
-	      } else dindex++;
+	      entry = entries[index];
+	      $delete(this, entry.key);
+	      index++;
 	    }
-	    while (dindex < entriesLength) {
-	      entry = entries[dindex++];
+	    index = 0;
+	    while (index < entriesLength) {
+	      entry = entries[index++];
 	      if (!(entry.key === key && entry.value === value)) append(this, entry.key, entry.value);
 	    }
 	  }, { enumerable: true, unsafe: true });
@@ -23982,6 +24402,8 @@ function requireStable () {
 	requireEs_json_toStringTag();
 	requireEs_map();
 	requireEs_map_groupBy();
+	requireEs_map_getOrInsert();
+	requireEs_map_getOrInsertComputed();
 	requireEs_math_acosh();
 	requireEs_math_asinh();
 	requireEs_math_atanh();
@@ -24168,6 +24590,8 @@ function requireStable () {
 	requireEs_uint8Array_toHex();
 	requireEs_unescape();
 	requireEs_weakMap();
+	requireEs_weakMap_getOrInsert();
+	requireEs_weakMap_getOrInsertComputed();
 	requireEs_weakSet();
 	requireWeb_atob();
 	requireWeb_btoa();

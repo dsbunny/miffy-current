@@ -1,4 +1,10 @@
 # Changelog
+## v20.0.20
+- Breaking `id` to `asset_id` change for DAM sources to reduce _id_ confusion.
+- Breaking `src-id` to `src-recipe-id` & `src-asset-id` for schedule recipes.
+- Add typing for workers.
+- Add explicit `playing` state to playlist elements to prevent reentrancy.
+
 ## v19.5.19
 - `WebMedia.element` must start as `null` to avoid `pause()` on non-existent videos.
 - Resize `WebGLRenderer` to fullscreen via normalized sizing (0,0) to (1,1).

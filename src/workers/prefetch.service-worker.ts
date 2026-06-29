@@ -8,7 +8,7 @@ declare var self: ServiceWorkerGlobalScope;
 
 import * as Comlink from 'comlink';
 import { AssetDecl } from '../lib/media.js';
-import { PrefetchWorker } from '../workers/prefetch.worker.js';
+import { PrefetchWorker } from '../lib/prefetch.js';
 
 class PrefetchServiceWorker {
 	constructor() {

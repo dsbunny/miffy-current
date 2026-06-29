@@ -6,7 +6,12 @@
 import 'core-js/stable';
 import * as Comlink from 'comlink';
 import { DateTime, Duration } from 'luxon';
-import { CalendarEvent, CalendarEventSeries, CalendarRecurrence } from '../lib/occurency.js';
+import {
+	CalendarEvent,
+	CalendarEventSeries,
+	CalendarRecurrence,
+	CalendarWorker,
+} from '../lib/occurency.js';
 
 console.info('CALENDAR: WebWorker started.');
 let calendar_event: CalendarEvent<any> | undefined;
@@ -46,7 +51,7 @@ Comlink.expose({
 	parseSchedule,
 	getEvents,
 	prefetchEvents,
-});
+} satisfies CalendarWorker);
 
 // Create a CalendarEvent or CalendarEventSeries from JSON schedule.
 function parseSchedule(

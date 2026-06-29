@@ -6,7 +6,7 @@
 import 'core-js/stable';
 import * as Comlink from 'comlink';
 import { DateTime } from 'luxon';
-import { Scheduler } from '../lib/scheduler.js';
+import { Scheduler, SchedulerWorker } from '../lib/scheduler.js';
 import { BasicScheduler } from '../lib/basic-scheduler.js';
 import { HashDecl, ScopedMediaDecl } from '../lib/media.js';
 
@@ -59,23 +59,23 @@ Comlink.expose({
 	exposeNetwork(
 		join: (decl: any) => Promise<void>,
 		leave: () => Promise<void>,
-	) {
+	): void {
 		scheduler.exposeNetwork(join, leave);
 	},
 	setSource(
 		src: string,
-		id: string,
+		asset_id: string,
 		size: number,
 		hash: HashDecl,
 		integrity: string,
 		md5: string,
 	): void {
-		console.log(`SCHEDULER: ${JSON.stringify({src, id, size, hash, integrity, md5})}`);
+		console.log(`SCHEDULER: ${JSON.stringify({src, asset_id, size, hash, integrity, md5})}`);
 		scheduler.src_md5 = md5;
 		scheduler.src_integrity = integrity;
 		scheduler.src_hash = hash;
 		scheduler.src_size = size;
-		scheduler.src_id = id;
+		scheduler.src_asset_id = asset_id;
 		scheduler.src = src;
 	},
 	// Plural meaning sources of set source.
@@ -92,7 +92,7 @@ Comlink.expose({
 			update_id = undefined;
 		}
 	},
-});
+} satisfies SchedulerWorker);
 
 // Run one step of the scheduler state engine.  Note we use the real-time clock
 // instead of the performance counter as we need to refer to calendar

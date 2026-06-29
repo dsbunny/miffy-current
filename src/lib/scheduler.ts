@@ -23,7 +23,7 @@ export interface Scheduler extends EventTarget {
 	autoplay: boolean;
 	mergePlaylist: boolean;
 	src: string;
-	src_id: string;
+	src_asset_id: string;
 	src_size: number;
 	src_hash: HashDecl | undefined;
 	src_integrity: string;
@@ -35,6 +35,15 @@ export interface Scheduler extends EventTarget {
 	update(datetime: DateTime): void;
 	state(timestamp: DateTime): SchedulerState;
 	exposeNetwork(join: (decl: object) => Promise<void>, leave: () => Promise<void>): void;
+}
+
+export interface SchedulerWorker {
+	setStatePort(port: MessagePort): void;
+	exposeNetwork(join: (decl: any) => Promise<void>, leave: () => Promise<void>): void;
+	setSource(src: string, asset_id: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
+	getScopedSources(): ScopedMediaDecl[];
+	play(): Promise<void>;
+	pause(): void
 }
 
 export interface SchedulerAssetDecl {

@@ -10,8 +10,9 @@ export interface HashDecl {
 
 export interface AssetDecl {
 	'@type': string,
-	id: string,
+	asset_id: string,
 	href: string,
+	expires?: string,
 	size?: number,
 	hash?: HashDecl,
 	md5?: string,

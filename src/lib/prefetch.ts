@@ -11,3 +11,7 @@ export interface Prefetch extends EventTarget {
 	releaseSources(scope: string): Promise<void>;
 	getCachedPath(origin: string): string | null;
 }
+
+export interface PrefetchWorker {
+	setSources(scope: string, sources: AssetDecl[]): void;
+}

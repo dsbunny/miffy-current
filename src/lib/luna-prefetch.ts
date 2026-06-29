@@ -23,6 +23,14 @@ function filenameFromIdAndHref(id: string, href: string): string {
 	return `${id}.${ext}`;
 }
 
+function idFromFilename(filename: string): string {
+	const dot_index = filename.lastIndexOf('.');
+	if(dot_index === -1) {
+		return filename;
+	}
+	return filename.substr(0, dot_index);
+}
+
 // Convert a hex string to base64.
 function hexToBase64(hex: string): string {
 //        return Buffer.from(hex, 'hex').toString('base64');
@@ -34,20 +42,20 @@ function hexToBase64(hex: string): string {
 }
 
 class EvictionEntry {
-	constructor(public id: string, public date: Date) {}
+	constructor(public asset_id: string, public date: Date) {}
 }
 
 class LunaPool {
-	protected _url_to_id_map = new Map<string, string>();
-	protected _id_to_asset_map = new Map<string, AssetDecl>();
-	protected _id_to_file_map = new Map<string, string>();
+	protected _url_to_asset_id_map = new Map<string, string>();
+	protected _asset_id_to_asset_map = new Map<string, AssetDecl>();
+	protected _asset_id_to_file_map = new Map<string, string>();
 
 	// LRU queue of all assets in the pool, oldest to newest.
 	protected _eviction_queue: EvictionEntry[] = [];
 
 	// Asset scopes that are protected from eviction.
 	protected _protected_scopes = new Map<string, Set<string>>();
-	protected _protected_ids = new Set<string>();
+	protected _protected_asset_ids = new Set<string>();
 
 	// Path to the folder containing the pool.
 	protected _base_path: string;
@@ -74,8 +82,8 @@ class LunaPool {
 		await this.reserve(0);
 	}
 
-	has(id: string) {
-		const asset = this._id_to_asset_map.get(id);
+	has(asset_id: string) {
+		const asset = this._asset_id_to_asset_map.get(asset_id);
 		return asset && asset.href.length !== 0;
 	}
 
@@ -87,28 +95,28 @@ class LunaPool {
 		let total_size = 0;
 		for(const asset of assets) {
 			// The asset behind any id is idempotent.
-			if(this.has(asset.id)) {
-console.info(`PREFETCH: asset #${asset.id} already in pool`);
-				const index = this._eviction_queue.findIndex((x: EvictionEntry) => x.id === asset.id);
+			if(this.has(asset.asset_id)) {
+console.info(`PREFETCH: asset #${asset.asset_id} already in pool`);
+				const index = this._eviction_queue.findIndex((x: EvictionEntry) => x.asset_id === asset.asset_id);
 				if(index !== -1) {
-console.info(`PREFETCH: removing asset #${asset.id} from eviction queue ...`);
+console.info(`PREFETCH: removing asset #${asset.asset_id} from eviction queue ...`);
 					this._eviction_queue.splice(index, 1);
 				}
 				continue;
 			}
-console	.info(`PREFETCH: asset #${asset.id} adding to pool ...`);
+console	.info(`PREFETCH: asset #${asset.asset_id} adding to pool ...`);
 			if(typeof asset.size === "number") {
 				total_size += asset.size;
 			}
-			const filename = filenameFromIdAndHref(asset.id, asset.href);
+			const filename = filenameFromIdAndHref(asset.asset_id, asset.href);
 			const filepath = `${this._base_path}/${filename}`;
-			this._url_to_id_map.set(asset.href, asset.id);
-			this._id_to_asset_map.set(asset.id, asset);
-			this._id_to_file_map.set(asset.id, filepath);
-console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
-			this._eviction_queue.push(new EvictionEntry(asset.id, now));
-			this._protected_ids.add(asset.id);
-			ids.add(asset.id);
+			this._url_to_asset_id_map.set(asset.href, asset.asset_id);
+			this._asset_id_to_asset_map.set(asset.asset_id, asset);
+			this._asset_id_to_file_map.set(asset.asset_id, filepath);
+console.info(`PREFETCH: asset #${asset.asset_id} added to pool: ${filepath}`);
+			this._eviction_queue.push(new EvictionEntry(asset.asset_id, now));
+			this._protected_asset_ids.add(asset.asset_id);
+			ids.add(asset.asset_id);
 		}
 		this._protected_scopes.set(scope, ids);
 		if(total_size > 0) {
@@ -124,7 +132,7 @@ console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 		const ids = this._protected_scopes.get(scope);
 		if(Array.isArray(ids)) {
 			for(const id of ids) {
-				this._protected_ids.delete(id);
+				this._protected_asset_ids.delete(id);
 			}
 		}
 		this._protected_scopes.delete(scope);
@@ -132,7 +140,7 @@ console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 
 	// Return native path to asset from external URI.
 	getFilePath(url: string): string | null {
-		const id = this._url_to_id_map.get(url);
+		const id = this._url_to_asset_id_map.get(url);
 		if(typeof id === "undefined") {
 			return null;
 		}
@@ -143,7 +151,7 @@ console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 
 	// Return a path usable in the DOM.
 	getHttpPath(url: string): string {
-		const id = this._url_to_id_map.get(url);
+		const id = this._url_to_asset_id_map.get(url);
 		if(typeof id === "undefined") {
 			return "";
 		}
@@ -165,23 +173,23 @@ console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 				return;
 			}
 			const entry = this._eviction_queue[index];
-			if(this._protected_ids.has(entry.id)) {
+			if(this._protected_asset_ids.has(entry.asset_id)) {
 				index++;
 				continue;
 			}
-			const asset = this._id_to_asset_map.get(entry.id);
+			const asset = this._asset_id_to_asset_map.get(entry.asset_id);
 			if(typeof asset !== "undefined") {
-				const filename = filenameFromIdAndHref(entry.id, asset.href);
+				const filename = filenameFromIdAndHref(entry.asset_id, asset.href);
 				const filepath = `${this._base_path}/${filename}`;
 				const removeOptions: RemoveFileOptions = {
 					file: filepath,
 					recursive: false,
 				};
 				await removeFile(removeOptions);
-				this._url_to_id_map.delete(asset.href);
+				this._url_to_asset_id_map.delete(asset.href);
 			}
-			this._id_to_asset_map.delete(entry.id);
-			this._id_to_file_map.delete(entry.id);
+			this._asset_id_to_asset_map.delete(entry.asset_id);
+			this._asset_id_to_file_map.delete(entry.asset_id);
 			this._eviction_queue.splice(index, 1);
 			index++;
 		}
@@ -209,15 +217,15 @@ console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 		const data = await listFiles(listOptions);
 		for(const file of data.files) {
 			if(!file.name) continue;
-			const id = file.name.substr(0, file.name.lastIndexOf('.'));
+			const asset_id = idFromFilename(file.name);
 			const placeholder: AssetDecl = {
 				'@type': 'unknown',
-				id,
+				asset_id,
 				href: '',
 			};
-			this._id_to_asset_map.set(id, placeholder);
+			this._asset_id_to_asset_map.set(asset_id, placeholder);
 			const file_url = `${this._base_path}/${file.name}`;
-			this._id_to_file_map.set(id, file_url);
+			this._asset_id_to_file_map.set(asset_id, file_url);
 			this._size += file.size || 0;
 			const statOptions: FilePath = {
 				path: file_url,
@@ -225,7 +233,7 @@ console.info(`PREFETCH: asset #${asset.id} added to pool: ${filepath}`);
 			const statData = await statFile(statOptions);
 			const file_date = new Date(statData.atime);
 			const index = this._sortedIndex(this._eviction_queue, file_date.getTime());
-			this._eviction_queue.splice(index, 0, new EvictionEntry(id, file_date));
+			this._eviction_queue.splice(index, 0, new EvictionEntry(asset_id, file_date));
 		}
 		this._has_loaded_from_disk = true;
 	}
@@ -269,7 +277,7 @@ export class LunaPrefetch extends EventTarget implements Prefetch {
 		for(const asset of assets) {
 			const filepath = pool.getFilePath(asset.href);
 			if(!filepath) {
-				console.warn(`PREFETCH: ${asset.id}: Asset not in pool.`);
+				console.warn(`PREFETCH: ${asset.asset_id}: Asset not in pool.`);
 				continue;
 			}
 			if(asset.size) {
@@ -279,21 +287,21 @@ export class LunaPrefetch extends EventTarget implements Prefetch {
 					};
 					const fileInfo = await statFile(statOptions);
 					if(fileInfo.size !== asset.size) {
-	console.info(`PREFETCH: ${asset.id}: File size mismatch, removing file ...`);
+	console.info(`PREFETCH: ${asset.asset_id}: File size mismatch, removing file ...`);
 						const removeOptions: RemoveFileOptions = {
 							file: filepath,
 							recursive: false,
 						};
 						await removeFile(removeOptions);
 						change_count++;
-	console.info(`PREFETCH: ${asset.id}: Removed, expected size: ${asset.size}, actual size: ${fileInfo.size}`);
+	console.info(`PREFETCH: ${asset.asset_id}: Removed, expected size: ${asset.size}, actual size: ${fileInfo.size}`);
 					}
 				} catch(err: any) {
 					console.warn(err);
 				}
 			}
 			if(asset.md5) {
-				console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
+				console.info(`PREFETCH: ${asset.asset_id}: Calculating MD5 ...`);
 				const md5Options: MD5FilePath = {
 					filePath: filepath,
 				};
@@ -302,7 +310,7 @@ export class LunaPrefetch extends EventTarget implements Prefetch {
 					md5Result = await getMD5Hash(md5Options);
 					const md5hash = hexToBase64(md5Result.md5hash);
 					if(md5hash === asset.md5) {
-						console.log(`PREFETCH: ${asset.id}: MD5 matches, skipping download.`);
+						console.log(`PREFETCH: ${asset.asset_id}: MD5 matches, skipping download.`);
 						continue;
 					}
 				} catch(err: unknown) {
@@ -312,26 +320,26 @@ export class LunaPrefetch extends EventTarget implements Prefetch {
 						&& 'errorText' in err
 						&& err['errorText'] === 'No such file')
 					{
-						console.warn(`PREFETCH: ${asset.id}: File not found: ${filepath}`);
+						console.warn(`PREFETCH: ${asset.asset_id}: File not found: ${filepath}`);
 						continue;
 					}
 					console.warn(err);
 				}
-	console.info(`PREFETCH: ${asset.id}: MD5 mismatch, removing file ...`);
+	console.info(`PREFETCH: ${asset.asset_id}: MD5 mismatch, removing file ...`);
 				const removeOptions: RemoveFileOptions = {
 					file: filepath,
 					recursive: false,
 				};
 				await removeFile(removeOptions);
 				change_count++;
-	console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5Result?.md5hash}`);
+	console.info(`PREFETCH: ${asset.asset_id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5Result?.md5hash}`);
 			}
 			if(!asset.size && !asset.md5) {
-				console.warn(`PREFETCH: ${asset.id}: No size or md5, assuming valid asset.`);
+				console.warn(`PREFETCH: ${asset.asset_id}: No size or md5, assuming valid asset.`);
 				continue;
 			}
 			try {
-console.info(`PREFETCH: ${asset.id}: Downloading ...`);
+console.info(`PREFETCH: ${asset.asset_id}: Downloading ...`);
 				const downloadOptions: DownloadFileOptions = {
 					action: 'start',
 					source: asset.href,
@@ -347,27 +355,27 @@ console.info(`PREFETCH: ${asset.id}: Downloading ...`);
 				// REF: https://webossignage.developer.lge.com/api/scap-api/scap18/storage/
 				await downloadFile(downloadOptions);
 				change_count++;
-console.info(`PREFETCH: ${asset.id}: Downloaded to ${filepath}`);
+console.info(`PREFETCH: ${asset.asset_id}: Downloaded to ${filepath}`);
 			} catch(e: any) {
 				console.log(`PREFETCH: Fetcher failed: ${e.message}`);
 				throw(e);
 			}
-console.info(`PREFETCH: ${asset.id}: Calculating MD5 ...`);
+console.info(`PREFETCH: ${asset.asset_id}: Calculating MD5 ...`);
 			const md5Options: MD5FilePath = {
 				filePath: filepath,
 			};
 			const md5Result = await getMD5Hash(md5Options);
 			const md5hash = hexToBase64(md5Result.md5hash);
-console.info(`PREFETCH: ${asset.id}: MD5: ${md5hash}`);
+console.info(`PREFETCH: ${asset.asset_id}: MD5: ${md5hash}`);
 			if(md5hash !== asset.md5) {
-console.info(`PREFETCH: ${asset.id}: Checksum mismatch, removing file ...`);
+console.info(`PREFETCH: ${asset.asset_id}: Checksum mismatch, removing file ...`);
 				const removeOptions: RemoveFileOptions = {
 					file: filepath,
 					recursive: false,
 				};
 				await removeFile(removeOptions);
 				change_count++;
-console.info(`PREFETCH: ${asset.id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5hash}`);
+console.info(`PREFETCH: ${asset.asset_id}: Removed, expected md5: ${asset.md5}, actual md5: ${md5hash}`);
 			}
 		}
 		if(change_count > 0) {

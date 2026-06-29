@@ -195,7 +195,7 @@ export class WebGLRenderer extends EventTarget implements Renderer {
 				return await this.setSources(scope, decls.map(decl => {
 					return {
 						'@type': decl['@type'],
-						id: decl.id,
+						asset_id: decl.asset_id,
 						href: decl.href,
 						size: decl.size,
 						hash: decl.hash,
@@ -455,12 +455,12 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 				this._current_renderer_asset.ref();
 				console.log("WEBGL-RENDERER: current", this._current_renderer_asset.currentSrc);
 			}
-			else if(current.decl.id !== this._current_renderer_asset.id)
+			else if(current.decl.asset_id !== this._current_renderer_asset.asset_id)
 			{
 //console.info(current.decl.href, current.remainingTimeMs);
 				this._closeCurrent();
 				if(this._next_renderer_asset !== null
-					&& current.decl.id === this._next_renderer_asset.id)
+					&& current.decl.asset_id === this._next_renderer_asset.asset_id)
 				{
 					console.log("WEBGL-RENDERER: current <- next");
 					this._current_renderer_asset = await this._updateCurrentFromNext();
@@ -500,7 +500,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 				this._next_renderer_asset.ref();
 				console.log("WEBGL-RENDERER: next", this._next_renderer_asset.currentSrc);
 			}
-			else if(next.decl.id !== this._next_renderer_asset.id) {
+			else if(next.decl.asset_id !== this._next_renderer_asset.asset_id) {
 				this._closeNext();
 				this._next_renderer_asset = this._updateNext(next.decl);
 				this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
@@ -528,7 +528,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 		// avoid confusion when crossing boundary between two assets.
 		let needs_update = false;
 		if(transition !== null) {
-			const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
+			const from_asset = this._renderer_asset_cache.get(transition.from.decl.asset_id);
 			if(typeof from_asset !== "undefined"
 				&& from_asset.texture !== null
 				&& from_asset.texture.uuid !== this._map1_renderer_asset?.texture?.uuid)
@@ -542,7 +542,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 				this._setMap1Asset(from_asset);
 				needs_update = true;
 			}
-			const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
+			const to_asset = this._renderer_asset_cache.get(transition.to.decl.asset_id);
 			if(typeof to_asset !== "undefined"
 				&& to_asset.texture !== null
 				&& to_asset.texture.uuid !== this._map2_renderer_asset?.texture?.uuid)
@@ -733,7 +733,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 		}
 		this._current_renderer_asset.pause();
 		this._current_renderer_asset.unref();
-		this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+		this._renderer_asset_trash.set(this._current_renderer_asset.asset_id, this._current_renderer_asset);
 		this._current_renderer_asset = null;
 	}
 
@@ -764,10 +764,10 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 	}
 
 	protected _resolveMediaAsset(decl: MediaDecl): WebGLRendererAsset {
-		const existing_asset = this._renderer_asset_cache.get(decl.id);
+		const existing_asset = this._renderer_asset_cache.get(decl.asset_id);
 		if(typeof existing_asset !== "undefined") {
-			if(this._renderer_asset_trash.has(decl.id)) {
-				this._renderer_asset_trash.delete(decl.id);
+			if(this._renderer_asset_trash.has(decl.asset_id)) {
+				this._renderer_asset_trash.delete(decl.asset_id);
 			}
 			if(existing_asset.is_loading
 				&& existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
@@ -786,8 +786,8 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 			href: cached_path,
 		};
 		const three_asset = this._asset_manager.createThreeAsset(resolved_decl);
-		const renderer_asset = new WebGLRendererAsset(decl.id, three_asset);
-		this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+		const renderer_asset = new WebGLRendererAsset(decl.asset_id, three_asset);
+		this._renderer_asset_cache.set(renderer_asset.asset_id, renderer_asset);
 		this._networkLoadingRef();
 		renderer_asset.is_loading = true;
 		renderer_asset.load();
@@ -811,7 +811,7 @@ console.info("WEBGL-RENDERER: loaded displacement map", img.src);
 			throw new Error("undefined next asset.");
 		}
 		this._next_renderer_asset.unref();
-		this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+		this._renderer_asset_trash.set(this._next_renderer_asset.asset_id, this._next_renderer_asset);
 		this._next_renderer_asset = null;
 	}
 

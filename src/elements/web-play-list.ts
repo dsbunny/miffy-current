@@ -5,13 +5,13 @@
 
 import * as Comlink from 'comlink';
 import { LitElement, css, html } from 'lit';
-import { customElement, property, query } from 'lit/decorators.js';
+import { customElement, property, query, state } from 'lit/decorators.js';
 import { Renderer } from '../lib/renderer.js';
 import { NullRenderer } from '../lib/null-renderer.js';
 import { WebRenderer } from '../lib/web-renderer.js';
 import { Cluster } from '../lib/cluster.js';
 import { RaftCluster } from '../lib/raft-cluster.js';
-import { SchedulerState } from '../lib/scheduler.js';
+import { SchedulerState, SchedulerWorker } from '../lib/scheduler.js';
 import { Prefetch } from '../lib/prefetch.js';
 import { HashDecl } from '../lib/media.js';
 import { ServiceWorkerPrefetch } from '../lib/service-worker-prefetch.js';
@@ -24,8 +24,11 @@ export class WebPlaylistElement extends LitElement {
 	@property({ type: String, reflect: true })
 	src = "";
 
-	@property({ attribute: 'src-id', type: String, reflect: true })
-	src_id = "";
+	@property({ attribute: 'src-recipe-id', type: String, reflect: true })
+	src_recipe_id = "";
+
+	@property({ attribute: 'src-asset-id', type: String, reflect: true })
+	src_asset_id = "";
 
 	@property({ attribute: 'src-size', type: Number, reflect: true })
 	src_size = 0;
@@ -56,6 +59,9 @@ export class WebPlaylistElement extends LitElement {
 
 	@query('section')
 	_section!: HTMLElement;  // "!" to force TS compatibility.
+
+	@state()
+	playing = false;
 
 	static override styles = css`
 		:host {
@@ -112,7 +118,7 @@ export class WebPlaylistElement extends LitElement {
 	}
 
 	protected _worker = this._createWorker();
-	protected _scheduler = Comlink.wrap(this._worker) as unknown as any;
+	protected _scheduler = Comlink.wrap<SchedulerWorker>(this._worker);
 	protected _renderer: Renderer = new NullRenderer();
 	protected _channel = new MessageChannel();
 	protected _raf_id: ReturnType<Window["requestAnimationFrame"]> | undefined;
@@ -213,7 +219,7 @@ export class WebPlaylistElement extends LitElement {
 		console.log(changedProperties);
 		if(changedProperties.has('src')) {
 			if(this.src.length !== 0
-				&& this.src_id.length !== 0
+				&& this.src_asset_id.length !== 0
 				&& this.src_size !== 0
 				&& typeof this.src_hash !== "undefined"
 				&& this.src_integrity.length !== 0
@@ -221,17 +227,18 @@ export class WebPlaylistElement extends LitElement {
 			{
 				this._onSrc(
 					this.src,
-					this.src_id,
+					this.src_asset_id,
 					this.src_size,
 					this.src_hash,
 					this.src_integrity,
 					this.src_md5,
 				);
 				if(this.autoplay
+					&& !this.playing
 					&& this.width !== 0
 					&& this.height !== 0)
 				{
-					console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_id})`);
+					console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_asset_id})`);
 					this.play();
 				}
 			}
@@ -248,18 +255,18 @@ export class WebPlaylistElement extends LitElement {
 
 	protected _onSrc(
 		src: string,
-		id: string,
+		asset_id: string,
 		size: number,
 		hash: HashDecl,
 		integrity: string,
 		md5: string,
 	): void {
-		console.log(`PLAYLIST: onSrc: ${src} (${id})`);
+		console.log(`PLAYLIST: onSrc: ${src} (${asset_id})`);
 		(async () => {
 			const url = new URL(this.src, window.location.href);
 			await this._scheduler.setSource(
 				url.toString(),
-				id,
+				asset_id,
 				size,
 				hash,
 				integrity,
@@ -285,9 +292,13 @@ export class WebPlaylistElement extends LitElement {
 
 	// Explicitly start playback if autoplay is false.
 	async play(): Promise<void> {
+		if(this.playing) {
+			return;
+		}
 		this._prepareNextFrame();
 		this._prepareIdleCallback();
 		await this._scheduler.play();
+		this.playing = true;
 	}
 
 	// Connect the scheduler to the renderer.

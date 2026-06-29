@@ -1,6 +1,7 @@
 import * as lit from 'lit';
 import { LitElement } from 'lit';
 import * as lit_html from 'lit-html';
+import * as Comlink from 'comlink';
 import EventTarget from '@ungap/event-target';
 
 interface HashDecl {
@@ -9,8 +10,9 @@ interface HashDecl {
 }
 interface AssetDecl {
     '@type': string;
-    id: string;
+    asset_id: string;
     href: string;
+    expires?: string;
     size?: number;
     hash?: HashDecl;
     md5?: string;
@@ -21,7 +23,20 @@ interface MediaDecl extends AssetDecl {
     duration: number;
     sources?: AssetDecl[];
 }
+interface ScopedMediaDecl {
+    scope: string;
+    entries: MediaDecl[];
+    isReady: boolean;
+}
 
+interface SchedulerWorker {
+    setStatePort(port: MessagePort): void;
+    exposeNetwork(join: (decl: any) => Promise<void>, leave: () => Promise<void>): void;
+    setSource(src: string, asset_id: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
+    getScopedSources(): ScopedMediaDecl[];
+    play(): Promise<void>;
+    pause(): void;
+}
 interface SchedulerAssetDecl {
     decl: MediaDecl;
 }
@@ -103,7 +118,8 @@ interface Prefetch extends EventTarget {
 
 declare class WebPlaylistElement extends LitElement {
     src: string;
-    src_id: string;
+    src_recipe_id: string;
+    src_asset_id: string;
     src_size: number;
     src_hash: HashDecl | undefined;
     src_integrity: string;
@@ -121,17 +137,18 @@ declare class WebPlaylistElement extends LitElement {
     autoplay: boolean;
     _main: HTMLElement;
     _section: HTMLElement;
+    playing: boolean;
     static styles: lit.CSSResult;
     render(): lit_html.TemplateResult<1>;
     protected _worker: Worker;
-    protected _scheduler: any;
+    protected _scheduler: Comlink.Remote<SchedulerWorker>;
     protected _renderer: Renderer;
     protected _channel: MessageChannel;
     protected _raf_id: ReturnType<Window["requestAnimationFrame"]> | undefined;
     protected _ric_id: ReturnType<Window["requestIdleCallback"]> | undefined;
     protected _cluster: Cluster | undefined;
     constructor();
-    get debugScheduler(): any;
+    get debugScheduler(): Comlink.Remote<SchedulerWorker>;
     get debugRenderer(): Renderer;
     get debugCluster(): Cluster | undefined;
     protected _createWorker(): Worker;
@@ -142,7 +159,7 @@ declare class WebPlaylistElement extends LitElement {
     }): Renderer;
     firstUpdated(changedProperties: Map<string, any>): void;
     updated(changedProperties: Map<string, any>): void;
-    protected _onSrc(src: string, id: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
+    protected _onSrc(src: string, asset_id: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
     protected _onViews(views: {
         left: number;
         top: number;

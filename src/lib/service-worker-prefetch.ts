@@ -5,9 +5,8 @@
 
 import * as Comlink from 'comlink';
 import EventTarget from '@ungap/event-target';
-import { Prefetch } from './prefetch.js';
+import { Prefetch, PrefetchWorker } from './prefetch.js';
 import { AssetDecl } from './media.js';
-import { PrefetchWorker } from '../workers/prefetch.worker.js';
 
 export class ServiceWorkerPrefetch extends EventTarget implements Prefetch {
 	protected _activated = false;

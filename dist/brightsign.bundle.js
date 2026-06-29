@@ -7,26 +7,32 @@ import * as THREE from 'three';
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t$1=t=>(e,o)=>{ void 0!==o?o.addInitializer((()=>{customElements.define(t,e);})):customElements.define(t,e);};
+const t$1=t=>(e,o)=>{ void 0!==o?o.addInitializer(()=>{customElements.define(t,e);}):customElements.define(t,e);};
 
 /**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t=globalThis,e$3=t.ShadowRoot&&(void 0===t.ShadyCSS||t.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),o$2=new WeakMap;let n$2 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$3&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}};const r$2=t=>new n$2("string"==typeof t?t:t+"",void 0,s),S=(s,o)=>{if(e$3)s.adoptedStyleSheets=o.map((t=>t instanceof CSSStyleSheet?t:t.styleSheet));else for(const e of o){const o=document.createElement("style"),n=t.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$1=e$3?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$2(e)})(t):t;
+const t=globalThis,e$3=t.ShadowRoot&&(void 0===t.ShadyCSS||t.ShadyCSS.nativeShadow)&&"adoptedStyleSheets"in Document.prototype&&"replace"in CSSStyleSheet.prototype,s=Symbol(),o$2=new WeakMap;let n$2 = class n{constructor(t,e,o){if(this._$cssResult$=true,o!==s)throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");this.cssText=t,this.t=e;}get styleSheet(){let t=this.o;const s=this.t;if(e$3&&void 0===t){const e=void 0!==s&&1===s.length;e&&(t=o$2.get(s)),void 0===t&&((this.o=t=new CSSStyleSheet).replaceSync(this.cssText),e&&o$2.set(s,t));}return t}toString(){return this.cssText}};const r$3=t=>new n$2("string"==typeof t?t:t+"",void 0,s),S=(s,o)=>{if(e$3)s.adoptedStyleSheets=o.map(t=>t instanceof CSSStyleSheet?t:t.styleSheet);else for(const e of o){const o=document.createElement("style"),n=t.litNonce;void 0!==n&&o.setAttribute("nonce",n),o.textContent=e.cssText,s.appendChild(o);}},c$1=e$3?t=>t:t=>t instanceof CSSStyleSheet?(t=>{let e="";for(const s of t.cssRules)e+=s.cssText;return r$3(e)})(t):t;
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const{is:i,defineProperty:e$2,getOwnPropertyDescriptor:h,getOwnPropertyNames:r$1,getOwnPropertySymbols:o$1,getPrototypeOf:n$1}=Object,a=globalThis,c=a.trustedTypes,l=c?c.emptyScript:"",p=a.reactiveElementPolyfillSupport,d=(t,s)=>t,u={toAttribute(t,s){switch(s){case Boolean:t=t?l:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f=(t,s)=>!i(t,s),b={attribute:true,type:String,converter:u,reflect:false,useDefault:false,hasChanged:f};Symbol.metadata??=Symbol("metadata"),a.litPropertyMetadata??=new WeakMap;class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$2(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b}static _$Ei(){if(this.hasOwnProperty(d("elementProperties")))return;const t=n$1(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d("properties"))){const t=this.properties,s=[...r$1(t),...o$1(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$1(s));}else void 0!==s&&i.push(c$1(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise((t=>this.enableUpdating=t)),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach((t=>t(this)));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach((t=>t.hostConnected?.()));}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach((t=>t.hostDisconnected?.()));}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u;this._$Em=e;const r=h.fromAttribute(s,t.type);this[e]=r??this._$Ej?.get(e)??r,this._$Em=null;}}requestUpdate(t,s,i){if(void 0!==t){const e=this.constructor,h=this[t];if(i??=e.getPropertyOptions(t),!((i.hasChanged??f)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(e._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach((t=>t.hostUpdate?.())),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach((t=>t.hostUpdated?.())),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach((t=>this._$ET(t,this[t]))),this._$EM();}updated(t){}firstUpdated(t){}}y.elementStyles=[],y.shadowRootOptions={mode:"open"},y[d("elementProperties")]=new Map,y[d("finalized")]=new Map,p?.({ReactiveElement:y}),(a.reactiveElementVersions??=[]).push("2.1.1");
+ */const{is:i,defineProperty:e$2,getOwnPropertyDescriptor:h,getOwnPropertyNames:r$2,getOwnPropertySymbols:o$1,getPrototypeOf:n$1}=Object,a=globalThis,c=a.trustedTypes,l=c?c.emptyScript:"",p=a.reactiveElementPolyfillSupport,d=(t,s)=>t,u={toAttribute(t,s){switch(s){case Boolean:t=t?l:null;break;case Object:case Array:t=null==t?t:JSON.stringify(t);}return t},fromAttribute(t,s){let i=t;switch(s){case Boolean:i=null!==t;break;case Number:i=null===t?null:Number(t);break;case Object:case Array:try{i=JSON.parse(t);}catch(t){i=null;}}return i}},f=(t,s)=>!i(t,s),b={attribute:true,type:String,converter:u,reflect:false,useDefault:false,hasChanged:f};Symbol.metadata??=Symbol("metadata"),a.litPropertyMetadata??=new WeakMap;class y extends HTMLElement{static addInitializer(t){this._$Ei(),(this.l??=[]).push(t);}static get observedAttributes(){return this.finalize(),this._$Eh&&[...this._$Eh.keys()]}static createProperty(t,s=b){if(s.state&&(s.attribute=false),this._$Ei(),this.prototype.hasOwnProperty(t)&&((s=Object.create(s)).wrapped=true),this.elementProperties.set(t,s),!s.noAccessor){const i=Symbol(),h=this.getPropertyDescriptor(t,i,s);void 0!==h&&e$2(this.prototype,t,h);}}static getPropertyDescriptor(t,s,i){const{get:e,set:r}=h(this.prototype,t)??{get(){return this[s]},set(t){this[s]=t;}};return {get:e,set(s){const h=e?.call(this);r?.call(this,s),this.requestUpdate(t,h,i);},configurable:true,enumerable:true}}static getPropertyOptions(t){return this.elementProperties.get(t)??b}static _$Ei(){if(this.hasOwnProperty(d("elementProperties")))return;const t=n$1(this);t.finalize(),void 0!==t.l&&(this.l=[...t.l]),this.elementProperties=new Map(t.elementProperties);}static finalize(){if(this.hasOwnProperty(d("finalized")))return;if(this.finalized=true,this._$Ei(),this.hasOwnProperty(d("properties"))){const t=this.properties,s=[...r$2(t),...o$1(t)];for(const i of s)this.createProperty(i,t[i]);}const t=this[Symbol.metadata];if(null!==t){const s=litPropertyMetadata.get(t);if(void 0!==s)for(const[t,i]of s)this.elementProperties.set(t,i);}this._$Eh=new Map;for(const[t,s]of this.elementProperties){const i=this._$Eu(t,s);void 0!==i&&this._$Eh.set(i,t);}this.elementStyles=this.finalizeStyles(this.styles);}static finalizeStyles(s){const i=[];if(Array.isArray(s)){const e=new Set(s.flat(1/0).reverse());for(const s of e)i.unshift(c$1(s));}else void 0!==s&&i.push(c$1(s));return i}static _$Eu(t,s){const i=s.attribute;return  false===i?void 0:"string"==typeof i?i:"string"==typeof t?t.toLowerCase():void 0}constructor(){super(),this._$Ep=void 0,this.isUpdatePending=false,this.hasUpdated=false,this._$Em=null,this._$Ev();}_$Ev(){this._$ES=new Promise(t=>this.enableUpdating=t),this._$AL=new Map,this._$E_(),this.requestUpdate(),this.constructor.l?.forEach(t=>t(this));}addController(t){(this._$EO??=new Set).add(t),void 0!==this.renderRoot&&this.isConnected&&t.hostConnected?.();}removeController(t){this._$EO?.delete(t);}_$E_(){const t=new Map,s=this.constructor.elementProperties;for(const i of s.keys())this.hasOwnProperty(i)&&(t.set(i,this[i]),delete this[i]);t.size>0&&(this._$Ep=t);}createRenderRoot(){const t=this.shadowRoot??this.attachShadow(this.constructor.shadowRootOptions);return S(t,this.constructor.elementStyles),t}connectedCallback(){this.renderRoot??=this.createRenderRoot(),this.enableUpdating(true),this._$EO?.forEach(t=>t.hostConnected?.());}enableUpdating(t){}disconnectedCallback(){this._$EO?.forEach(t=>t.hostDisconnected?.());}attributeChangedCallback(t,s,i){this._$AK(t,i);}_$ET(t,s){const i=this.constructor.elementProperties.get(t),e=this.constructor._$Eu(t,i);if(void 0!==e&&true===i.reflect){const h=(void 0!==i.converter?.toAttribute?i.converter:u).toAttribute(s,i.type);this._$Em=t,null==h?this.removeAttribute(e):this.setAttribute(e,h),this._$Em=null;}}_$AK(t,s){const i=this.constructor,e=i._$Eh.get(t);if(void 0!==e&&this._$Em!==e){const t=i.getPropertyOptions(e),h="function"==typeof t.converter?{fromAttribute:t.converter}:void 0!==t.converter?.fromAttribute?t.converter:u;this._$Em=e;const r=h.fromAttribute(s,t.type);this[e]=r??this._$Ej?.get(e)??r,this._$Em=null;}}requestUpdate(t,s,i,e=false,h){if(void 0!==t){const r=this.constructor;if(false===e&&(h=this[t]),i??=r.getPropertyOptions(t),!((i.hasChanged??f)(h,s)||i.useDefault&&i.reflect&&h===this._$Ej?.get(t)&&!this.hasAttribute(r._$Eu(t,i))))return;this.C(t,s,i);} false===this.isUpdatePending&&(this._$ES=this._$EP());}C(t,s,{useDefault:i,reflect:e,wrapped:h},r){i&&!(this._$Ej??=new Map).has(t)&&(this._$Ej.set(t,r??s??this[t]),true!==h||void 0!==r)||(this._$AL.has(t)||(this.hasUpdated||i||(s=void 0),this._$AL.set(t,s)),true===e&&this._$Em!==t&&(this._$Eq??=new Set).add(t));}async _$EP(){this.isUpdatePending=true;try{await this._$ES;}catch(t){Promise.reject(t);}const t=this.scheduleUpdate();return null!=t&&await t,!this.isUpdatePending}scheduleUpdate(){return this.performUpdate()}performUpdate(){if(!this.isUpdatePending)return;if(!this.hasUpdated){if(this.renderRoot??=this.createRenderRoot(),this._$Ep){for(const[t,s]of this._$Ep)this[t]=s;this._$Ep=void 0;}const t=this.constructor.elementProperties;if(t.size>0)for(const[s,i]of t){const{wrapped:t}=i,e=this[s];true!==t||this._$AL.has(s)||void 0===e||this.C(s,void 0,i,e);}}let t=false;const s=this._$AL;try{t=this.shouldUpdate(s),t?(this.willUpdate(s),this._$EO?.forEach(t=>t.hostUpdate?.()),this.update(s)):this._$EM();}catch(s){throw t=false,this._$EM(),s}t&&this._$AE(s);}willUpdate(t){}_$AE(t){this._$EO?.forEach(t=>t.hostUpdated?.()),this.hasUpdated||(this.hasUpdated=true,this.firstUpdated(t)),this.updated(t);}_$EM(){this._$AL=new Map,this.isUpdatePending=false;}get updateComplete(){return this.getUpdateComplete()}getUpdateComplete(){return this._$ES}shouldUpdate(t){return  true}update(t){this._$Eq&&=this._$Eq.forEach(t=>this._$ET(t,this[t])),this._$EM();}updated(t){}firstUpdated(t){}}y.elementStyles=[],y.shadowRootOptions={mode:"open"},y[d("elementProperties")]=new Map,y[d("finalized")]=new Map,p?.({ReactiveElement:y}),(a.reactiveElementVersions??=[]).push("2.1.2");
 
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const o={attribute:true,type:String,converter:u,reflect:false,hasChanged:f},r=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+ */const o={attribute:true,type:String,converter:u,reflect:false,hasChanged:f},r$1=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=true),s.set(r.name,t),"accessor"===n){const{name:o}=r;return {set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t,true,r);},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t,true,r);}}throw Error("Unsupported decorator location: "+n)};function n(t){return (e,o)=>"object"==typeof o?r$1(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */function r(r){return n({...r,state:true,attribute:false})}
 
 /**
  * @license
@@ -1227,8 +1233,8 @@ class WebAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class WebRendererAsset {
-    constructor(id, web_asset) {
-        this.id = id;
+    constructor(asset_id, web_asset) {
+        this.asset_id = asset_id;
         this.web_asset = web_asset;
         this.is_loading = false;
         this.has_element = false;
@@ -1391,7 +1397,7 @@ class WebRenderer extends EventTarget$1 {
                 return await this.setSources(scope, decls.map(decl => {
                     return {
                         '@type': decl['@type'],
-                        id: decl.id,
+                        asset_id: decl.asset_id,
                         href: decl.href,
                         size: decl.size,
                         hash: decl.hash,
@@ -1550,11 +1556,11 @@ class WebRenderer extends EventTarget$1 {
                 this._current_renderer_asset.ref();
                 console.log("WEB-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (current.decl.id !== this._current_renderer_asset.id) {
+            else if (current.decl.asset_id !== this._current_renderer_asset.asset_id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
                 if (this._next_renderer_asset !== null
-                    && current.decl.id === this._next_renderer_asset.id) {
+                    && current.decl.asset_id === this._next_renderer_asset.asset_id) {
                     console.log("WEB-RENDERER: current <- next");
                     this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
@@ -1593,7 +1599,7 @@ class WebRenderer extends EventTarget$1 {
                 this._next_renderer_asset.ref();
                 console.log("WEB-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (next.decl.id !== this._next_renderer_asset.id) {
+            else if (next.decl.asset_id !== this._next_renderer_asset.asset_id) {
                 this._closeNext();
                 this._next_renderer_asset = this._updateNext(next.decl);
                 this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
@@ -1619,20 +1625,20 @@ class WebRenderer extends EventTarget$1 {
         // Resources for transitions, explicitly details textures to
         // avoid confusion when crossing boundary between two assets.
         if (transition !== null) {
-            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.asset_id);
             if (typeof from_asset !== "undefined"
                 && from_asset.element !== null
-                && from_asset.id !== this._map1_renderer_asset?.id) {
+                && from_asset.asset_id !== this._map1_renderer_asset?.asset_id) {
                 if (this._map1_renderer_asset !== null) {
                     this._map1_renderer_asset.unref();
                 }
                 from_asset.ref();
                 this._setMap1Asset(from_asset);
             }
-            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.asset_id);
             if (typeof to_asset !== "undefined"
                 && to_asset.element !== null
-                && to_asset.id !== this._map2_renderer_asset?.id) {
+                && to_asset.asset_id !== this._map2_renderer_asset?.asset_id) {
                 if (this._map2_renderer_asset !== null) {
                     this._map2_renderer_asset.unref();
                 }
@@ -1654,7 +1660,7 @@ class WebRenderer extends EventTarget$1 {
                 }
             }
             else if (this._current_renderer_asset.element !== null
-                && this._current_renderer_asset.id !== this._map1_renderer_asset?.id) {
+                && this._current_renderer_asset.asset_id !== this._map1_renderer_asset?.asset_id) {
                 if (this._map1_renderer_asset !== null) {
                     this._map1_renderer_asset.unref();
                 }
@@ -1797,7 +1803,7 @@ class WebRenderer extends EventTarget$1 {
         }
         this._current_renderer_asset.pause();
         this._current_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._renderer_asset_trash.set(this._current_renderer_asset.asset_id, this._current_renderer_asset);
         this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
@@ -1821,10 +1827,10 @@ class WebRenderer extends EventTarget$1 {
         return path !== null;
     }
     _resolveMediaAsset(decl) {
-        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        const existing_asset = this._renderer_asset_cache.get(decl.asset_id);
         if (typeof existing_asset !== "undefined") {
-            if (this._renderer_asset_trash.has(decl.id)) {
-                this._renderer_asset_trash.delete(decl.id);
+            if (this._renderer_asset_trash.has(decl.asset_id)) {
+                this._renderer_asset_trash.delete(decl.asset_id);
             }
             if (existing_asset.is_loading
                 && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
@@ -1842,8 +1848,8 @@ class WebRenderer extends EventTarget$1 {
             href: cached_path,
         };
         const web_asset = this._asset_manager.createWebAsset(resolved_decl);
-        const renderer_asset = new WebRendererAsset(decl.id, web_asset);
-        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        const renderer_asset = new WebRendererAsset(decl.asset_id, web_asset);
+        this._renderer_asset_cache.set(renderer_asset.asset_id, renderer_asset);
         this._networkLoadingRef();
         renderer_asset.is_loading = true;
         renderer_asset.load();
@@ -1864,7 +1870,7 @@ class WebRenderer extends EventTarget$1 {
             throw new Error("undefined next asset.");
         }
         this._next_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._renderer_asset_trash.set(this._next_renderer_asset.asset_id, this._next_renderer_asset);
         this._next_renderer_asset = null;
     }
 }
@@ -4764,7 +4770,8 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
     constructor() {
         super();
         this.src = "";
-        this.src_id = "";
+        this.src_recipe_id = "";
+        this.src_asset_id = "";
         this.src_size = 0;
         this.src_hash = undefined;
         this.src_integrity = "";
@@ -4773,6 +4780,7 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
         this.width = 0;
         this.height = 0;
         this.autoplay = false;
+        this.playing = false;
         this._worker = this._createWorker();
         this._scheduler = wrap(this._worker);
         this._renderer = new NullRenderer();
@@ -4858,16 +4866,17 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
         console.log(changedProperties);
         if (changedProperties.has('src')) {
             if (this.src.length !== 0
-                && this.src_id.length !== 0
+                && this.src_asset_id.length !== 0
                 && this.src_size !== 0
                 && typeof this.src_hash !== "undefined"
                 && this.src_integrity.length !== 0
                 && this.src_md5.length !== 0) {
-                this._onSrc(this.src, this.src_id, this.src_size, this.src_hash, this.src_integrity, this.src_md5);
+                this._onSrc(this.src, this.src_asset_id, this.src_size, this.src_hash, this.src_integrity, this.src_md5);
                 if (this.autoplay
+                    && !this.playing
                     && this.width !== 0
                     && this.height !== 0) {
-                    console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_id})`);
+                    console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_asset_id})`);
                     this.play();
                 }
             }
@@ -4880,11 +4889,11 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
             this._onSize(this.width, this.height);
         }
     }
-    _onSrc(src, id, size, hash, integrity, md5) {
-        console.log(`PLAYLIST: onSrc: ${src} (${id})`);
+    _onSrc(src, asset_id, size, hash, integrity, md5) {
+        console.log(`PLAYLIST: onSrc: ${src} (${asset_id})`);
         (async () => {
             const url = new URL(this.src, window.location.href);
-            await this._scheduler.setSource(url.toString(), id, size, hash, integrity, md5);
+            await this._scheduler.setSource(url.toString(), asset_id, size, hash, integrity, md5);
         })();
     }
     _onViews(views) {
@@ -4897,9 +4906,13 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
     }
     // Explicitly start playback if autoplay is false.
     async play() {
+        if (this.playing) {
+            return;
+        }
         this._prepareNextFrame();
         this._prepareIdleCallback();
         await this._scheduler.play();
+        this.playing = true;
     }
     // Connect the scheduler to the renderer.
     _connectSchedulerToRenderer(scheduler, renderer) {
@@ -4986,8 +4999,11 @@ __decorate$3([
     n({ type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src", void 0);
 __decorate$3([
-    n({ attribute: 'src-id', type: String, reflect: true })
-], WebPlaylistElement.prototype, "src_id", void 0);
+    n({ attribute: 'src-recipe-id', type: String, reflect: true })
+], WebPlaylistElement.prototype, "src_recipe_id", void 0);
+__decorate$3([
+    n({ attribute: 'src-asset-id', type: String, reflect: true })
+], WebPlaylistElement.prototype, "src_asset_id", void 0);
 __decorate$3([
     n({ attribute: 'src-size', type: Number, reflect: true })
 ], WebPlaylistElement.prototype, "src_size", void 0);
@@ -5018,6 +5034,9 @@ __decorate$3([
 __decorate$3([
     e('section')
 ], WebPlaylistElement.prototype, "_section", void 0);
+__decorate$3([
+    r()
+], WebPlaylistElement.prototype, "playing", void 0);
 WebPlaylistElement = __decorate$3([
     t$1('web-play-list')
 ], WebPlaylistElement);
@@ -5113,7 +5132,7 @@ class BrightSignPrefetch extends EventTarget {
         }
         const assets = sources.map(source => {
             return {
-                name: source.id,
+                name: source.asset_id,
                 size: source.size,
                 hash: source.hash,
                 link: source.href,
@@ -5776,8 +5795,8 @@ class ThreeAssetManager {
 
 // vim: tabstop=8 softtabstop=0 noexpandtab shiftwidth=8 nosmarttab
 class WebGLRendererAsset {
-    constructor(id, webgl_asset) {
-        this.id = id;
+    constructor(asset_id, webgl_asset) {
+        this.asset_id = asset_id;
         this.webgl_asset = webgl_asset;
         this.is_loading = false;
         this.has_texture = false;
@@ -5992,7 +6011,7 @@ class WebGLRenderer extends EventTarget {
                 return await this.setSources(scope, decls.map(decl => {
                     return {
                         '@type': decl['@type'],
-                        id: decl.id,
+                        asset_id: decl.asset_id,
                         href: decl.href,
                         size: decl.size,
                         hash: decl.hash,
@@ -6217,11 +6236,11 @@ class WebGLRenderer extends EventTarget {
                 this._current_renderer_asset.ref();
                 console.log("WEBGL-RENDERER: current", this._current_renderer_asset.currentSrc);
             }
-            else if (current.decl.id !== this._current_renderer_asset.id) {
+            else if (current.decl.asset_id !== this._current_renderer_asset.asset_id) {
                 //console.info(current.decl.href, current.remainingTimeMs);
                 this._closeCurrent();
                 if (this._next_renderer_asset !== null
-                    && current.decl.id === this._next_renderer_asset.id) {
+                    && current.decl.asset_id === this._next_renderer_asset.asset_id) {
                     console.log("WEBGL-RENDERER: current <- next");
                     this._current_renderer_asset = await this._updateCurrentFromNext();
                 }
@@ -6260,7 +6279,7 @@ class WebGLRenderer extends EventTarget {
                 this._next_renderer_asset.ref();
                 console.log("WEBGL-RENDERER: next", this._next_renderer_asset.currentSrc);
             }
-            else if (next.decl.id !== this._next_renderer_asset.id) {
+            else if (next.decl.asset_id !== this._next_renderer_asset.asset_id) {
                 this._closeNext();
                 this._next_renderer_asset = this._updateNext(next.decl);
                 this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
@@ -6287,7 +6306,7 @@ class WebGLRenderer extends EventTarget {
         // avoid confusion when crossing boundary between two assets.
         let needs_update = false;
         if (transition !== null) {
-            const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
+            const from_asset = this._renderer_asset_cache.get(transition.from.decl.asset_id);
             if (typeof from_asset !== "undefined"
                 && from_asset.texture !== null
                 && from_asset.texture.uuid !== this._map1_renderer_asset?.texture?.uuid) {
@@ -6300,7 +6319,7 @@ class WebGLRenderer extends EventTarget {
                 this._setMap1Asset(from_asset);
                 needs_update = true;
             }
-            const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
+            const to_asset = this._renderer_asset_cache.get(transition.to.decl.asset_id);
             if (typeof to_asset !== "undefined"
                 && to_asset.texture !== null
                 && to_asset.texture.uuid !== this._map2_renderer_asset?.texture?.uuid) {
@@ -6480,7 +6499,7 @@ class WebGLRenderer extends EventTarget {
         }
         this._current_renderer_asset.pause();
         this._current_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+        this._renderer_asset_trash.set(this._current_renderer_asset.asset_id, this._current_renderer_asset);
         this._current_renderer_asset = null;
     }
     _hasWaitingDuration() {
@@ -6505,10 +6524,10 @@ class WebGLRenderer extends EventTarget {
         return path !== null;
     }
     _resolveMediaAsset(decl) {
-        const existing_asset = this._renderer_asset_cache.get(decl.id);
+        const existing_asset = this._renderer_asset_cache.get(decl.asset_id);
         if (typeof existing_asset !== "undefined") {
-            if (this._renderer_asset_trash.has(decl.id)) {
-                this._renderer_asset_trash.delete(decl.id);
+            if (this._renderer_asset_trash.has(decl.asset_id)) {
+                this._renderer_asset_trash.delete(decl.asset_id);
             }
             if (existing_asset.is_loading
                 && existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
@@ -6526,8 +6545,8 @@ class WebGLRenderer extends EventTarget {
             href: cached_path,
         };
         const three_asset = this._asset_manager.createThreeAsset(resolved_decl);
-        const renderer_asset = new WebGLRendererAsset(decl.id, three_asset);
-        this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+        const renderer_asset = new WebGLRendererAsset(decl.asset_id, three_asset);
+        this._renderer_asset_cache.set(renderer_asset.asset_id, renderer_asset);
         this._networkLoadingRef();
         renderer_asset.is_loading = true;
         renderer_asset.load();
@@ -6548,7 +6567,7 @@ class WebGLRenderer extends EventTarget {
             throw new Error("undefined next asset.");
         }
         this._next_renderer_asset.unref();
-        this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+        this._renderer_asset_trash.set(this._next_renderer_asset.asset_id, this._next_renderer_asset);
         this._next_renderer_asset = null;
     }
     // Assumes new URL.

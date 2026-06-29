@@ -134,7 +134,7 @@ export class LunaRenderer extends EventTarget implements Renderer {
 				return await this.setSources(scope, decls.map(decl => {
 					return {
 						'@type': decl['@type'],
-						id: decl.id,
+						asset_id: decl.asset_id,
 						href: decl.href,
 						size: decl.size,
 						hash: decl.hash,
@@ -310,12 +310,12 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 				this._current_renderer_asset.ref();
 				console.log("LUNA-RENDERER: current", this._current_renderer_asset!.currentSrc);
 			}
-			else if(current.decl.id !== this._current_renderer_asset.id)
+			else if(current.decl.asset_id !== this._current_renderer_asset.asset_id)
 			{
 //console.info(current.decl.href, current.remainingTimeMs);
 				this._closeCurrent();
 				if(this._next_renderer_asset !== null
-					&& current.decl.id === this._next_renderer_asset.id)
+					&& current.decl.asset_id === this._next_renderer_asset.asset_id)
 				{
 					console.log("LUNA-RENDERER: current <- next");
 					this._current_renderer_asset = await this._updateCurrentFromNext();
@@ -355,7 +355,7 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 				this._next_renderer_asset.ref();
 				console.log("LUNA-RENDERER: next", this._next_renderer_asset!.currentSrc);
 			}
-			else if(next.decl.id !== this._next_renderer_asset.id) {
+			else if(next.decl.asset_id !== this._next_renderer_asset.asset_id) {
 				this._closeNext();
 				this._next_renderer_asset = this._updateNext(next.decl);
 				this._next_renderer_asset.end_time = (typeof next.remainingTimeMs === "number") ?
@@ -382,10 +382,10 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 		// Resources for transitions, explicitly details textures to
 		// avoid confusion when crossing boundary between two assets.
 		if(transition !== null) {
-			const from_asset = this._renderer_asset_cache.get(transition.from.decl.id);
+			const from_asset = this._renderer_asset_cache.get(transition.from.decl.asset_id);
 			if(typeof from_asset !== "undefined"
 				&& from_asset.element !== null
-				&& from_asset.id !== this._map1_renderer_asset?.id)
+				&& from_asset.asset_id !== this._map1_renderer_asset?.asset_id)
 			{
 				if(this._map1_renderer_asset !== null) {
 					this._map1_renderer_asset.unref();
@@ -393,10 +393,10 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 				from_asset.ref();
 				this._setMap1Asset(from_asset);
 			}
-			const to_asset = this._renderer_asset_cache.get(transition.to.decl.id);
+			const to_asset = this._renderer_asset_cache.get(transition.to.decl.asset_id);
 			if(typeof to_asset !== "undefined"
 				&& to_asset.element !== null
-				&& to_asset.id !== this._map2_renderer_asset?.id)
+				&& to_asset.asset_id !== this._map2_renderer_asset?.asset_id)
 			{
 				if(this._map2_renderer_asset !== null) {
 					this._map2_renderer_asset.unref();
@@ -417,7 +417,7 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 					this._setMap1Asset(null);
 				}
 			} else if(this._current_renderer_asset.element !== null
-				&& this._current_renderer_asset.id !== this._map1_renderer_asset?.id)
+				&& this._current_renderer_asset.asset_id !== this._map1_renderer_asset?.asset_id)
 			{
 				if(this._map1_renderer_asset !== null) {
 					this._map1_renderer_asset.unref();
@@ -572,7 +572,7 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 		}
 		this._current_renderer_asset.pause();
 		this._current_renderer_asset.unref();
-		this._renderer_asset_trash.set(this._current_renderer_asset.id, this._current_renderer_asset);
+		this._renderer_asset_trash.set(this._current_renderer_asset.asset_id, this._current_renderer_asset);
 		this._current_renderer_asset = null;
 	}
 
@@ -602,10 +602,10 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 	}
 
 	protected _resolveMediaAsset(decl: MediaDecl): LunaRendererAsset {
-		const existing_asset = this._renderer_asset_cache.get(decl.id);
+		const existing_asset = this._renderer_asset_cache.get(decl.asset_id);
 		if(typeof existing_asset !== "undefined") {
-			if(this._renderer_asset_trash.has(decl.id)) {
-				this._renderer_asset_trash.delete(decl.id);
+			if(this._renderer_asset_trash.has(decl.asset_id)) {
+				this._renderer_asset_trash.delete(decl.asset_id);
 			}
 			if(existing_asset.is_loading
 				&& existing_asset.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA)
@@ -624,8 +624,8 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 			href: cached_path,
 		};
 		const luna_asset = this._asset_manager.createLunaAsset(resolved_decl);
-		const renderer_asset = new LunaRendererAsset(decl.id, luna_asset);
-		this._renderer_asset_cache.set(renderer_asset.id, renderer_asset);
+		const renderer_asset = new LunaRendererAsset(decl.asset_id, luna_asset);
+		this._renderer_asset_cache.set(renderer_asset.asset_id, renderer_asset);
 		this._networkLoadingRef();
 		renderer_asset.is_loading = true;
 		renderer_asset.load();
@@ -649,7 +649,7 @@ console.info("LUNA-RENDERER: loaded displacement map", img.src);
 			throw new Error("undefined next asset.");
 		}
 		this._next_renderer_asset.unref();
-		this._renderer_asset_trash.set(this._next_renderer_asset.id, this._next_renderer_asset);
+		this._renderer_asset_trash.set(this._next_renderer_asset.asset_id, this._next_renderer_asset);
 		this._next_renderer_asset = null;
 	}
 }

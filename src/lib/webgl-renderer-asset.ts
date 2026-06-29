@@ -9,7 +9,7 @@ export class WebGLRendererAsset {
 	protected _ref_count = 0;
 
 	constructor(
-		readonly id: string,
+		readonly asset_id: string,
 		public webgl_asset: AbstractThreeAsset,
 	) {}
 
