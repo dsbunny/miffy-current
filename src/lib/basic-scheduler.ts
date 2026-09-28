@@ -14,7 +14,7 @@ import {
 } from 'luxon';
 import * as jsonref from 'jsonref';
 import EventTarget from '@ungap/event-target';
-import { RecipeSchema } from '@dsbunny/publisher-schema';
+import { RecipeSchema } from '@dsbunny/recipe-schema';
 import {
 	Constants,
 	Scheduler,

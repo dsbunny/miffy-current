@@ -1,4 +1,7 @@
 # Changelog
+## v20.0.21
+- Retarget to `@dsbunny/recipe-schema`.
+
 ## v20.0.20
 - Breaking `id` to `asset_id` change for DAM sources to reduce _id_ confusion.
 - Breaking `src-id` to `src-recipe-id` & `src-asset-id` for schedule recipes.
