@@ -41225,7 +41225,7 @@ class BasicScheduler extends EventTarget$1 {
     async _parseRecipe(json) {
         console.groupCollapsed("BASIC-SCHEDULER: _parseRecipe");
         // Parse and validate through ZOD.
-        const recipe = RecipeSchema.Recipe.parse(json);
+        const recipe = RecipeSchema.RecipeSchema.parse(json);
         if ('cluster' in recipe
             && typeof recipe.cluster === 'object'
             && typeof this._join === 'function') {

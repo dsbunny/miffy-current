@@ -1176,7 +1176,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		console.groupCollapsed("BASIC-SCHEDULER: _parseRecipe");
 
 		// Parse and validate through ZOD.
-		const recipe = RecipeSchema.Recipe.parse(json);
+		const recipe = RecipeSchema.RecipeSchema.parse(json);
 
 		if('cluster' in recipe
 			&& typeof recipe.cluster === 'object'
