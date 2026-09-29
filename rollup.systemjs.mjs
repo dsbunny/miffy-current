@@ -5,7 +5,6 @@
 
 import path from 'node:path';
 import includePaths from 'rollup-plugin-includepaths';
-import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import sourcemaps from 'rollup-plugin-sourcemaps';
@@ -79,8 +78,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-	],
+	external: [],
 	output: {
 		file: 'dist/luna.systemjs.js',
 		format: 'esm',
@@ -108,7 +106,7 @@ export default [
 				"subworkers": path.join(process.cwd(), 'node_modules/subworkers/subworkers.js'),
 				"jsonref": path.join(process.cwd(), "node_modules/jsonref/dist/index.js"),
 				"@ungap/event-target": path.join(process.cwd(), 'node_modules/@ungap/event-target/esm/index.js'),
-				"@dsbunny/publisher-schema": path.join(process.cwd(), 'node_modules/@dsbunny/publisher-schema/dist/index.js'),
+				"@dsbunny/recipe-schema": path.join(process.cwd(), 'node_modules/@dsbunny/recipe-schema/dist/index.js'),
 				"rrule": path.join(process.cwd(), "build/third-party/rrule/index.js"),
 				"zod/v4": path.join(process.cwd(), 'third-party/zod/dist/esm/v4/index.js'),
 				'zod/v4/core': path.resolve('third-party/zod/dist/esm/v4/core/index.js'),
@@ -134,8 +132,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-	],
+	external: [],
 	output: {
 		file: 'dist/scheduler.bundle~chrome53.js',
 		format: 'esm',
@@ -182,8 +179,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-	],
+	external: [],
 	output: {
 		file: 'dist/calendar.bundle~chrome53.js',
 		format: 'esm',

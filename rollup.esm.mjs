@@ -9,19 +9,8 @@ import replace from '@rollup/plugin-replace';
 import commonjs from '@rollup/plugin-commonjs';
 import { dts } from "rollup-plugin-dts";
 import copy from 'rollup-plugin-copy';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import summary from 'rollup-plugin-summary';
-
-const common_external = [
-	'@dsbunny/publisher-schema',
-	'@lit/reactive-element',
-	'@webcomponents/webcomponentsjs',
-	'lit',
-	'lit-html',
-	'lit-element',
-	'luxon',
-	'three',
-	'zod/v4',
-];
 
 export default [
 {
@@ -34,6 +23,7 @@ export default [
 		}
 	},
 	plugins: [
+		peerDepsExternal(),
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		commonjs(),
@@ -51,7 +41,6 @@ export default [
 		}),
 		summary(),
 	],
-	external: common_external,
 	output: {
 		file: 'dist/web.bundle.js',
 		format: 'esm',
@@ -63,6 +52,7 @@ export default [
 		'build/src/elements/web-bundle.d.ts',
 	],
 	plugins: [
+		peerDepsExternal(),
 		resolve({
 			moduleDirectories: [
 				'third-party',
@@ -73,7 +63,6 @@ export default [
 		dts(),
 		summary(),
 	],
-	external: common_external,
 	output: {
 		file: 'dist/web.bundle.d.ts',
 		format: 'esm',
@@ -88,6 +77,7 @@ export default [
 		}
 	},
 	plugins: [
+		peerDepsExternal(),
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		commonjs(),
@@ -99,7 +89,6 @@ export default [
 		}),
 		summary(),
 	],
-	external: common_external,
 	output: {
 		file: 'dist/brightsign.bundle.js',
 		format: 'esm',
@@ -111,6 +100,7 @@ export default [
 		'build/src/elements/brightsign-bundle.d.ts',
 	],
 	plugins: [
+		peerDepsExternal(),
 		resolve({
 			moduleDirectories: [
 				'third-party',
@@ -121,7 +111,6 @@ export default [
 		dts(),
 		summary(),
 	],
-	external: common_external,
 	output: {
 		file: 'dist/brightsign.bundle.d.ts',
 		format: 'esm',
@@ -137,6 +126,7 @@ export default [
 		}
 	},
 	plugins: [
+		peerDepsExternal(),
 		sourcemaps(),
 		replace({'Reflect.decorate': 'undefined', preventAssignment: true}),
 		commonjs(),
@@ -148,7 +138,6 @@ export default [
 		}),
 		summary(),
 	],
-	external: common_external,
 	output: {
 		file: 'dist/luna.bundle.js',
 		format: 'esm',
@@ -160,6 +149,7 @@ export default [
 		'build/src/elements/luna-play-list.d.ts',
 	],
 	plugins: [
+		peerDepsExternal(),
 		resolve({
 			moduleDirectories: [
 				'third-party',
@@ -170,7 +160,6 @@ export default [
 		dts(),
 		summary(),
 	],
-	external: common_external,
 	output: {
 		file: 'dist/luna.bundle.d.ts',
 		format: 'esm',
@@ -196,8 +185,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-        ],
+	external: [],
 	output: {
 		file: 'dist/scheduler.bundle.js',
 		format: 'esm',
@@ -225,8 +213,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-        ],
+	external: [],
 	output: {
 		file: 'dist/calendar.bundle.js',
 		format: 'esm',
@@ -254,8 +241,7 @@ export default [
 		}),
 		summary(),
 	],
-	external: [
-        ],
+	external: [],
 	output: {
 		file: 'dist/prefetch.bundle.js',
 		format: 'esm',

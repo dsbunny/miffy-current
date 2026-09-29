@@ -42,6 +42,7 @@
 		"rollup-plugin-copy": "^3.5.0",
 		"rollup-plugin-dts": "^6.2.1",
 		"rollup-plugin-includepaths": "^0.2.4",
+		"rollup-plugin-peer-deps-external": "^2.2.4",
 		"rollup-plugin-sourcemaps": "^0.6.3",
 		"rollup-plugin-summary": "^3.0.1",
 		"typescript": "^5.8.3",
@@ -58,7 +59,7 @@
 	"author": "Steve-o <fnjordy@gmail.com>",
 	"license": "MIT",
 	"private": false,
-	"dependencies": {
+	"peerDependencies": {
 		"@dsbunny/agent-schema": "github:dsbunny/agent-schema#3148376",
 		"@dsbunny/app": "github:dsbunny/app#ad9be66",
 		"@dsbunny/capdb-schema": "github:dsbunny/capdb-schema#169a15a",
@@ -78,9 +79,7 @@
 		"requestidlecallback-polyfill": "^1.0.2",
 		"subworkers": "^1.0.1",
 		"systemjs": "^6.15.1",
-		"three": "^0.176.0"
-	},
-	"peerDependencies": {
-		"zod": "^4.0.0"
+		"three": "^0.176.0",
+		"zod": "^4.3.0"
 	}
 }
