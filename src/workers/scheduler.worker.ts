@@ -64,18 +64,18 @@ Comlink.expose({
 	},
 	setSource(
 		src: string,
-		asset_id: string,
+		expires: string,
 		size: number,
 		hash: HashDecl,
 		integrity: string,
 		md5: string,
 	): void {
-		console.log(`SCHEDULER: ${JSON.stringify({src, asset_id, size, hash, integrity, md5})}`);
+		console.log(`SCHEDULER: ${JSON.stringify({src, expires, size, hash, integrity, md5})}`);
 		scheduler.src_md5 = md5;
 		scheduler.src_integrity = integrity;
 		scheduler.src_hash = hash;
 		scheduler.src_size = size;
-		scheduler.src_asset_id = asset_id;
+		scheduler.src_expires = expires;
 		scheduler.src = src;
 	},
 	// Plural meaning sources of set source.

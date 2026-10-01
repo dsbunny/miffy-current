@@ -32,7 +32,7 @@ interface ScopedMediaDecl {
 interface SchedulerWorker {
     setStatePort(port: MessagePort): void;
     exposeNetwork(join: (decl: any) => Promise<void>, leave: () => Promise<void>): void;
-    setSource(src: string, asset_id: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
+    setSource(src: string, expires: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
     getScopedSources(): ScopedMediaDecl[];
     play(): Promise<void>;
     pause(): void;
@@ -119,7 +119,7 @@ interface Prefetch extends EventTarget {
 declare class WebPlaylistElement extends LitElement {
     src: string;
     src_recipe_id: string;
-    src_asset_id: string;
+    src_expires: string;
     src_size: number;
     src_hash: HashDecl | undefined;
     src_integrity: string;
@@ -159,7 +159,7 @@ declare class WebPlaylistElement extends LitElement {
     }): Renderer;
     firstUpdated(changedProperties: Map<string, any>): void;
     updated(changedProperties: Map<string, any>): void;
-    protected _onSrc(src: string, asset_id: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
+    protected _onSrc(src: string, expires: string, size: number, hash: HashDecl, integrity: string, md5: string): void;
     protected _onViews(views: {
         left: number;
         top: number;

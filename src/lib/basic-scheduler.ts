@@ -516,7 +516,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	mergePlaylist = true;
 
 	protected _src = "";
-	protected _src_asset_id = "";
+	protected _src_expires = "";
 	protected _src_size = 0;
 	protected _src_hash: HashDecl | undefined = undefined;
 	protected _src_integrity = "";
@@ -573,16 +573,16 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		if(this.autoplay
 			&& !this._playing)
 		{
-			console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_asset_id})`);
+			console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_expires})`);
 			(async () => {
 				await this.play();
 			})();
 		}
 	}
 
-	get src_asset_id() { return this._src_asset_id; }
-	set src_asset_id(src_asset_id: string) {
-		this._src_asset_id = src_asset_id;
+	get src_expires() { return this._src_expires; }
+	set src_expires(src_expires: string) {
+		this._src_expires = src_expires;
 	}
 
 	get src_size() { return this._src_size; }
@@ -645,7 +645,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		if(this.paused) {
 			return;
 		}
-		console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_asset_id})`);
+		console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_expires})`);
 		this._paused = true;
 		this.dispatchEvent(new Event('pause'));
 		this._playing = false;
@@ -956,6 +956,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	protected _transitionTo: MediaDecl | null = null;
 	protected _hasInterrupt = false;
 	protected _transitionAssetId: string | undefined;
+	protected _transitionExpires: string | undefined;
 	protected _transitionUrl: string | undefined;
 	protected _transitionSize = 0;
 	protected _transitionHash: HashDecl | undefined;
@@ -997,6 +998,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		this._transitionTo = null;
 		this._hasInterrupt = false;
 		this._transitionAssetId = undefined;
+		this._transitionExpires = undefined;
 		this._transitionUrl = undefined;
 		this._transitionSize = 0;
 		this._transitionHash = undefined;
@@ -1033,7 +1035,8 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				scope: 'schedule',
 				entries: [{
 					'@type': 'Text',
-					asset_id: this._src_asset_id,
+					asset_id: '00000000-0000-0000-0000-000000000000',
+					expires: this._src_expires,
 					href: this._src,
 					size: this._src_size,
 					hash: this._src_hash,
@@ -1057,6 +1060,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 				entries: [{
 					'@type': 'HTMLImageElement',
 					asset_id: this._transitionAssetId,
+					expires: this._transitionExpires,
 					href: this._transitionUrl,
 					size: this._transitionSize,
 					hash: this._transitionHash,
@@ -1202,6 +1206,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		}
 
 		this._transitionAssetId = recipe.transition.asset_id;
+		this._transitionExpires = recipe.transition.expires;
 		this._transitionUrl = recipe.transition.href;
 		this._transitionSize = recipe.transition.size;
 		this._transitionHash = recipe.transition.hash;

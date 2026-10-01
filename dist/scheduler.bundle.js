@@ -40665,7 +40665,7 @@ class BasicScheduler extends EventTarget$1 {
         this.autoplay = true;
         this.mergePlaylist = true;
         this._src = "";
-        this._src_asset_id = "";
+        this._src_expires = "";
         this._src_size = 0;
         this._src_hash = undefined;
         this._src_integrity = "";
@@ -40719,15 +40719,15 @@ class BasicScheduler extends EventTarget$1 {
         }
         if (this.autoplay
             && !this._playing) {
-            console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_asset_id})`);
+            console.log(`BASIC-SCHEDULER: Auto-playing ${this.src} (${this.src_expires})`);
             (async () => {
                 await this.play();
             })();
         }
     }
-    get src_asset_id() { return this._src_asset_id; }
-    set src_asset_id(src_asset_id) {
-        this._src_asset_id = src_asset_id;
+    get src_expires() { return this._src_expires; }
+    set src_expires(src_expires) {
+        this._src_expires = src_expires;
     }
     get src_size() { return this._src_size; }
     set src_size(size) {
@@ -40782,7 +40782,7 @@ class BasicScheduler extends EventTarget$1 {
         if (this.paused) {
             return;
         }
-        console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_asset_id})`);
+        console.log(`BASIC-SCHEDULER: Pausing ${this.src} (${this.src_expires})`);
         this._paused = true;
         this.dispatchEvent(new Event('pause'));
         this._playing = false;
@@ -41085,6 +41085,7 @@ class BasicScheduler extends EventTarget$1 {
         this._transitionTo = null;
         this._hasInterrupt = false;
         this._transitionAssetId = undefined;
+        this._transitionExpires = undefined;
         this._transitionUrl = undefined;
         this._transitionSize = 0;
         this._transitionHash = undefined;
@@ -41117,7 +41118,8 @@ class BasicScheduler extends EventTarget$1 {
                 scope: 'schedule',
                 entries: [{
                         '@type': 'Text',
-                        asset_id: this._src_asset_id,
+                        asset_id: '00000000-0000-0000-0000-000000000000',
+                        expires: this._src_expires,
                         href: this._src,
                         size: this._src_size,
                         hash: this._src_hash,
@@ -41140,6 +41142,7 @@ class BasicScheduler extends EventTarget$1 {
                 entries: [{
                         '@type': 'HTMLImageElement',
                         asset_id: this._transitionAssetId,
+                        expires: this._transitionExpires,
                         href: this._transitionUrl,
                         size: this._transitionSize,
                         hash: this._transitionHash,
@@ -41245,6 +41248,7 @@ class BasicScheduler extends EventTarget$1 {
             this._joined_cluster = undefined;
         }
         this._transitionAssetId = recipe.transition.asset_id;
+        this._transitionExpires = recipe.transition.expires;
         this._transitionUrl = recipe.transition.href;
         this._transitionSize = recipe.transition.size;
         this._transitionHash = recipe.transition.hash;
@@ -41555,13 +41559,13 @@ expose({
     exposeNetwork(join, leave) {
         scheduler.exposeNetwork(join, leave);
     },
-    setSource(src, asset_id, size, hash, integrity, md5) {
-        console.log(`SCHEDULER: ${JSON.stringify({ src, asset_id, size, hash, integrity, md5 })}`);
+    setSource(src, expires, size, hash, integrity, md5) {
+        console.log(`SCHEDULER: ${JSON.stringify({ src, expires, size, hash, integrity, md5 })}`);
         scheduler.src_md5 = md5;
         scheduler.src_integrity = integrity;
         scheduler.src_hash = hash;
         scheduler.src_size = size;
-        scheduler.src_asset_id = asset_id;
+        scheduler.src_expires = expires;
         scheduler.src = src;
     },
     // Plural meaning sources of set source.

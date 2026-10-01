@@ -1,4 +1,7 @@
 # Changelog
+## v21.0.22
+- Replace `src-asset-id` with `src-expires` for recipe expiration datetime.
+
 ## v20.0.21
 - Retarget to `@dsbunny/recipe-schema`.
 

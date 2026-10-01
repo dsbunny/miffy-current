@@ -27,8 +27,8 @@ export class WebPlaylistElement extends LitElement {
 	@property({ attribute: 'src-recipe-id', type: String, reflect: true })
 	src_recipe_id = "";
 
-	@property({ attribute: 'src-asset-id', type: String, reflect: true })
-	src_asset_id = "";
+	@property({ attribute: 'src-expires', type: String, reflect: true })
+	src_expires = "";
 
 	@property({ attribute: 'src-size', type: Number, reflect: true })
 	src_size = 0;
@@ -219,7 +219,6 @@ export class WebPlaylistElement extends LitElement {
 		console.log(changedProperties);
 		if(changedProperties.has('src')) {
 			if(this.src.length !== 0
-				&& this.src_asset_id.length !== 0
 				&& this.src_size !== 0
 				&& typeof this.src_hash !== "undefined"
 				&& this.src_integrity.length !== 0
@@ -227,7 +226,7 @@ export class WebPlaylistElement extends LitElement {
 			{
 				this._onSrc(
 					this.src,
-					this.src_asset_id,
+					this.src_expires,
 					this.src_size,
 					this.src_hash,
 					this.src_integrity,
@@ -238,7 +237,7 @@ export class WebPlaylistElement extends LitElement {
 					&& this.width !== 0
 					&& this.height !== 0)
 				{
-					console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_asset_id})`);
+					console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_expires})`);
 					this.play();
 				}
 			}
@@ -255,18 +254,18 @@ export class WebPlaylistElement extends LitElement {
 
 	protected _onSrc(
 		src: string,
-		asset_id: string,
+		expires: string,
 		size: number,
 		hash: HashDecl,
 		integrity: string,
 		md5: string,
 	): void {
-		console.log(`PLAYLIST: onSrc: ${src} (${asset_id})`);
+		console.log(`PLAYLIST: onSrc: ${src} (${expires})`);
 		(async () => {
 			const url = new URL(this.src, window.location.href);
 			await this._scheduler.setSource(
 				url.toString(),
-				asset_id,
+				expires,
 				size,
 				hash,
 				integrity,

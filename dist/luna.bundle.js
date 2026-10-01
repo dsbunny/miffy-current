@@ -3147,7 +3147,7 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
         super();
         this.src = "";
         this.src_recipe_id = "";
-        this.src_asset_id = "";
+        this.src_expires = "";
         this.src_size = 0;
         this.src_hash = undefined;
         this.src_integrity = "";
@@ -3242,17 +3242,16 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
         console.log(changedProperties);
         if (changedProperties.has('src')) {
             if (this.src.length !== 0
-                && this.src_asset_id.length !== 0
                 && this.src_size !== 0
                 && typeof this.src_hash !== "undefined"
                 && this.src_integrity.length !== 0
                 && this.src_md5.length !== 0) {
-                this._onSrc(this.src, this.src_asset_id, this.src_size, this.src_hash, this.src_integrity, this.src_md5);
+                this._onSrc(this.src, this.src_expires, this.src_size, this.src_hash, this.src_integrity, this.src_md5);
                 if (this.autoplay
                     && !this.playing
                     && this.width !== 0
                     && this.height !== 0) {
-                    console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_asset_id})`);
+                    console.log(`PLAYLIST: Auto-playing ${this.src} (${this.src_expires})`);
                     this.play();
                 }
             }
@@ -3265,11 +3264,11 @@ let WebPlaylistElement = class WebPlaylistElement extends LitElement {
             this._onSize(this.width, this.height);
         }
     }
-    _onSrc(src, asset_id, size, hash, integrity, md5) {
-        console.log(`PLAYLIST: onSrc: ${src} (${asset_id})`);
+    _onSrc(src, expires, size, hash, integrity, md5) {
+        console.log(`PLAYLIST: onSrc: ${src} (${expires})`);
         (async () => {
             const url = new URL(this.src, window.location.href);
-            await this._scheduler.setSource(url.toString(), asset_id, size, hash, integrity, md5);
+            await this._scheduler.setSource(url.toString(), expires, size, hash, integrity, md5);
         })();
     }
     _onViews(views) {
@@ -3378,8 +3377,8 @@ __decorate$1([
     property({ attribute: 'src-recipe-id', type: String, reflect: true })
 ], WebPlaylistElement.prototype, "src_recipe_id", void 0);
 __decorate$1([
-    property({ attribute: 'src-asset-id', type: String, reflect: true })
-], WebPlaylistElement.prototype, "src_asset_id", void 0);
+    property({ attribute: 'src-expires', type: String, reflect: true })
+], WebPlaylistElement.prototype, "src_expires", void 0);
 __decorate$1([
     property({ attribute: 'src-size', type: Number, reflect: true })
 ], WebPlaylistElement.prototype, "src_size", void 0);
