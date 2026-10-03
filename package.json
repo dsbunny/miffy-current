@@ -1,6 +1,6 @@
 {
 	"name": "@dsbunny/miffy-current",
-	"version": "21.0.22",
+	"version": "21.0.23",
 	"description": "Miffy renderer for current browsers",
 	"exports": {
 		"./brightsign": {
@@ -60,11 +60,11 @@
 	"license": "MIT",
 	"private": false,
 	"peerDependencies": {
-		"@dsbunny/agent-schema": "github:dsbunny/agent-schema#3148376",
+		"@dsbunny/agent-schema": "github:dsbunny/agent-schema#0639498",
 		"@dsbunny/app": "github:dsbunny/app#ad9be66",
 		"@dsbunny/capdb-schema": "github:dsbunny/capdb-schema#169a15a",
 		"@dsbunny/raft": "github:dsbunny/raft#6325187",
-		"@dsbunny/recipe-schema": "github:dsbunny/recipe-schema#77d1c17",
+		"@dsbunny/recipe-schema": "github:dsbunny/recipe-schema#000e141",
 		"@dsbunny/rmm-schema": "github:dsbunny/rmm-schema#c888aab",
 		"@dsbunny/rtcmesh": "github:dsbunny/rtcmesh#8cbfb15",
 		"@dsbunny/webossignage": "github:dsbunny/webossignage#8818d31",

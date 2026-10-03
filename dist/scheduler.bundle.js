@@ -36991,6 +36991,8 @@ var RecipeSchema;
             .describe("Type of the HTML element"),
         asset_id: uuid()
             .describe("DAM asset ID of the image"),
+        name: string().min(1).max(100)
+            .describe('The name of the image'),
         href: url().min(20).max(2048)
             .describe("URL of the image"),
         expires: datetime().optional()
@@ -37013,6 +37015,8 @@ var RecipeSchema;
             .describe("Type of the HTML element"),
         asset_id: uuid()
             .describe("DAM asset ID of the video"),
+        name: string().min(1).max(100)
+            .describe('The name of the video'),
         href: url().min(20).max(2048)
             .describe("URL of the video"),
         expires: datetime().optional()
@@ -37035,6 +37039,8 @@ var RecipeSchema;
             .describe("Type of the HTML element"),
         asset_id: uuid()
             .describe("DAM asset ID of the script"),
+        name: string().min(1).max(100)
+            .describe('The name of the script'),
         href: url().min(20).max(2048)
             .describe("URL of the script"),
         expires: datetime().optional()
@@ -37053,6 +37059,8 @@ var RecipeSchema;
             .describe("Type of the custom element"),
         asset_id: uuid()
             .describe("DAM asset ID of the custom element"),
+        name: string().min(1).max(100)
+            .describe('The name of the custom element'),
         href: url().min(20).max(2048)
             .describe("URL of the custom element"),
         expires: datetime().optional()
@@ -37180,6 +37188,8 @@ var RecipeSchema;
             .describe("Type of the transition"),
         asset_id: uuid()
             .describe("DAM asset ID of the transition"),
+        name: string().min(1).max(100)
+            .describe('The name of the transition'),
         href: url().min(20).max(2048)
             .describe("URL of the transition"),
         expires: datetime().optional()

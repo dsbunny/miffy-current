@@ -1,4 +1,7 @@
 # Changelog
+## v21.0.23
+- Bump for `@dsbunny/recipe` adding _asset_ `name` field.
+
 ## v21.0.22
 - Replace `src-asset-id` with `src-expires` for recipe expiration datetime.
 
