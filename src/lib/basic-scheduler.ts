@@ -32,6 +32,7 @@ import {
 	CalendarWorker,
 	CalendarEvent,
 } from '../lib/occurency.js';
+import { getScheduleEntries } from './recurrence-overrides.js';
 
 const MAX_DATE = DateTime.fromJSDate(new Date(8.64e15));
 const MAX_DURATION = Duration.fromMillis(8.64e15);
@@ -137,6 +138,7 @@ interface ScheduledPlaylistMatch {
 export class CalendarSchedule {
 	protected _worker: Worker;
 	protected _calendar: Comlink.Remote<CalendarWorker>;
+	protected readonly _entries: MediaDecl[];
 	protected _lowWatermark: Duration;
 	protected _highWatermark: Duration;
 	protected _queue: CalendarEvent<RecipeSchema.Playlist>[] = [];
@@ -155,6 +157,7 @@ export class CalendarSchedule {
 		lowWatermark: DurationLike,
 		highWatermark: DurationLike,
 	) {
+		this._entries = getScheduleEntries(decl) as MediaDecl[];
 		this._worker = this._workerFactory();
 		this._calendar = Comlink.wrap<CalendarWorker>(this._worker);
 		this._lowWatermark = Duration.fromDurationLike(lowWatermark);
@@ -246,11 +249,15 @@ export class CalendarSchedule {
 		datetime: DateTime,
 	) {
 		console.log(`${this.shortId}: _activate(${datetime.toISO()})`);
+		const start = datetime.toISO();
+		if(start === null) {
+			throw new Error('Cannot activate a schedule with an invalid date.');
+		}
 		await this._calendar.parseSchedule(
 			this.id,
 			{
 				...this.decl,
-				start: datetime.toISO(),
+				start,
 			}
 		);
 		this._isActivated = true;
@@ -276,7 +283,7 @@ export class CalendarSchedule {
 	get isActive() { return this._isReady && this._isActivated; }
 
 	// Forced re-interpretation of Recipe schema to wider type.
-	get entries() { return this.decl.playlist.entries as MediaDecl[]; }
+	get entries() { return this._entries; }
 	get sources(): AssetDecl[] {
 		const hrefs = new Set<AssetDecl>();
 		for(const decl of this.entries) {

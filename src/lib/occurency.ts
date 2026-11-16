@@ -4,12 +4,13 @@
 // https://opensource.org/licenses/MIT.
 
 import { DateTime, Duration, Interval } from 'luxon';
+import type { RecipeSchema } from '@dsbunny/recipe-schema';
 //import { DateTime, Duration, Interval } from '../../external/node_modules/luxon/build/es6/luxon.js';
 import { RRule, Frequency, Weekday } from 'rrule';
 
 export interface CalendarWorker {
-	parseSchedule(parentId: string | null, json: any): void;
-	getEvents(startTime: DateTime, endTime: DateTime): CalendarEvent<any>[];
+	parseSchedule(parentId: string | null, json: RecipeSchema.ScheduledPlaylist): void;
+	getEvents(startTime: DateTime, endTime: DateTime): CalendarEvent<RecipeSchema.Playlist>[];
 	prefetchEvents(startTime: DateTime, endTime: DateTime): void;
 }
 
@@ -198,9 +199,6 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 		if(dateTime < this.start) {
 			return false;
 		}
-		if(dateTime < this.end) {
-			return true;
-		}
 		const events = this.getEventsForDay(dateTime);
 //let i = 1;
 		for(const event of events) {
@@ -253,7 +251,7 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 			events.push(event);
 		};
 		this._getEvents(date.startOf('day'),
-			date.endOf('day'),
+			date.plus({ days: 1 }).startOf('day'),
 			iterator);
 //console.log("events =", JSON.stringify(events));
 		return events;
@@ -277,6 +275,8 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 		// RDATE
 //const t0 = performance.now();
 		const ruleDates = this.recurrence.recurrenceOverrides;
+		const exclusionDates = this.recurrence.excluded
+			? [...ruleDates].sort(compareDateTime) : [];
 		if(!this.recurrence.excluded
 			&& ruleDates.length !== 0)
 		{
@@ -299,11 +299,9 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 //const t2 = performance.now();
 //console.log('RRULE', (t2 - t1) / 1000);
 		// EXDATE
-		if(this.recurrence.excluded
-			&& ruleDates.length !== 0)
-		{
-			exDateIndex = findIndex(ruleDates, last, compareDateTime);
-			exDate = ruleDates[exDateIndex];
+		if(exclusionDates.length !== 0) {
+			exDateIndex = findIndex(exclusionDates, last, compareDateTime);
+			exDate = exclusionDates[exDateIndex] ?? null;
 		}
 //const t3 = performance.now();
 //console.log('EXDATE', (t3 - t2) / 1000);
@@ -329,7 +327,7 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 			ruleDate = ruleDates[++ruleDateIndex];
 		};
 		const getNextExDay = () => {
-			exDate = ruleDates[++exDateIndex];
+			exDate = exclusionDates[++exDateIndex] ?? null;
 		};
 		const getNextOccurrence = (): DateTime | null => {
 			while(true) {
@@ -357,12 +355,11 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 				}
 				// @ts-ignore: Type 'null' is not assignable to type 'DateTime'.
 				last = next;
-				if(exDate !== null) {
-					if(last > exDate) {
-						getNextExDay();
-					} else if(last.equals(exDate)) {
-						continue;
-					}
+				while(exDate !== null && compareDateTime(exDate, last) < 0) {
+					getNextExDay();
+				}
+				if(exDate !== null && compareDateTime(last, exDate) === 0) {
+					continue;
 				}
 				return last;
 			}
@@ -372,8 +369,10 @@ export class CalendarEventSeries<T> extends CalendarEvent<T> {
 		while(last < end) {
 			const occ = getNextOccurrence();
 //console.log("occurrence:", occ && occ.toISO());
-			if(!occ) break;
-			iterator(occ);
+			if(!occ || occ >= end) break;
+			if(occ.plus(this.duration) > start) {
+				iterator(occ);
+			}
 		}
 //console.log("loop end");
 //const t4 = performance.now();
@@ -695,19 +694,32 @@ class RecurrenceRule {
 		// RRule is somewhat broken and silently errors on empty or
 		// undefined options.
 		options['freq'] = RRuleFrequencyFromString(this._frequency);
-		options['dtstart'] = dtstart.toJSDate();
+		const toWallDate = (value: DateTime, zone: string): Date => {
+			const zoned = value.setZone(zone);
+			if(!zoned.isValid) {
+				throw new Error(`Invalid recurrence time zone: ${this._timeZone}.`);
+			}
+			const date = new Date(0);
+			date.setUTCFullYear(zoned.year, zoned.month - 1, zoned.day);
+			date.setUTCHours(zoned.hour, zoned.minute, zoned.second, zoned.millisecond);
+			return date;
+		};
+		const fromWallDate = (date: Date, zone: string): DateTime => DateTime.fromObject({
+			year: date.getUTCFullYear(), month: date.getUTCMonth() + 1,
+			day: date.getUTCDate(), hour: date.getUTCHours(),
+			minute: date.getUTCMinutes(), second: date.getUTCSeconds(),
+			millisecond: date.getUTCMilliseconds(),
+		}, { zone });
+		options['dtstart'] = this._timeZone ? toWallDate(dtstart, this._timeZone) : dtstart.toJSDate();
 		options['interval'] = this._interval;
 		if(this._firstDayOfWeek) {
                         options['wkst'] = RRuleWeekDayFromString(this._firstDayOfWeek);
                 }
-		if(this._times) {
+		if(this._times && !this._timeZone) {
 			options['count'] = this._times;
 		}
-		if(this._until) {
+		if(this._until && !this._timeZone) {
 			options['until'] = this._until.toJSDate();
-		}
-		if(this._timeZone) {
-			options['tzid'] = this._timeZone;
 		}
 		if(this._bySetPosition.length) {
 			options['bysetpos'] = this._bySetPosition;
@@ -751,21 +763,100 @@ class RecurrenceRule {
 			rrule = new RRule(options, true /* no-cache */);
 			rrule._cache = this._cache;
 		}
+		if(this._timeZone && this._times) {
+			const zone = this._timeZone;
+			const limit = this._times;
+			const values: DateTime[] = [];
+			let count = 0;
+			rrule.all((candidate) => {
+				const local = fromWallDate(candidate, zone);
+				if(toWallDate(local, zone).getTime() !== candidate.getTime()) {
+					return true;
+				}
+				let occurrence = local.getPossibleOffsets().reduce((first, next) =>
+					next.toMillis() < first.toMillis() ? next : first, local);
+				if(candidate.getTime() === options['dtstart'].getTime()
+					&& occurrence.toMillis() < dtstart.toMillis())
+				{
+					occurrence = dtstart;
+				}
+				if(this._until && occurrence.toMillis() > this._until.toMillis()) {
+					return false;
+				}
+				count++;
+				if(occurrence.toMillis() > from.toMillis()) {
+					values.push(occurrence);
+				}
+				return count < limit;
+			});
+			let index = 0;
+			let value: DateTime | undefined;
+			let done = false;
+			return {
+				next() {
+					value = values[index++];
+					done = value === undefined;
+				},
+				get value() { return value; },
+				get done() { return done; },
+			};
+		}
 //		console.info(rrule.toString());
-		let date = from.toJSDate();
-		let value: any = undefined;
+		let date: Date | null = this._timeZone ? toWallDate(from, this._timeZone) : from.toJSDate();
+		if(this._timeZone && from.toMillis() < dtstart.toMillis()
+			&& date.getTime() >= options['dtstart'].getTime())
+		{
+			date = new Date(options['dtstart'].getTime() - 1);
+		}
+		let value: DateTime | undefined;
 		let done = false;
 		const next = (): void => {
 			if(date === null) {
 				return;
 			}
 //console.info("rrule.after(", date, ")");
-			date = rrule.after(date);
+			while(true) {
+				date = rrule.after(date);
 //console.group();
 //console.info("date:", date.toISOString());
-			value = (date !== null) ? DateTime.fromJSDate(date) : undefined;
+				if(date === null) {
+					value = undefined;
+				} else if(this._timeZone) {
+					const local = fromWallDate(date, this._timeZone);
+					const normalized = toWallDate(local, this._timeZone).getTime();
+					if(normalized !== date.getTime()) {
+						// Skip the whole nonexistent interval, not one second at a time.
+						let low = date.getTime(), high = normalized;
+						while(high - low > 1000) {
+							const middle = low + Math.floor((high - low) / 2000) * 1000;
+							const candidate = new Date(middle);
+							const resolved = fromWallDate(candidate, this._timeZone);
+							if(toWallDate(resolved, this._timeZone).getTime() === middle) {
+								high = middle;
+							} else {
+								low = middle;
+							}
+						}
+						date = new Date(high - 1);
+						continue;
+					}
+					value = local.getPossibleOffsets().reduce((first, candidate) =>
+						candidate.toMillis() < first.toMillis() ? candidate : first, local);
+					if(date.getTime() === options['dtstart'].getTime() && value.toMillis() < dtstart.toMillis()) {
+						value = dtstart;
+					}
+					if(this._until && value.toMillis() > this._until.toMillis()) {
+						date = null;
+						value = undefined;
+						break;
+					}
+				} else {
+					value = DateTime.fromJSDate(date);
+				}
+				if(date === null || (value && value.toMillis() > from.toMillis())) break;
+			}
 //console.info("value:", value && value.toISO());
-			done = value === null;
+			done = date === null;
 //console.info("done:", done);
 //console.groupEnd();
 		};

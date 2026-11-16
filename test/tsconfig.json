@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"composite": false,
 		"noEmit": true,
-		"lib": ["esnext", "dom", "dom.iterable", "webworker"]
+		"lib": ["esnext", "dom", "dom.iterable", "webworker"],
+		"types": ["node"]
 	},
 	"include": ["**/*.ts", "../src/lib/subworkers.d.ts"],
 	"exclude": []

@@ -35,6 +35,28 @@ currently fails its planned gates: 90% statements and branches overall and
 100% for the scheduling-critical files. Tests use requirement IDs in their
 `describe` comments; see the test names for behaviors still marked TODO.
 
+## Recurrence overrides
+
+`recurrenceOverrides` maps local date-time IDs (without an offset) in the
+scheduled playlist's time zone to patches. `{ "excluded": true }` removes an
+occurrence; `{}` adds an occurrence if the ID is not in the recurrence rule.
+Patches can change `start`, `timeZone`, `duration`, `priority`, or `playlist`
+(including nested playlist properties). Invalid or unsupported patches are
+rejected. For example:
+
+```json
+"recurrenceOverrides": {
+  "2024-01-03T10:00:00": { "excluded": true },
+  "2024-01-04T10:00:00": {},
+  "2024-01-05T10:00:00": { "duration": "PT30M" }
+}
+```
+
+Recurrence rules support frequency, interval, time zone, `times`, and `until`.
+`until` is an inclusive UTC date-time; a rule cannot specify both `times` and
+`until`. Other rule options are not yet supported. Exclusions do not extend
+the count, and explicit override dates can add occurrences beyond either limit.
+
 Via the Scheduler context, enable the "digit1-playlist":
 ```
 self.dispatchEvent(new CustomEvent('keyup', {detail: {code: 'Digit1'}}))

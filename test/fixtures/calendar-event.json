@@ -1,10 +1,16 @@
 {
-	"@type": "Event",
-	"id": "event",
-	"start": "2024-01-01T10:00:00",
+	"@type": "ScheduledPlaylist",
+	"scheduled_playlist_id": "00000000-0000-4000-8000-000000000001",
+	"start": "2024-01-01T10:00:00Z",
 	"timeZone": "UTC",
 	"duration": "PT1H",
 	"priority": 1,
-	"playlist": { "entries": [] },
-	"recurrenceRules": [{ "frequency": "daily", "interval": 2 }]
+	"playlist": {
+		"@type": "Playlist",
+		"playlist_id": "00000000-0000-4000-8000-000000000002",
+		"name": "Test playlist",
+		"tags": [],
+		"entries": []
+	},
+	"recurrenceRules": [{ "@type": "RecurrenceRule", "frequency": "daily", "interval": 2 }]
 }

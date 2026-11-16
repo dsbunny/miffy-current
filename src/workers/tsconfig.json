@@ -6,11 +6,7 @@
 	},
 	"include": [
 		"**/*.ts",
-		"../lib/occurency.ts",
-		"../lib/scheduler.ts",
-		"../lib/*-scheduler.ts",
-		"../lib/media.ts",
-		"../lib/prefetch.ts",
+		"../lib/*.ts",
 		"../../third-party/rrule/**/*.ts"
 	]
 }

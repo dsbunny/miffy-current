@@ -1,4 +1,8 @@
 # Changelog
+## v21.1.24
+- Improve type safety in workers.
+- Add support for calendar exclusions.
+
 ## v21.0.23
 - Bump for `@dsbunny/recipe` adding _asset_ `name` field.
 
