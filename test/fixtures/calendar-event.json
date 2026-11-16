@@ -1,0 +1,10 @@
+{
+	"@type": "Event",
+	"id": "event",
+	"start": "2024-01-01T10:00:00",
+	"timeZone": "UTC",
+	"duration": "PT1H",
+	"priority": 1,
+	"playlist": { "entries": [] },
+	"recurrenceRules": [{ "frequency": "daily", "interval": 2 }]
+}

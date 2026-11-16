@@ -1,0 +1,10 @@
+{
+	"extends": "../common-tsconfig.json",
+	"compilerOptions": {
+		"composite": false,
+		"noEmit": true,
+		"lib": ["esnext", "dom", "dom.iterable", "webworker"]
+	},
+	"include": ["**/*.ts", "../src/lib/subworkers.d.ts"],
+	"exclude": []
+}

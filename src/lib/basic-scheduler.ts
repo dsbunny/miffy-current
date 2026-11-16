@@ -129,7 +129,7 @@ Comlink.transferHandlers.set("DATETIME", DateTimeHandler);
 Comlink.transferHandlers.set("CALENDAREVENT", CalendarEventHandler);
 Comlink.transferHandlers.set("CALENDAREVENTARRAY", CalendarEventArrayHandler);
 
-interface EventMatch {
+interface ScheduledPlaylistMatch {
 	'@type': string;
 	[key: string]: any;
 }
@@ -151,7 +151,7 @@ export class CalendarSchedule {
 	protected _enableListener: any;
 	protected _disableListener: any;
 	constructor(
-		readonly decl: RecipeSchema.Event,
+		readonly decl: RecipeSchema.ScheduledPlaylist,
 		lowWatermark: DurationLike,
 		highWatermark: DurationLike,
 	) {
@@ -162,7 +162,7 @@ export class CalendarSchedule {
 		this._isOnce = this.decl.hasOwnProperty('onceOn');
 		this._isToggle = this.decl.hasOwnProperty('enableOn') && this.decl.hasOwnProperty('disableOn');
 		if(this._isOnce) {
-			const match: EventMatch = this.decl.onceOn!.match;
+			const match: ScheduledPlaylistMatch = this.decl.onceOn!.match;
 			console.log(`${this.shortId}: once schedule: ${JSON.stringify(match)}`);
 			this._onceListener = (event: any) => {
 				console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
@@ -183,8 +183,8 @@ export class CalendarSchedule {
 			};
 			self.addEventListener(this.decl.onceOn!.type, this._onceListener);
 		} else if(this._isToggle) {
-			const matchOn: EventMatch = this.decl.enableOn!.match;
-			const matchOff: EventMatch = this.decl.disableOn!.match;
+			const matchOn: ScheduledPlaylistMatch = this.decl.enableOn!.match;
+			const matchOff: ScheduledPlaylistMatch = this.decl.disableOn!.match;
 			console.log(`${this.shortId}: toggle schedule: ${JSON.stringify(matchOn)}, ${JSON.stringify(matchOff)}`);
 			this._enableListener = (event: any) => {
 				console.log(`${this.shortId}: event ${JSON.stringify(event)}`);
@@ -263,7 +263,7 @@ export class CalendarSchedule {
 		this._isActivated = false;
 	}
 
-	get id() { return this.decl.id; }
+	get id() { return this.decl.scheduled_playlist_id; }
 	get shortId() { return this.id.substring(0, 7); }
 
 	set isReady(
@@ -322,7 +322,7 @@ export class CalendarSchedule {
 	}
 
 	async parseSchedule(
-		decl: RecipeSchema.Event,
+		decl: RecipeSchema.ScheduledPlaylist,
 	): Promise<void> {
 		console.log(`${this.shortId}: parseSchedule`);
 		if(this._isDynamic) {
@@ -550,7 +550,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 	get debugInTransition() { return this._inTransition; }
 
 	protected _schedulerFactory(
-		decl: RecipeSchema.Event,
+		decl: RecipeSchema.ScheduledPlaylist,
 		lowWatermark: DurationLike,
 		highWatermark: DurationLike,
 	): CalendarSchedule {
@@ -1122,7 +1122,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		}
 		let start_offset = Duration.fromMillis(0);
 		for(let i = 0; i < calendar_event.data.entries.length; i++) {
-			const calendar_entry = calendar_event.data.entries[i];
+			const calendar_entry: RecipeSchema.PlaylistEntry = calendar_event.data.entries[i];
 			const end_offset = start_offset.plus({ seconds: calendar_entry.duration });
 			const schedule_entry = new ScheduleItem(calendar_event.id, calendar_entry, start_offset, end_offset);
 			const view = new ScheduleItemView(schedule_entry, media_list_start);
@@ -1222,11 +1222,11 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		for(const schedule of this._calendar_schedules) {
 			running_schedules_by_id.set(schedule.id, schedule);
 		}
-		for(const decl of recipe.schedule) {
-			const calendar_schedule = running_schedules_by_id.get(decl.id);
+		for(const decl of recipe.scheduled_playlists) {
+			const calendar_schedule = running_schedules_by_id.get(decl.scheduled_playlist_id);
 			if(typeof calendar_schedule !== "undefined") {
 				calendar_schedules.push(calendar_schedule);
-				running_schedules_by_id.delete(decl.id);
+				running_schedules_by_id.delete(decl.scheduled_playlist_id);
 			}
 		}
 		trash_stack = trash_stack.concat(Array.from(running_schedules_by_id.values()));
@@ -1236,7 +1236,7 @@ export class BasicScheduler extends EventTarget implements Scheduler {
 		const lowWatermark = { 'seconds': 30 };
 		let highWatermark = { 'seconds': 90 };
 		const t0 = performance.now();
-		for(const decl of recipe.schedule) {
+		for(const decl of recipe.scheduled_playlists) {
 			const schedule = new CalendarSchedule(decl, lowWatermark, highWatermark);
 			promises.push(schedule.parseSchedule(decl));
 			calendar_schedules.push(schedule);

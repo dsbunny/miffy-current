@@ -1,11 +1,10 @@
 {
 	"compilerOptions": {
-		"baseUrl": "./",
 		"target": "esnext",
 		"module": "esnext",
 		"declaration": true,
 		"declarationMap": true,
-		"downlevelIteration": true,
+		"esModuleInterop": true,
 		"sourceMap": true,
 		"inlineSources": true,
 		"outDir": "./build",
@@ -32,12 +31,17 @@
 			}
 		],
 		"paths": {
-			"*": [
-				"./third-party/*"
-			],
+			"@msgpack/msgpack": ["./third-party/@msgpack/msgpack"],
+			"cordova": ["./third-party/cordova"],
+			"cordova-cd": ["./third-party/cordova-cd"],
+			"rrule": ["./third-party/rrule"],
 			"three/addons/*": [
 				"./node_modules/@types/three/examples/jsm/*"
 			]
 		}
-	}
+	},
+	"exclude": [
+		"node_modules",
+		"test"
+	]
 }

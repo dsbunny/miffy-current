@@ -43,9 +43,9 @@ The _playlist_ duration is then non-deterministic, i.e. the duration could be ei
 
 Thus the required configuration is to have two separate _playlist_ declarations, with one having the runtime dynamic state of daylight.
 ```
-"schedule": [
+"scheduled_playlists": [
 	{
-		"@type": "Event",
+		"@type": "ScheduledPlaylist",
 		"id": "76dad720-f36b-4da2-aa29-da90ce6c4297",
 		"priority": 2,
 		"start": "1900-01-01T00:00:00",
@@ -71,7 +71,7 @@ Thus the required configuration is to have two separate _playlist_ declarations,
 			}
 		}
 	}, {
-		"@type": "Event",
+		"@type": "ScheduledPlaylist",
 		"id": "a8d1b7c3-f8ba-482e-9eb1-c034504be17f",
 		"priority": 9,
 		"start": "1900-01-01T00:00:00",
