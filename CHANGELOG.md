@@ -2,6 +2,9 @@
 ## v21.1.24
 - Improve type safety in workers.
 - Add support for calendar exclusions.
+- Change to `pnpm` due to excessive memory usage with `npm`.
+- Update `AppManifest` usage for schema split to `AppManifestSchema`.
+- Include local `Storage` declaration due to importing conflicts.
 
 ## v21.0.23
 - Bump for `@dsbunny/recipe` adding _asset_ `name` field.

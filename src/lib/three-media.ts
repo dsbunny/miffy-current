@@ -4,7 +4,12 @@
 // https://opensource.org/licenses/MIT.
 
 import * as THREE from 'three';
-import { AppBaseParams, AppManifestSchema, AppParams, WebGLApp, WebGLAppConstructor } from '@dsbunny/app';
+import {
+	AppBaseParams,
+	AppManifest,
+	AppManifestSchema,
+	WebGLApp,
+} from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 
 export abstract class AbstractThreeAsset extends EventTarget {
@@ -586,7 +591,7 @@ class ThreeVideoCollection extends ThreeCollection {
 }
 
 class ThreeAppCollection extends ThreeCollection {
-	protected _manifests = new Map<string, AppManifestSchema>();
+	protected _manifests = new Map<string, AppManifest>();
 	protected _fbos: THREE.WebGLRenderTarget[] = [];
 
 	constructor(
@@ -611,7 +616,7 @@ class ThreeAppCollection extends ThreeCollection {
 		return fbo;
 	}
 
-	async importModule(src: string): Promise<AppManifestSchema> {
+	async importModule(src: string): Promise<AppManifest> {
 		let manifest = this._manifests.get(src);
 		if(typeof manifest === 'undefined') {
 			console.log(`import app manifest ... "${src}"`);

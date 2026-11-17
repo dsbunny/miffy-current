@@ -6,46 +6,65 @@
 import type {
 	DownloadFileOptions,
 	DownloadFileStatus,
+	DownloadFileStatusSuccessCallback,
+	DownloadFileSuccessCallback,
 	FileList,
 	FilePath,
 	FileStat,
+	ListFilesSuccessCallback,
 	MD5FilePath,
 	MD5Hash,
+	MD5HashSuccessCallback,
 	RemoveFileOptions,
-	Storage as LunaStorage,
+	ScapFailureCallback,
+	ScapSuccessCallback,
+	StatFileSuccessCallback,
+	Ticket,
 } from "@dsbunny/webossignage/scap";
+
+// SCAP's global Storage conflicts with the DOM Storage declaration.
+declare class Storage {
+	statFile(successCb: StatFileSuccessCallback, failureCb: ScapFailureCallback, options: FilePath): void;
+	removeFile(successCb: ScapSuccessCallback, failureCb: ScapFailureCallback, options: RemoveFileOptions): void;
+	listFiles(successCb: ListFilesSuccessCallback, failureCb: ScapFailureCallback, options: FilePath): void;
+	mkdir(successCb: ScapSuccessCallback, failureCb: ScapFailureCallback, options: FilePath): void;
+	downloadFile(successCb: DownloadFileSuccessCallback, failureCb: ScapFailureCallback, options: DownloadFileOptions): void;
+	getDownloadFileStatus(successCb: DownloadFileStatusSuccessCallback, failureCb: ScapFailureCallback, options: Ticket & { subscribe?: boolean }): void;
+	getMD5Hash(successCb: MD5HashSuccessCallback, failureCb: ScapFailureCallback, options: MD5FilePath): void;
+	fsync(successCb: ScapSuccessCallback, failureCb: ScapFailureCallback, options?: FilePath): void;
+}
 
 export function statFile(options: FilePath) {
 	return new Promise<FileStat>((resolve, reject) => {
-		const storage = new Storage() as unknown as LunaStorage;
+		const storage = new Storage();
 		storage.statFile(resolve, reject, options);
 	});
 }
 
 export function removeFile(options: RemoveFileOptions) {
 	return new Promise<void>((resolve, reject) => {
-		const storage = new Storage() as unknown as LunaStorage;
+		const storage = new Storage();
 		storage.removeFile(resolve, reject, options);
 	});
 }
 
 export function listFiles(options: FilePath) {
 	return new Promise<FileList>((resolve, reject) => {
-		const storage = new Storage() as unknown as LunaStorage;
+		const storage = new Storage();
 		storage.listFiles(resolve, reject, options);
 	});
 }
 
 export function mkdir(options: FilePath) {
 	return new Promise<void>((resolve, reject) => {
-		const storage = new Storage() as unknown as LunaStorage;
+		const storage = new Storage();
 		storage.mkdir(resolve, reject, options);
 	});
 }
 
 // copyFile() with progress.
 export async function downloadFile(options: DownloadFileOptions): Promise<void> {
-	const storage = new Storage() as unknown as LunaStorage;
+	const storage = new Storage();
 	const response: { ticket: number } = await new Promise((resolve, reject) => {
 		storage.downloadFile(resolve, reject, options);
 	});
@@ -84,14 +103,14 @@ console.info(`${JSON.stringify(statusOptions)}`);
 // TBD: Evaluate performance internal and external.
 export function getMD5Hash(options: MD5FilePath) {
 	return new Promise<MD5Hash>((resolve, reject) => {
-		const storage = new Storage() as unknown as LunaStorage;
+		const storage = new Storage();
 		storage.getMD5Hash(resolve, reject, options);
 	});
 }
 
 export function fsync(options?: FilePath) {
 	return new Promise<void>((resolve, reject) => {
-		const storage = new Storage() as unknown as LunaStorage;
+		const storage = new Storage();
 		storage.fsync(resolve, reject, options);
 	});
 }

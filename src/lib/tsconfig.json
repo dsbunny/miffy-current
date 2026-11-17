@@ -1,5 +1,9 @@
 {
 	"extends": "../../common-tsconfig.json",
+	"compilerOptions": {
+		"lib": ["esnext", "DOM", "WebWorker"],
+		"types": ["node"]
+	},
 	"include": [
 		"*.ts",
 		"../workers/**/*.ts",

@@ -4,7 +4,12 @@
 // https://opensource.org/licenses/MIT.
 
 import EventTarget from '@ungap/event-target';
-import { AppBaseParams, AppManifestSchema, LunaApp } from '@dsbunny/app';
+import {
+	AppBaseParams,
+	AppManifest,
+	AppManifestSchema,
+	LunaApp,
+} from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 import { SystemAsyncImport } from './system-async-import.js';
 import "./htmlimageelement-decode-polyfill.js";
@@ -637,7 +642,7 @@ export class LunaVideoCollection extends LunaCollection {
 }
 
 export class LunaAppCollection extends LunaCollection {
-	protected _manifests = new Map<string, AppManifestSchema>();
+	protected _manifests = new Map<string, AppManifest>();
 	protected _roots: HTMLElement[] = [];
 	protected _count = 0;
 
@@ -659,7 +664,7 @@ export class LunaAppCollection extends LunaCollection {
 		return root;
 	}
 
-	async importModule(src: string): Promise<AppManifestSchema> {
+	async importModule(src: string): Promise<AppManifest> {
 		let manifest = this._manifests.get(src);
 		if(typeof manifest === 'undefined') {
 			console.log(`import app manifest ... "${src}"`);

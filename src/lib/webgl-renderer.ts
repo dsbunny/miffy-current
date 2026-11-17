@@ -13,9 +13,8 @@ import {
 	SchedulerAssetTransition,
 } from '../lib/scheduler.js';
 import { AssetDecl, MediaDecl } from './media.js';
-import { ThreeAppAsset, ThreeAssetManager } from './three-media.js';
+import { ThreeAssetManager } from './three-media.js';
 import { Prefetch } from './prefetch.js';
-import { ServiceWorkerPrefetch } from './service-worker-prefetch.js';
 import { WebGLRendererAsset } from './webgl-renderer-asset.js';
 
 const DEBUG_SHOW_DETAIL = true;

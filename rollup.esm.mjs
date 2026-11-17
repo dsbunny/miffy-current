@@ -29,8 +29,8 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		copy({
@@ -55,8 +55,8 @@ export default [
 		peerDepsExternal(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		commonjs(),
@@ -83,8 +83,8 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		summary(),
@@ -103,8 +103,8 @@ export default [
 		peerDepsExternal(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		commonjs(),
@@ -179,8 +179,8 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		summary(),
@@ -207,8 +207,8 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		summary(),
@@ -235,8 +235,8 @@ export default [
 		commonjs(),
 		resolve({
 			moduleDirectories: [
-				'third-party',
 				'node_modules',
+				'third-party',
 			],
 		}),
 		summary(),

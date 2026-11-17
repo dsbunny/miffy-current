@@ -4,7 +4,7 @@
 // https://opensource.org/licenses/MIT.
 
 import EventTarget from '@ungap/event-target';
-import { AppBaseParams, AppManifestSchema, WebApp } from '@dsbunny/app';
+import { AppBaseParams, AppManifest, AppManifestSchema, WebApp } from '@dsbunny/app';
 import { MediaDecl } from './media.js';
 import "./htmlimageelement-decode-polyfill.js";
 
@@ -633,7 +633,7 @@ export class WebVideoCollection extends WebCollection {
 }
 
 export class WebAppCollection extends WebCollection {
-	protected _manifests = new Map<string, AppManifestSchema>();
+	protected _manifests = new Map<string, AppManifest>();
 	protected _roots: HTMLElement[] = [];
 	protected _count = 0;
 
@@ -655,7 +655,7 @@ export class WebAppCollection extends WebCollection {
 		return root;
 	}
 
-	async importModule(src: string): Promise<AppManifestSchema> {
+	async importModule(src: string): Promise<AppManifest> {
 		let manifest = this._manifests.get(src);
 		if(typeof manifest === 'undefined') {
 			console.log(`import app manifest ... "${src}"`);

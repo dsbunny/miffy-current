@@ -1,6 +1,5 @@
 import * as lit from 'lit';
 import { LitElement } from 'lit';
-import * as lit_html from 'lit-html';
 import * as Comlink from 'comlink';
 import EventTarget from '@ungap/event-target';
 
@@ -139,7 +138,7 @@ declare class WebPlaylistElement extends LitElement {
     _section: HTMLElement;
     playing: boolean;
     static styles: lit.CSSResult;
-    render(): lit_html.TemplateResult<1>;
+    render(): lit.TemplateResult<1>;
     protected _worker: Worker;
     protected _scheduler: Comlink.Remote<SchedulerWorker>;
     protected _renderer: Renderer;
