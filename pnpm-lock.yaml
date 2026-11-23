@@ -182,23 +182,23 @@ importers:
         specifier: ^7.27.2
         version: 7.29.14(@babel/core@7.29.13(supports-color@7.2.0))(supports-color@7.2.0)
       '@dsbunny/agent-schema':
-        specifier: github:dsbunny/agent-schema#e3ec469
-        version: https://codeload.github.com/dsbunny/agent-schema/tar.gz/e3ec469fedbf71b6ca0cf8658b21fb0abcc6558e(ea760ee90f6bd2c0abda7c23fbc3c7eb)
+        specifier: github:dsbunny/agent-schema#56bcc92
+        version: https://codeload.github.com/dsbunny/agent-schema/tar.gz/56bcc9239dc71214ad8402a24036ed7edf2dc8e5(2d82e88162ba3e18110eebdb3744dd2e)
       '@dsbunny/app':
         specifier: github:dsbunny/app#e17e2a1
         version: https://codeload.github.com/dsbunny/app/tar.gz/e17e2a13592c2abde33a70a15c5783c92a66341b(@ungap/event-target@0.2.4)(three@0.176.0)(zod@4.6.7)
       '@dsbunny/capdb-schema':
-        specifier: github:dsbunny/capdb-schema#f201031
-        version: https://codeload.github.com/dsbunny/capdb-schema/tar.gz/f2010314cdbde49d434d20fcd5c14d936a979152(@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7))(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
+        specifier: github:dsbunny/capdb-schema#1b76768
+        version: https://codeload.github.com/dsbunny/capdb-schema/tar.gz/1b76768ebbb0635a07cd36d75f6ac25200815367(@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7))(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
       '@dsbunny/raft':
         specifier: github:dsbunny/raft#6325187
         version: raft@https://codeload.github.com/dsbunny/raft/tar.gz/632518742e8b2d6ffc558c3f1dffcb64661c3702
       '@dsbunny/recipe-schema':
-        specifier: github:dsbunny/recipe-schema#774f850
-        version: https://codeload.github.com/dsbunny/recipe-schema/tar.gz/774f85062310ff460f11d5e4f54c020072388925(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
+        specifier: github:dsbunny/recipe-schema#b53b851
+        version: https://codeload.github.com/dsbunny/recipe-schema/tar.gz/b53b8518d63e11078a3c0b1d13d97e7927467b0e(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
       '@dsbunny/rmm-schema':
-        specifier: github:dsbunny/rmm-schema#22aec26
-        version: https://codeload.github.com/dsbunny/rmm-schema/tar.gz/22aec26c4407c74dd0dfc90ecd6de473781177d6(cc7a140c668c94e3d140977f840d91aa)
+        specifier: github:dsbunny/rmm-schema#86e59bd
+        version: https://codeload.github.com/dsbunny/rmm-schema/tar.gz/86e59bdc6fc02325acb6bc8b11fee74155b0ca8c(295b958ece9f42a46dd03150376aee4d)
       '@dsbunny/rtcmesh':
         specifier: github:dsbunny/rtcmesh#8cbfb15
         version: rtcmesh@https://codeload.github.com/dsbunny/rtcmesh/tar.gz/8cbfb15598f3d24b52f0bc3705744c11c2a8e486
@@ -206,8 +206,8 @@ importers:
         specifier: github:dsbunny/webossignage#1300d2c
         version: '@types/webossignage@https://codeload.github.com/dsbunny/webossignage/tar.gz/1300d2cb9aa29c65af56376ce76f1c1787e94115'
       '@dsbunny/zod-registry':
-        specifier: github:dsbunny/zod-registry#35c7ef6
-        version: https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+        specifier: github:dsbunny/zod-registry#0873db4
+        version: https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       '@faker-js/faker':
         specifier: ^10.6.0
         version: 10.6.0
@@ -840,8 +840,8 @@ packages:
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
 
-  '@dsbunny/agent-schema@https://codeload.github.com/dsbunny/agent-schema/tar.gz/e3ec469fedbf71b6ca0cf8658b21fb0abcc6558e':
-    resolution: {gitHosted: true, integrity: sha512-mNoJH4yiB9xYtPN5cz9P1YafFQyvUyWYpH+gw+EjbMwhuBeLbNjiZzEZDp6jfb0r1kcram/AstLRcluNhquwFA==, tarball: https://codeload.github.com/dsbunny/agent-schema/tar.gz/e3ec469fedbf71b6ca0cf8658b21fb0abcc6558e}
+  '@dsbunny/agent-schema@https://codeload.github.com/dsbunny/agent-schema/tar.gz/56bcc9239dc71214ad8402a24036ed7edf2dc8e5':
+    resolution: {gitHosted: true, integrity: sha512-9ff0e0ic9Y6v868deyjPcWvlpowaAWR4CjmX1LcwMK7DpovsxvDQ3XEudXAR1lLwueeg8Jhj0ULP7UCDf76RcQ==, tarball: https://codeload.github.com/dsbunny/agent-schema/tar.gz/56bcc9239dc71214ad8402a24036ed7edf2dc8e5}
     version: 8.0.22
     peerDependencies:
       '@dsbunny/capdb-schema': github:dsbunny/capdb-schema
@@ -858,44 +858,44 @@ packages:
       three: ^0.176.0
       zod: ^4.3.0
 
-  '@dsbunny/capdb-schema@https://codeload.github.com/dsbunny/capdb-schema/tar.gz/f2010314cdbde49d434d20fcd5c14d936a979152':
-    resolution: {gitHosted: true, integrity: sha512-OyXRh2BOZRhdG5lbCxwVVbD7NsTHjStvjqLtxCxP53ya0BfNhEvMUsjjJ4xB8rb6oTNxT3ASpwTSqVcjOsJdQw==, tarball: https://codeload.github.com/dsbunny/capdb-schema/tar.gz/f2010314cdbde49d434d20fcd5c14d936a979152}
+  '@dsbunny/capdb-schema@https://codeload.github.com/dsbunny/capdb-schema/tar.gz/1b76768ebbb0635a07cd36d75f6ac25200815367':
+    resolution: {gitHosted: true, integrity: sha512-JWUoX/H6eauv/LrI3W4shqw9uHlwr9tvtAw0fKzCkFbPxTG924yr0GTPsy0zzhvjUi/c36QmBagoSFsoMAKk/w==, tarball: https://codeload.github.com/dsbunny/capdb-schema/tar.gz/1b76768ebbb0635a07cd36d75f6ac25200815367}
     version: 5.0.9
     peerDependencies:
       '@dsbunny/error-schema': github:dsbunny/error-schema
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.3.0
 
-  '@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6':
-    resolution: {gitHosted: true, integrity: sha512-GTsSbyyXebS5CBtVKgfE+jjVKiNonEe6cuPuayvpUGumdUQRO4EFBRdzir3tvI6xCVrId3vlXI4uNiybnJThxw==, tarball: https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6}
+  '@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38':
+    resolution: {gitHosted: true, integrity: sha512-FNCpnlVlAgyWu2dca8V86kPizZKbkeAh5QlX5qbdGJvn0u2EZAgz43PVKTjzrDrW3AUe6k/arAzo8o8yERpDfw==, tarball: https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38}
     version: 3.0.3
     peerDependencies:
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.0.0
 
-  '@dsbunny/net-schema@https://codeload.github.com/dsbunny/net-schema/tar.gz/7b9cf7400fda316018c07c6e6614c20cd9842571':
-    resolution: {gitHosted: true, integrity: sha512-aOV0vQw7zg1OAHuPJWufggG0I0d+fRCcjHtHSgUh0FwUd3ufX0K6g0bVYFcVcTZhJ+B0X6kKBfK3owPp65+hzA==, tarball: https://codeload.github.com/dsbunny/net-schema/tar.gz/7b9cf7400fda316018c07c6e6614c20cd9842571}
+  '@dsbunny/net-schema@https://codeload.github.com/dsbunny/net-schema/tar.gz/89cb2336b97a7ebaa9bce73a15d5882be05acdda':
+    resolution: {gitHosted: true, integrity: sha512-Amtxmqv6WFlmvkFZxGtDKRU/dnSIAyGQr3Q/5/lZJ83v3rsHkbDFyJEyatOtcn1alof8CtznPvh5AS+YKJApGA==, tarball: https://codeload.github.com/dsbunny/net-schema/tar.gz/89cb2336b97a7ebaa9bce73a15d5882be05acdda}
     version: 1.0.0
     peerDependencies:
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.3.0
 
-  '@dsbunny/patch-schema@https://codeload.github.com/dsbunny/patch-schema/tar.gz/97d795224527b288f859644ccff7cca637b673f8':
-    resolution: {gitHosted: true, integrity: sha512-O1tj1kne7rUTkBCxJlebyZ4qMcBT6chz06LCgNXaXCCs6Q8QnJrFmAA/JU8o9hDrlNA57ojoaopeGcfF2BmXgA==, tarball: https://codeload.github.com/dsbunny/patch-schema/tar.gz/97d795224527b288f859644ccff7cca637b673f8}
+  '@dsbunny/patch-schema@https://codeload.github.com/dsbunny/patch-schema/tar.gz/471966751654626a0ad0276322e91b2a590a2816':
+    resolution: {gitHosted: true, integrity: sha512-EgXhacBazwzpe8a6dnnyHYIc6mVK+lt2J+TWmWBMY0pvq/pFXxLAkVJWZ20iodp7R9yqvJcYD2KP+2Wu+J2K/A==, tarball: https://codeload.github.com/dsbunny/patch-schema/tar.gz/471966751654626a0ad0276322e91b2a590a2816}
     version: 1.0.0
     peerDependencies:
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.3.0
 
-  '@dsbunny/recipe-schema@https://codeload.github.com/dsbunny/recipe-schema/tar.gz/774f85062310ff460f11d5e4f54c020072388925':
-    resolution: {gitHosted: true, integrity: sha512-CmTp0SR77c7XL15AzVDUPpo3/ytMWO4xAMqFjTUNLNwHlXawHIXOqHwOTPGDT1kjwjsMLEb/tS6vit8L8Bq+cg==, tarball: https://codeload.github.com/dsbunny/recipe-schema/tar.gz/774f85062310ff460f11d5e4f54c020072388925}
+  '@dsbunny/recipe-schema@https://codeload.github.com/dsbunny/recipe-schema/tar.gz/b53b8518d63e11078a3c0b1d13d97e7927467b0e':
+    resolution: {gitHosted: true, integrity: sha512-ytWQk9+2sac+EqAghWXJcI0FaQjVcKRyo2U1wuVX2+km/TqoPELVRyD+7sjun6lOMeI9PSz1/pTMRkn7IjOk6A==, tarball: https://codeload.github.com/dsbunny/recipe-schema/tar.gz/b53b8518d63e11078a3c0b1d13d97e7927467b0e}
     version: 5.1.8
     peerDependencies:
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.3.0
 
-  '@dsbunny/rmm-schema@https://codeload.github.com/dsbunny/rmm-schema/tar.gz/22aec26c4407c74dd0dfc90ecd6de473781177d6':
-    resolution: {gitHosted: true, integrity: sha512-cyRp52gkqt6fsOcMyRQp8meNllyhBe4QnfBeOrirgqrod5uiib7aSOSLRXff7AynXy8ISKMOLZcvnnSpo1z/+A==, tarball: https://codeload.github.com/dsbunny/rmm-schema/tar.gz/22aec26c4407c74dd0dfc90ecd6de473781177d6}
+  '@dsbunny/rmm-schema@https://codeload.github.com/dsbunny/rmm-schema/tar.gz/86e59bdc6fc02325acb6bc8b11fee74155b0ca8c':
+    resolution: {gitHosted: true, integrity: sha512-+WGsREDLFb2Tv+oUU04sA63MYjqrlyP+ojQR0csir8X58WJG7KRBEGvoFu0mrZG//cG35wYHslEmpinh9b0QiA==, tarball: https://codeload.github.com/dsbunny/rmm-schema/tar.gz/86e59bdc6fc02325acb6bc8b11fee74155b0ca8c}
     version: 10.0.19
     peerDependencies:
       '@dsbunny/error-schema': github:dsbunny/error-schema
@@ -905,15 +905,15 @@ packages:
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.3.0
 
-  '@dsbunny/webhook-schema@https://codeload.github.com/dsbunny/webhook-schema/tar.gz/dcc50dcda528b5f50a8bce5f9d151ecd9b22dacf':
-    resolution: {gitHosted: true, integrity: sha512-w43EOhWnWbx4+3zqhfk+qdG7LmXwmikoTGj4IJ+/7JVFDQr84qmoLF2xuCRShlVow4bCkPmtlXZrQKqlICEwTw==, tarball: https://codeload.github.com/dsbunny/webhook-schema/tar.gz/dcc50dcda528b5f50a8bce5f9d151ecd9b22dacf}
+  '@dsbunny/webhook-schema@https://codeload.github.com/dsbunny/webhook-schema/tar.gz/545a07633dd1facd58a8a11453dd62f99954f311':
+    resolution: {gitHosted: true, integrity: sha512-Tfyso2rQNK4bnIUTYCwCqBu9ObU2+UvMHkBXHkVsMitnJA1XKavBDFXcyaY7Ajk3JB8OHTbND5kFyd+oBRgQWA==, tarball: https://codeload.github.com/dsbunny/webhook-schema/tar.gz/545a07633dd1facd58a8a11453dd62f99954f311}
     version: 3.0.3
     peerDependencies:
       '@dsbunny/zod-registry': github:dsbunny/zod-registry
       zod: ^4.0.0
 
-  '@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd':
-    resolution: {gitHosted: true, integrity: sha512-JRch9Eqgd27/Wd3u3vFXTJ11KjCbr+8h2Uiw6ORkitAf7vSvRZB1ZCBhIQRTlu3AL96LfmU2iqtNW0HKY1Oh4g==, tarball: https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd}
+  '@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2':
+    resolution: {gitHosted: true, integrity: sha512-r9ZYRl7GcmX3Aw5HIRz5ZtDYv3g0Dmotac7G66wYAjChzBSFdu8kG7zK9/zoE0uzzcBLkGV2crGygqTzItxDyA==, tarball: https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2}
     version: 1.0.0
     peerDependencies:
       zod: ^4.0.0
@@ -2730,12 +2730,12 @@ snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 
-  '@dsbunny/agent-schema@https://codeload.github.com/dsbunny/agent-schema/tar.gz/e3ec469fedbf71b6ca0cf8658b21fb0abcc6558e(ea760ee90f6bd2c0abda7c23fbc3c7eb)':
+  '@dsbunny/agent-schema@https://codeload.github.com/dsbunny/agent-schema/tar.gz/56bcc9239dc71214ad8402a24036ed7edf2dc8e5(2d82e88162ba3e18110eebdb3744dd2e)':
     dependencies:
-      '@dsbunny/capdb-schema': https://codeload.github.com/dsbunny/capdb-schema/tar.gz/f2010314cdbde49d434d20fcd5c14d936a979152(@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7))(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/recipe-schema': https://codeload.github.com/dsbunny/recipe-schema/tar.gz/774f85062310ff460f11d5e4f54c020072388925(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/rmm-schema': https://codeload.github.com/dsbunny/rmm-schema/tar.gz/22aec26c4407c74dd0dfc90ecd6de473781177d6(cc7a140c668c94e3d140977f840d91aa)
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/capdb-schema': https://codeload.github.com/dsbunny/capdb-schema/tar.gz/1b76768ebbb0635a07cd36d75f6ac25200815367(@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7))(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/recipe-schema': https://codeload.github.com/dsbunny/recipe-schema/tar.gz/b53b8518d63e11078a3c0b1d13d97e7927467b0e(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/rmm-schema': https://codeload.github.com/dsbunny/rmm-schema/tar.gz/86e59bdc6fc02325acb6bc8b11fee74155b0ca8c(295b958ece9f42a46dd03150376aee4d)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
   '@dsbunny/app@https://codeload.github.com/dsbunny/app/tar.gz/e17e2a13592c2abde33a70a15c5783c92a66341b(@ungap/event-target@0.2.4)(three@0.176.0)(zod@4.6.7)':
@@ -2744,47 +2744,47 @@ snapshots:
       three: 0.176.0
       zod: 4.6.7
 
-  '@dsbunny/capdb-schema@https://codeload.github.com/dsbunny/capdb-schema/tar.gz/f2010314cdbde49d434d20fcd5c14d936a979152(@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7))(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)':
+  '@dsbunny/capdb-schema@https://codeload.github.com/dsbunny/capdb-schema/tar.gz/1b76768ebbb0635a07cd36d75f6ac25200815367(@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7))(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)':
     dependencies:
-      '@dsbunny/error-schema': https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/error-schema': https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)':
+  '@dsbunny/error-schema@https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)':
     dependencies:
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/net-schema@https://codeload.github.com/dsbunny/net-schema/tar.gz/7b9cf7400fda316018c07c6e6614c20cd9842571(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)':
+  '@dsbunny/net-schema@https://codeload.github.com/dsbunny/net-schema/tar.gz/89cb2336b97a7ebaa9bce73a15d5882be05acdda(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)':
     dependencies:
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/patch-schema@https://codeload.github.com/dsbunny/patch-schema/tar.gz/97d795224527b288f859644ccff7cca637b673f8(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)':
+  '@dsbunny/patch-schema@https://codeload.github.com/dsbunny/patch-schema/tar.gz/471966751654626a0ad0276322e91b2a590a2816(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)':
     dependencies:
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/recipe-schema@https://codeload.github.com/dsbunny/recipe-schema/tar.gz/774f85062310ff460f11d5e4f54c020072388925(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)':
+  '@dsbunny/recipe-schema@https://codeload.github.com/dsbunny/recipe-schema/tar.gz/b53b8518d63e11078a3c0b1d13d97e7927467b0e(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)':
     dependencies:
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/rmm-schema@https://codeload.github.com/dsbunny/rmm-schema/tar.gz/22aec26c4407c74dd0dfc90ecd6de473781177d6(cc7a140c668c94e3d140977f840d91aa)':
+  '@dsbunny/rmm-schema@https://codeload.github.com/dsbunny/rmm-schema/tar.gz/86e59bdc6fc02325acb6bc8b11fee74155b0ca8c(295b958ece9f42a46dd03150376aee4d)':
     dependencies:
-      '@dsbunny/error-schema': https://codeload.github.com/dsbunny/error-schema/tar.gz/ee6c4fee0747fe6cae01f6f0a0f212a1479854c6(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/net-schema': https://codeload.github.com/dsbunny/net-schema/tar.gz/7b9cf7400fda316018c07c6e6614c20cd9842571(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/patch-schema': https://codeload.github.com/dsbunny/patch-schema/tar.gz/97d795224527b288f859644ccff7cca637b673f8(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/webhook-schema': https://codeload.github.com/dsbunny/webhook-schema/tar.gz/dcc50dcda528b5f50a8bce5f9d151ecd9b22dacf(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/error-schema': https://codeload.github.com/dsbunny/error-schema/tar.gz/9f22488371cc920a70ef4cfe94b12148b0c2af38(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/net-schema': https://codeload.github.com/dsbunny/net-schema/tar.gz/89cb2336b97a7ebaa9bce73a15d5882be05acdda(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/patch-schema': https://codeload.github.com/dsbunny/patch-schema/tar.gz/471966751654626a0ad0276322e91b2a590a2816(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/webhook-schema': https://codeload.github.com/dsbunny/webhook-schema/tar.gz/545a07633dd1facd58a8a11453dd62f99954f311(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/webhook-schema@https://codeload.github.com/dsbunny/webhook-schema/tar.gz/dcc50dcda528b5f50a8bce5f9d151ecd9b22dacf(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7))(zod@4.6.7)':
+  '@dsbunny/webhook-schema@https://codeload.github.com/dsbunny/webhook-schema/tar.gz/545a07633dd1facd58a8a11453dd62f99954f311(@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7))(zod@4.6.7)':
     dependencies:
-      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)
+      '@dsbunny/zod-registry': https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)
       zod: 4.6.7
 
-  '@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/35c7ef6201b62a0c844811265f5fa1b007dfa4fd(zod@4.6.7)':
+  '@dsbunny/zod-registry@https://codeload.github.com/dsbunny/zod-registry/tar.gz/0873db4a6e883959ece630d8802afcdab70c00f2(zod@4.6.7)':
     dependencies:
       zod: 4.6.7
 
